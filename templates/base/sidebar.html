@@ -1,0 +1,163 @@
+{% load static %}
+       <!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-inner slimscroll">
+        <div id="sidebar-menu" class="sidebar-menu">
+            <ul>
+                <li class="submenu">
+                <li>
+                    <a href="{% url 'home' %}">
+                        <i class="las la-home"></i>
+                        <span>Tableau de bord</span>
+                    </a>
+                </li>
+                </li>
+
+                <li class="menu-title">
+                    <span>RH</span>
+                </li>
+
+                <li class="submenu">
+                    <a href="#">
+                        <i class="lar la-address-card"></i>
+                        <span> Salariés</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul style="display: none;">
+                        <li><a href="{% url 'liste-employee' %}">Tous les employés</a></li>
+                        <li><a href="{% url 'valider-embauche' %}">Valider une embauche</a></li>
+                        <li><a href="#">Congés</a></li>
+                        <li><a href="#">Heures supplémentaires</a></li>
+                        <li><a href="#">Feuille de temps</a></li>
+                        <li><a href="#">Planification</a></li>
+                        <li><a href="#">Dossier sortie</a></li>
+                        <li><a href="#">Démission</a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="#">
+                        <i class="lar la-clock"></i>
+                        <span>Absence</span>
+                    </a>
+                </li>
+
+                <li class="submenu">
+                    <a href="#">
+                        <i class="las la-project-diagram"></i>
+                        <span> Projets</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul style="display: none;">
+                        <li><a href="#">Projets</a></li>
+                        <li><a href="#">Tableau des tâches</a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="#"><i class="lar la-calendar"></i><span>Calendrier</span></a>
+                </li>
+
+                <li class="menu-title">
+                    <span>LOGISTIQUE</span>
+                </li>
+                <li class="submenu">
+                    <a href="#">
+                        <i class="la la-files-o"></i>
+                        <span> Ventes </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul style="display: none;">
+                        <li><a href="#">Estimations</a></li>
+                        <li><a href="#">Facture</a></li>
+                        <li><a href="#">Paiements</a></li>
+                        <li><a href="#">Dépense</a></li>
+                        <li><a href="#">vente</a></li>
+                        <li><a href="#">Commande</a></li>
+                        <li><a href="#">Taxes</a></li>
+                    </ul>
+                </li>
+
+                <li class="submenu">
+                    <a href="#">
+                        <i class="las la-parking"></i>
+                        <span> Gestion parc auto </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul style="display: none;">
+                        <li><a href="#">Voiture</a></li>
+                        <li><a href="#">Planning</a></li>
+                        <li><a href="#">Entré</a></li>
+                        <li><a href="#">Sortie</a></li>
+                    </ul>
+                </li>
+                <li class="menu-title">
+                    <span>FINANCE & COMPTABILITE</span>
+                </li>
+                <li class="submenu">
+                    <a href="#">
+                        <i class="las la-calculator"></i>
+                        <span> Comptabilité </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul style="display: none;">
+                        <li><a href="#">Catégories</a></li>
+                        <li><a href="#">Budgets</a></li>
+                        <li><a href="#">Dépenses budgétaires</a></li>
+                        <li><a href="#">Recettes budgétaires</a></li>
+                    </ul>
+                </li>
+
+                <li class="submenu">
+                    <a href="#">
+                        <i class="las la-money-bill"></i>
+                        <span> Masse salariale </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul style="display: none;">
+                        <li><a href="#"> Salaire de l'employé </a></li>
+                        <li><a href="#"> Fiche de paie </a></li>
+                        <li><a href="#"> Eléments de paie </a></li>
+                    </ul>
+                </li>
+
+                <li class="submenu">
+                    <a href="#">
+                        <i class="las la-chart-pie"></i>
+                        <span> Rapports </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul style="display: none;">
+                        <li><a href="#"> Rapport de facture </a></li>
+                        <li><a href="#"> Rapport de projet </a></li>
+                        <li><a href="#"> Rapport de fiche de paie </a></li>
+                        <li><a href="#"> Rapport de congé </a></li>
+                    </ul>
+                </li>
+
+                <li class="menu-title">
+                    <span>CRM</span>
+                </li>
+                <li><a href="#"><i class="las la-users"></i> <span>Les clients</span></a></li>
+                <li><a href="#"><i class="las la-truck"></i> <span>Les fournisseurs</span></a></li>
+
+                <li class="menu-title">
+                    <span>APP</span>
+                </li>
+
+                <li class="submenu">
+                    <a href="#">
+                        <i class="las la-cog"></i>
+                        <span> Settings</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul style="display: none;">
+                        <li><a href="#"> Departement </a></li>
+                        <li><a href="#"> Préférence</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+        <!-- /Sidebar -->

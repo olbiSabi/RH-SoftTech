@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<!--Head-->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% comment %}<title>Dashboard - HRMS admin template</title>{% endcomment %}
+    <title>
+        {% block title %} {% endblock %}
+    </title>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/AdminLTELogo.png' %}">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'assets/bootstrap/css/bootstrap.min.css' %}">
+
+
+    <!-- Fontawesome CSS -->
+    <link rel="stylesheet" href="{% static 'assets/css/font-awesome.min.css' %}">
+
+    <!-- Lineawesome CSS -->
+    <link rel="stylesheet" href="{% static 'assets/css/line-awesome.min.css' %}">
+
+    {% block extrastylet %}
+
+    {% endblock %}
+
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+			<script src="{% static 'assets/js/html5shiv.min.js' %}"></script>
+			<script src="{% static 'assets/js/respond.min.js' %}"></script>
+	<![endif]-->
+</head>
+
+
+
+<body>
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+
+        <!--Navbar-->
+        {% include 'base/header.html' %}
+
+        <!--Main Sidebar-->
+        {% include 'base/sidebar.html' %}
+
+        <!-- Page Wrapper -->
+        <div class="page-wrapper">
+
+            {% block pageContent %}
+
+            {% endblock %}
+        </div>
+            <!-- /Page Content -->
+
+            {% block pageWrapper %}
+
+            {% endblock %}
+
+    </div>
+
+
+    {% block extrascript %}
+
+    {% endblock %}
+
+</body>
+</html>

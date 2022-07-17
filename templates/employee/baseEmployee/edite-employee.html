@@ -1,0 +1,182 @@
+{% load static %}
+<!-- Edit Employee Modal -->
+<div id="edit_employee" class="modal custom-modal fade" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modifier l'employé</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Nom <span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" value="Doe">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Prenom <span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" value="John">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="col-form-label">sexe<span class="text-danger">*</span></label>
+                                <select class="select">
+                                    <option value="1">Féminin</option>
+                                    <option value="">Masculin</option>
+                                    <option value="1">Autre</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Date de naissance<span class="text-danger">*</span></label>
+                                <div class="cal-icon"><input class="form-control datetimepicker" type="text"></div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Pays de naissance </label>
+                                <input class="form-control" type="text" value="Togo">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Ville de naissance </label>
+                                <input class="form-control" type="text" value="Lomé">
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="col-form-label" >Type d'identité</label>
+                                <select class="select" >
+                                    <option disabled selected value="1">Type ID</option>
+                                    <option value="1">CNI</option>
+                                    <option value="">Passeport</option>
+                                    <option value="1">autre</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Numéro d'identité</label>
+                                <input class="form-control" type="number" value="254185564">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Date de délivrance</label>
+                                <div class="cal-icon"><input class="form-control datetimepicker" type="text"></div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Date d'expiration></label>
+                                <div class="cal-icon"><input class="form-control datetimepicker" type="text"></div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Nationalité </label>
+                                <input class="form-control" type="text" value="Togolaise">
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Etat matrimonial</label>
+                                <select class="select">
+                                    <option disabled selected value="1">Sélectionnez la Situation</option>
+                                    <option value="">Célibataire</option>
+                                    <option value="1">Mariée</option>
+                                    <option value="1">Veuve</option>
+                                    <option value="1">Divorcée</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Téléphone<span class="text-danger">*</span></label>
+                                <input class="form-control" type="number" value="584558216">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Email</label>
+                                <input class="form-control" type="email" value="johndoe@example.com">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Type de contrat</label>
+                                <select class="select">
+                                    <option disabled selected value="1">Sélectionnez le Contrat</option>
+                                    <option value="">CDI</option>
+                                    <option value="1">CDD</option>
+                                    <option value="1">Stage</option>
+                                    <option value="1">Contractuel </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Poste </label>
+                                <input class="form-control" type="text" value="Web design">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Date d'embauche<span class="text-danger">*</span></label>
+                                <div class="cal-icon"><input class="form-control datetimepicker" type="text"></div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Date de sortie</label>
+                                <div class="cal-icon"><input class="form-control datetimepicker" type="text" value="11/02/2022"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Departement <span class="text-danger">*</span></label>
+                                <select class="select">
+                                    <option value="1">Sélectionnez le département</option>
+                                    <option value="1">Web Development</option>
+                                    <option value="1">IT Management</option>
+                                    <option value="1">Marketing</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Numéro CNSS </label>
+                                <input class="form-control" type="number" value="5482214">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Photo</label>
+                            <input class="form-control" type="file" id="formFile">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Pièce d'identité</label>
+                            <input class="form-control" type="file" id="formFile">
+                        </div>
+                        <div class="submit-section">
+                            <button class="btn btn-primary submit-btn">Sauvegarder</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Edit Employee Modal -->
