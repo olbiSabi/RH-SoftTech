@@ -1,0 +1,332 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block extrastylet %}
+
+    <!-- Select2 CSS -->
+    <link rel="stylesheet" href="{% static 'assets/css/select2.min.css' %}">
+
+    <!-- Datetimepicker CSS -->
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+
+    <!-- Summernote CSS -->
+		<link rel="stylesheet" href="{% static 'assets/plugins/summernote/dist/summernote-bs4.css' %}">
+
+    <!-- Tagsinput CSS -->
+    <link rel="stylesheet" href="{% static 'assets/plugins/bootstrap-tagsinput/bootstrap-tagsinput.css' %}">
+
+
+{% endblock %}
+
+    <!-- Content Body (Page Body) -->
+
+{% block pageContent %}
+
+    <!-- Page Content -->
+    <div class="content container-fluid">
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="row">
+                <div class="col-sm-12">
+                    <h3 class="page-title">Projet</h3>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'home' %}">Tableau de bord</a></li>
+                        <li class="breadcrumb-item active">Projet</li>
+                    </ul>
+                </div>
+                <div class="col-auto float-right ml-auto">
+                    <a href="#" class="btn add-btn" data-toggle="modal" data-target="#create_project"><i class="fa fa-plus"></i> Créer un projet</a>
+                </div>
+            </div>
+        </div>
+        <!-- /Page Header -->
+
+        <!-- Search Filter -->
+        <div class="row filter-row">
+            <div class="col-sm-6 col-md-3">
+                <div class="form-group form-focus">
+                    <input type="text" class="form-control floating">
+                    <label class="focus-label">Nom du projet</label>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="form-group form-focus">
+                    <input type="text" class="form-control floating">
+                    <label class="focus-label">Nom de l'employé</label>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="form-group form-focus select-focus">
+                    <select class="select floating">
+                        <option>Sélectionnez le poste</option>
+                        <option>Web Developer</option>
+                        <option>Web Designer</option>
+                        <option>Android Developer</option>
+                        <option>Ios Developer</option>
+                    </select>
+                    <label class="focus-label">Poste</label>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <a href="#" class="btn btn-success btn-block"> Rechercher </a>
+            </div>
+        </div>
+        <!-- Search Filter -->
+
+        <div class="row">
+            {% include 'projet/baseProjet/vue-projet.html' %}
+
+            {% include 'projet/baseProjet/vue-projet.html' %}
+
+            {% include 'projet/baseProjet/vue-projet.html' %}
+
+            {% include 'projet/baseProjet/vue-projet.html' %}
+        </div>
+    </div>
+
+        <!-- Create Project Modal -->
+    <div id="create_project" class="modal custom-modal fade" role="dialog">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Créer un projet</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Nom du projet</label>
+                                    <input class="form-control" type="text">
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Client</label>
+                                    <select class="select">
+                                        <option>Global Technologies</option>
+                                        <option>Delta Infotech</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Date de début</label>
+                                    <div class="cal-icon">
+                                        <input class="form-control datetimepicker" type="text">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Date de fin</label>
+                                    <div class="cal-icon">
+                                        <input class="form-control datetimepicker" type="text">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Taux</label>
+                                    <input placeholder="$50" class="form-control" type="text">
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <select class="select">
+                                        <option>Horaire</option>
+                                        <option>Fixe</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Priorité</label>
+                                    <select class="select">
+                                        <option>Haut</option>
+                                        <option>Moyen</option>
+                                        <option>Faible</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>chef de projet</label>
+                                    <input class="form-control" type="text">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea rows="4" class="form-control summernote" placeholder="Enter your message here"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Télécharger des Photos</label>
+                            <input class="form-control" type="file" data-show-upload="false" data-show-caption="true" multiple>
+                        </div>
+                        <div class="form-group">
+                            <label>Télécharger des fichiers</label>
+                            <input class="form-control" type="file" data-show-upload="false" data-show-caption="true" multiple>
+                        </div>
+                        <div class="submit-section">
+                                <button class="btn btn-primary submit-btn">Soumettre</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /Create Project Modal -->
+
+    <!-- Edit Project Modal -->
+    <div id="edit_project" class="modal custom-modal fade" role="dialog">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modifier le projet</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Nom du projet</label>
+                                    <input class="form-control" value="Project Management" type="text">
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Client</label>
+                                    <select class="select">
+                                        <option>Global Technologies</option>
+                                        <option>Delta Infotech</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Date de début</label>
+                                    <div class="cal-icon">
+                                        <input class="form-control datetimepicker" type="text">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Date de fin</label>
+                                    <div class="cal-icon">
+                                        <input class="form-control datetimepicker" type="text">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Taux</label>
+                                    <input placeholder="$50" class="form-control" value="$5000" type="text">
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <select class="select">
+                                        <option>Horaire</option>
+                                        <option selected>Fixe</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Priorité</label>
+                                    <select class="select">
+                                        <option selected>Haut</option>
+                                        <option>Moyen</option>
+                                        <option>Faible</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>chef de projet</label>
+                                    <input class="form-control" type="text">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea rows="4" class="form-control" placeholder="Enter your message here"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Télécharger des Photos</label>
+                            <input class="form-control" type="file" data-show-upload="false" data-show-caption="true" multiple>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Télécharger des fichiers</label>
+                            <input class="form-control" type="file" data-show-upload="false" data-show-caption="true" multiple>
+                        </div>
+                        <div class="submit-section">
+                            <button class="btn btn-primary submit-btn">Sauvegarger</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /Edit Project Modal -->
+
+
+{% endblock %}
+
+{% block confirmeDelete %} Supprimer le projet {% endblock %}
+
+{% block extrascript %}
+    <!--JS-->
+    <!-- jQuery -->
+    <script src="{% static 'assets/js/jquery-3.5.1.min.js' %}"></script>
+
+    <!-- Bootstrap Core JS -->
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+
+    <script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
+
+    <!-- Slimscroll JS -->
+    <script src="{% static 'assets/js/jquery.slimscroll.min.js' %}"></script>
+
+    <!-- Chart JS -->
+    <!-- Select2 JS -->
+    <script src="{% static 'assets/js/select2.min.js' %}"></script>
+
+    <!-- Datetimepicker JS -->
+    <script src="{% static 'assets/js/moment.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
+
+    <!-- Summernote JS -->
+		<script src="{% static 'assets/plugins/summernote/dist/summernote-bs4.min.js ' %}"></script>
+
+    <!-- Custom JS -->
+    <script src="{% static 'assets/js/app.js' %}"></script>
+
+{% endblock %}

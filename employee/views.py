@@ -21,8 +21,10 @@ def profileEmployee(request):
     return render(request, "employee/profile-employee.html")
 
 
-# def editer_dossier(request):
-#     return render(request, "employe/editeEmploye.html")
+def projet(request):
+    return render(request, "projet/projets.html")
 
 
+def detailProjet(request):
+    return render(request, "projet/detail-projet.html")
 # Create your views here.

@@ -204,7 +204,7 @@
 																	<a aria-expanded="false" data-toggle="dropdown" class="action-icon dropdown-toggle" href="#"><i class="material-icons">more_vert</i></a>
 																	<div class="dropdown-menu dropdown-menu-right">
 																		<a href="#" class="dropdown-item" data-toggle="modal" data-target="#family_info_modal" ><i class="fa fa-pencil m-r-5" ></i> Edit</a>
-																		<a href="#" class="dropdown-item" data-toggle="modal" data-target="#delete_employee"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
+																		<a href="#" class="dropdown-item" data-toggle="modal" data-target="#delete_confirme"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
 																	</div>
 																</div>
 															</td>
@@ -222,83 +222,10 @@
 						<!-- Projects Tab -->
 						<div class="tab-pane fade" id="emp_projects">
 							<div class="row">
-								<div class="col-lg-4 col-sm-6 col-md-4 col-xl-3">
-									<div class="card">
-										<div class="card-body">
-											<div class="dropdown profile-action">
-												<a aria-expanded="false" data-toggle="dropdown" class="action-icon dropdown-toggle" href="#"><i class="material-icons">more_vert</i></a>
-												<div class="dropdown-menu dropdown-menu-right">
-													<a data-target="#edit_project" data-toggle="modal" href="#" class="dropdown-item"><i class="fa fa-pencil m-r-5"></i> Edit</a>
-													<a data-target="#delete_project" data-toggle="modal" href="#" class="dropdown-item"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
-												</div>
-											</div>
-											<h4 class="project-title"><a href="#">Office Management</a></h4>
-											<p class="text-muted">Lorem Ipsum is simply dummy text of the printing and
-												typesetting industry. When an unknown printer took a galley of type and
-												scrambled it...
-											</p>
-											<div class="pro-deadline m-b-15">
-												<div class="sub-title">
-													Date limite:
-												</div>
-												<div class="text-muted">
-													17 Apr 2019
-												</div>
-											</div>
-											<div class="project-members m-b-15">
-												<div>Chef de projet :</div>
-												<ul class="team-members">
-													<li>
-														<a href="#" data-toggle="tooltip" title="Jeffery Lalor"><img alt="" src="{% static 'assets/img/profiles/avatar-z.jpg' %}"></a>
-													</li>
-												</ul>
-											</div>
-											<p class="m-b-5">Progrès <span class="text-success float-right">40%</span></p>
-											<div class="progress progress-xs mb-0">
-												<div style="width: 40%" title="" data-toggle="tooltip" role="progressbar" class="progress-bar bg-success" data-original-title="40%"></div>
-											</div>
-										</div>
-									</div>
-								</div>
 
-								<div class="col-lg-4 col-sm-6 col-md-4 col-xl-3">
-									<div class="card">
-										<div class="card-body">
-											<div class="dropdown profile-action">
-												<a aria-expanded="false" data-toggle="dropdown" class="action-icon dropdown-toggle" href="#"><i class="material-icons">more_vert</i></a>
-												<div class="dropdown-menu dropdown-menu-right">
-													<a data-target="#edit_project" data-toggle="modal" href="#" class="dropdown-item"><i class="fa fa-pencil m-r-5"></i> Edit</a>
-													<a data-target="#delete_project" data-toggle="modal" href="#" class="dropdown-item"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
-												</div>
-											</div>
-											<h4 class="project-title"><a href="#">Project Management</a></h4>
-											<p class="text-muted">Lorem Ipsum is simply dummy text of the printing and
-												typesetting industry. When an unknown printer took a galley of type and
-												scrambled it...
-											</p>
-											<div class="pro-deadline m-b-15">
-												<div class="sub-title">
-													Date limite:
-												</div>
-												<div class="text-muted">
-													17 Apr 2019
-												</div>
-											</div>
-											<div class="project-members m-b-15">
-												<div>Chef de projet :</div>
-												<ul class="team-members">
-													<li>
-														<a href="#" data-toggle="tooltip" title="Jeffery Lalor"><img alt="" src="{% static 'assets/img/profiles/avatar-x.jpg' %}"></a>
-													</li>
-												</ul>
-											</div>
-											<p class="m-b-5">Progrés <span class="text-success float-right">40%</span></p>
-											<div class="progress progress-xs mb-0">
-												<div style="width: 40%" title="" data-toggle="tooltip" role="progressbar" class="progress-bar bg-success" data-original-title="40%"></div>
-											</div>
-										</div>
-									</div>
-								</div>
+								{% include 'projet/baseProjet/vue-projet.html' %}
+
+                                {% include 'projet/baseProjet/vue-projet.html' %}
 
 							</div>
 						</div>
@@ -553,7 +480,7 @@
 
 										<div class="card">
 											<div class="card-body">
-												<h3 class="card-title">Membre de la famille <a href="javascript:void(0);" class="delete-icon" data-toggle="modal" data-target="#delete_employee"><i class="fa fa-trash-o"></i></a></h3>
+												<h3 class="card-title">Membre de la famille <a href="javascript:void(0);" class="delete-icon" data-toggle="modal" data-target="#delete_confirme"><i class="fa fa-trash-o"></i></a></h3>
 												<div class="row">
 													<div class="col-md-6">
 														<div class="form-group">
@@ -650,12 +577,10 @@
 				</div>
 				<!-- /Emergency Contact Modal -->
 
-                <!-- Delete Employee Modal -->
-                {% include 'base/delete-alert.html' %}
-                <!-- /Delete Employee Modal -->
-
     {% endblock %}
-
+    <!-- Delete Employee Modal -->
+        {% block confirmeDelete %} Supprimer l'info{% endblock %}
+        <!-- /Delete Employee Modal -->
 {% block extrascript %}
     <!--JS-->
     <!-- jQuery -->

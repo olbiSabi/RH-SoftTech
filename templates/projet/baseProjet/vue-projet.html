@@ -1,0 +1,46 @@
+{% load static %}
+<!-- projet tab -->
+<div class="col-lg-4 col-sm-6 col-md-4 col-xl-3">
+    <div class="card">
+        <div class="card-body">
+            <div class="dropdown profile-action">
+                <a aria-expanded="false" data-toggle="dropdown" class="action-icon dropdown-toggle" href="#"><i class="material-icons">more_vert</i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a data-target="#edit_project" data-toggle="modal" href="#" class="dropdown-item"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                    <a data-target="#delete_confirme" data-toggle="modal" href="#" class="dropdown-item"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
+                </div>
+            </div>
+            <h4 class="project-title"><a href="{% url 'detail-projet' %}">Office Management</a></h4>
+            <small class="block text-ellipsis m-b-15">
+                <span class="text-xs">1</span> <span class="text-muted">tâche(s) ouverte(s), </span>
+                <span class="text-xs">9</span> <span class="text-muted">tâche(s) terminée(s)</span>
+            </small>
+            <p class="text-muted">Lorem Ipsum is simply dummy text of the printing and
+                typesetting industry. When an unknown printer took a galley of type and
+                scrambled it...
+            </p>
+            <div class="pro-deadline m-b-15">
+                <div class="sub-title">
+                    Date limite:
+                </div>
+                <div class="text-muted">
+                    17 Apr 2019
+                </div>
+            </div>
+            <div class="project-members m-b-15">
+                <div>Chef de projet :</div>
+                <ul class="team-members">
+                    <li>
+                        <a href="#" data-toggle="tooltip" title="Jeffery Lalor"><img alt="" src="{% static 'assets/img/profiles/avatar-z.jpg' %}"></a>
+                    </li>
+                </ul>
+            </div>
+            <p class="m-b-5">Progrès <span class="text-success float-right">40%</span></p>
+            <div class="progress progress-xs mb-0">
+                <div style="width: 40%" title="" data-toggle="tooltip" role="progressbar"
+                     class="progress-bar bg-success" data-original-title="40%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /projet tab -->
