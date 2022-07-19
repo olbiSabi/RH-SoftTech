@@ -13,12 +13,12 @@ def validerEmbauche(request):
     return render(request, "employee/valider-embauche.html")
 
 
-# def supprimer_dossier(request):
-#     return render(request, "employe/dossierSortie.html")
-#
-#
-# def gestion_absence(request):
-#     return render(request, "employe/gestionAbsence.html")
+def dossierSortie(request):
+    return render(request, "employee/dossier-sortie.html")
+
+
+def profileEmployee(request):
+    return render(request, "employee/profile-employee.html")
 
 
 # def editer_dossier(request):

@@ -26,36 +26,19 @@
             <div class="page-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h3 class="page-title">Valider embauche</h3>
+                        <h3 class="page-title">réintégrer un dossier</h3>
                         <ul class="breadcrumb">
                             <li class="breadcrumb-item"><a href="{% url 'home' %}">Tableau de bord</a></li>
-                            <li class="breadcrumb-item active">Valider embauche</li>
+                            <li class="breadcrumb-item active">réintégrer un dossier</li>
                         </ul>
                     </div>
                 </div>
             </div>
 
-            <!-- Leave Statistics -->
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="stats-info">
-                        <h6>Demandes d'embauche en attente</h6>
-                        <h4>03</h4>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="stats-info">
-                        <h6>Demandes de stagiaires en attente</h6>
-                        <h4>12</h4>
-                    </div>
-                </div>
-            </div>
-            <!-- /Leave Statistics -->
-
             <!-- Search Filter -->
 					<div class="row filter-row padembauche">
 					   <div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 col-12">
-							<a href="#" class="btn btn-success btn-block"> Valider </a>
+							<a href="#" class="btn btn-success btn-block"> réintégrer </a>
 					   </div>
                     </div>
             <!-- /Search Filter -->
@@ -73,8 +56,7 @@
                                 <th>Matricule</th>
                                 <th>Email</th>
                                 <th>Téléphone</th>
-                                <th>Statut</th>
-                                <th></th>
+
                             </tr>
                             </thead>
                             <tbody>
@@ -84,20 +66,13 @@
                                 </td>
                                 <td class=" ">
                                     <h2 class="table-avatar">
-                                        <a href="#" class="avatar"><img alt="" src="{% static 'assets/img/profiles/avatar-02.jpg' %}"></a>
-                                        <a href="#">John Doe <span>Web Designer</span></a>
+                                        <a href="{% url 'profile-employee' %}" class="avatar"><img alt="" src="{% static 'assets/img/profiles/avatar-02.jpg' %}"></a>
+                                        <a href="{% url 'profile-employee' %}">John Doe <span>Web Designer</span></a>
                                     </h2>
                                 </td>
                                 <td>FT-0001</td>
                                 <td>johndoe@example.com</td>
                                 <td>9876543210</td>
-                                <td>En instance</td>
-                                <td>
-                                    <button type="button" class="btn btn-dark"  data-toggle="modal" data-target="#edit_employee">
-                                        <i class="fa fa-eye" aria-hidden="true"></i>
-                                        View
-                                    </button>
-                                </td>
                             </tr>
 
                             <tr class="even pointer">
@@ -106,20 +81,13 @@
                                 </td>
                                 <td class=" ">
                                     <h2 class="table-avatar">
-                                        <a href="#" class="avatar"><img alt="" src="{% static 'assets/img/profiles/avatar-z.jpg' %}"></a>
-                                        <a href="#">Richard Miles <span>Web Developer</span></a>
+                                        <a href="{% url 'profile-employee' %}" class="avatar"><img alt="" src="{% static 'assets/img/profiles/avatar-z.jpg' %}"></a>
+                                        <a href="{% url 'profile-employee' %}">Richard Miles <span>Web Developer</span></a>
                                     </h2>
                                 </td>
                                 <td>FT-0002</td>
                                 <td>richardmiles@example.com</td>
                                 <td>9876543210</td>
-                                <td>En instance</td>
-                                <td>
-                                    <button type="button" class="btn btn-dark"  data-toggle="modal" data-target="#edit_employee">
-                                        <i class="fa fa-eye" aria-hidden="true"></i>
-                                        View
-                                    </button>
-                                </td>
                             </tr>
 
                             <tr class="even pointer">
@@ -128,20 +96,13 @@
                                 </td>
                                 <td class=" ">
                                     <h2 class="table-avatar">
-                                        <a href="#" class="avatar"><img alt="" src="{% static 'assets/img/profiles/avatar-x.jpg' %}"></a>
-                                        <a href="#">John Smith <span>Android Developer</span></a>
+                                        <a href="{% url 'profile-employee' %}" class="avatar"><img alt="" src="{% static 'assets/img/profiles/avatar-x.jpg' %}"></a>
+                                        <a href="{% url 'profile-employee' %}">John Smith <span>Android Developer</span></a>
                                     </h2>
                                 </td>
                                 <td>FT-0003</td>
                                 <td>johnsmith@example.com</td>
                                 <td>9876543210</td>
-                                <td>En instance</td>
-                                <td>
-                                    <button type="button" class="btn btn-dark"  data-toggle="modal" data-target="#edit_employee">
-                                        <i class="fa fa-eye" aria-hidden="true"></i>
-                                        View
-                                    </button>
-                                </td>
                             </tr>
 
                             </tbody>
