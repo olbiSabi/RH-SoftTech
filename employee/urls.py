@@ -8,6 +8,9 @@ urlpatterns = [
     path('valider-embauche/', validerEmbauche, name='valider-embauche'),
     path('dossierSortie/', dossierSortie, name='dossier-sortie'),
     path('profil-employee/', profilEmployee, name='profile-employee'),
-    # path('editer_dossier/', editer_dossier, name='editer-dossier'),
+    path('conges/', conges, name='conges'),
+    path('validerConges/', validerConges, name='valider-conges'),
+    path('feuille-de-temps/', feuilleDeTemps, name='feuilleDeTemps'),
+    path('planification/', planification, name='planification'),
     # path('gestion_absence/', gestion_absence, name='gestion-absence'),
 ]

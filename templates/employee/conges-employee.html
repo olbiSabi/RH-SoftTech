@@ -23,21 +23,46 @@
             <div class="page-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h3 class="page-title">Employés</h3>
+                        <h3 class="page-title">Demande de congés</h3>
                         <ul class="breadcrumb">
                             <li class="breadcrumb-item"><a href="{% url 'home' %}">Tableau de bord</a></li>
-                            <li class="breadcrumb-item active">Employés</li>
+                            <li class="breadcrumb-item active">Demande de congés</li>
                         </ul>
                     </div>
                     <div class="col-auto float-right ml-auto">
-                        <a href="#" class="btn add-btn" data-toggle="modal" data-target="#add_employee"><i class="fa fa-plus"></i> Ajouter un employé</a>
-                        <div class="view-icons">
-                            <a href="{% url 'liste-employee' %}" class="grid-view btn btn-link active"><i class="fa fa-bars"></i></a>
-                            <a href="{% url 'employee' %}" class="list-view btn btn-link "><i class="fa fa-th"></i></a>
-                        </div>
+                        <a href="#" class="btn add-btn" data-toggle="modal" data-target="#add_leave"><i class="fa fa-plus"></i> Ajouter une demande</a>
                     </div>
                 </div>
             </div>
+
+            <!-- Leave Statistics -->
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="stats-info">
+                        <h6>Total demande</h6>
+                        <h4>21</h4>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-info">
+                        <h6>Congé validé</h6>
+                        <h4>12</h4>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-info">
+                        <h6>congé en attente</h6>
+                        <h4>5</h4>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-info">
+                        <h6>Congé de refusé</h6>
+                        <h4>4</h4>
+                    </div>
+                </div>
+            </div>
+            <!-- /Leave Statistics -->
 
 
             <div class="row">
@@ -46,10 +71,11 @@
                         <table id="example" class="table table-striped">
                             <thead>
                             <tr>
-                                <th>Nom</th>
-                                <th>Matricule</th>
-                                <th>Email</th>
-                                <th>Téléphone</th>
+                                <th>Employé</th>
+                                <th>Type de congé</th>
+                                <th>De</th>
+                                <th>Au</th>
+                                <th>nombre de jours</th>
                                 <th>Statut</th>
                                 <th>Actions</th>
                             </tr>
@@ -63,9 +89,10 @@
                                         <a href="{% url 'profile-employee' %}">John Doe <span>Web Designer</span></a>
                                     </h2>
                                 </td>
-                                <td>FT-0001</td>
-                                <td>johndoe@example.com</td>
-                                <td>9876543210</td>
+                                <td>Congé de maladie</td>
+                                <td>8 Mars 2019</td>
+                                <td>9 Mars 2019</td>
+                                <th>1</th>
                                 <td>
                                     <div class="dropdown action-label">
                                         <i class="fa fa-dot-circle-o text-success"></i> Validé
@@ -75,7 +102,7 @@
                                     <div class="dropdown dropdown-action">
                                         <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
                                         <div class="dropdown-menu dropdown-menu-right">
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#edit_employee"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#edit_leave"><i class="fa fa-pencil m-r-5"></i> Edit</a>
                                             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_confirme"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
                                         </div>
                                     </div>
@@ -89,9 +116,10 @@
                                         <a href="{% url 'profile-employee' %}">Richard Miles <span>Web Developer</span></a>
                                     </h2>
                                 </td>
-                                <td>FT-0002</td>
-                                <td>richardmiles@example.com</td>
-                                <td>9876543210</td>
+                                <td>Hospitalisation</td>
+                                <td>15 janvier 2019</td>
+                                <td>25 janvier 2019</td>
+                                <th>10</th>
                                 <td>
                                     <div class="dropdown action-label">
                                         <i class="fa fa-dot-circle-o text-success"></i> Validé
@@ -101,7 +129,7 @@
                                     <div class="dropdown dropdown-action">
                                         <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
                                         <div class="dropdown-menu dropdown-menu-right">
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#edit_employee"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#edit_leave"><i class="fa fa-pencil m-r-5"></i> Edit</a>
                                             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_confirme"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
                                         </div>
                                     </div>
@@ -115,9 +143,10 @@
                                         <a href="{% url 'profile-employee' %}">John Smith <span>Android Developer</span></a>
                                     </h2>
                                 </td>
-                                <td>FT-0003</td>
-                                <td>johnsmith@example.com</td>
-                                <td>9876543210</td>
+                                <td>Congé de maternité</td>
+                                <td>5 janvier 2019</td>
+                                <td>15 janvier 2019</td>
+                                <th>10</th>
                                 <td>
                                     <div class="dropdown action-label">
                                         <i class="fa fa-dot-circle-o text-warning"></i> En attente
@@ -130,7 +159,7 @@
                                            aria-expanded="false"><i class="material-icons">more_vert</i></a>
                                         <div class="dropdown-menu dropdown-menu-right">
                                             <a class="dropdown-item" href="#" data-toggle="modal"
-                                               data-target="#edit_employee"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                               data-target="#edit_leave"><i class="fa fa-pencil m-r-5"></i> Edit</a>
                                             <a class="dropdown-item" href="#" data-toggle="modal"
                                                data-target="#delete_confirme"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
                                         </div>
@@ -145,9 +174,10 @@
                                          <a href="{% url 'profile-employee' %}">Mike Litorus <span>IOS Developer</span></a>
                                      </h2>
                                  </td>
-                                 <td>FT-0004</td>
-                                 <td>mikelitorus@example.com</td>
-                                 <td>9876543210</td>
+                                 <td>Congé occasionnel</td>
+                                 <td>10 janvier 2019</td>
+                                 <td>11 janvier 2019</td>
+                                 <th>1</th>
                                  <td>
                                      <div class="dropdown action-label">
                                         <i class="fa fa-dot-circle-o text-success"></i> Validé
@@ -160,7 +190,7 @@
                                             aria-expanded="false"><i class="material-icons">more_vert</i></a>
                                          <div class="dropdown-menu dropdown-menu-right">
                                              <a class="dropdown-item" href="#" data-toggle="modal"
-                                                data-target="#edit_employee"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                                data-target="#edit_leave"><i class="fa fa-pencil m-r-5"></i> Edit</a>
                                              <a class="dropdown-item" href="#" data-toggle="modal"
                                                 data-target="#delete_confirme"><i class="fa fa-trash-o m-r-5"></i>
                                                  Delete</a>
@@ -176,12 +206,13 @@
                                         <a href="{% url 'profile-employee' %}">Wilmer Deluna <span>Team Leader</span></a>
                                     </h2>
                                 </td>
-                                <td>FT-0005</td>
-                                <td>wilmerdeluna@example.com</td>
-                                <td>9876543210</td>
+                                <td>Congé de paternité</td>
+                                <td>13 Février 2019</td>
+                                <td>17 Février 2019</td>
+                                <td>5</td>
                                 <td>
                                     <div class="dropdown action-label">
-                                        <i class="fa fa-dot-circle-o text-success"></i> Validé
+                                        <i class="fa fa-dot-circle-o text-danger"></i> refusé
                                     </div>
                                 </td>
                                 <td class="text-right">
@@ -190,7 +221,7 @@
                                            aria-expanded="false"><i class="material-icons">more_vert</i></a>
                                         <div class="dropdown-menu dropdown-menu-right">
                                             <a class="dropdown-item" href="#" data-toggle="modal"
-                                               data-target="#edit_employee"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                               data-target="#edit_leave"><i class="fa fa-pencil m-r-5"></i> Edit</a>
                                             <a class="dropdown-item" href="#" data-toggle="modal"
                                                data-target="#delete_confirme"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
                                         </div>
@@ -205,12 +236,13 @@
                                          <a href="{% url 'profile-employee' %}">Jeffrey Warden <span>Web Developer</span></a>
                                      </h2>
                                  </td>
-                                 <td>FT-0006</td>
-                                 <td>jeffreywarden@example.com</td>
-                                 <td>9876543210</td>
+                                 <td>Congé occasionnel</td>
+                                 <td>30 janvier 2019</td>
+                                 <td>31 janvier 2019</td>
+                                 <td>2</td>
                                  <td>
                                      <div class="dropdown action-label">
-                                        <i class="fa fa-dot-circle-o text-warning"></i> En attente
+                                        <i class="fa fa-dot-circle-o text-danger"></i> refusé
                                     </div>
                                  </td>
                                  <td class="text-right">
@@ -219,37 +251,7 @@
                                             aria-expanded="false"><i class="material-icons">more_vert</i></a>
                                          <div class="dropdown-menu dropdown-menu-right">
                                              <a class="dropdown-item" href="#" data-toggle="modal"
-                                                data-target="#edit_employee"><i class="fa fa-pencil m-r-5"></i> Edit</a>
-                                             <a class="dropdown-item" href="#" data-toggle="modal"
-                                                data-target="#delete_confirme"><i class="fa fa-trash-o m-r-5"></i>
-                                                 Delete</a>
-                                         </div>
-                                     </div>
-                                 </td>
-                             </tr>
-
-                             <tr>
-                                 <td>
-                                     <h2 class="table-avatar">
-                                         <a href="{% url 'profile-employee' %}" class="avatar"><img alt="" src="{% static 'assets/img/profiles/avatar-x.jpg' %}"></a>
-                                         <a href="{% url 'profile-employee' %}">Bernardo Galaviz <span>Web Developer</span></a>
-                                     </h2>
-                                 </td>
-                                 <td>FT-0007</td>
-                                 <td>bernardogalaviz@example.com</td>
-                                 <td>9876543210</td>
-                                 <td>
-                                     <div class="dropdown action-label">
-                                        <i class="fa fa-dot-circle-o text-success"></i> Validé
-                                    </div>
-                                 </td>
-                                 <td class="text-right">
-                                     <div class="dropdown dropdown-action">
-                                         <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown"
-                                            aria-expanded="false"><i class="material-icons">more_vert</i></a>
-                                         <div class="dropdown-menu dropdown-menu-right">
-                                             <a class="dropdown-item" href="#" data-toggle="modal"
-                                                data-target="#edit_employee"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                                data-target="#edit_leave"><i class="fa fa-pencil m-r-5"></i> Edit</a>
                                              <a class="dropdown-item" href="#" data-toggle="modal"
                                                 data-target="#delete_confirme"><i class="fa fa-trash-o m-r-5"></i>
                                                  Delete</a>
@@ -263,15 +265,157 @@
                 </div>
             </div>
         </div>
-            <!-- /Page Content -->
+        <!-- /Page Content -->
 
-        {% include 'employee/baseEmployee/add-employee.html' %}
+        <!-- Add Leave Modal -->
+        <div id="add_leave" class="modal custom-modal fade" role="dialog">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Ajouter une demande</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="form-group">
+                                <label>Type de congé <span class="text-danger">*</span></label>
+                                <select class="select">
+                                    <option>Sélectionnez le type de congé</option>
+                                    <option>Congé annuel</option>
+                                    <option>Congé maladie</option>
+                                    <option>Congé maternité</option>
+                                    <option>Congé paternité</option>
+                                    <option>Congé sans solde</option>
+                                    <option>Autre</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-form-label">Matricul</label>
+                                <input class="form-control" type="text">
+                            </div>
 
-        {% include 'employee/baseEmployee/edite-employee.html' %}
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="col-form-label">Nom <span class="text-danger">*</span></label>
+                                        <input class="form-control" type="text">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="col-form-label">Prenom</label>
+                                        <input class="form-control" type="text">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>De<span class="text-danger">*</span></label>
+                                <div class="cal-icon">
+											<input class="form-control datetimepicker" type="text">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Au <span class="text-danger">*</span></label>
+                                <div class="cal-icon">
+                                    <input class="form-control datetimepicker" type="text">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Nombre de jours <span class="text-danger">*</span></label>
+                                <input class="form-control" readonly type="text">
+                            </div>
+                            <div class="form-group">
+                                <label>Laisser un raison</label>
+                                <textarea rows="4" class="form-control"></textarea>
+                            </div>
+                            <div class="submit-section">
+                                <button class="btn btn-primary submit-btn">Soumettre</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Add Leave Modal -->
+
+        <!-- Edit Leave Modal -->
+        <div id="edit_leave" class="modal custom-modal fade" role="dialog">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Ajouter une demande</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="form-group">
+                                <label>Type de congé <span class="text-danger">*</span></label>
+                                <select class="select">
+                                    <option>Sélectionnez le type de congé</option>
+                                    <option>Congé annuel</option>
+                                    <option>Congé maladie</option>
+                                    <option>Congé maternité</option>
+                                    <option selected>Congé paternité</option>
+                                    <option>Congé sans solde</option>
+                                    <option>Autre</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-form-label">Matricul</label>
+                                <input class="form-control" type="text" value="EMP-0002">
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="col-form-label">Nom <span class="text-danger">*</span></label>
+                                        <input class="form-control" type="text" value="Affo">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="col-form-label">Prenom</label>
+                                        <input class="form-control" type="text" value="Obi">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>De<span class="text-danger">*</span></label>
+                                <div class="cal-icon">
+											<input class="form-control datetimepicker" type="text">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Au <span class="text-danger">*</span></label>
+                                <div class="cal-icon">
+                                    <input class="form-control datetimepicker" type="text">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Nombre de jours <span class="text-danger">*</span></label>
+                                <input class="form-control" readonly type="text" value="5">
+                            </div>
+                            <div class="form-group">
+                                <label>Laisser un raison</label>
+                                <textarea rows="4" class="form-control"></textarea>
+                            </div>
+                            <div class="submit-section">
+                                <button class="btn btn-primary submit-btn">Soumettre</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+				<!-- /Edit Leave Modal -->
 
     {% endblock %}
 
- {% block confirmeDelete %} Supprimer l'employé {% endblock %}
+ {% block confirmeDelete %} Supprimer une demande {% endblock %}
 
 {% block extrascript %}
     <!--JS-->

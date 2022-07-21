@@ -21,4 +21,18 @@ def profilEmployee(request):
     return render(request, "employee/profil-employee.html")
 
 
+def conges(request):
+    return render(request, "employee/conges-employee.html")
+
+
+def validerConges(request):
+    return render(request, "employee/valider-conges.html")
+
+
+def feuilleDeTemps(request):
+    return render(request, "employee/feuille-de-temps.html")
+
+
+def planification(request):
+    return render(request, "employee/planification.html")
 # Create your views here.

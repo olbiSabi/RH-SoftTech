@@ -8,18 +8,18 @@ $(document).ready(function() {
 	
 	// Variables declarations
 	
-	let $wrapper = $('.main-wrapper');
-	let $pageWrapper = $('.page-wrapper');
-	let $slimScrolls = $('.slimscroll');
+	var $wrapper = $('.main-wrapper');
+	var $pageWrapper = $('.page-wrapper');
+	var $slimScrolls = $('.slimscroll');
 	
 	// Sidebar
 	
-	let Sidemenu = function() {
+	var Sidemenu = function() {
 		this.$menuItem = $('#sidebar-menu a');
 	};
 	
 	function init() {
-		let $this = Sidemenu;
+		var $this = Sidemenu;
 		$('#sidebar-menu a').on('click', function(e) {
 			if($(this).parent().hasClass('submenu')) {
 				e.preventDefault();
@@ -79,10 +79,10 @@ $(document).ready(function() {
 	// Modal Popup hide show
 
 	if($('.modal').length > 0 ){
-		let modalUniqueClass = ".modal";
+		var modalUniqueClass = ".modal";
 		$('.modal').on('show.bs.modal', function(e) {
-		  let $element = $(this);
-		  let $uniques = $(modalUniqueClass + ':visible').not($(this));
+		  var $element = $(this);
+		  var $uniques = $(modalUniqueClass + ':visible').not($(this));
 		  if ($uniques.length) {
 			$uniques.modal('hide');
 			$uniques.one('hidden.bs.modal', function(e) {
@@ -113,11 +113,11 @@ $(document).ready(function() {
 			wheelStep: 10,
 			touchScrollStep: 100
 		});
-		let wHeight = $(window).height() - 60;
+		var wHeight = $(window).height() - 60;
 		$slimScrolls.height(wHeight);
 		$('.sidebar .slimScrollDiv').height(wHeight);
 		$(window).resize(function() {
-			let rHeight = $(window).height() - 60;
+			var rHeight = $(window).height() - 60;
 			$slimScrolls.height(rHeight);
 			$('.sidebar .slimScrollDiv').height(rHeight);
 		});
@@ -125,10 +125,10 @@ $(document).ready(function() {
 	
 	// Page Content Height
 
-	let pHeight = $(window).height();
+	var pHeight = $(window).height();
 	$pageWrapper.css('min-height', pHeight);
 	$(window).resize(function() {
-		let prHeight = $(window).height();
+		var prHeight = $(window).height();
 		$pageWrapper.css('min-height', prHeight);
 	});
 	
@@ -302,7 +302,7 @@ $(document).ready(function() {
 	$(document).on('mouseover', function(e) {
 		e.stopPropagation();
 		if($('body').hasClass('mini-sidebar') && $('#toggle_btn').is(':visible')) {
-			let targ = $(e.target).closest('.sidebar').length;
+			var targ = $(e.target).closest('.sidebar').length;
 			if(targ) {
 				$('body').addClass('expand-menu');
 				$('.subdrop + ul').slideDown();
@@ -342,4 +342,3 @@ $(window).on ('load', function (){
 	$('#loader').delay(100).fadeOut('slow');
 	$('#loader-wrapper').delay(500).fadeOut('slow');
 });
-
