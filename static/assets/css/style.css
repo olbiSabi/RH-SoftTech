@@ -135,7 +135,12 @@ Version      : 3.6
 }
 
 :root {
-    --hdcol-one: #3a3939;
+    --hdcol-one: #3b3b3b;
+	--add-btn: #4ba6a6;
+	--addBtHover: #4d4d4d;
+	--active-col: #0aee97;
+	--link-activ: #0aee97;
+	--page-link: #da062e;
     --hdcol-sec: #4ba6a6;
     --hover-col: #777777;
 	--body-col: #f7f7f7;
@@ -754,8 +759,8 @@ table.dataTable thead > tr > td.sorting {
 	box-shadow: unset;
 }
 .page-item.active .page-link {
-	background-color: var(--hdcol-one);
-	border-color: var(--hdcol-one);
+	background-color: var(--page-link);
+	border-color: var(--page-link);
 }
 .dropdown-menu {
 	border: 1px solid rgba(0, 0, 0, 0.1);
@@ -1577,8 +1582,8 @@ table.dataTable thead > tr > td.sorting {
     padding: 10px 15px;
 }
 .sidebar-menu ul ul a.active {
-	color: var(--hdcol-one);
-	text-decoration: underline;
+	color: var(--link-activ);
+	text-decoration: none;
 }
 .mobile-user-menu {
     color: #fff;
@@ -1810,8 +1815,8 @@ table.dataTable thead > tr > td.sorting {
 	margin-bottom: 20px;
 }
 .add-btn {
-    background-color: var(--hdcol-one);
-    border: 1px solid var(--hdcol-one);
+    background-color: var(--add-btn);
+    border: 1px solid var(--add-btn);
     border-radius: 50px;
     color: #fff;
     float: right;
@@ -1821,8 +1826,8 @@ table.dataTable thead > tr > td.sorting {
 .add-btn:hover,
 .add-btn:focus,
 .add-btn:active {
-	background-color: var(--hover-col);
-	border: 1px solid var(--hover-col);
+	background-color: var(--addBtHover);
+	border: 1px solid var(--addBtHover);
     color: #fff;
 }
 .add-btn i {
@@ -2220,8 +2225,8 @@ table.dataTable thead > tr > td.sorting {
 .nav-tabs.nav-tabs-solid > li > a.active,
 .nav-tabs.nav-tabs-solid > li > a.active:hover,
 .nav-tabs.nav-tabs-solid > li > a.active:focus {
-	background-color: var(--hdcol-one);
-	border-color: var(--hdcol-one);
+	background-color: var(--active-col);
+	border-color: var(--active-col);
 	color: #fff;
 }
 

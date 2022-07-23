@@ -14,6 +14,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'assets/datatables/DataTables-1.12.1/css/dataTables.bootstrap5.min.css' %}"/>{% endcomment %}
 {% endblock %}
 
+{% block employee %} class="active" {% endblock %}
 <!-- Content Body (Page Body) -->
 
     {% block pageContent %}
@@ -300,7 +301,7 @@
     <script type="text/javascript" src="{% static 'assets/datatables/DataTables-1.12.1/js/dataTables.bootstrap5.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'assets/datatables/AutoFill-2.4.0/js/dataTables.autoFill.min.js' %}"></script>
 
-    <script src="{% static 'plugins/build/js/custom.min.js' %}"></script>
+{#    <script src="{% static 'plugins/build/js/custom.min.js' %}"></script>#}
 
     <!-- Custom JS -->
     <script src="{% static 'assets/js/app.js' %}"></script>

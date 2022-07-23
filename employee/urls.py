@@ -12,5 +12,6 @@ urlpatterns = [
     path('validerConges/', validerConges, name='valider-conges'),
     path('feuille-de-temps/', feuilleDeTemps, name='feuilleDeTemps'),
     path('planification/', planification, name='planification'),
+    path('presence/', presence, name='presence'),
     # path('gestion_absence/', gestion_absence, name='gestion-absence'),
 ]

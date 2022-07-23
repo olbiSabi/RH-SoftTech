@@ -17,6 +17,8 @@
 {#    <link href="{% static 'plugins/build/css/custom.min.css' %}" rel="stylesheet">#}
 {% endblock %}
 
+{% block dossier-sortie %} class="active" {% endblock %}
+
 <!-- Content Body (Page Body) -->
 
     {% block pageContent %}
@@ -26,10 +28,10 @@
             <div class="page-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h3 class="page-title">réintégrer un dossier</h3>
+                        <h3 class="page-title">Dossier sortie</h3>
                         <ul class="breadcrumb">
                             <li class="breadcrumb-item"><a href="{% url 'home' %}">Tableau de bord</a></li>
-                            <li class="breadcrumb-item active">réintégrer un dossier</li>
+                            <li class="breadcrumb-item active">Dossier sortie</li>
                         </ul>
                     </div>
                 </div>
@@ -146,7 +148,7 @@
     <script type="text/javascript" src="{% static 'assets/datatables/AutoFill-2.4.0/js/dataTables.autoFill.min.js' %}"></script>
 
     <script type="text/javascript" src="{% static 'plugins/iCheck/icheck.min.js' %}"></script>
-    <script src="{% static 'plugins/build/js/custom.min.js' %}"></script>
+{#    <script src="{% static 'plugins/build/js/custom.min.js' %}"></script>#}
     <!-- Custom JS -->
     <script src="{% static 'assets/js/app.js' %}"></script>
 

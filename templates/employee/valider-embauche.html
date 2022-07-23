@@ -17,6 +17,7 @@
 {#    <link href="{% static 'plugins/build/css/custom.min.css' %}" rel="stylesheet">#}
 {% endblock %}
 
+{% block valideEmbauche %} class="active" {% endblock %}
 <!-- Content Body (Page Body) -->
 
     {% block pageContent %}
@@ -185,7 +186,7 @@
     <script type="text/javascript" src="{% static 'assets/datatables/AutoFill-2.4.0/js/dataTables.autoFill.min.js' %}"></script>
 
     <script type="text/javascript" src="{% static 'plugins/iCheck/icheck.min.js' %}"></script>
-    <script src="{% static 'plugins/build/js/custom.min.js' %}"></script>
+{#    <script src="{% static 'plugins/build/js/custom.min.js' %}"></script>#}
     <!-- Custom JS -->
     <script src="{% static 'assets/js/app.js' %}"></script>
 

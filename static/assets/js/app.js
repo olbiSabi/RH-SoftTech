@@ -6,20 +6,20 @@ Version      : 3.6
 
 $(document).ready(function() {
 	
-	// Variables declarations
+	// letiables declarations
 	
-	var $wrapper = $('.main-wrapper');
-	var $pageWrapper = $('.page-wrapper');
-	var $slimScrolls = $('.slimscroll');
+	let $wrapper = $('.main-wrapper');
+	let $pageWrapper = $('.page-wrapper');
+	let $slimScrolls = $('.slimscroll');
 	
 	// Sidebar
 	
-	var Sidemenu = function() {
+	let Sidemenu = function() {
 		this.$menuItem = $('#sidebar-menu a');
 	};
 	
 	function init() {
-		var $this = Sidemenu;
+		let $this = Sidemenu;
 		$('#sidebar-menu a').on('click', function(e) {
 			if($(this).parent().hasClass('submenu')) {
 				e.preventDefault();
@@ -79,10 +79,10 @@ $(document).ready(function() {
 	// Modal Popup hide show
 
 	if($('.modal').length > 0 ){
-		var modalUniqueClass = ".modal";
+		let modalUniqueClass = ".modal";
 		$('.modal').on('show.bs.modal', function(e) {
-		  var $element = $(this);
-		  var $uniques = $(modalUniqueClass + ':visible').not($(this));
+		  let $element = $(this);
+		  let $uniques = $(modalUniqueClass + ':visible').not($(this));
 		  if ($uniques.length) {
 			$uniques.modal('hide');
 			$uniques.one('hidden.bs.modal', function(e) {
@@ -113,11 +113,11 @@ $(document).ready(function() {
 			wheelStep: 10,
 			touchScrollStep: 100
 		});
-		var wHeight = $(window).height() - 60;
+		let wHeight = $(window).height() - 60;
 		$slimScrolls.height(wHeight);
 		$('.sidebar .slimScrollDiv').height(wHeight);
 		$(window).resize(function() {
-			var rHeight = $(window).height() - 60;
+			let rHeight = $(window).height() - 60;
 			$slimScrolls.height(rHeight);
 			$('.sidebar .slimScrollDiv').height(rHeight);
 		});
@@ -125,10 +125,10 @@ $(document).ready(function() {
 	
 	// Page Content Height
 
-	var pHeight = $(window).height();
+	let pHeight = $(window).height();
 	$pageWrapper.css('min-height', pHeight);
 	$(window).resize(function() {
-		var prHeight = $(window).height();
+		let prHeight = $(window).height();
 		$pageWrapper.css('min-height', prHeight);
 	});
 	
@@ -235,7 +235,7 @@ $(document).ready(function() {
 	});
 	
 	$(document).on('change', '.leave-box .onoffswitch-checkbox', function() {
-		var id = $(this).attr('id').split('_')[1];
+		let id = $(this).attr('id').split('_')[1];
 		if ($(this).prop("checked") == true) {
 			$("#leave_"+id+" .leave-edit-btn").prop('disabled', false);
 			$("#leave_"+id+" .leave-action .btn").prop('disabled', false);
@@ -250,7 +250,7 @@ $(document).ready(function() {
 	});
 	
 	$('.leave-box .onoffswitch-checkbox').each(function() {
-		var id = $(this).attr('id').split('_')[1];
+		let id = $(this).attr('id').split('_')[1];
 		if ($(this).prop("checked") == true) {
 			$("#leave_"+id+" .leave-edit-btn").prop('disabled', false);
 			$("#leave_"+id+" .leave-action .btn").prop('disabled', false);
@@ -302,7 +302,7 @@ $(document).ready(function() {
 	$(document).on('mouseover', function(e) {
 		e.stopPropagation();
 		if($('body').hasClass('mini-sidebar') && $('#toggle_btn').is(':visible')) {
-			var targ = $(e.target).closest('.sidebar').length;
+			let targ = $(e.target).closest('.sidebar').length;
 			if(targ) {
 				$('body').addClass('expand-menu');
 				$('.subdrop + ul').slideDown();

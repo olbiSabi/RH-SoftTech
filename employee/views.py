@@ -35,4 +35,8 @@ def feuilleDeTemps(request):
 
 def planification(request):
     return render(request, "employee/planification.html")
+
+
+def presence(request):
+    return render(request, "employee/presence.html")
 # Create your views here.
