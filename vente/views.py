@@ -17,10 +17,6 @@ def depense(request):
     return render(request, "vente/depense.html")
 
 
-def commande(request):
-    return render(request, "vente/commande.html")
-
-
 def taxe(request):
     return render(request, "vente/taxe.html")
 

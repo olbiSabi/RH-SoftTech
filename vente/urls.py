@@ -7,7 +7,6 @@ urlpatterns = [
     path('facture/', facture, name='facture'),
     path('paiement/', paiement, name='paiement'),
     path('depense/', depense, name='depense'),
-    path('commande/', commande, name='commande'),
     path('taxe/', taxe, name='taxe'),
     path('creer-facture/', creerFacture, name='creerFacture'),
     path('editer-facture/', editerFacture, name='editerFacture'),
