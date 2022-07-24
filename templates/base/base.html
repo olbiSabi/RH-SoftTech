@@ -93,7 +93,7 @@
 
                 <li><a {% block client %} {% endblock %} href="{% url 'client' %}"><i class="las la-users"></i> <span>Les clients</span></a></li>
 
-                <li><a href="#"><i class="las la-truck"></i> <span>Les fournisseurs</span></a></li>
+{#                <li><a {% block fournisseur %} {% endblock %}href="{% url 'fournisseur' %}"><i class="las la-truck"></i> <span>Les fournisseurs</span></a></li>#}
 
                 <li class="submenu">
                     <a href="#">
@@ -102,12 +102,12 @@
                         <span class="menu-arrow"></span>
                     </a>
                     <ul style="display: none;">
-                        <li><a href="#">Devis</a></li>
-                        <li><a href="#">Facture</a></li>
-                        <li><a href="#">Paiements</a></li>
-                        <li><a href="#">Dépense</a></li>
-                        <li><a href="#">Commande</a></li>
-                        <li><a href="#">Taxes</a></li>
+                        <li><a {% block devis %} {% endblock %} href="{% url 'devis' %}">Devis</a></li>
+                        <li><a {% block facture %} {% endblock %} href="{% url 'facture' %}">Facture</a></li>
+                        <li><a {% block paiement %} {% endblock %} href="{% url 'paiement' %}">Paiements</a></li>
+                        <li><a {% block depense %} {% endblock %} href="{% url 'depense' %}">Dépense</a></li>
+                        <li><a {% block commande %} {% endblock %} href="{% url 'commande' %}">Commande</a></li>
+                        <li><a {% block taxe %} {% endblock %} href="{% url 'taxe' %}">Taxes</a></li>
                     </ul>
                 </li>
 
@@ -179,7 +179,6 @@
                         <span class="menu-arrow"></span>
                     </a>
                     <ul style="display: none;">
-                        <li><a href="#"> Departement </a></li>
                         <li><a href="#"> Préférence</a></li>
                     </ul>
                 </li>
