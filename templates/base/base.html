@@ -117,7 +117,7 @@
                         <span class="menu-arrow"></span>
                     </a>
                     <ul style="display: none;">
-                        <li><a {% block voiture %} {% endblock %}href="{% url 'voiture' %}">Voiture</a></li>
+                        <li><a {% block voiture %} {% endblock %} href="{% url 'voiture' %}">Voiture</a></li>
                         <li><a {% block planning %} {% endblock %} href="{% url 'planning' %}">Planning</a></li>
                     </ul>
                 </li>
@@ -131,10 +131,10 @@
                         <span class="menu-arrow"></span>
                     </a>
                     <ul style="display: none;">
-                        <li><a href="#">Catégories</a></li>
-                        <li><a href="#">Budgets</a></li>
-                        <li><a href="#">Dépenses budgétaires</a></li>
-                        <li><a href="#">Recettes budgétaires</a></li>
+                        <li><a {% block validerDepense %} {% endblock %} href="{% url 'validerDepense' %}">Valider une dépense</a></li>
+                        <li><a {% block budget %} {% endblock %} href="{% url 'budget' %}">Budgets</a></li>
+                        <li><a {% block depenseBudgetaire %} {% endblock %} href="{% url 'depenseBudgetaire' %}">Dépenses budgétaires</a></li>
+                        <li><a {% block recetteBudgetaire %} {% endblock %} href="{% url 'recetteBudgetaire' %}">Recettes budgétaires</a></li>
                     </ul>
                 </li>
 
@@ -146,7 +146,6 @@
                     </a>
                     <ul style="display: none;">
                         <li><a href="#"> Salaire de l'employé </a></li>
-                        <li><a href="#"> Fiche de paie </a></li>
                         <li><a href="#"> Eléments de paie </a></li>
                     </ul>
                 </li>

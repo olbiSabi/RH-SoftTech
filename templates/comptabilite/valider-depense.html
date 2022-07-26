@@ -1,0 +1,272 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block extrastylet %}
+    <!-- Datatable CSS -->
+    <link rel="stylesheet" href="{% static 'assets/css/dataTables.bootstrap4.min.css' %}">
+
+    <!-- Select2 CSS -->
+    <link rel="stylesheet" href="{% static 'assets/css/select2.min.css' %}">
+
+    <!-- Datetimepicker CSS -->
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+    {% comment %}<link rel="stylesheet" type="text/css" href="{% static 'assets/datatables/Bootstrap-5-5.1.3/css/bootstrap.min.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'assets/datatables/DataTables-1.12.1/css/dataTables.bootstrap5.min.css' %}"/>{% endcomment %}
+{% endblock %}
+
+{% block validerDepense %} class="active" {% endblock %}
+<!-- Content Body (Page Body) -->
+
+    {% block pageContent %}
+
+
+
+
+        <div class="content container-fluid">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Valider la dépense</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'home' %}">Tableau de bord</a></li>
+                            <li class="breadcrumb-item active">Valider la dépense</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- /Page Header -->
+
+            <!-- Search Filter -->
+            <div class="row filter-row">
+						<div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 col-12">
+							<div class="form-group form-focus">
+								<input type="text" class="form-control floating">
+								<label class="focus-label">Nom de l'objet</label>
+							</div>
+						</div>
+						<div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 col-12">
+							<div class="form-group form-focus select-focus">
+								<select class="select floating">
+									<option> -- Selectionnez -- </option>
+									<option>Loren Gatlin</option>
+									<option>Tarah Shropshire</option>
+								</select>
+								<label class="focus-label">Acheté par</label>
+							</div>
+						</div>
+						<div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 col-12">
+							<div class="form-group form-focus select-focus">
+								<select class="select floating">
+									<option> -- Selectionnez -- </option>
+									<option> Espèce </option>
+									<option> Chèque </option>
+								</select>
+								<label class="focus-label">Payé par</label>
+							</div>
+						</div>
+						<div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 col-12">
+							<div class="form-group form-focus">
+								<div class="cal-icon">
+									<input class="form-control floating datetimepicker" type="text">
+								</div>
+								<label class="focus-label">De</label>
+							</div>
+						</div>
+						<div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 col-12">
+							<div class="form-group form-focus">
+								<div class="cal-icon">
+									<input class="form-control floating datetimepicker" type="text">
+								</div>
+								<label class="focus-label">Au</label>
+							</div>
+						</div>
+						<div class="col-sm-6 col-md-3 col-lg-3 col-xl-2 col-12">
+							<a href="#" class="btn btn-success btn-block"> Recherche </a>
+						</div>
+                    </div>
+            <!-- /Search Filter -->
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="table-responsive">
+                        <table class="table table-striped custom-table mb-0 datatable">
+                            <thead>
+                            <tr>
+                                <th>Article</th>
+                                <th>Date d'achat</th>
+                                <th>Acheté par</th>
+                                <th>Prix</th>
+                                <th>Payé en</th>
+                                <th class="text-center">Statut</th>
+                                <th class="text-right">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>
+                                    <strong>Dell Laptop</strong>
+                                </td>
+                                <td>5 Jan 2019</td>
+                                <td>
+                                    <h2 class="table-avatar">
+                                        <a href="{% url 'profile-employee' %}" class="avatar avatar-xs"><img src="{% static 'assets/img/profiles/avatar-z.jpg' %}" alt=""></a>
+                                        <a href="{% url 'profile-employee' %}">Loren Gatlin</a>
+                                    </h2>
+                                </td>
+                                <td>$1215</td>
+                                <td>Argent</td>
+                                <td class="text-center">
+                                    <div class="dropdown action-label">
+                                        <a class="btn btn-white btn-sm btn-rounded dropdown-toggle" href="#" data-toggle="dropdown" aria-expanded="false">
+                                            <i class="fa fa-dot-circle-o text-danger"></i> En instance
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right">
+                                            <a class="dropdown-item" href="#"><i class="fa fa-dot-circle-o text-danger"></i> En instance</a>
+                                            <a class="dropdown-item" href="#"><i class="fa fa-dot-circle-o text-success"></i> Approuvé</a>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-right">
+                                    <button type="button" class="btn btn-dark"  data-toggle="modal" data-target="#edit_expense">
+                                        <i class="fa fa-eye" aria-hidden="true"></i>
+                                        View
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Mac System</strong>
+                                </td>
+                                <td>5 Jan 2019</td>
+                                <td>
+                                    <h2 class="table-avatar">
+                                        <a href="{% url 'profile-employee' %}" class="avatar avatar-xs"><img src="{% static 'assets/img/profiles/avatar-03.jpg' %}" alt=""></a>
+                                        <a href="{% url 'profile-employee' %}">Tarah Shropshire</a>
+                                    </h2>
+                                </td>
+                                <td>$1215</td>
+                                <td>Chèque</td>
+                                <td class="text-center">
+                                    <div class="dropdown action-label">
+                                        <a class="btn btn-white btn-sm btn-rounded dropdown-toggle" href="#" data-toggle="dropdown" aria-expanded="false">
+                                            <i class="fa fa-dot-circle-o text-danger"></i> En instance
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right">
+                                            <a class="dropdown-item" href="#"><i class="fa fa-dot-circle-o text-danger"></i> En instance</a>
+                                            <a class="dropdown-item" href="#"><i class="fa fa-dot-circle-o text-success"></i> Approuvé</a>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-right">
+                                    <button type="button" class="btn btn-dark"  data-toggle="modal" data-target="#edit_expense">
+                                        <i class="fa fa-eye" aria-hidden="true"></i>
+                                        View
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+<!-- Edit Expense Modal -->
+        <div id="edit_expense" class="modal custom-modal fade" role="dialog">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Vue de la dépense</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Nom de l’objet</label>
+                                    <input class="form-control" readonly type="text" value="tacos">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Acheté par </label>
+                                    <input class="form-control" readonly type="text" value="Roger Dixon">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Date d’achat</label>
+                                    <div class="cal-icon"><input class="form-control datetimepicker" readonly type="text" value="20/05/2022"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Payé en</label>
+                                    <input class="form-control" readonly type="text" value="Chèque">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Prix</label>
+                                    <input placeholder="$50" class="form-control" readonly type="text" value="$1251">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Télécharger le justificatif</label>
+                                    <div>
+                                        <button class="btn "><i class="fa fa-download" aria-hidden="true"></i>Télécharger</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="submit-section">
+                            <button class="btn btn-primary submit-btn">Soumettre</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+</div>
+<!-- /Edit Expense Modal -->
+
+    {% endblock %}
+
+
+{% block extrascript %}
+    <!--JS-->
+    <!-- jQuery -->
+    <script src="{% static 'assets/js/jquery-3.5.1.min.js' %}"></script>
+
+    <!-- Bootstrap Core JS -->
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
+
+    <!-- Slimscroll JS -->
+    <script src="{% static 'assets/js/jquery.slimscroll.min.js' %}"></script>
+
+    <!-- Chart JS -->
+    <!-- Select2 JS -->
+    <script src="{% static 'assets/js/select2.min.js' %}"></script>
+
+    <!-- Datetimepicker JS -->
+    <script src="{% static 'assets/js/moment.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
+
+    <!-- Custom JS -->
+    <script src="{% static 'assets/js/app.js' %}"></script>
+
+{% endblock %}

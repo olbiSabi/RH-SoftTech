@@ -1837,6 +1837,7 @@ table.dataTable thead > tr > td.sorting {
 	position: relative;
 	width: 100%;
 }
+
 .cal-icon:after {
 	color: #979797;
 	content: "\f073";
