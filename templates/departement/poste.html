@@ -221,10 +221,32 @@
     </div>
 </div>
 <!-- /Edit Designation Modal -->
-
+<!-- Delete Employee Modal -->
+<div class="modal custom-modal fade" id="delete_confirme" role="dialog">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <div class="form-header">
+                                <h3>Supprimer le poste</h3>
+                                <p>Voulez-vous vraiment supprimer?</p>
+                            </div>
+                            <div class="modal-btn delete-action">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <a href="javascript:void(0);" class="btn btn-primary continue-btn">Supprimer</a>
+                                    </div>
+                                    <div class="col-6">
+                                        <a href="javascript:void(0);" data-dismiss="modal"
+                                           class="btn btn-primary cancel-btn">annuler</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+<!-- /Delete Employee Modal -->
 {% endblock %}
-
- {% block confirmeDelete %} Supprimer le poste {% endblock %}
 
 {% block extrascript %}
     <!--JS-->

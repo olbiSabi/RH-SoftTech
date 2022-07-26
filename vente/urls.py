@@ -14,4 +14,6 @@ urlpatterns = [
     path('creer-devis/', creerDevis, name='creerDevis'),
     path('editer-devis/', editerDevis, name='editerDevis'),
     path('vue-devis/', vueDevis, name='vueDevis'),
+    path('voiture/', voiture, name='voiture'),
+    path('planning-auto/', planning, name='planning'),
 ]

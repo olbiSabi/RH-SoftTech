@@ -14,7 +14,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'assets/datatables/DataTables-1.12.1/css/dataTables.bootstrap5.min.css' %}"/>{% endcomment %}
 {% endblock %}
 
-{% block departement %} class="active" {% endblock %}
+{% block voiture %} class="active" {% endblock %}
 <!-- Content Body (Page Body) -->
 
     {% block pageContent %}
@@ -24,14 +24,14 @@
             <div class="page-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h3 class="page-title">Département</h3>
+                        <h3 class="page-title">Voiture</h3>
                         <ul class="breadcrumb">
                             <li class="breadcrumb-item"><a href="{% url 'home' %}">Tableau de bord</a></li>
-                            <li class="breadcrumb-item active">Département</li>
+                            <li class="breadcrumb-item active">Voiture</li>
                         </ul>
                     </div>
                     <div class="col-auto float-right ml-auto">
-                        <a href="#" class="btn add-btn" data-toggle="modal" data-target="#add_department"><i class="fa fa-plus"></i> Ajouter un département</a>
+                        <a href="#" class="btn add-btn" data-toggle="modal" data-target="#add_car"><i class="fa fa-plus"></i> Ajouter une voiture</a>
                     </div>
                 </div>
             </div>
@@ -42,20 +42,30 @@
                         <table id="example" class="table table-striped custom-table mb-0 datatable">
                             <thead>
                             <tr>
-                                <th style="width: 30px;"></th>
-                                <th>Nom du département</th>
+                                <th>Matricul</th>
+                                <th>Marque</th>
+                                <th>Model</th>
+                                <th>Etat</th>
                                 <th class="text-right">Action</th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr>
-                                <td>1</td>
-                                <td>Web Development</td>
+                                <td>AUT-001</td>
+                                <td>BMW</td>
+                                <td>SUV</td>
+                                <td>
+                                    <div class="dropdown action-label">
+                                        <div class="dropdown action-label">
+                                            <a class="btn btn-white btn-sm btn-rounded " href="#" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-dot-circle-o text-success"></i>Bon</a>
+                                        </div>
+                                    </div>
+                                </td>
                                 <td class="text-right">
                                     <div class="dropdown dropdown-action">
                                         <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
                                         <div class="dropdown-menu dropdown-menu-right">
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#edit_department"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#edit_car"><i class="fa fa-pencil m-r-5"></i> Edit</a>
                                             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_confirme"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
                                         </div>
                                     </div>
@@ -63,13 +73,21 @@
                             </tr>
 
                             <tr>
-                                <td>2</td>
-                                <td>Application Development</td>
+                                <td>AUT-002</td>
+                                <td>Renauld</td>
+                                <td>Camion</td>
+                                <td>
+                                    <div class="dropdown action-label">
+                                        <div class="dropdown action-label">
+                                            <a class="btn btn-white btn-sm btn-rounded " href="#" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-dot-circle-o text-danger"></i>Panne</a>
+                                        </div>
+                                    </div>
+                                </td>
                                 <td class="text-right">
                                     <div class="dropdown dropdown-action">
                                         <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
                                         <div class="dropdown-menu dropdown-menu-right">
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#edit_department"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#edit_car"><i class="fa fa-pencil m-r-5"></i> Edit</a>
                                             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_confirme"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
                                         </div>
                                     </div>
@@ -77,55 +95,21 @@
                             </tr>
 
                             <tr>
-                                <td>3</td>
-                                <td>IT Management</td>
-                                <td class="text-right">
-                                    <div class="dropdown dropdown-action">
-                                        <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
-                                        <div class="dropdown-menu dropdown-menu-right">
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#edit_department"><i class="fa fa-pencil m-r-5"></i> Edit</a>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_confirme"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
+                                <td>AUT-003</td>
+                                <td>Mazda</td>
+                                <td>Remorque</td>
+                                <td>
+                                    <div class="dropdown action-label">
+                                        <div class="dropdown action-label">
+                                            <a class="btn btn-white btn-sm btn-rounded " href="#" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-dot-circle-o text-success"></i>Bon</a>
                                         </div>
                                     </div>
                                 </td>
-                            </tr>
-
-                            <tr>
-                                <td>4</td>
-                                <td>Accounts Management</td>
                                 <td class="text-right">
                                     <div class="dropdown dropdown-action">
                                         <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
                                         <div class="dropdown-menu dropdown-menu-right">
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#edit_department"><i class="fa fa-pencil m-r-5"></i> Edit</a>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_confirme"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>5</td>
-                                <td>Support Management</td>
-                                <td class="text-right">
-                                    <div class="dropdown dropdown-action">
-                                        <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
-                                        <div class="dropdown-menu dropdown-menu-right">
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#edit_department"><i class="fa fa-pencil m-r-5"></i> Edit</a>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_confirme"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>6</td>
-                                <td>Marketing</td>
-                                <td class="text-right">
-                                    <div class="dropdown dropdown-action">
-                                        <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
-                                        <div class="dropdown-menu dropdown-menu-right">
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#edit_department"><i class="fa fa-pencil m-r-5"></i> Edit</a>
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#edit_car"><i class="fa fa-pencil m-r-5"></i> Edit</a>
                                             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_confirme"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
                                         </div>
                                     </div>
@@ -140,11 +124,11 @@
         <!-- /Page Content -->
 
         <!-- Add Department Modal -->
-        <div id="add_department" class="modal custom-modal fade" role="dialog">
+        <div id="add_car" class="modal custom-modal fade" role="dialog">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Ajouter un département</h5>
+                        <h5 class="modal-title">Ajouter une voiture</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -152,7 +136,15 @@
                     <div class="modal-body">
                         <form>
                             <div class="form-group">
-                                <label>Nom du département <span class="text-danger">*</span></label>
+                                <label>Marque <span class="text-danger">*</span></label>
+                                <input class="form-control" type="text">
+                            </div>
+                            <div class="form-group">
+                                <label>Model <span class="text-danger">*</span></label>
+                                <input class="form-control" type="text">
+                            </div>
+                            <div class="form-group">
+                                <label>Etat <span class="text-danger">*</span></label>
                                 <input class="form-control" type="text">
                             </div>
                             <div class="submit-section">
@@ -166,7 +158,7 @@
         <!-- /Add Department Modal -->
 
         <!-- Edit Department Modal -->
-        <div id="edit_department" class="modal custom-modal fade" role="dialog">
+        <div id="edit_car" class="modal custom-modal fade" role="dialog">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -178,25 +170,34 @@
                     <div class="modal-body">
                         <form>
                             <div class="form-group">
-                                <label>Nom du département <span class="text-danger">*</span></label>
-                                <input class="form-control" value="IT Management" type="text">
+                                <label>Marque <span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" value="BMW">
+                            </div>
+                            <div class="form-group">
+                                <label>Model <span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" value="SUV">
+                            </div>
+                            <div class="form-group">
+                                <label>Etat <span class="text-danger">*</span></label>
+                                <input class="form-control" type="text">
                             </div>
                             <div class="submit-section">
-                                <button class="btn btn-primary submit-btn">Enrégistrer</button>
+                                <button class="btn btn-primary submit-btn">Soumettre</button>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
-				<!-- /Edit Department Modal -->
+        <!-- /Edit Department Modal -->
+
         <!-- Delete Employee Modal -->
         <div class="modal custom-modal fade" id="delete_confirme" role="dialog">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-body">
                             <div class="form-header">
-                                <h3>Supprimer le département</h3>
+                                <h3>Supprimer la voiture</h3>
                                 <p>Voulez-vous vraiment supprimer?</p>
                             </div>
                             <div class="modal-btn delete-action">
@@ -215,6 +216,7 @@
                 </div>
             </div>
         <!-- /Delete Employee Modal -->
+
     {% endblock %}
 
 

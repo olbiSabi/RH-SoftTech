@@ -43,4 +43,12 @@ def editerDevis(request):
 
 def vueDevis(request):
     return render(request, "vente/vue-devis.html")
+
+
+def voiture(request):
+    return render(request, "parcAuto/voiture.html")
+
+
+def planning(request):
+    return render(request, "parcAuto/planning-auto.html")
 # Create your views here.
