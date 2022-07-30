@@ -145,8 +145,8 @@
                         <span class="menu-arrow"></span>
                     </a>
                     <ul style="display: none;">
-                        <li><a href="#"> Salaire de l'employé </a></li>
-                        <li><a href="#"> Eléments de paie </a></li>
+                        <li><a {% block salaireEmploye %} {% endblock %} href="{% url 'salaireEmploye' %}"> Salaire de l'employé </a></li>
+                        <li><a {% block elementPaie %} {% endblock %} href="{% url 'elementPaie' %}"> Eléments de paie </a></li>
                     </ul>
                 </li>
 

@@ -7,4 +7,7 @@ urlpatterns = [
     path('budget/', budget, name='budget'),
     path('depense-budgetaire/', depenseBudgetaire, name='depenseBudgetaire'),
     path('recette-budgetaire/', recetteBudgetaire, name='recetteBudgetaire'),
+    path('salaire-employe/', salaireEmploye, name='salaireEmploye'),
+    path('element-paie/', elementPaie, name='elementPaie'),
+    path('fiche-paie/', fichePaie, name='fichePaie'),
 ]
