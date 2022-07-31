@@ -1,0 +1,192 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block extrastylet %}
+    <!-- Datatable CSS -->
+    <link rel="stylesheet" href="{% static 'assets/css/dataTables.bootstrap4.min.css' %}">
+
+    <!-- Select2 CSS -->
+    <link rel="stylesheet" href="{% static 'assets/css/select2.min.css' %}">
+
+    <!-- Datetimepicker CSS -->
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+    {% comment %}<link rel="stylesheet" type="text/css" href="{% static 'assets/datatables/Bootstrap-5-5.1.3/css/bootstrap.min.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'assets/datatables/DataTables-1.12.1/css/dataTables.bootstrap5.min.css' %}"/>{% endcomment %}
+{% endblock %}
+
+{% block rapportFichePaie %} class="active" {% endblock %}
+<!-- Content Body (Page Body) -->
+
+    {% block pageContent %}
+
+        <div class="content container-fluid">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Rapports de fiches de paie</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'home' %}">Tableau de bord</a></li>
+                            <li class="breadcrumb-item active">Rapports de fiches de paie</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- /Page Header -->
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="table-responsive">
+                        <table class="table table-striped custom-table mb-0" id="example">
+                            <thead>
+                            <tr>
+                                <th>Employé</th>
+                                <th>Date</th>
+                                <th>Département</th>
+                                <th>Type de congé</th>
+                                <th>Nombre de jours</th>
+                                <th>Congé restant</th>
+                                <th>Total des feuilles</th>
+                                <th>Total des congés pris</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>
+                                    <h2 class="table-avatar">
+                                        <a href="{% url 'profile-employee' %}" class="avatar"><img alt=""
+                                                                                   src="{% static 'assets/img/profiles/avatar-02.jpg' %}"></a>
+                                        <a href="{% url 'profile-employee' %}">John Doe <span>#0001</span></a>
+                                    </h2>
+                                </td>
+                                <td>20 Dec 2020</td>
+                                <td>Design</td>
+                                <td class="text-center">
+                                    <button class="btn btn-outline-info btn-sm">Congé de maladie</button>
+                                </td>
+                                <td class="text-center"><span class="btn btn-danger btn-sm">05</span></td>
+                                <td class="text-center"><span class="btn btn-warning btn-sm"><b>08</b></span></td>
+                                <td class="text-center"><span class="btn btn-success btn-sm"><b>20</b></span></td>
+                                <td class="text-center">12</td>
+                            </tr>
+                            
+                            <tr>
+                                <td>
+                                    <h2 class="table-avatar">
+                                        <a href="{% url 'profile-employee' %}" class="avatar"><img alt=""
+                                                                                   src="{% static 'assets/img/profiles/avatar-z.jpg' %}"></a>
+                                        <a href="{% url 'profile-employee' %}">Richard Miles <span>#0002</span></a>
+                                    </h2>
+                                </td>
+                                <td>21 Dec 2020</td>
+                                <td>Web Developer</td>
+                                <td class="text-center">
+                                    <button class="btn btn-outline-warning btn-sm">Congé d'émercence</button>
+                                </td>
+                                <td class="text-center"><span class="btn btn-danger btn-sm">03</span></td>
+                                <td class="text-center"><span class="btn btn-warning btn-sm"><b>08</b></span></td>
+                                <td class="text-center"><span class="btn btn-success btn-sm"><b>20</b></span></td>
+                                <td class="text-center">12</td>
+                            </tr>
+                            
+                            <tr>
+                                <td>
+                                    <h2 class="table-avatar">
+                                        <a href="{% url 'profile-employee' %}" class="avatar"><img alt=""
+                                                                                   src="{% static 'assets/img/profiles/avatar-x.jpg' %}"></a>
+                                        <a href="{% url 'profile-employee' %}">John Smith <span>#003</span></a>
+                                    </h2>
+                                </td>
+                                <td>22 Dec 2020</td>
+                                <td>Android Developer</td>
+                                <td class="text-center">
+                                    <button class="btn btn-outline-danger btn-sm">Congé de maladie</button>
+                                </td>
+                                <td class="text-center"><span class="btn btn-danger btn-sm">01</span></td>
+                                <td class="text-center"><span class="btn btn-warning btn-sm"><b>09</b></span></td>
+                                <td class="text-center"><span class="btn btn-success btn-sm"><b>20</b></span></td>
+                                <td class="text-center">17</td>
+                            </tr>
+                            
+                            <tr>
+                                <td>
+                                    <h2 class="table-avatar">
+                                        <a href="{% url 'profile-employee' %}" class="avatar"><img alt=""
+                                                                                   src="{% static 'assets/img/profiles/avatar-z.jpg' %}"></a>
+                                        <a href="{% url 'profile-employee' %}">Mike Litorus <span>#004</span></a>
+                                    </h2>
+                                </td>
+                                <td>23 Dec 2020</td>
+                                <td>IOS Developer</td>
+                                <td class="text-center">
+                                    <button class="btn btn-outline-info btn-sm">Congé parental</button>
+                                </td>
+                                <td class="text-center"><span class="btn btn-danger btn-sm">15</span></td>
+                                <td class="text-center"><span class="btn btn-warning btn-sm"><b>05</b></span></td>
+                                <td class="text-center"><span class="btn btn-success btn-sm"><b>20</b></span></td>
+                                <td class="text-center">15</td>
+                            </tr>
+                            
+                            <tr>
+                                <td>
+                                    <h2 class="table-avatar">
+                                        <a href="{% url 'profile-employee' %}" class="avatar"><img alt=""
+                                                                                   src="{% static 'assets/img/profiles/avatar-z.jpg' %}"></a>
+                                        <a href="{% url 'profile-employee' %}">Wilmer Deluna <span>#005</span></a>
+                                    </h2>
+                                </td>
+                                <td>24 Dec 2020</td>
+                                <td>Team Leader</td>
+                                <td class="text-center">
+                                    <button class="btn btn-outline-info btn-sm">Congé de maladie</button>
+                                </td>
+                                <td class="text-center"><span class="btn btn-danger btn-sm">10</span></td>
+                                <td class="text-center"><span class="btn btn-warning btn-sm"><b>07</b></span></td>
+                                <td class="text-center"><span class="btn btn-success btn-sm"><b>20</b></span></td>
+                                <td class="text-center">18</td>
+                            </tr>
+                            
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    {% endblock %}
+
+{% block extrascript %}
+    <!--JS-->
+    <!-- jQuery -->
+    <script src="{% static 'assets/js/jquery-3.5.1.min.js' %}"></script>
+
+    <!-- Bootstrap Core JS -->
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
+
+    <!-- Slimscroll JS -->
+    <script src="{% static 'assets/js/jquery.slimscroll.min.js' %}"></script>
+
+    <!-- Chart JS -->
+    <!-- Select2 JS -->
+    <script src="{% static 'assets/js/select2.min.js' %}"></script>
+
+    <!-- Datetimepicker JS -->
+    <script src="{% static 'assets/js/moment.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
+
+    <!-- Datatable JS -->
+    <script src="{% static 'assets/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'assets/js/dataTables.bootstrap4.min.js' %}"></script>
+    <!-- Custom JS -->
+    <script src="{% static 'assets/js/app.js' %}"></script>
+
+    <script>
+
+        $(document).ready(function () {
+            $('#example').DataTable();
+        });
+
+    </script>
+{% endblock %}

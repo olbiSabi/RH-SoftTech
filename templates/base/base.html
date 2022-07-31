@@ -157,10 +157,9 @@
                         <span class="menu-arrow"></span>
                     </a>
                     <ul style="display: none;">
-                        <li><a href="#"> Rapport de facture </a></li>
-                        <li><a href="#"> Rapport de projet </a></li>
-                        <li><a href="#"> Rapport de fiche de paie </a></li>
-                        <li><a href="#"> Rapport de congé </a></li>
+                        <li><a {% block rapportFacture %} {% endblock %} href="{% url 'rapportFacture' %}"> Rapport de facture </a></li>
+                        <li><a {% block rapportFichePaie %} {% endblock %} href="{% url 'rapportFichePaie' %}"> Rapport de fiche de paie </a></li>
+                        <li><a {% block rapportConge %} {% endblock %} href="{% url 'rapportConge' %}"> Rapport de congé </a></li>
                     </ul>
                 </li>
 
