@@ -1,0 +1,192 @@
+{% load static %}
+<!-- Page Content -->
+<div class="content container-fluid">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row">
+            <div class="col-sm-12">
+                <h3 class="page-title">Bienvenue user!</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item active">Tableau de board</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- /Page Header -->
+
+    <div class="row">
+        <div class="col-lg-8 col-md-8">
+            <section class="dash-section">
+                <h1 class="dash-sec-title">AUJOURD’HUI</h1>
+                <div class="dash-sec-content">
+                    <div class="dash-info-list">
+                        <a href="#" class="dash-card text-danger">
+                            <div class="dash-card-container">
+                                <div class="dash-card-icon">
+                                    <i class="fa fa-hourglass-o"></i>
+                                </div>
+                                <div class="dash-card-content">
+                                    <p>Richard Miles est malade aujoud'hui</p>
+                                </div>
+                                <div class="dash-card-avatars">
+                                    <div class="e-avatar"><img src="{% static 'assets/img/profiles/avatar-02.jpg' %}"
+                                                               alt=""></div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="dash-info-list">
+                        <a href="#" class="dash-card">
+                            <div class="dash-card-container">
+                                <div class="dash-card-icon">
+                                    <i class="fa fa-suitcase"></i>
+                                </div>
+                                <div class="dash-card-content">
+                                    <p>Il est absent aujourd'hui</p>
+                                </div>
+                                <div class="dash-card-avatars">
+                                    <div class="e-avatar"><img src="{% static 'assets/img/profiles/avatar-21.jpg' %}"
+                                                               alt=""></div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="dash-section">
+                <h1 class="dash-sec-title">DEMAIN</h1>
+                <div class="dash-sec-content">
+                    <div class="dash-info-list">
+                        <div class="dash-card">
+                            <div class="dash-card-container">
+                                <div class="dash-card-icon">
+                                    <i class="fa fa-suitcase"></i>
+                                </div>
+                                <div class="dash-card-content">
+                                    <p>2 personne seront absentes demain</p>
+                                </div>
+                                <div class="dash-card-avatars">
+                                    <a href="#" class="e-avatar"><img
+                                            src="{% static 'assets/img/profiles/avatar-z.jpg' %}" alt=""></a>
+                                    <a href="#" class="e-avatar"><img
+                                            src="{% static 'assets/img/profiles/avatar-y.jpg' %}" alt=""></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="dash-section">
+                <h1 class="dash-sec-title">PROCHAINS JOURS</h1>
+                <div class="dash-sec-content">
+                    <div class="dash-info-list">
+                        <div class="dash-card">
+                            <div class="dash-card-container">
+                                <div class="dash-card-icon">
+                                    <i class="fa fa-suitcase"></i>
+                                </div>
+                                <div class="dash-card-content">
+                                    <p>2 Personnes vont être absentes</p>
+                                </div>
+                                <div class="dash-card-avatars">
+                                    <a href="#" class="e-avatar"><img
+                                            src="{% static 'assets/img/profiles/avatar-02.jpg' %}" alt=""></a>
+                                    <a href="#" class="e-avatar"><img
+                                            src="{% static 'assets/img/profiles/avatar-z.jpg' %}" alt=""></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dash-info-list">
+                        <div class="dash-card">
+                            <div class="dash-card-container">
+                                <div class="dash-card-icon">
+                                    <i class="fa fa-user-plus"></i>
+                                </div>
+                                <div class="dash-card-content">
+                                    <p>Dernier embaucher</p>
+                                </div>
+                                <div class="dash-card-avatars">
+                                    <div class="e-avatar"><img src="{% static 'assets/img/profiles/avatar-x.jpg' %}"
+                                                               alt=""></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dash-info-list">
+                        <a href="" class="dash-card">
+                            <div class="dash-card-container">
+                                <div class="dash-card-icon">
+                                    <i class="fa fa-calendar"></i>
+                                </div>
+                                <div class="dash-card-content">
+                                    <p>Jour férié du mois</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="col-lg-4 col-md-4">
+            <div class="dash-sidebar">
+                <section>
+                    <h5 class="dash-title">Projets</h5>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="time-list">
+                                <div class="dash-stats-list">
+                                    <h4>71</h4>
+                                    <p>Nombre totale de projets</p>
+                                </div>
+                                <div class="dash-stats-list">
+                                    <h4>14</h4>
+                                    <p>projets en attente</p>
+                                </div>
+                            </div>
+                            <div class="request-btn">
+                                <div class="dash-stats-list">
+                                    <h4>2</h4>
+                                    <p>projets en cours</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <h5 class="dash-title">congé</h5>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="time-list">
+                                <div class="dash-stats-list">
+                                    <h4>4</h4>
+                                    <p>personnes en congé</p>
+                                </div>
+                                <div class="dash-stats-list">
+                                    <h4>12</h4>
+                                    <p>restant</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h5 class="dash-title">Vacance à venir</h5>
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h4 class="holiday-title mb-0">lun 20 Mai 2019 - Ramzan</h4>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+</div>

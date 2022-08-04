@@ -73,34 +73,26 @@
                     </ul>
                 </li>
 
-                <li>
-                    <a {% block presence %} {% endblock %} href="{% url 'presence' %}">
-                        <i class="lar la-clock"></i>
-                        <span>Présence</span>
-                    </a>
+                <li {% block presence %} {% endblock %}>
+                    <a href="{% url 'presence' %}"><i class="lar la-clock"></i><span>Présence</span></a>
                 </li>
 
-                <li>
-                    <a {% block projet %} {% endblock %} href="{% url 'projet' %}">
-                        <i class="las la-project-diagram"></i>
-                        <span>Projets</span>
-                    </a>
+                <li {% block projet %} {% endblock %}>
+                    <a href="{% url 'projet' %}"><i class="las la-project-diagram"></i><span>Projets</span></a>
                 </li>
 
                 <li class="menu-title">
                     <span>LOGISTIQUE</span>
                 </li>
 
-                <li><a {% block client %} {% endblock %} href="{% url 'client' %}"><i class="las la-users"></i> <span>Les clients</span></a></li>
+                <li {% block client %} {% endblock %}>
+                    <a href="{% url 'client' %}"><i class="las la-users"></i> <span>Les clients</span></a>
+                </li>
 
 {#                <li><a {% block fournisseur %} {% endblock %}href="{% url 'fournisseur' %}"><i class="las la-truck"></i> <span>Les fournisseurs</span></a></li>#}
 
                 <li class="submenu">
-                    <a href="#">
-                        <i class="la la-files-o"></i>
-                        <span> Ventes </span>
-                        <span class="menu-arrow"></span>
-                    </a>
+                    <a href="#"><i class="la la-files-o"></i><span> Ventes </span><span class="menu-arrow"></span></a>
                     <ul style="display: none;">
                         <li><a {% block devis %} {% endblock %} href="{% url 'devis' %}">Devis</a></li>
                         <li><a {% block facture %} {% endblock %} href="{% url 'facture' %}">Facture</a></li>
@@ -111,11 +103,7 @@
                 </li>
 
                 <li class="submenu">
-                    <a href="#">
-                        <i class="las la-parking"></i>
-                        <span> Gestion parc auto </span>
-                        <span class="menu-arrow"></span>
-                    </a>
+                    <a href="#"><i class="las la-parking"></i><span> Gestion parc auto </span><span class="menu-arrow"></span></a>
                     <ul style="display: none;">
                         <li><a {% block voiture %} {% endblock %} href="{% url 'voiture' %}">Voiture</a></li>
                         <li><a {% block planning %} {% endblock %} href="{% url 'planning' %}">Planning</a></li>
@@ -125,11 +113,7 @@
                     <span>FINANCE & COMPTABILITE</span>
                 </li>
                 <li class="submenu">
-                    <a href="#">
-                        <i class="las la-calculator"></i>
-                        <span> Comptabilité </span>
-                        <span class="menu-arrow"></span>
-                    </a>
+                    <a href="#"><i class="las la-calculator"></i><span> Comptabilité </span><span class="menu-arrow"></span></a>
                     <ul style="display: none;">
                         <li><a {% block validerDepense %} {% endblock %} href="{% url 'validerDepense' %}">Valider une dépense</a></li>
                         <li><a {% block budget %} {% endblock %} href="{% url 'budget' %}">Budgets</a></li>
@@ -139,11 +123,7 @@
                 </li>
 
                 <li class="submenu">
-                    <a href="#">
-                        <i class="las la-money-bill"></i>
-                        <span> Masse salariale </span>
-                        <span class="menu-arrow"></span>
-                    </a>
+                    <a href="#"><i class="las la-money-bill"></i><span> Masse salariale </span><span class="menu-arrow"></span></a>
                     <ul style="display: none;">
                         <li><a {% block salaireEmploye %} {% endblock %} href="{% url 'salaireEmploye' %}"> Salaire de l'employé </a></li>
                         <li><a {% block elementPaie %} {% endblock %} href="{% url 'elementPaie' %}"> Eléments de paie </a></li>
@@ -151,11 +131,7 @@
                 </li>
 
                 <li class="submenu">
-                    <a href="#">
-                        <i class="las la-chart-pie"></i>
-                        <span> Rapports </span>
-                        <span class="menu-arrow"></span>
-                    </a>
+                    <a href="#"><i class="las la-chart-pie"></i><span> Rapports </span><span class="menu-arrow"></span></a>
                     <ul style="display: none;">
                         <li><a {% block rapportFacture %} {% endblock %} href="{% url 'rapportFacture' %}"> Rapport de facture </a></li>
                         <li><a {% block rapportFichePaie %} {% endblock %} href="{% url 'rapportFichePaie' %}"> Rapport de fiche de paie </a></li>
@@ -167,15 +143,8 @@
                     <span>APP</span>
                 </li>
 
-                <li class="submenu">
-                    <a href="#">
-                        <i class="las la-cog"></i>
-                        <span> Settings</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <ul style="display: none;">
-                        <li><a href="#"> Préférence</a></li>
-                    </ul>
+                <li {% block settings %} {% endblock %}>
+                    <a href="{% url 'parametreHome' %}"><i class="las la-cog"></i><span>Settings</span></a>
                 </li>
             </ul>
         </div>

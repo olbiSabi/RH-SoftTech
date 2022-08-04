@@ -3,14 +3,15 @@
 
 {% block extrastylet %}
 <!-- Chart CSS -->
-    <link rel="stylesheet" href="{% static 'assets/plugins/morris/morris.css' %}">
+
 {% endblock %}
 
+{% block projet %} class="active" {% endblock %}
 
 <!-- Content Body (Page Body) -->
 
     {% block pageContent %}
-        {% include 'base/adminDashboard.html' %}
+        {% include 'base/userDashboard.html' %}
     {% endblock %}
 
 {% block extrascript %}
@@ -26,9 +27,9 @@
     <script src="{% static 'assets/js/jquery.slimscroll.min.js' %}"></script>
 
     <!-- Chart JS -->
-    <script src="{% static 'assets/plugins/morris/morris.min.js' %}"></script>
-    <script src="{% static 'assets/plugins/raphael/raphael.min.js' %}"></script>
     <script src="{% static 'assets/js/chart.js' %}"></script>
+    <script src="{% static 'assets/js/line-chart.js' %}"></script>
+
 
     <!-- Custom JS -->
     <script src="{% static 'assets/js/app.js' %}"></script>

@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'vente',
     'comptabilite',
     'reports',
+    'parametre',
 ]
 
 MIDDLEWARE = [
