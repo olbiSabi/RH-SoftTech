@@ -3,306 +3,337 @@
 
 {% block extrastylet %}
 
-    <!-- Select2 CSS -->
-    <link rel="stylesheet" href="{% static 'assets/css/select2.min.css' %}">
+<!-- Select2 CSS -->
+<link rel="stylesheet" href="{% static 'assets/css/select2.min.css' %}">
 
-    <!-- Datetimepicker CSS -->
-    <link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+<!-- Datetimepicker CSS -->
+<link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
 
 
 {% endblock %}
 
-    <!-- Content Body (Page Body) -->
+<!-- Content Body (Page Body) -->
 
 {% block pageContent %}
 
-    <!-- Page Content -->
-    <div class="content container-fluid">
+<!-- Page Content -->
+<div class="content container-fluid">
 
-        <!-- Page Header -->
-        <div class="page-header">
-            <div class="row">
-                <div class="col-sm-12">
-                    <h3 class="page-title">(Titre du projet)</h3>
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{% url 'home' %}">Tableau de bord</a></li>
-                        <li class="breadcrumb-item active">(Titre du projet)</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <!-- /Page Header -->
-    </div>
-
-
-    <div class="row">
-        <div class="col-lg-8 col-xl-9">
-            <div class="card">
-                <div class="card-body">
-                    <div class="project-title">
-                        <h5 class="card-title">Titre</h5>
-                        <small class="block text-ellipsis m-b-15"><span class="text-xs">2</span> <span class="text-muted">open tasks, </span><span class="text-xs">5</span> <span class="text-muted">tasks completed</span></small>
-                    </div>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vel elit neque. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vestibulum sollicitudin libero vitae est consectetur, a molestie tortor consectetur. Aenean tincidunt interdum ipsum, id pellentesque diam suscipit ut. Vivamus massa mi, fermentum eget neque eget, imperdiet tristique lectus. Proin at purus ut sem pellentesque tempor sit amet ut lectus. Sed orci augue, placerat et pretium ac, hendrerit in felis. Integer scelerisque libero non metus commodo, et hendrerit diam aliquet. Proin tincidunt porttitor ligula, a tincidunt orci pellentesque nec. Ut ultricies maximus nulla id consequat. Fusce eu consequat mi, eu euismod ligula. Aliquam porttitor neque id massa porttitor, a pretium velit vehicula. Morbi volutpat tincidunt urna, vel ullamcorper ligula fermentum at. </p>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vel elit neque. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vestibulum sollicitudin libero vitae est consectetur, a molestie tortor consectetur. Aenean tincidunt interdum ipsum, id pellentesque diam suscipit ut. Vivamus massa mi, fermentum eget neque eget, imperdiet tristique lectus. Proin at purus ut sem pellentesque tempor sit amet ut lectus. Sed orci augue, placerat et pretium ac, hendrerit in felis. Integer scelerisque libero non metus commodo, et hendrerit diam aliquet. Proin tincidunt porttitor ligula, a tincidunt orci pellentesque nec. Ut ultricies maximus nulla id consequat. Fusce eu consequat mi, eu euismod ligula. Aliquam porttitor neque id massa porttitor, a pretium velit vehicula. Morbi volutpat tincidunt urna, vel ullamcorper ligula fermentum at. </p>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title m-b-20">Fichiers image téléchargés</h5>
-                    <div class="row">
-
-                        <div class="col-md-3 col-sm-4 col-lg-4 col-xl-3">
-                            <div class="uploaded-box">
-                                <div class="uploaded-img"><img src="{% static 'assets/img/placeholder.jpg' %}" class="img-fluid" alt="">
-                                </div>
-                                <div class="uploaded-img-name">
-                                    demo.png
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-sm-4 col-lg-4 col-xl-3">
-                            <div class="uploaded-box">
-                                <div class="uploaded-img">
-                                    <img src="{% static 'assets/img/placeholder.jpg' %}" class="img-fluid" alt="">
-                                </div>
-                                <div class="uploaded-img-name">
-                                    demo.png
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-sm-4 col-lg-4 col-xl-3">
-                            <div class="uploaded-box">
-                                <div class="uploaded-img">
-                                    <img src="{% static 'assets/img/placeholder.jpg' %}" class="img-fluid" alt="">
-                                </div>
-                                <div class="uploaded-img-name">
-                                    demo.png
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-sm-4 col-lg-4 col-xl-3">
-                            <div class="uploaded-box">
-                                <div class="uploaded-img">
-                                    <img src="{% static 'assets/img/placeholder.jpg' %}" class="img-fluid" alt="">
-                                </div>
-                                <div class="uploaded-img-name">
-                                    demo.png
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title m-b-20">Fichiers téléchargés</h5>
-                    <ul class="files-list">
-                        <li>
-                            <div class="files-cont">
-                                <div class="file-type">
-                                    <span class="files-icon"><i class="fa fa-file-pdf-o"></i></span>
-                                </div>
-                                <div class="files-info">
-                                    <span class="file-name text-ellipsis"><a href="#">Cas de test Test-Cases.xls</a></span>
-                                    <span class="file-author"><a href="#">John Doe</a></span> <span class="file-date">May 31st at 6:53 PM</span>
-                                    <div class="file-size">Size: 14.8Mb</div>
-                                </div>
-                                <ul class="files-action">
-													<li class="dropdown dropdown-action">
-														<a href="" class="dropdown-toggle btn btn-link" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_horiz</i></a>
-														<div class="dropdown-menu dropdown-menu-right">
-															<a class="dropdown-item" href="javascript:void(0)">Download</a>
-															<a class="dropdown-item" href="#" data-toggle="modal" data-target="#share_files">Share</a>
-															<a class="dropdown-item" href="javascript:void(0)">Delete</a>
-														</div>
-													</li>
-												</ul>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="files-cont">
-                                <div class="file-type">
-                                    <span class="files-icon"><i class="fa fa-file-pdf-o"></i></span>
-                                </div>
-                                <div class="files-info">
-                                    <span class="file-name text-ellipsis"><a href="#">Cas de test Test-Cases.xls</a></span>
-                                    <span class="file-author"><a href="#">John Doe</a></span> <span class="file-date">May 31st at 6:53 PM</span>
-                                    <div class="file-size">Size: 14.8Mb</div>
-                                </div>
-                                <ul class="files-action">
-													<li class="dropdown dropdown-action">
-														<a href="" class="dropdown-toggle btn btn-link" data-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_horiz</i></a>
-														<div class="dropdown-menu dropdown-menu-right">
-															<a class="dropdown-item" href="javascript:void(0)">Download</a>
-															<a class="dropdown-item" href="#" data-toggle="modal" data-target="#share_files">Share</a>
-															<a class="dropdown-item" href="javascript:void(0)">Delete</a>
-														</div>
-													</li>
-												</ul>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="project-task">
-                <ul class="nav nav-tabs nav-tabs-top nav-justified mb-0">
-                    <li class="nav-item"><a class="nav-link active" href="#all_tasks" data-toggle="tab" aria-expanded="true">Toutes les tâches</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#pending_tasks" data-toggle="tab" aria-expanded="false">Tâches en attente</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#completed_tasks" data-toggle="tab" aria-expanded="false">Tâches terminées</a></li>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row">
+            <div class="col-sm-12">
+                <h3 class="page-title">(Titre du projet)</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Tableau de bord</a></li>
+                    <li class="breadcrumb-item active">(Titre du projet)</li>
                 </ul>
-                <div class="tab-content">
-                    <div class="tab-pane show active" id="all_tasks">
-                        <div class="task-wrapper">
-                           <div class="navbar">
-                               <div class="float-left mr-auto">
-                                   <div class="add-task-btn-wrapper">
-                                       <span class="add-task-btn btn btn-white btn-sm">Ajouter une tâche</span>
-                                   </div>
-                               </div>
-                           </div>
-                            <div class="task-list-container">
-                                <div class="task-list-body">
-                                    <ul id="task-list">
+            </div>
+        </div>
+    </div>
+    <!-- /Page Header -->
+</div>
 
-                                        <li class="task">
-                                            <div class="task-container">
-                                                <span class="task-action-btn task-check">
-                                                    <span class="action-circle large complete-btn" title="Mark Complete">
-                                                        <i class="material-icons">check</i>
-                                                    </span>
-                                                </span>
-                                                <span class="task-label" contenteditable="true">Tache 1</span>
-                                                <span class="task-action-btn task-btn-right">
-                                                    <span class="action-circle large" title="Assign">
-                                                        <i class="material-icons">person_add</i>
-                                                    </span>
-                                                    <span class="action-circle large delete-btn" title="Delete Task">
-                                                        <i class="material-icons">delete</i>
-                                                    </span>
-                                                </span>
-                                            </div>
-                                        </li>
 
-                                        <li class="completed task">
-                                            <div class="task-container">
-                                                <span class="task-action-btn task-check">
-                                                    <span class="action-circle large complete-btn" title="Mark Complete">
-                                                        <i class="material-icons">check</i>
-                                                    </span>
-                                                </span>
-                                                <span class="task-label">Tache 2</span>
-                                                <span class="task-action-btn task-btn-right">
-                                                    <span class="action-circle large" title="Assign">
-                                                        <i class="material-icons">person_add</i>
-                                                    </span>
-                                                    <span class="action-circle large delete-btn" title="Delete Task">
-                                                        <i class="material-icons">delete</i>
-                                                    </span>
-                                                </span>
-                                            </div>
-                                        </li>
-                                    </ul>
+<div class="row">
+    <div class="col-lg-8 col-xl-9">
+        <div class="card">
+            <div class="card-body">
+                <div class="project-title">
+                    <h5 class="card-title">Titre</h5>
+                    <small class="block text-ellipsis m-b-15"><span class="text-xs">2</span> <span class="text-muted">open tasks, </span><span
+                            class="text-xs">5</span> <span class="text-muted">tasks completed</span></small>
+                </div>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vel elit neque. Class aptent taciti
+                    sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vestibulum sollicitudin
+                    libero vitae est consectetur, a molestie tortor consectetur. Aenean tincidunt interdum ipsum, id
+                    pellentesque diam suscipit ut. Vivamus massa mi, fermentum eget neque eget, imperdiet tristique
+                    lectus. Proin at purus ut sem pellentesque tempor sit amet ut lectus. Sed orci augue, placerat et
+                    pretium ac, hendrerit in felis. Integer scelerisque libero non metus commodo, et hendrerit diam
+                    aliquet. Proin tincidunt porttitor ligula, a tincidunt orci pellentesque nec. Ut ultricies maximus
+                    nulla id consequat. Fusce eu consequat mi, eu euismod ligula. Aliquam porttitor neque id massa
+                    porttitor, a pretium velit vehicula. Morbi volutpat tincidunt urna, vel ullamcorper ligula fermentum
+                    at. </p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vel elit neque. Class aptent taciti
+                    sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vestibulum sollicitudin
+                    libero vitae est consectetur, a molestie tortor consectetur. Aenean tincidunt interdum ipsum, id
+                    pellentesque diam suscipit ut. Vivamus massa mi, fermentum eget neque eget, imperdiet tristique
+                    lectus. Proin at purus ut sem pellentesque tempor sit amet ut lectus. Sed orci augue, placerat et
+                    pretium ac, hendrerit in felis. Integer scelerisque libero non metus commodo, et hendrerit diam
+                    aliquet. Proin tincidunt porttitor ligula, a tincidunt orci pellentesque nec. Ut ultricies maximus
+                    nulla id consequat. Fusce eu consequat mi, eu euismod ligula. Aliquam porttitor neque id massa
+                    porttitor, a pretium velit vehicula. Morbi volutpat tincidunt urna, vel ullamcorper ligula fermentum
+                    at. </p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title m-b-20">Fichiers image téléchargés</h5>
+                <div class="row">
 
-                                </div>
-                                <div class="task-list-footer">
-                                    <div class="new-task-wrapper">
-                                        <textarea  id="new-task" placeholder="Enter new task here. . ."></textarea>
-                                        <span class="error-message hidden">You need to enter a task first</span>
-                                        <span class="add-new-task-btn btn" id="add-task">Add Task</span>
-                                        <span class="btn" id="close-task-panel">Close</span>
+                    <div class="col-md-3 col-sm-4 col-lg-4 col-xl-3">
+                        <div class="uploaded-box">
+                            <div class="uploaded-img"><img src="{% static 'assets/img/placeholder.jpg' %}"
+                                                           class="img-fluid" alt="">
+                            </div>
+                            <div class="uploaded-img-name">
+                                demo.png
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-4 col-lg-4 col-xl-3">
+                        <div class="uploaded-box">
+                            <div class="uploaded-img">
+                                <img src="{% static 'assets/img/placeholder.jpg' %}" class="img-fluid" alt="">
+                            </div>
+                            <div class="uploaded-img-name">
+                                demo.png
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-4 col-lg-4 col-xl-3">
+                        <div class="uploaded-box">
+                            <div class="uploaded-img">
+                                <img src="{% static 'assets/img/placeholder.jpg' %}" class="img-fluid" alt="">
+                            </div>
+                            <div class="uploaded-img-name">
+                                demo.png
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-4 col-lg-4 col-xl-3">
+                        <div class="uploaded-box">
+                            <div class="uploaded-img">
+                                <img src="{% static 'assets/img/placeholder.jpg' %}" class="img-fluid" alt="">
+                            </div>
+                            <div class="uploaded-img-name">
+                                demo.png
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title m-b-20">Fichiers téléchargés</h5>
+                <ul class="files-list">
+                    <li>
+                        <div class="files-cont">
+                            <div class="file-type">
+                                <span class="files-icon"><i class="fa fa-file-pdf-o"></i></span>
+                            </div>
+                            <div class="files-info">
+                                <span class="file-name text-ellipsis"><a href="#">Cas de test Test-Cases.xls</a></span>
+                                <span class="file-author"><a href="#">John Doe</a></span> <span class="file-date">May 31st at 6:53 PM</span>
+                                <div class="file-size">Size: 14.8Mb</div>
+                            </div>
+                            <ul class="files-action">
+                                <li class="dropdown dropdown-action">
+                                    <a href="" class="dropdown-toggle btn btn-link" data-toggle="dropdown"
+                                       aria-expanded="false"><i class="material-icons">more_horiz</i></a>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <a class="dropdown-item" href="javascript:void(0)">Download</a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal"
+                                           data-target="#share_files">Share</a>
+                                        <a class="dropdown-item" href="javascript:void(0)">Delete</a>
                                     </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="files-cont">
+                            <div class="file-type">
+                                <span class="files-icon"><i class="fa fa-file-pdf-o"></i></span>
+                            </div>
+                            <div class="files-info">
+                                <span class="file-name text-ellipsis"><a href="#">Cas de test Test-Cases.xls</a></span>
+                                <span class="file-author"><a href="#">John Doe</a></span> <span class="file-date">May 31st at 6:53 PM</span>
+                                <div class="file-size">Size: 14.8Mb</div>
+                            </div>
+                            <ul class="files-action">
+                                <li class="dropdown dropdown-action">
+                                    <a href="" class="dropdown-toggle btn btn-link" data-toggle="dropdown"
+                                       aria-expanded="false"><i class="material-icons">more_horiz</i></a>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <a class="dropdown-item" href="javascript:void(0)">Download</a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal"
+                                           data-target="#share_files">Share</a>
+                                        <a class="dropdown-item" href="javascript:void(0)">Delete</a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="project-task">
+            <ul class="nav nav-tabs nav-tabs-top nav-justified mb-0">
+                <li class="nav-item"><a class="nav-link active" href="#all_tasks" data-toggle="tab"
+                                        aria-expanded="true">Toutes les tâches</a></li>
+                <li class="nav-item"><a class="nav-link" href="#pending_tasks" data-toggle="tab" aria-expanded="false">Tâches
+                    en attente</a></li>
+                <li class="nav-item"><a class="nav-link" href="#completed_tasks" data-toggle="tab"
+                                        aria-expanded="false">Tâches terminées</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane show active" id="all_tasks">
+                    <div class="task-wrapper">
+                        <div class="navbar">
+                            <div class="float-left mr-auto">
+                                <div class="add-task-btn-wrapper">
+                                    <span class="add-task-btn btn btn-white btn-sm">Ajouter une tâche</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="task-list-container">
+                            <div class="task-list-body">
+                                <ul id="task-list">
+
+                                    <li class="task">
+                                        <div class="task-container">
+                                                <span class="task-action-btn task-check">
+                                                    <span class="action-circle large complete-btn"
+                                                          title="Mark Complete">
+                                                        <i class="material-icons">check</i>
+                                                    </span>
+                                                </span>
+                                            <span class="task-label" contenteditable="true">Tache 1</span>
+                                            <span class="task-action-btn task-btn-right">
+                                                    <span class="action-circle large" title="Assign">
+                                                        <i class="material-icons">person_add</i>
+                                                    </span>
+                                                    <span class="action-circle large delete-btn" title="Delete Task">
+                                                        <i class="material-icons">delete</i>
+                                                    </span>
+                                                </span>
+                                        </div>
+                                    </li>
+
+                                    <li class="completed task">
+                                        <div class="task-container">
+                                                <span class="task-action-btn task-check">
+                                                    <span class="action-circle large complete-btn"
+                                                          title="Mark Complete">
+                                                        <i class="material-icons">check</i>
+                                                    </span>
+                                                </span>
+                                            <span class="task-label">Tache 2</span>
+                                            <span class="task-action-btn task-btn-right">
+                                                    <span class="action-circle large" title="Assign">
+                                                        <i class="material-icons">person_add</i>
+                                                    </span>
+                                                    <span class="action-circle large delete-btn" title="Delete Task">
+                                                        <i class="material-icons">delete</i>
+                                                    </span>
+                                                </span>
+                                        </div>
+                                    </li>
+                                </ul>
+
+                            </div>
+                            <div class="task-list-footer">
+                                <div class="new-task-wrapper">
+                                    <textarea id="new-task" placeholder="Enter new task here. . ."></textarea>
+                                    <span class="error-message hidden">You need to enter a task first</span>
+                                    <span class="add-new-task-btn btn" id="add-task">Add Task</span>
+                                    <span class="btn" id="close-task-panel">Close</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="tab-pane" id="pending_tasks"></div>
-                    <div class="tab-pane" id="completed_tasks"></div>
                 </div>
+                <div class="tab-pane" id="pending_tasks"></div>
+                <div class="tab-pane" id="completed_tasks"></div>
             </div>
         </div>
+    </div>
 
-        <div class="col-lg-4 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="card-title m-b-15">Détails du projet</h6>
-                    <table class="table table-striped table-border">
-                        <tbody>
-                        <tr>
-                            <td>Coût:</td>
-                            <td class="text-right">$1200</td>
-                        </tr>
-                        <tr>
-                            <td>Nombre d'heures:</td>
-                            <td class="text-right">100 Hours</td>
-                        </tr>
-                        <tr>
-                            <td>Créé:</td>
-                            <td class="text-right">25 Feb, 2019</td>
-                        </tr>
-                        <tr>
-                            <td>Date limite:</td>
-                            <td class="text-right">12 Jun, 2019</td>
-                        </tr>
-                        <tr>
-                            <td>Priorité:</td>
-                            <td class="text-right">
-                                <div class="btn-group">
-                                    <a href="#" class="badge badge-danger dropdown-toggle" data-toggle="dropdown">Highest </a>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Créé par:</td>
-                            <td class="text-right"><a href="{% url 'profile-employee' %}">Barry Cuda</a></td>
-                        </tr>
-                        <tr>
-                            <td>Statut:</td>
-                            <td class="text-right">en cour</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    <p class="m-b-5">Progress <span class="text-success float-right">40%</span></p>
-                    <div class="progress progress-xs mb-0">
-                        <div class="progress-bar bg-success" role="progressbar" data-toggle="tooltip" title="40%" style="width: 40%"></div>
-                    </div>
+    <div class="col-lg-4 col-xl-3">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title m-b-15">Détails du projet</h6>
+                <table class="table table-striped table-border">
+                    <tbody>
+                    <tr>
+                        <td>Coût:</td>
+                        <td class="text-right">$1200</td>
+                    </tr>
+                    <tr>
+                        <td>Nombre d'heures:</td>
+                        <td class="text-right">100 Hours</td>
+                    </tr>
+                    <tr>
+                        <td>Créé:</td>
+                        <td class="text-right">25 Feb, 2019</td>
+                    </tr>
+                    <tr>
+                        <td>Date limite:</td>
+                        <td class="text-right">12 Jun, 2019</td>
+                    </tr>
+                    <tr>
+                        <td>Priorité:</td>
+                        <td class="text-right">
+                            <div class="btn-group">
+                                <a href="#" class="badge badge-danger dropdown-toggle"
+                                   data-toggle="dropdown">Highest </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Créé par:</td>
+                        <td class="text-right"><a href="{% url 'profile-employee' %}">Barry Cuda</a></td>
+                    </tr>
+                    <tr>
+                        <td>Statut:</td>
+                        <td class="text-right">en cour</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <p class="m-b-5">Progress <span class="text-success float-right">40%</span></p>
+                <div class="progress progress-xs mb-0">
+                    <div class="progress-bar bg-success" role="progressbar" data-toggle="tooltip" title="40%"
+                         style="width: 40%"></div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}
 
 {% block extrascript %}
-    <!--JS-->
-    <!-- jQuery -->
-    <script src="{% static 'assets/js/jquery-3.5.1.min.js' %}"></script>
+<!--JS-->
+<!-- jQuery -->
+<script src="{% static 'assets/js/jquery-3.5.1.min.js' %}"></script>
 
-    <!-- Bootstrap Core JS -->
-    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+<!-- Bootstrap Core JS -->
+<script src="{% static 'assets/js/popper.min.js' %}"></script>
 
-    <script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
 
-    <!-- Slimscroll JS -->
-    <script src="{% static 'assets/js/jquery.slimscroll.min.js' %}"></script>
+<!-- Slimscroll JS -->
+<script src="{% static 'assets/js/jquery.slimscroll.min.js' %}"></script>
 
-    <!-- Chart JS -->
-    <!-- Select2 JS -->
-    <script src="{% static 'assets/js/select2.min.js' %}"></script>
+<!-- Chart JS -->
+<!-- Select2 JS -->
+<script src="{% static 'assets/js/select2.min.js' %}"></script>
 
-    <!-- Datetimepicker JS -->
-    <script src="{% static 'assets/js/moment.min.js' %}"></script>
-    <script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
+<!-- Datetimepicker JS -->
+<script src="{% static 'assets/js/moment.min.js' %}"></script>
+<script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
 
-    <!-- Task JS -->
-    <script src="{% static 'assets/js/task.js' %}"></script>
+<!-- Task JS -->
+<script src="{% static 'assets/js/task.js' %}"></script>
 
-    <!-- Custom JS -->
-    <script src="{% static 'assets/js/app.js' %}"></script>
+<!-- Custom JS -->
+<script src="{% static 'assets/js/app.js' %}"></script>
 
 {% endblock %}

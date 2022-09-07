@@ -23,4 +23,10 @@ def changePassword(request):
 
 def typeConge(request):
     return render(request, "parametre/type-conge.html")
+
+def loginUser(request):
+    return render(request, "parametre/login.html")
+
+def forgetPassword(request):
+    return render(request, "parametre/password-forget.html")
 # Create your views here.

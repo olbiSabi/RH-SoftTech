@@ -9,4 +9,6 @@ urlpatterns = [
     path('parametre-salariaux/', parametreSalariaux, name='parametreSalariaux'),
     path('change-password/', changePassword, name='changePassword'),
     path('type-conge/', typeConge, name='typeConge'),
+    path('login/', loginUser, name='loginUser'),
+    path('password-forget/', forgetPassword, name='forgetPassword'),
 ]

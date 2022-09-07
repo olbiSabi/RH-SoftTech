@@ -7,9 +7,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% comment %}<title>Dashboard - HRMS admin template</title>{% endcomment %}
-    <title>
-        {% block title %} {% endblock %}
-    </title>
+
+    {% block title %} {% endblock %}
 
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/AdminLTELogo.png' %}">
@@ -34,146 +33,168 @@
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
-			<script src="{% static 'assets/js/html5shiv.min.js' %}"></script>
-			<script src="{% static 'assets/js/respond.min.js' %}"></script>
-	<![endif]-->
+    <script src="{% static 'assets/js/html5shiv.min.js' %}"></script>
+    <script src="{% static 'assets/js/respond.min.js' %}"></script>
+    <![endif]-->
 </head>
 
 
-
 <body>
-    <!-- Main Wrapper -->
-    <div class="main-wrapper">
+<!-- Main Wrapper -->
+<div class="main-wrapper">
 
-        <!--Navbar-->
-        {% include 'base/header.html' %}
+    <!--Navbar-->
+    {% include 'base/header.html' %}
 
 
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-inner slimscroll">
+            <div id="sidebar-menu" class="sidebar-menu">
+                <ul>
+                    <li><a {% block home %} {% endblock %} href="{% url 'homeUser' %}"><i class="las la-home"></i><span>Tableau de bord</span></a>
+                    </li>
+                    <li class="menu-title"><span>RH</span></li>
 
-        <!-- Sidebar -->
-        <div class="sidebar" id="sidebar">
-    <div class="sidebar-inner slimscroll">
-        <div id="sidebar-menu" class="sidebar-menu">
-            <ul>
-                <li ><a {% block home %} {% endblock %} href="{% url 'home' %}"><i class="las la-home"></i><span>Tableau de bord</span></a></li>
-                <li class="menu-title"><span>RH</span></li>
+                    <li class="submenu">
+                        <a href="#"><i class="lar la-address-card"></i><span> Salariés</span><span
+                                class="menu-arrow"></span></a>
+                        <ul style="display: none;">
+                            <li><a {% block employee %} {% endblock %}
+                                   href="{% url 'liste-employee' %}">Collaborateur</a></li>
+                            <li><a {% block valideEmbauche %} {% endblock %} href="{% url 'valider-embauche' %}">Valider
+                                une embauche</a></li>
+                            <li><a {% block conge %} {% endblock %} href="{% url 'conges' %}">Congés</a></li>
+                            <li><a {% block valideConge %} {% endblock %} href="{% url 'valider-conges' %}">Valider
+                                congés</a></li>
+                            <!--<li><a {% block feuillePresence %} {% endblock %} href="{% url 'feuilleDeTemps' %}">Feuille
+                                de présence</a></li>
+                            <li><a {% block planification %} {% endblock %} href="{% url 'planification' %}">Planification</a>
+                            </li>-->
+                            <!--<li><a {% block dossier-sortie %} {% endblock %} href="{% url 'dossier-sortie' %}">Dossier
+                                sortie</a></li>-->
+                            <li><a {% block departement %} {% endblock %} href="{% url 'departement' %}">Département</a>
+                            </li>
+                            <li><a {% block poste %} {% endblock %} href="{% url 'poste' %}">Poste</a></li>
+                        </ul>
+                    </li>
 
-                <li class="submenu">
-                    <a href="#" ><i class="lar la-address-card"></i><span> Salariés</span><span class="menu-arrow"></span></a>
-                    <ul style="display: none;">
-                        <li><a {% block employee %} {% endblock %} href="{% url 'liste-employee' %}">Tous les employés</a></li>
-                        <li><a {% block valideEmbauche %} {% endblock %} href="{% url 'valider-embauche' %}">Valider une embauche</a></li>
-                        <li><a {% block conge %} {% endblock %} href="{% url 'conges' %}">Congés</a></li>
-                        <li><a {% block valideConge %} {% endblock %} href="{% url 'valider-conges' %}">Valider congés</a></li>
-                        <li><a {% block feuillePresence %} {% endblock %} href="{% url 'feuilleDeTemps' %}">Feuille de présence</a></li>
-                        <li><a {% block planification %} {% endblock %} href="{% url 'planification' %}">Planification</a></li>
-                        <li><a {% block dossier-sortie %} {% endblock %} href="{% url 'dossier-sortie' %}">Dossier sortie</a></li>
-                        <li><a {% block departement %} {% endblock %} href="{% url 'departement' %}">Département</a></li>
-                        <li><a {% block poste %} {% endblock %} href="{% url 'poste' %}">Poste</a></li>
-                    </ul>
-                </li>
+                    <!--<li {% block presence %} {% endblock %}>
+                        <a href="{% url 'presence' %}"><i class="lar la-clock"></i><span>Présence</span></a>
+                    </li>
 
-                <li {% block presence %} {% endblock %}>
-                    <a href="{% url 'presence' %}"><i class="lar la-clock"></i><span>Présence</span></a>
-                </li>
+                    <li {% block projet %} {% endblock %}>
+                        <a href="{% url 'projet' %}"><i class="las la-project-diagram"></i><span>Projets</span></a>
+                    </li> -->
 
-                <li {% block projet %} {% endblock %}>
-                    <a href="{% url 'projet' %}"><i class="las la-project-diagram"></i><span>Projets</span></a>
-                </li>
+                    <!--<li class="menu-title">
+                        <span>LOGISTIQUE</span>
+                    </li> -->
 
-                <li class="menu-title">
-                    <span>LOGISTIQUE</span>
-                </li>
+                    <!--<li {% block client %} {% endblock %}>
+                        <a href="{% url 'client' %}"><i class="las la-users"></i> <span>Les clients</span></a>
+                    </li>-->
 
-                <li {% block client %} {% endblock %}>
-                    <a href="{% url 'client' %}"><i class="las la-users"></i> <span>Les clients</span></a>
-                </li>
+                    <!--{#
+                    <li><a {% block fournisseur %} {% endblock %}href="{% url 'fournisseur' %}"><i
+                            class="las la-truck"></i> <span>Les fournisseurs</span></a></li>
+                    #}-->
 
-{#                <li><a {% block fournisseur %} {% endblock %}href="{% url 'fournisseur' %}"><i class="las la-truck"></i> <span>Les fournisseurs</span></a></li>#}
+                    <!--<li class="submenu">
+                        <a href="#"><i class="la la-files-o"></i><span> Ventes </span><span
+                                class="menu-arrow"></span></a>
+                        <ul style="display: none;">
+                            <li><a {% block devis %} {% endblock %} href="{% url 'devis' %}">Devis</a></li>
+                            <li><a {% block facture %} {% endblock %} href="{% url 'facture' %}">Facture</a></li>
+                            <li><a {% block paiement %} {% endblock %} href="{% url 'paiement' %}">Paiements</a></li>
+                            <li><a {% block depense %} {% endblock %} href="{% url 'depense' %}">Dépense</a></li>
+                            <li><a {% block taxe %} {% endblock %} href="{% url 'taxe' %}">Taxes</a></li>
+                        </ul>
+                    </li>-->
 
-                <li class="submenu">
-                    <a href="#"><i class="la la-files-o"></i><span> Ventes </span><span class="menu-arrow"></span></a>
-                    <ul style="display: none;">
-                        <li><a {% block devis %} {% endblock %} href="{% url 'devis' %}">Devis</a></li>
-                        <li><a {% block facture %} {% endblock %} href="{% url 'facture' %}">Facture</a></li>
-                        <li><a {% block paiement %} {% endblock %} href="{% url 'paiement' %}">Paiements</a></li>
-                        <li><a {% block depense %} {% endblock %} href="{% url 'depense' %}">Dépense</a></li>
-                        <li><a {% block taxe %} {% endblock %} href="{% url 'taxe' %}">Taxes</a></li>
-                    </ul>
-                </li>
+                    <!--<li class="submenu">
+                        <a href="#"><i class="las la-parking"></i><span> Gestion parc auto </span><span
+                                class="menu-arrow"></span></a>
+                        <ul style="display: none;">
+                            <li><a {% block voiture %} {% endblock %} href="{% url 'voiture' %}">Voiture</a></li>
+                            <li><a {% block planning %} {% endblock %} href="{% url 'planning' %}">Planning</a></li>
+                        </ul>
+                    </li>-->
+                    <!--<li class="menu-title">
+                        <span>FINANCE & COMPTABILITE</span>
+                    </li>
+                    <li class="submenu">
+                        <a href="#"><i class="las la-calculator"></i><span> Comptabilité </span><span
+                                class="menu-arrow"></span></a>
+                        <ul style="display: none;">
+                            <li><a {% block validerDepense %} {% endblock %} href="{% url 'validerDepense' %}">Valider
+                                une dépense</a></li>
+                            <li><a {% block budget %} {% endblock %} href="{% url 'budget' %}">Budgets</a></li>
+                            <li><a {% block depenseBudgetaire %} {% endblock %} href="{% url 'depenseBudgetaire' %}">Dépenses
+                                budgétaires</a></li>
+                            <li><a {% block recetteBudgetaire %} {% endblock %} href="{% url 'recetteBudgetaire' %}">Recettes
+                                budgétaires</a></li>
+                        </ul>
+                    </li>-->
 
-                <li class="submenu">
-                    <a href="#"><i class="las la-parking"></i><span> Gestion parc auto </span><span class="menu-arrow"></span></a>
-                    <ul style="display: none;">
-                        <li><a {% block voiture %} {% endblock %} href="{% url 'voiture' %}">Voiture</a></li>
-                        <li><a {% block planning %} {% endblock %} href="{% url 'planning' %}">Planning</a></li>
-                    </ul>
-                </li>
-                <li class="menu-title">
-                    <span>FINANCE & COMPTABILITE</span>
-                </li>
-                <li class="submenu">
-                    <a href="#"><i class="las la-calculator"></i><span> Comptabilité </span><span class="menu-arrow"></span></a>
-                    <ul style="display: none;">
-                        <li><a {% block validerDepense %} {% endblock %} href="{% url 'validerDepense' %}">Valider une dépense</a></li>
-                        <li><a {% block budget %} {% endblock %} href="{% url 'budget' %}">Budgets</a></li>
-                        <li><a {% block depenseBudgetaire %} {% endblock %} href="{% url 'depenseBudgetaire' %}">Dépenses budgétaires</a></li>
-                        <li><a {% block recetteBudgetaire %} {% endblock %} href="{% url 'recetteBudgetaire' %}">Recettes budgétaires</a></li>
-                    </ul>
-                </li>
+                    <!--<li class="submenu">
+                        <a href="#"><i class="las la-money-bill"></i><span> Masse salariale </span><span
+                                class="menu-arrow"></span></a>
+                        <ul style="display: none;">
+                            <li><a {% block salaireEmploye %} {% endblock %} href="{% url 'salaireEmploye' %}"> Salaire
+                                de l'employé </a></li>
+                            <li><a {% block elementPaie %} {% endblock %} href="{% url 'elementPaie' %}"> Eléments de
+                                paie </a></li>
+                        </ul>
+                    </li>
 
-                <li class="submenu">
-                    <a href="#"><i class="las la-money-bill"></i><span> Masse salariale </span><span class="menu-arrow"></span></a>
-                    <ul style="display: none;">
-                        <li><a {% block salaireEmploye %} {% endblock %} href="{% url 'salaireEmploye' %}"> Salaire de l'employé </a></li>
-                        <li><a {% block elementPaie %} {% endblock %} href="{% url 'elementPaie' %}"> Eléments de paie </a></li>
-                    </ul>
-                </li>
+                    <li class="submenu">
+                        <a href="#"><i class="las la-chart-pie"></i><span> Rapports </span><span
+                                class="menu-arrow"></span></a>
+                        <ul style="display: none;">
+                            <li><a {% block rapportFacture %} {% endblock %} href="{% url 'rapportFacture' %}"> Rapport
+                                de facture </a></li>
+                            <li><a {% block rapportFichePaie %} {% endblock %} href="{% url 'rapportFichePaie' %}">
+                                Rapport de fiche de paie </a></li>
+                            <li><a {% block rapportConge %} {% endblock %} href="{% url 'rapportConge' %}"> Rapport de
+                                congé </a></li>
+                        </ul>
+                    </li>-->
 
-                <li class="submenu">
-                    <a href="#"><i class="las la-chart-pie"></i><span> Rapports </span><span class="menu-arrow"></span></a>
-                    <ul style="display: none;">
-                        <li><a {% block rapportFacture %} {% endblock %} href="{% url 'rapportFacture' %}"> Rapport de facture </a></li>
-                        <li><a {% block rapportFichePaie %} {% endblock %} href="{% url 'rapportFichePaie' %}"> Rapport de fiche de paie </a></li>
-                        <li><a {% block rapportConge %} {% endblock %} href="{% url 'rapportConge' %}"> Rapport de congé </a></li>
-                    </ul>
-                </li>
+                    <!--<li class="menu-title">
+                        <span>APP</span>
+                    </li>
 
-                <li class="menu-title">
-                    <span>APP</span>
-                </li>
-
-                <li {% block settings %} {% endblock %}>
-                    <a href="{% url 'parametreHome' %}"><i class="las la-cog"></i><span>Settings</span></a>
-                </li>
-            </ul>
+                    <li {% block settings %} {% endblock %}>
+                        <a href="{% url 'parametreHome' %}"><i class="las la-cog"></i><span>Settings</span></a>
+                    </li> -->
+                </ul>
+            </div>
         </div>
     </div>
-</div>
-        <!-- /Sidebar -->
+    <!-- /Sidebar -->
 
 
+    <!-- Page Wrapper -->
+    <div class="page-wrapper">
 
-        <!-- Page Wrapper -->
-        <div class="page-wrapper">
-
-            {% block pageContent %}
-
-            {% endblock %}
-
-        </div>
-        <!-- /Page Content -->
-
-        {% block pageWrapper %}
+        {% block pageContent %}
 
         {% endblock %}
 
     </div>
+    <!-- /Page Content -->
 
-
-    {% block extrascript %}
+    {% block pageWrapper %}
 
     {% endblock %}
+
+</div>
+
+
+{% block extrascript %}
+
+{% endblock %}
 
 </body>
 </html>

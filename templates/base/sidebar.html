@@ -1,5 +1,5 @@
 {% load static %}
-<!-- Sidebar -->
+<!-- Sidebar N'EST PAS UTILISE-->
 <div class="sidebar" id="sidebar">
     <div class="sidebar-inner slimscroll">
         <div id="sidebar-menu" class="sidebar-menu">
@@ -15,9 +15,10 @@
                 </li>
 
                 <li class="submenu">
-                    <a href="#" ><i class="lar la-address-card"></i><span> Salariés</span><span class="menu-arrow"></span></a>
+                    <a href="#"><i class="lar la-address-card"></i><span> Salariés</span><span
+                            class="menu-arrow"></span></a>
                     <ul style="display: none;">
-                        <li><a href="{% url 'liste-employee' %}">Tous les employés</a></li>
+                        <li><a href="{% url 'liste-employee' %}">Collaborateur</a></li>
                         <li><a href="{% url 'valider-embauche' %}">Valider une embauche</a></li>
                         <li><a href="{% url 'conges' %}">Congés</a></li>
                         <li><a href="{% url 'valider-conges' %}">Valider congés</a></li>

@@ -4,10 +4,13 @@
     <div class="card">
         <div class="card-body">
             <div class="dropdown profile-action">
-                <a aria-expanded="false" data-toggle="dropdown" class="action-icon dropdown-toggle" href="#"><i class="material-icons">more_vert</i></a>
+                <a aria-expanded="false" data-toggle="dropdown" class="action-icon dropdown-toggle" href="#"><i
+                        class="material-icons">more_vert</i></a>
                 <div class="dropdown-menu dropdown-menu-right">
-                    <a data-target="#edit_project" data-toggle="modal" href="#" class="dropdown-item"><i class="fa fa-pencil m-r-5"></i> Edit</a>
-                    <a data-target="#delete_confirme" data-toggle="modal" href="#" class="dropdown-item"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
+                    <a data-target="#edit_project" data-toggle="modal" href="#" class="dropdown-item"><i
+                            class="fa fa-pencil m-r-5"></i> Edit</a>
+                    <a data-target="#delete_confirme" data-toggle="modal" href="#" class="dropdown-item"><i
+                            class="fa fa-trash-o m-r-5"></i> Delete</a>
                 </div>
             </div>
             <h4 class="project-title"><a href="{% url 'detail-projet' %}">Office Management</a></h4>
@@ -31,7 +34,8 @@
                 <div>Chef de projet :</div>
                 <ul class="team-members">
                     <li>
-                        <a href="#" data-toggle="tooltip" title="Jeffery Lalor"><img alt="" src="{% static 'assets/img/profiles/avatar-z.jpg' %}"></a>
+                        <a href="{% url 'profile-employee' %}" data-toggle="tooltip" title="Jeffery Lalor"><img alt=""
+                                                                                                                src="{% static 'assets/img/profiles/avatar-z.jpg' %}"></a>
                     </li>
                 </ul>
             </div>
