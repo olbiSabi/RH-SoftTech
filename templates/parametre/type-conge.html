@@ -1,4 +1,5 @@
-{% extends 'parametre/parametreBase/parametre-base.html' %}
+{% extends 'base/baseSansMatricule.html' %}
+{% block title %} <title>type de conge</title>>{% endblock %}
 {% load static %}
 
 {% block extrastylet %}
@@ -6,12 +7,7 @@
 <link rel="stylesheet" href="{% static 'assets/css/dataTables.bootstrap4.min.css' %}">
 {% endblock %}
 
-{% block typeConge %} class="active" {% endblock %}
-
-{% block projet %} class="active" {% endblock %}
-
 <!-- Content Body (Page Body) -->
-
 {% block pageContent %}
 <div class="content container-fluid">
     <!-- Page Header -->
@@ -37,30 +33,17 @@
                 <table class="table table-striped custom-table datatable mb-0">
                     <thead>
                     <tr>
-                        <th>#</th>
-                        <th>Type de congé</th>
-                        <th>Jours de congé</th>
+                        <th>CODE</th>
+                        <th>Libellé</th>
                         <th>Statut</th>
                         <th class="text-right">Action</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr>
-                        <td>1</td>
+                        <td>CPN</td>
                         <td>Congé occasionnel</td>
-                        <td>12 jours</td>
-                        <td>
-                            <div class="dropdown action-label">
-                                <a class="btn btn-white btn-sm btn-rounded dropdown-toggle" href="#"
-                                   data-toggle="dropdown" aria-expanded="false">
-                                    <i class="fa fa-dot-circle-o text-success"></i> Actif
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <a href="#" class="dropdown-item"><i class="fa fa-dot-circle-o text-success"></i>Actif</a>
-                                    <a href="#" class="dropdown-item"><i class="fa fa-dot-circle-o text-danger"></i>Inactif</a>
-                                </div>
-                            </div>
-                        </td>
+                        <td>Actif</td>
                         <td class="text-right">
                             <div class="dropdown dropdown-action">
                                 <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown"
@@ -76,21 +59,9 @@
                     </tr>
 
                     <tr>
-                        <td>2</td>
+                        <td>MAL</td>
                         <td>Congé de maladie</td>
-                        <td>12 jours</td>
-                        <td>
-                            <div class="dropdown action-label">
-                                <a class="btn btn-white btn-sm btn-rounded dropdown-toggle" href="#"
-                                   data-toggle="dropdown" aria-expanded="false">
-                                    <i class="fa fa-dot-circle-o text-danger"></i> Inactif
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <a class="dropdown-item" href="#"><i class="fa fa-dot-circle-o text-success"></i>Actif</a>
-                                    <a class="dropdown-item" href="#"><i class="fa fa-dot-circle-o text-danger"></i>Inactif</a>
-                                </div>
-                            </div>
-                        </td>
+                        <td>Inactif</td>
                         <td class="text-right">
                             <div class="dropdown dropdown-action">
                                 <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown"
@@ -106,21 +77,9 @@
                     </tr>
 
                     <tr>
-                        <td>3</td>
+                        <td>TER</td>
                         <td>Perte de salaire</td>
-                        <td>-</td>
-                        <td>
-                            <div class="dropdown action-label">
-                                <a class="btn btn-white btn-sm btn-rounded dropdown-toggle" href="#"
-                                   data-toggle="dropdown" aria-expanded="false">
-                                    <i class="fa fa-dot-circle-o text-success"></i> Active
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <a class="dropdown-item" href="#"><i class="fa fa-dot-circle-o text-success"></i>Actif</a>
-                                    <a class="dropdown-item" href="#"><i class="fa fa-dot-circle-o text-danger"></i>Inactif</a>
-                                </div>
-                            </div>
-                        </td>
+                        <td>Active</td>
                         <td class="text-right">
                             <div class="dropdown dropdown-action">
                                 <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown"
@@ -154,13 +113,28 @@
             </div>
             <div class="modal-body">
                 <form>
-                    <div class="form-group">
-                        <label>Type de congé <span class="text-danger">*</span></label>
-                        <input class="form-control" type="text">
-                    </div>
-                    <div class="form-group">
-                        <label>Nombre de jours <span class="text-danger">*</span></label>
-                        <input class="form-control" type="text">
+                    <div class="row">
+                        <div class="col-sm-6 col-md-6 col-lg-3">
+                            <div class="form-group">
+                                <label>Code </label>
+                                <input class="form-control" value=" " type="text">
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label>Libellé</label>
+                                <input class="form-control" value=" " type="text">
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-3">
+                            <div class="form-group">
+                                <label>Statut</label>
+                                <select class="form-control select">
+                                    <option>Actif</option>
+                                    <option>Inactif</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div class="submit-section">
                         <button class="btn btn-primary submit-btn">Soumettre</button>
@@ -184,13 +158,28 @@
             </div>
             <div class="modal-body">
                 <form>
-                    <div class="form-group">
-                        <label>Type de congé <span class="text-danger">*</span></label>
-                        <input class="form-control" type="text" value="Casual Leave">
-                    </div>
-                    <div class="form-group">
-                        <label>Nombre de jours <span class="text-danger">*</span></label>
-                        <input class="form-control" type="text" value="12">
+                    <div class="row">
+                        <div class="col-sm-6 col-md-6 col-lg-3">
+                            <div class="form-group">
+                                <label>Code </label>
+                                <input class="form-control" value=" " type="text">
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label>Libellé</label>
+                                <input class="form-control" value=" " type="text">
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-3">
+                            <div class="form-group">
+                                <label>Statut</label>
+                                <select class="form-control select">
+                                    <option>Actif</option>
+                                    <option>Inactif</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div class="submit-section">
                         <button class="btn btn-primary submit-btn">Sauvegarder</button>

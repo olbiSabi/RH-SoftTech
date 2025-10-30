@@ -11,13 +11,13 @@ $(document).ready(function() {
 	let $wrapper = $('.main-wrapper');
 	let $pageWrapper = $('.page-wrapper');
 	let $slimScrolls = $('.slimscroll');
-	
+
 	// Sidebar
-	
+
 	let Sidemenu = function() {
 		this.$menuItem = $('#sidebar-menu a');
 	};
-	
+
 	function init() {
 		let $this = Sidemenu;
 		$('#sidebar-menu a').on('click', function(e) {
@@ -36,12 +36,12 @@ $(document).ready(function() {
 		});
 		$('#sidebar-menu ul li.submenu a.active').parents('li:last').children('a:first').addClass('active').trigger('click');
 	}
-	
+
 	// Sidebar Initiate
 	init();
-	
+
 	// Mobile menu sidebar overlay
-	
+
 	$('body').append('<div class="sidebar-overlay"></div>');
 	$(document).on('click', '#mobile_btn', function() {
 		$wrapper.toggleClass('slide-nav');
@@ -50,7 +50,7 @@ $(document).ready(function() {
 		$('#task_window').removeClass('opened');
 		return false;
 	});
-	
+
 	$(".sidebar-overlay").on("click", function () {
 			$('html').removeClass('menu-opened');
 			$(this).removeClass('opened');
@@ -58,9 +58,9 @@ $(document).ready(function() {
 			$('.sidebar-overlay').removeClass('opened');
 			$('#task_window').removeClass('opened');
 	});
-	
+
 	// Chat sidebar overlay
-	
+
 	$(document).on('click', '#task_chat', function() {
 		$('.sidebar-overlay').toggleClass('opened');
 		$('#task_window').addClass('opened');
@@ -100,7 +100,7 @@ $(document).ready(function() {
 		$(this).parents('.form-focus').toggleClass('focused', (e.type === 'focus' || this.value.length > 0));
 		}).trigger('blur');
 	}
-	
+
 	// Sidebar Slimscroll
 
 	if($slimScrolls.length > 0) {
@@ -313,19 +313,15 @@ $(document).ready(function() {
 			return false;
 		}
 	});
-	
-	$(document).on('click', '.top-nav-search .responsive-search', function() {
-		$('.top-nav-search').toggleClass('active');
-	});
-	
+
 	$(document).on('click', '#file_sidebar_toggle', function() {
 		$('.file-wrap').toggleClass('file-sidebar-toggle');
 	});
-	
+
 	$(document).on('click', '.file-side-close', function() {
 		$('.file-wrap').removeClass('file-sidebar-toggle');
 	});
-	
+
 	if($('.kanban-wrap').length > 0) {
 		$(".kanban-wrap").sortable({
 			connectWith: ".kanban-wrap",
@@ -342,3 +338,7 @@ $(window).on ('load', function (){
 	$('#loader').delay(100).fadeOut('slow');
 	$('#loader-wrapper').delay(500).fadeOut('slow');
 });
+
+
+// Sidebar
+

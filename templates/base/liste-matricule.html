@@ -1,0 +1,67 @@
+{% load static %}
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-inner">
+            <div class="sidebar-header">
+                <h3>Liste des employés</h3>
+            </div>
+
+            <div class="search-container">
+                <input type="text" class="search-input" id="searchInput" placeholder="Rechercher un employé...">
+            </div>
+
+            <table class="employees-table" id="employeesTable">
+                <thead>
+                    <tr>
+                        <th>Nom et matricule</th>
+                    </tr>
+                </thead>
+                <tbody id="employeesList">
+                    <!-- Les employés seront ajoutés par Django -->
+                    <!--{% for employee in employees %}
+                        <tr class="employee-row" data-matricule="{{ employee.matricule }}">
+                            <td>
+                                <div class="employee-name">{{ employee.name }}</div>
+                                <div class="employee-matricule">{{ employee.matricule }}</div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td class="no-results">Aucun employé trouvé</td>
+                        </tr>
+                         {% endfor %}-->
+                    <tr class="employee-row" data-matricule="EMP002">
+                        <td>
+                            <div class="employee-name">Jean Dupont</div>
+                            <div class="employee-matricule">EMP002</div>
+                        </td>
+                    </tr>
+                    <tr class="employee-row" data-matricule="EMP003">
+                        <td>
+                            <div class="employee-name">Marie Martin</div>
+                            <div class="employee-matricule">EMP003</div>
+                        </td>
+                    </tr>
+                    <tr class="employee-row" data-matricule="EMP004">
+                        <td>
+                            <div class="employee-name">Pierre Bernard</div>
+                            <div class="employee-matricule">EMP004</div>
+                        </td>
+                    </tr>
+                    <tr class="employee-row">
+                        <td>
+                            <div class="employee-name">Sophie Leroy"</div>
+                            <div class="employee-matricule">EMP005</div>
+                        </td>
+                    </tr>
+                    <tr class="employee-row">
+                        <td>
+                            <div class="employee-name">Laura Petit"</div>
+                            <div class="employee-matricule">EMP006</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- /Sidebar -->

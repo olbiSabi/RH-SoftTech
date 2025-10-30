@@ -1,14 +1,11 @@
-{% extends 'parametre/parametreBase/parametre-base.html' %}
+{% extends 'base/baseSansMatricule.html' %}
+{% block title %} <title>parametre facturation</title>{% endblock %}
 {% load static %}
 
 {% block extrastylet %}
 <!-- Select2 CSS -->
 <link rel="stylesheet" href="{% static 'assets/css/select2.min.css' %}">
 {% endblock %}
-
-{% block parametreFacture %} class="active" {% endblock %}
-
-{% block projet %} class="active" {% endblock %}
 
 <!-- Content Body (Page Body) -->
 

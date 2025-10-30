@@ -1,4 +1,5 @@
-{% extends 'base/base.html' %}
+{% extends 'base/baseSansMatricule.html' %}
+{% block title %} <title>employé</title>>{% endblock %}
 {% load static %}
 
 {% block extrastylet %}
@@ -16,7 +17,6 @@
       href="{% static 'assets/datatables/DataTables-1.12.1/css/dataTables.bootstrap5.min.css' %}"/>{% endcomment %}
 {% endblock %}
 
-{% block employee %} class="active" {% endblock %}
 <!-- Content Body (Page Body) -->
 
 {% block pageContent %}
@@ -76,8 +76,8 @@
             <a href="#" class="btn btn-success btn-block"> Chercher </a>
         </div>
     </div>
-    <!-- Search Filter -->
 
+    <!-- Search Filter -->
     <div class="row staff-grid-row">
 
         <div class="col-md-4 col-sm-6 col-12 col-lg-4 col-xl-3">
@@ -343,7 +343,6 @@
                 <div class="small text-muted">Android Developer</div>
             </div>
         </div>
-
     </div>
 </div>
 <!-- /Page Content -->
@@ -386,28 +385,6 @@
 
 
 {% block extrascript %}
-<!--JS-->
-<!-- jQuery -->
-<script src="{% static 'assets/js/jquery-3.5.1.min.js' %}"></script>
 
-<!-- Bootstrap Core JS -->
-<script src="{% static 'assets/js/popper.min.js' %}"></script>
-<script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
-
-<!-- Slimscroll JS -->
-<script src="{% static 'assets/js/jquery.slimscroll.min.js' %}"></script>
-
-<!-- Chart JS -->
-<!-- Select2 JS -->
-<script src="{% static 'assets/js/select2.min.js' %}"></script>
-
-<!-- Datetimepicker JS -->
-<script src="{% static 'assets/js/moment.min.js' %}"></script>
-<script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
-
-{#
-<script src="{% static 'plugins/build/js/custom.min.js' %}"></script>#}
-<!-- Custom JS -->
-<script src="{% static 'assets/js/app.js' %}"></script>
 
 {% endblock %}
