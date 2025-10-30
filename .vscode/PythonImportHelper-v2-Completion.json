@@ -1,0 +1,1579 @@
+[
+    {
+        "label": "os",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "os",
+        "description": "os",
+        "detail": "os",
+        "documentation": {}
+    },
+    {
+        "label": "site",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "site",
+        "description": "site",
+        "detail": "site",
+        "documentation": {}
+    },
+    {
+        "label": "sys",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "sys",
+        "description": "sys",
+        "detail": "sys",
+        "documentation": {}
+    },
+    {
+        "label": "get_asgi_application",
+        "importPath": "django.core.asgi",
+        "description": "django.core.asgi",
+        "isExtraImport": true,
+        "detail": "django.core.asgi",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "path",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "include",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "path",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "path",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "path",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "path",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "path",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "path",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "path",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "path",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "get_wsgi_application",
+        "importPath": "django.core.wsgi",
+        "description": "django.core.wsgi",
+        "isExtraImport": true,
+        "detail": "django.core.wsgi",
+        "documentation": {}
+    },
+    {
+        "label": "AppConfig",
+        "importPath": "django.apps",
+        "description": "django.apps",
+        "isExtraImport": true,
+        "detail": "django.apps",
+        "documentation": {}
+    },
+    {
+        "label": "AppConfig",
+        "importPath": "django.apps",
+        "description": "django.apps",
+        "isExtraImport": true,
+        "detail": "django.apps",
+        "documentation": {}
+    },
+    {
+        "label": "AppConfig",
+        "importPath": "django.apps",
+        "description": "django.apps",
+        "isExtraImport": true,
+        "detail": "django.apps",
+        "documentation": {}
+    },
+    {
+        "label": "AppConfig",
+        "importPath": "django.apps",
+        "description": "django.apps",
+        "isExtraImport": true,
+        "detail": "django.apps",
+        "documentation": {}
+    },
+    {
+        "label": "AppConfig",
+        "importPath": "django.apps",
+        "description": "django.apps",
+        "isExtraImport": true,
+        "detail": "django.apps",
+        "documentation": {}
+    },
+    {
+        "label": "AppConfig",
+        "importPath": "django.apps",
+        "description": "django.apps",
+        "isExtraImport": true,
+        "detail": "django.apps",
+        "documentation": {}
+    },
+    {
+        "label": "AppConfig",
+        "importPath": "django.apps",
+        "description": "django.apps",
+        "isExtraImport": true,
+        "detail": "django.apps",
+        "documentation": {}
+    },
+    {
+        "label": "AppConfig",
+        "importPath": "django.apps",
+        "description": "django.apps",
+        "isExtraImport": true,
+        "detail": "django.apps",
+        "documentation": {}
+    },
+    {
+        "label": "AppConfig",
+        "importPath": "django.apps",
+        "description": "django.apps",
+        "isExtraImport": true,
+        "detail": "django.apps",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "bin_dir",
+        "kind": 5,
+        "importPath": ".env.Scripts.activate_this",
+        "description": ".env.Scripts.activate_this",
+        "peekOfCode": "bin_dir = os.path.dirname(abs_file)\nbase = bin_dir[: -len(\"Scripts\") - 1]  # strip away the bin part from the __file__, plus the path separator\n# prepend bin to PATH (this file is inside the bin directory)\nos.environ[\"PATH\"] = os.pathsep.join([bin_dir] + os.environ.get(\"PATH\", \"\").split(os.pathsep))\nos.environ[\"VIRTUAL_ENV\"] = base  # virtual env is right above bin directory\n# add the virtual environments libraries to the host python import mechanism\nprev_length = len(sys.path)\nfor lib in \"..\\Lib\\site-packages\".split(os.pathsep):\n    path = os.path.realpath(os.path.join(bin_dir, lib))\n    site.addsitedir(path.decode(\"utf-8\") if \"\" else path)",
+        "detail": ".env.Scripts.activate_this",
+        "documentation": {}
+    },
+    {
+        "label": "base",
+        "kind": 5,
+        "importPath": ".env.Scripts.activate_this",
+        "description": ".env.Scripts.activate_this",
+        "peekOfCode": "base = bin_dir[: -len(\"Scripts\") - 1]  # strip away the bin part from the __file__, plus the path separator\n# prepend bin to PATH (this file is inside the bin directory)\nos.environ[\"PATH\"] = os.pathsep.join([bin_dir] + os.environ.get(\"PATH\", \"\").split(os.pathsep))\nos.environ[\"VIRTUAL_ENV\"] = base  # virtual env is right above bin directory\n# add the virtual environments libraries to the host python import mechanism\nprev_length = len(sys.path)\nfor lib in \"..\\Lib\\site-packages\".split(os.pathsep):\n    path = os.path.realpath(os.path.join(bin_dir, lib))\n    site.addsitedir(path.decode(\"utf-8\") if \"\" else path)\nsys.path[:] = sys.path[prev_length:] + sys.path[0:prev_length]",
+        "detail": ".env.Scripts.activate_this",
+        "documentation": {}
+    },
+    {
+        "label": "os.environ[\"PATH\"]",
+        "kind": 5,
+        "importPath": ".env.Scripts.activate_this",
+        "description": ".env.Scripts.activate_this",
+        "peekOfCode": "os.environ[\"PATH\"] = os.pathsep.join([bin_dir] + os.environ.get(\"PATH\", \"\").split(os.pathsep))\nos.environ[\"VIRTUAL_ENV\"] = base  # virtual env is right above bin directory\n# add the virtual environments libraries to the host python import mechanism\nprev_length = len(sys.path)\nfor lib in \"..\\Lib\\site-packages\".split(os.pathsep):\n    path = os.path.realpath(os.path.join(bin_dir, lib))\n    site.addsitedir(path.decode(\"utf-8\") if \"\" else path)\nsys.path[:] = sys.path[prev_length:] + sys.path[0:prev_length]\nsys.real_prefix = sys.prefix\nsys.prefix = base",
+        "detail": ".env.Scripts.activate_this",
+        "documentation": {}
+    },
+    {
+        "label": "os.environ[\"VIRTUAL_ENV\"]",
+        "kind": 5,
+        "importPath": ".env.Scripts.activate_this",
+        "description": ".env.Scripts.activate_this",
+        "peekOfCode": "os.environ[\"VIRTUAL_ENV\"] = base  # virtual env is right above bin directory\n# add the virtual environments libraries to the host python import mechanism\nprev_length = len(sys.path)\nfor lib in \"..\\Lib\\site-packages\".split(os.pathsep):\n    path = os.path.realpath(os.path.join(bin_dir, lib))\n    site.addsitedir(path.decode(\"utf-8\") if \"\" else path)\nsys.path[:] = sys.path[prev_length:] + sys.path[0:prev_length]\nsys.real_prefix = sys.prefix\nsys.prefix = base",
+        "detail": ".env.Scripts.activate_this",
+        "documentation": {}
+    },
+    {
+        "label": "prev_length",
+        "kind": 5,
+        "importPath": ".env.Scripts.activate_this",
+        "description": ".env.Scripts.activate_this",
+        "peekOfCode": "prev_length = len(sys.path)\nfor lib in \"..\\Lib\\site-packages\".split(os.pathsep):\n    path = os.path.realpath(os.path.join(bin_dir, lib))\n    site.addsitedir(path.decode(\"utf-8\") if \"\" else path)\nsys.path[:] = sys.path[prev_length:] + sys.path[0:prev_length]\nsys.real_prefix = sys.prefix\nsys.prefix = base",
+        "detail": ".env.Scripts.activate_this",
+        "documentation": {}
+    },
+    {
+        "label": "sys.path[:]",
+        "kind": 5,
+        "importPath": ".env.Scripts.activate_this",
+        "description": ".env.Scripts.activate_this",
+        "peekOfCode": "sys.path[:] = sys.path[prev_length:] + sys.path[0:prev_length]\nsys.real_prefix = sys.prefix\nsys.prefix = base",
+        "detail": ".env.Scripts.activate_this",
+        "documentation": {}
+    },
+    {
+        "label": "sys.real_prefix",
+        "kind": 5,
+        "importPath": ".env.Scripts.activate_this",
+        "description": ".env.Scripts.activate_this",
+        "peekOfCode": "sys.real_prefix = sys.prefix\nsys.prefix = base",
+        "detail": ".env.Scripts.activate_this",
+        "documentation": {}
+    },
+    {
+        "label": "sys.prefix",
+        "kind": 5,
+        "importPath": ".env.Scripts.activate_this",
+        "description": ".env.Scripts.activate_this",
+        "peekOfCode": "sys.prefix = base",
+        "detail": ".env.Scripts.activate_this",
+        "documentation": {}
+    },
+    {
+        "label": "application",
+        "kind": 5,
+        "importPath": "HR_ONIAN.asgi",
+        "description": "HR_ONIAN.asgi",
+        "peekOfCode": "application = get_asgi_application()",
+        "detail": "HR_ONIAN.asgi",
+        "documentation": {}
+    },
+    {
+        "label": "BASE_DIR",
+        "kind": 5,
+        "importPath": "HR_ONIAN.settings",
+        "description": "HR_ONIAN.settings",
+        "peekOfCode": "BASE_DIR = Path(__file__).resolve().parent.parent\n# Quick-start development settings - unsuitable for production\n# See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/\n# SECURITY WARNING: keep the secret key used in production secret!\nSECRET_KEY = 'django-insecure-&v(=w-yis!oj=9im0=-i(ii#b!pr(b(ncf!b#h921s$%-+92@#'\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [",
+        "detail": "HR_ONIAN.settings",
+        "documentation": {}
+    },
+    {
+        "label": "SECRET_KEY",
+        "kind": 5,
+        "importPath": "HR_ONIAN.settings",
+        "description": "HR_ONIAN.settings",
+        "peekOfCode": "SECRET_KEY = 'django-insecure-&v(=w-yis!oj=9im0=-i(ii#b!pr(b(ncf!b#h921s$%-+92@#'\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',",
+        "detail": "HR_ONIAN.settings",
+        "documentation": {}
+    },
+    {
+        "label": "DEBUG",
+        "kind": 5,
+        "importPath": "HR_ONIAN.settings",
+        "description": "HR_ONIAN.settings",
+        "peekOfCode": "DEBUG = True\nALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',",
+        "detail": "HR_ONIAN.settings",
+        "documentation": {}
+    },
+    {
+        "label": "ALLOWED_HOSTS",
+        "kind": 5,
+        "importPath": "HR_ONIAN.settings",
+        "description": "HR_ONIAN.settings",
+        "peekOfCode": "ALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n    'employee',",
+        "detail": "HR_ONIAN.settings",
+        "documentation": {}
+    },
+    {
+        "label": "INSTALLED_APPS",
+        "kind": 5,
+        "importPath": "HR_ONIAN.settings",
+        "description": "HR_ONIAN.settings",
+        "peekOfCode": "INSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n    'employee',\n    'client',\n    'projet',",
+        "detail": "HR_ONIAN.settings",
+        "documentation": {}
+    },
+    {
+        "label": "MIDDLEWARE",
+        "kind": 5,
+        "importPath": "HR_ONIAN.settings",
+        "description": "HR_ONIAN.settings",
+        "peekOfCode": "MIDDLEWARE = [\n    'django.middleware.security.SecurityMiddleware',\n    'django.contrib.sessions.middleware.SessionMiddleware',\n    'django.middleware.common.CommonMiddleware',\n    'django.middleware.csrf.CsrfViewMiddleware',\n    'django.contrib.auth.middleware.AuthenticationMiddleware',\n    'django.contrib.messages.middleware.MessageMiddleware',\n    'django.middleware.clickjacking.XFrameOptionsMiddleware',\n]\nROOT_URLCONF = 'HR_ONIAN.urls'",
+        "detail": "HR_ONIAN.settings",
+        "documentation": {}
+    },
+    {
+        "label": "ROOT_URLCONF",
+        "kind": 5,
+        "importPath": "HR_ONIAN.settings",
+        "description": "HR_ONIAN.settings",
+        "peekOfCode": "ROOT_URLCONF = 'HR_ONIAN.urls'\nTEMPLATES = [\n    {\n        'BACKEND': 'django.template.backends.django.DjangoTemplates',\n        'DIRS': [BASE_DIR / 'templates']\n        ,\n        'APP_DIRS': True,\n        'OPTIONS': {\n            'context_processors': [\n                'django.template.context_processors.debug',",
+        "detail": "HR_ONIAN.settings",
+        "documentation": {}
+    },
+    {
+        "label": "TEMPLATES",
+        "kind": 5,
+        "importPath": "HR_ONIAN.settings",
+        "description": "HR_ONIAN.settings",
+        "peekOfCode": "TEMPLATES = [\n    {\n        'BACKEND': 'django.template.backends.django.DjangoTemplates',\n        'DIRS': [BASE_DIR / 'templates']\n        ,\n        'APP_DIRS': True,\n        'OPTIONS': {\n            'context_processors': [\n                'django.template.context_processors.debug',\n                'django.template.context_processors.request',",
+        "detail": "HR_ONIAN.settings",
+        "documentation": {}
+    },
+    {
+        "label": "WSGI_APPLICATION",
+        "kind": 5,
+        "importPath": "HR_ONIAN.settings",
+        "description": "HR_ONIAN.settings",
+        "peekOfCode": "WSGI_APPLICATION = 'HR_ONIAN.wsgi.application'\n# Database\n# https://docs.djangoproject.com/en/4.0/ref/settings/#databases\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.sqlite3',\n        'NAME': BASE_DIR / 'db.sqlite3',\n    }\n}\n# Password validation",
+        "detail": "HR_ONIAN.settings",
+        "documentation": {}
+    },
+    {
+        "label": "DATABASES",
+        "kind": 5,
+        "importPath": "HR_ONIAN.settings",
+        "description": "HR_ONIAN.settings",
+        "peekOfCode": "DATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.sqlite3',\n        'NAME': BASE_DIR / 'db.sqlite3',\n    }\n}\n# Password validation\n# https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators\nAUTH_PASSWORD_VALIDATORS = [\n    {",
+        "detail": "HR_ONIAN.settings",
+        "documentation": {}
+    },
+    {
+        "label": "AUTH_PASSWORD_VALIDATORS",
+        "kind": 5,
+        "importPath": "HR_ONIAN.settings",
+        "description": "HR_ONIAN.settings",
+        "peekOfCode": "AUTH_PASSWORD_VALIDATORS = [\n    {\n        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',\n    },\n    {\n        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',\n    },\n    {\n        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',\n    },",
+        "detail": "HR_ONIAN.settings",
+        "documentation": {}
+    },
+    {
+        "label": "LANGUAGE_CODE",
+        "kind": 5,
+        "importPath": "HR_ONIAN.settings",
+        "description": "HR_ONIAN.settings",
+        "peekOfCode": "LANGUAGE_CODE = 'en-us'\nTIME_ZONE = 'UTC'\nUSE_I18N = True\nUSE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/4.0/howto/static-files/\nSTATIC_URL = 'static/'\nAPPEND_SLASH = True\nSTATICFILES_DIRS = [\n    os.path.join(BASE_DIR, 'static')",
+        "detail": "HR_ONIAN.settings",
+        "documentation": {}
+    },
+    {
+        "label": "TIME_ZONE",
+        "kind": 5,
+        "importPath": "HR_ONIAN.settings",
+        "description": "HR_ONIAN.settings",
+        "peekOfCode": "TIME_ZONE = 'UTC'\nUSE_I18N = True\nUSE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/4.0/howto/static-files/\nSTATIC_URL = 'static/'\nAPPEND_SLASH = True\nSTATICFILES_DIRS = [\n    os.path.join(BASE_DIR, 'static')\n]",
+        "detail": "HR_ONIAN.settings",
+        "documentation": {}
+    },
+    {
+        "label": "USE_I18N",
+        "kind": 5,
+        "importPath": "HR_ONIAN.settings",
+        "description": "HR_ONIAN.settings",
+        "peekOfCode": "USE_I18N = True\nUSE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/4.0/howto/static-files/\nSTATIC_URL = 'static/'\nAPPEND_SLASH = True\nSTATICFILES_DIRS = [\n    os.path.join(BASE_DIR, 'static')\n]\n# Default primary key field type",
+        "detail": "HR_ONIAN.settings",
+        "documentation": {}
+    },
+    {
+        "label": "USE_TZ",
+        "kind": 5,
+        "importPath": "HR_ONIAN.settings",
+        "description": "HR_ONIAN.settings",
+        "peekOfCode": "USE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/4.0/howto/static-files/\nSTATIC_URL = 'static/'\nAPPEND_SLASH = True\nSTATICFILES_DIRS = [\n    os.path.join(BASE_DIR, 'static')\n]\n# Default primary key field type\n# https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field",
+        "detail": "HR_ONIAN.settings",
+        "documentation": {}
+    },
+    {
+        "label": "STATIC_URL",
+        "kind": 5,
+        "importPath": "HR_ONIAN.settings",
+        "description": "HR_ONIAN.settings",
+        "peekOfCode": "STATIC_URL = 'static/'\nAPPEND_SLASH = True\nSTATICFILES_DIRS = [\n    os.path.join(BASE_DIR, 'static')\n]\n# Default primary key field type\n# https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
+        "detail": "HR_ONIAN.settings",
+        "documentation": {}
+    },
+    {
+        "label": "APPEND_SLASH",
+        "kind": 5,
+        "importPath": "HR_ONIAN.settings",
+        "description": "HR_ONIAN.settings",
+        "peekOfCode": "APPEND_SLASH = True\nSTATICFILES_DIRS = [\n    os.path.join(BASE_DIR, 'static')\n]\n# Default primary key field type\n# https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
+        "detail": "HR_ONIAN.settings",
+        "documentation": {}
+    },
+    {
+        "label": "STATICFILES_DIRS",
+        "kind": 5,
+        "importPath": "HR_ONIAN.settings",
+        "description": "HR_ONIAN.settings",
+        "peekOfCode": "STATICFILES_DIRS = [\n    os.path.join(BASE_DIR, 'static')\n]\n# Default primary key field type\n# https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
+        "detail": "HR_ONIAN.settings",
+        "documentation": {}
+    },
+    {
+        "label": "DEFAULT_AUTO_FIELD",
+        "kind": 5,
+        "importPath": "HR_ONIAN.settings",
+        "description": "HR_ONIAN.settings",
+        "peekOfCode": "DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
+        "detail": "HR_ONIAN.settings",
+        "documentation": {}
+    },
+    {
+        "label": "urlpatterns",
+        "kind": 5,
+        "importPath": "HR_ONIAN.urls",
+        "description": "HR_ONIAN.urls",
+        "peekOfCode": "urlpatterns = [\n    path('hronian/', admin.site.urls),\n    path('', home, name='home'),\n    path('home-user/', homeUser, name='homeUser'),\n    path('employe/', include('employee.urls')),\n    path('projet/', include('projet.urls')),\n    path('client/', include('client.urls')),\n    path('departement/', include('departement.urls')),\n    path('vente/', include('vente.urls')),\n    path('comptabilite/', include('comptabilite.urls')),",
+        "detail": "HR_ONIAN.urls",
+        "documentation": {}
+    },
+    {
+        "label": "home",
+        "kind": 2,
+        "importPath": "HR_ONIAN.views",
+        "description": "HR_ONIAN.views",
+        "peekOfCode": "def home(request):\n    return render(request, \"home.html\")\ndef homeUser(request):\n    return render(request, \"home-user.html\")",
+        "detail": "HR_ONIAN.views",
+        "documentation": {}
+    },
+    {
+        "label": "homeUser",
+        "kind": 2,
+        "importPath": "HR_ONIAN.views",
+        "description": "HR_ONIAN.views",
+        "peekOfCode": "def homeUser(request):\n    return render(request, \"home-user.html\")",
+        "detail": "HR_ONIAN.views",
+        "documentation": {}
+    },
+    {
+        "label": "application",
+        "kind": 5,
+        "importPath": "HR_ONIAN.wsgi",
+        "description": "HR_ONIAN.wsgi",
+        "peekOfCode": "application = get_wsgi_application()",
+        "detail": "HR_ONIAN.wsgi",
+        "documentation": {}
+    },
+    {
+        "label": "ClientConfig",
+        "kind": 6,
+        "importPath": "client.apps",
+        "description": "client.apps",
+        "peekOfCode": "class ClientConfig(AppConfig):\n    default_auto_field = 'django.db.models.BigAutoField'\n    name = 'client'",
+        "detail": "client.apps",
+        "documentation": {}
+    },
+    {
+        "label": "urlpatterns",
+        "kind": 5,
+        "importPath": "client.urls",
+        "description": "client.urls",
+        "peekOfCode": "urlpatterns = [\n    path('client/', client, name='client'),\n    path('client-profil/', profilClient, name='client-profil'),\n    path('fournisseur/', fournisseur, name='fournisseur'),\n    path('profil-fournisseur/', profilFournisseur, name='profil-fournisseur'),\n    # path('detail-projet/', detailProjet, name='detail-projet'),\n]",
+        "detail": "client.urls",
+        "documentation": {}
+    },
+    {
+        "label": "client",
+        "kind": 2,
+        "importPath": "client.views",
+        "description": "client.views",
+        "peekOfCode": "def client(request):\n    return render(request, \"client/client.html\")\ndef profilClient(request):\n    return render(request, \"client/profil-client.html\")\ndef fournisseur(request):\n    return render(request, \"client/founisseur.html\")\ndef profilFournisseur(request):\n    return render(request, \"client/profil-founisseur.html\")\n# Create your views here.",
+        "detail": "client.views",
+        "documentation": {}
+    },
+    {
+        "label": "profilClient",
+        "kind": 2,
+        "importPath": "client.views",
+        "description": "client.views",
+        "peekOfCode": "def profilClient(request):\n    return render(request, \"client/profil-client.html\")\ndef fournisseur(request):\n    return render(request, \"client/founisseur.html\")\ndef profilFournisseur(request):\n    return render(request, \"client/profil-founisseur.html\")\n# Create your views here.",
+        "detail": "client.views",
+        "documentation": {}
+    },
+    {
+        "label": "fournisseur",
+        "kind": 2,
+        "importPath": "client.views",
+        "description": "client.views",
+        "peekOfCode": "def fournisseur(request):\n    return render(request, \"client/founisseur.html\")\ndef profilFournisseur(request):\n    return render(request, \"client/profil-founisseur.html\")\n# Create your views here.",
+        "detail": "client.views",
+        "documentation": {}
+    },
+    {
+        "label": "profilFournisseur",
+        "kind": 2,
+        "importPath": "client.views",
+        "description": "client.views",
+        "peekOfCode": "def profilFournisseur(request):\n    return render(request, \"client/profil-founisseur.html\")\n# Create your views here.",
+        "detail": "client.views",
+        "documentation": {}
+    },
+    {
+        "label": "ComptabiliteConfig",
+        "kind": 6,
+        "importPath": "comptabilite.apps",
+        "description": "comptabilite.apps",
+        "peekOfCode": "class ComptabiliteConfig(AppConfig):\n    default_auto_field = 'django.db.models.BigAutoField'\n    name = 'comptabilite'",
+        "detail": "comptabilite.apps",
+        "documentation": {}
+    },
+    {
+        "label": "urlpatterns",
+        "kind": 5,
+        "importPath": "comptabilite.urls",
+        "description": "comptabilite.urls",
+        "peekOfCode": "urlpatterns = [\n    path('valider-depense/', validerDepense, name='validerDepense'),\n    path('budget/', budget, name='budget'),\n    path('depense-budgetaire/', depenseBudgetaire, name='depenseBudgetaire'),\n    path('recette-budgetaire/', recetteBudgetaire, name='recetteBudgetaire'),\n    path('salaire-employe/', salaireEmploye, name='salaireEmploye'),\n    path('element-paie/', elementPaie, name='elementPaie'),\n    path('fiche-paie/', fichePaie, name='fichePaie'),\n]",
+        "detail": "comptabilite.urls",
+        "documentation": {}
+    },
+    {
+        "label": "validerDepense",
+        "kind": 2,
+        "importPath": "comptabilite.views",
+        "description": "comptabilite.views",
+        "peekOfCode": "def validerDepense(request):\n    return render(request, \"comptabilite/valider-depense.html\")\ndef budget(request):\n    return render(request, \"comptabilite/budget.html\")\ndef depenseBudgetaire(request):\n    return render(request, \"comptabilite/depense-budgetaire.html\")\ndef recetteBudgetaire(request):\n    return render(request, \"comptabilite/recette-budgetaire.html\")\ndef salaireEmploye(request):\n    return render(request, \"comptabilite/salaire-employe.html\")",
+        "detail": "comptabilite.views",
+        "documentation": {}
+    },
+    {
+        "label": "budget",
+        "kind": 2,
+        "importPath": "comptabilite.views",
+        "description": "comptabilite.views",
+        "peekOfCode": "def budget(request):\n    return render(request, \"comptabilite/budget.html\")\ndef depenseBudgetaire(request):\n    return render(request, \"comptabilite/depense-budgetaire.html\")\ndef recetteBudgetaire(request):\n    return render(request, \"comptabilite/recette-budgetaire.html\")\ndef salaireEmploye(request):\n    return render(request, \"comptabilite/salaire-employe.html\")\ndef elementPaie(request):\n    return render(request, \"comptabilite/element-paie.html\")",
+        "detail": "comptabilite.views",
+        "documentation": {}
+    },
+    {
+        "label": "depenseBudgetaire",
+        "kind": 2,
+        "importPath": "comptabilite.views",
+        "description": "comptabilite.views",
+        "peekOfCode": "def depenseBudgetaire(request):\n    return render(request, \"comptabilite/depense-budgetaire.html\")\ndef recetteBudgetaire(request):\n    return render(request, \"comptabilite/recette-budgetaire.html\")\ndef salaireEmploye(request):\n    return render(request, \"comptabilite/salaire-employe.html\")\ndef elementPaie(request):\n    return render(request, \"comptabilite/element-paie.html\")\ndef fichePaie(request):\n    return render(request, \"comptabilite/fiche-paie.html\")",
+        "detail": "comptabilite.views",
+        "documentation": {}
+    },
+    {
+        "label": "recetteBudgetaire",
+        "kind": 2,
+        "importPath": "comptabilite.views",
+        "description": "comptabilite.views",
+        "peekOfCode": "def recetteBudgetaire(request):\n    return render(request, \"comptabilite/recette-budgetaire.html\")\ndef salaireEmploye(request):\n    return render(request, \"comptabilite/salaire-employe.html\")\ndef elementPaie(request):\n    return render(request, \"comptabilite/element-paie.html\")\ndef fichePaie(request):\n    return render(request, \"comptabilite/fiche-paie.html\")\n# Create your views here.",
+        "detail": "comptabilite.views",
+        "documentation": {}
+    },
+    {
+        "label": "salaireEmploye",
+        "kind": 2,
+        "importPath": "comptabilite.views",
+        "description": "comptabilite.views",
+        "peekOfCode": "def salaireEmploye(request):\n    return render(request, \"comptabilite/salaire-employe.html\")\ndef elementPaie(request):\n    return render(request, \"comptabilite/element-paie.html\")\ndef fichePaie(request):\n    return render(request, \"comptabilite/fiche-paie.html\")\n# Create your views here.",
+        "detail": "comptabilite.views",
+        "documentation": {}
+    },
+    {
+        "label": "elementPaie",
+        "kind": 2,
+        "importPath": "comptabilite.views",
+        "description": "comptabilite.views",
+        "peekOfCode": "def elementPaie(request):\n    return render(request, \"comptabilite/element-paie.html\")\ndef fichePaie(request):\n    return render(request, \"comptabilite/fiche-paie.html\")\n# Create your views here.",
+        "detail": "comptabilite.views",
+        "documentation": {}
+    },
+    {
+        "label": "fichePaie",
+        "kind": 2,
+        "importPath": "comptabilite.views",
+        "description": "comptabilite.views",
+        "peekOfCode": "def fichePaie(request):\n    return render(request, \"comptabilite/fiche-paie.html\")\n# Create your views here.",
+        "detail": "comptabilite.views",
+        "documentation": {}
+    },
+    {
+        "label": "DepartementConfig",
+        "kind": 6,
+        "importPath": "departement.apps",
+        "description": "departement.apps",
+        "peekOfCode": "class DepartementConfig(AppConfig):\n    default_auto_field = 'django.db.models.BigAutoField'\n    name = 'departement'",
+        "detail": "departement.apps",
+        "documentation": {}
+    },
+    {
+        "label": "urlpatterns",
+        "kind": 5,
+        "importPath": "departement.urls",
+        "description": "departement.urls",
+        "peekOfCode": "urlpatterns = [\n    path('departement/', departement, name='departement'),\n    path('poste/', poste, name='poste'),\n]",
+        "detail": "departement.urls",
+        "documentation": {}
+    },
+    {
+        "label": "departement",
+        "kind": 2,
+        "importPath": "departement.views",
+        "description": "departement.views",
+        "peekOfCode": "def departement(request):\n    departements = [\n        {'code': 'DEP001', 'libelle': 'Ressources Humaines', 'statut': 'Actif'},\n        {'code': 'DEP002', 'libelle': 'Web Development', 'statut': 'Actif'},\n        {'code': 'DEP003', 'libelle': 'Marketing', 'statut': 'Inactif'},\n        {'code': 'DEP004', 'libelle': 'Finance', 'statut': 'Actif'},\n    ]\n    return render(request, \"departement/departement.html\", {'departements': departements})\ndef poste(request):\n    return render(request, \"departement/poste.html\")",
+        "detail": "departement.views",
+        "documentation": {}
+    },
+    {
+        "label": "poste",
+        "kind": 2,
+        "importPath": "departement.views",
+        "description": "departement.views",
+        "peekOfCode": "def poste(request):\n    return render(request, \"departement/poste.html\")\n# Create your views here.",
+        "detail": "departement.views",
+        "documentation": {}
+    },
+    {
+        "label": "EmployeeConfig",
+        "kind": 6,
+        "importPath": "employee.apps",
+        "description": "employee.apps",
+        "peekOfCode": "class EmployeeConfig(AppConfig):\n    default_auto_field = 'django.db.models.BigAutoField'\n    name = 'employee'",
+        "detail": "employee.apps",
+        "documentation": {}
+    },
+    {
+        "label": "urlpatterns",
+        "kind": 5,
+        "importPath": "employee.urls",
+        "description": "employee.urls",
+        "peekOfCode": "urlpatterns = [\n    path('liste-employee/', listeEmployee, name='liste-employee'),\n    path('employee/', employee, name='employee'),\n    path('valider-embauche/', validerEmbauche, name='valider-embauche'),\n    path('dossierSortie/', dossierSortie, name='dossier-sortie'),\n    path('profil-employee/', profilEmployee, name='profile-employee'),\n    path('conges/', conges, name='conges'),\n    path('validerConges/', validerConges, name='valider-conges'),\n    path('feuille-de-temps/', feuilleDeTemps, name='feuilleDeTemps'),\n    path('planification/', planification, name='planification'),",
+        "detail": "employee.urls",
+        "documentation": {}
+    },
+    {
+        "label": "listeEmployee",
+        "kind": 2,
+        "importPath": "employee.views",
+        "description": "employee.views",
+        "peekOfCode": "def listeEmployee(request):\n    return render(request, \"employee/employees-list.html\")\ndef employee(request):\n    return render(request, \"employee/employees.html\")\ndef validerEmbauche(request):\n    return render(request, \"employee/valider-embauche.html\")\ndef dossierSortie(request):\n    return render(request, \"employee/dossier-sortie.html\")\ndef profilEmployee(request):\n    return render(request, \"employee/profil-employee.html\")",
+        "detail": "employee.views",
+        "documentation": {}
+    },
+    {
+        "label": "employee",
+        "kind": 2,
+        "importPath": "employee.views",
+        "description": "employee.views",
+        "peekOfCode": "def employee(request):\n    return render(request, \"employee/employees.html\")\ndef validerEmbauche(request):\n    return render(request, \"employee/valider-embauche.html\")\ndef dossierSortie(request):\n    return render(request, \"employee/dossier-sortie.html\")\ndef profilEmployee(request):\n    return render(request, \"employee/profil-employee.html\")\ndef conges(request):\n    return render(request, \"employee/conges-employee.html\")",
+        "detail": "employee.views",
+        "documentation": {}
+    },
+    {
+        "label": "validerEmbauche",
+        "kind": 2,
+        "importPath": "employee.views",
+        "description": "employee.views",
+        "peekOfCode": "def validerEmbauche(request):\n    return render(request, \"employee/valider-embauche.html\")\ndef dossierSortie(request):\n    return render(request, \"employee/dossier-sortie.html\")\ndef profilEmployee(request):\n    return render(request, \"employee/profil-employee.html\")\ndef conges(request):\n    return render(request, \"employee/conges-employee.html\")\ndef validerConges(request):\n    return render(request, \"employee/valider-conges.html\")",
+        "detail": "employee.views",
+        "documentation": {}
+    },
+    {
+        "label": "dossierSortie",
+        "kind": 2,
+        "importPath": "employee.views",
+        "description": "employee.views",
+        "peekOfCode": "def dossierSortie(request):\n    return render(request, \"employee/dossier-sortie.html\")\ndef profilEmployee(request):\n    return render(request, \"employee/profil-employee.html\")\ndef conges(request):\n    return render(request, \"employee/conges-employee.html\")\ndef validerConges(request):\n    return render(request, \"employee/valider-conges.html\")\ndef feuilleDeTemps(request):\n    return render(request, \"employee/feuille-de-temps.html\")",
+        "detail": "employee.views",
+        "documentation": {}
+    },
+    {
+        "label": "profilEmployee",
+        "kind": 2,
+        "importPath": "employee.views",
+        "description": "employee.views",
+        "peekOfCode": "def profilEmployee(request):\n    return render(request, \"employee/profil-employee.html\")\ndef conges(request):\n    return render(request, \"employee/conges-employee.html\")\ndef validerConges(request):\n    return render(request, \"employee/valider-conges.html\")\ndef feuilleDeTemps(request):\n    return render(request, \"employee/feuille-de-temps.html\")\ndef planification(request):\n    return render(request, \"employee/planification.html\")",
+        "detail": "employee.views",
+        "documentation": {}
+    },
+    {
+        "label": "conges",
+        "kind": 2,
+        "importPath": "employee.views",
+        "description": "employee.views",
+        "peekOfCode": "def conges(request):\n    return render(request, \"employee/conges-employee.html\")\ndef validerConges(request):\n    return render(request, \"employee/valider-conges.html\")\ndef feuilleDeTemps(request):\n    return render(request, \"employee/feuille-de-temps.html\")\ndef planification(request):\n    return render(request, \"employee/planification.html\")\ndef presence(request):\n    return render(request, \"employee/presence.html\")",
+        "detail": "employee.views",
+        "documentation": {}
+    },
+    {
+        "label": "validerConges",
+        "kind": 2,
+        "importPath": "employee.views",
+        "description": "employee.views",
+        "peekOfCode": "def validerConges(request):\n    return render(request, \"employee/valider-conges.html\")\ndef feuilleDeTemps(request):\n    return render(request, \"employee/feuille-de-temps.html\")\ndef planification(request):\n    return render(request, \"employee/planification.html\")\ndef presence(request):\n    return render(request, \"employee/presence.html\")\n# Create your views here.",
+        "detail": "employee.views",
+        "documentation": {}
+    },
+    {
+        "label": "feuilleDeTemps",
+        "kind": 2,
+        "importPath": "employee.views",
+        "description": "employee.views",
+        "peekOfCode": "def feuilleDeTemps(request):\n    return render(request, \"employee/feuille-de-temps.html\")\ndef planification(request):\n    return render(request, \"employee/planification.html\")\ndef presence(request):\n    return render(request, \"employee/presence.html\")\n# Create your views here.",
+        "detail": "employee.views",
+        "documentation": {}
+    },
+    {
+        "label": "planification",
+        "kind": 2,
+        "importPath": "employee.views",
+        "description": "employee.views",
+        "peekOfCode": "def planification(request):\n    return render(request, \"employee/planification.html\")\ndef presence(request):\n    return render(request, \"employee/presence.html\")\n# Create your views here.",
+        "detail": "employee.views",
+        "documentation": {}
+    },
+    {
+        "label": "presence",
+        "kind": 2,
+        "importPath": "employee.views",
+        "description": "employee.views",
+        "peekOfCode": "def presence(request):\n    return render(request, \"employee/presence.html\")\n# Create your views here.",
+        "detail": "employee.views",
+        "documentation": {}
+    },
+    {
+        "label": "LogistiqueConfig",
+        "kind": 6,
+        "importPath": "logistique.apps",
+        "description": "logistique.apps",
+        "peekOfCode": "class LogistiqueConfig(AppConfig):\n    default_auto_field = 'django.db.models.BigAutoField'\n    name = 'logistique'",
+        "detail": "logistique.apps",
+        "documentation": {}
+    },
+    {
+        "label": "ParametreConfig",
+        "kind": 6,
+        "importPath": "parametre.apps",
+        "description": "parametre.apps",
+        "peekOfCode": "class ParametreConfig(AppConfig):\n    default_auto_field = 'django.db.models.BigAutoField'\n    name = 'parametre'",
+        "detail": "parametre.apps",
+        "documentation": {}
+    },
+    {
+        "label": "urlpatterns",
+        "kind": 5,
+        "importPath": "parametre.urls",
+        "description": "parametre.urls",
+        "peekOfCode": "urlpatterns = [\n    path('parametre-home/', parametreHome, name='parametreHome'),\n    path('parametre-theme/', parametreTheme, name='parametreTheme'),\n    path('parametre-facturation/', parametreFacturation, name='parametreFacturation'),\n    path('parametre-salariaux/', parametreSalariaux, name='parametreSalariaux'),\n    path('change-password/', changePassword, name='changePassword'),\n    path('type-conge/', typeConge, name='typeConge'),\n    path('login/', loginUser, name='loginUser'),\n    path('password-forget/', forgetPassword, name='forgetPassword'),\n]",
+        "detail": "parametre.urls",
+        "documentation": {}
+    },
+    {
+        "label": "parametreHome",
+        "kind": 2,
+        "importPath": "parametre.views",
+        "description": "parametre.views",
+        "peekOfCode": "def parametreHome(request):\n    return render(request, \"parametre/parametre-home.html\")\ndef parametreTheme(request):\n    return render(request, \"parametre/parametre-theme.html\")\ndef parametreFacturation(request):\n    return render(request, \"parametre/parametre-factuation.html\")\ndef parametreSalariaux(request):\n    return render(request, \"parametre/parametre-salariaux.html\")\ndef changePassword(request):\n    return render(request, \"parametre/change-password.html\")",
+        "detail": "parametre.views",
+        "documentation": {}
+    },
+    {
+        "label": "parametreTheme",
+        "kind": 2,
+        "importPath": "parametre.views",
+        "description": "parametre.views",
+        "peekOfCode": "def parametreTheme(request):\n    return render(request, \"parametre/parametre-theme.html\")\ndef parametreFacturation(request):\n    return render(request, \"parametre/parametre-factuation.html\")\ndef parametreSalariaux(request):\n    return render(request, \"parametre/parametre-salariaux.html\")\ndef changePassword(request):\n    return render(request, \"parametre/change-password.html\")\ndef typeConge(request):\n    return render(request, \"parametre/type-conge.html\")",
+        "detail": "parametre.views",
+        "documentation": {}
+    },
+    {
+        "label": "parametreFacturation",
+        "kind": 2,
+        "importPath": "parametre.views",
+        "description": "parametre.views",
+        "peekOfCode": "def parametreFacturation(request):\n    return render(request, \"parametre/parametre-factuation.html\")\ndef parametreSalariaux(request):\n    return render(request, \"parametre/parametre-salariaux.html\")\ndef changePassword(request):\n    return render(request, \"parametre/change-password.html\")\ndef typeConge(request):\n    return render(request, \"parametre/type-conge.html\")\ndef loginUser(request):\n    return render(request, \"parametre/login.html\")",
+        "detail": "parametre.views",
+        "documentation": {}
+    },
+    {
+        "label": "parametreSalariaux",
+        "kind": 2,
+        "importPath": "parametre.views",
+        "description": "parametre.views",
+        "peekOfCode": "def parametreSalariaux(request):\n    return render(request, \"parametre/parametre-salariaux.html\")\ndef changePassword(request):\n    return render(request, \"parametre/change-password.html\")\ndef typeConge(request):\n    return render(request, \"parametre/type-conge.html\")\ndef loginUser(request):\n    return render(request, \"parametre/login.html\")\ndef forgetPassword(request):\n    return render(request, \"parametre/password-forget.html\")",
+        "detail": "parametre.views",
+        "documentation": {}
+    },
+    {
+        "label": "changePassword",
+        "kind": 2,
+        "importPath": "parametre.views",
+        "description": "parametre.views",
+        "peekOfCode": "def changePassword(request):\n    return render(request, \"parametre/change-password.html\")\ndef typeConge(request):\n    return render(request, \"parametre/type-conge.html\")\ndef loginUser(request):\n    return render(request, \"parametre/login.html\")\ndef forgetPassword(request):\n    return render(request, \"parametre/password-forget.html\")\n# Create your views here.",
+        "detail": "parametre.views",
+        "documentation": {}
+    },
+    {
+        "label": "typeConge",
+        "kind": 2,
+        "importPath": "parametre.views",
+        "description": "parametre.views",
+        "peekOfCode": "def typeConge(request):\n    return render(request, \"parametre/type-conge.html\")\ndef loginUser(request):\n    return render(request, \"parametre/login.html\")\ndef forgetPassword(request):\n    return render(request, \"parametre/password-forget.html\")\n# Create your views here.",
+        "detail": "parametre.views",
+        "documentation": {}
+    },
+    {
+        "label": "loginUser",
+        "kind": 2,
+        "importPath": "parametre.views",
+        "description": "parametre.views",
+        "peekOfCode": "def loginUser(request):\n    return render(request, \"parametre/login.html\")\ndef forgetPassword(request):\n    return render(request, \"parametre/password-forget.html\")\n# Create your views here.",
+        "detail": "parametre.views",
+        "documentation": {}
+    },
+    {
+        "label": "forgetPassword",
+        "kind": 2,
+        "importPath": "parametre.views",
+        "description": "parametre.views",
+        "peekOfCode": "def forgetPassword(request):\n    return render(request, \"parametre/password-forget.html\")\n# Create your views here.",
+        "detail": "parametre.views",
+        "documentation": {}
+    },
+    {
+        "label": "ProjetConfig",
+        "kind": 6,
+        "importPath": "projet.apps",
+        "description": "projet.apps",
+        "peekOfCode": "class ProjetConfig(AppConfig):\n    default_auto_field = 'django.db.models.BigAutoField'\n    name = 'projet'",
+        "detail": "projet.apps",
+        "documentation": {}
+    },
+    {
+        "label": "urlpatterns",
+        "kind": 5,
+        "importPath": "projet.urls",
+        "description": "projet.urls",
+        "peekOfCode": "urlpatterns = [\n    path('projet/', projet, name='projet'),\n    path('detail-projet/', detailProjet, name='detail-projet'),\n]",
+        "detail": "projet.urls",
+        "documentation": {}
+    },
+    {
+        "label": "projet",
+        "kind": 2,
+        "importPath": "projet.views",
+        "description": "projet.views",
+        "peekOfCode": "def projet(request):\n    return render(request, \"projet/projets.html\")\ndef detailProjet(request):\n    return render(request, \"projet/detail-projet.html\")\n# Create your views here.",
+        "detail": "projet.views",
+        "documentation": {}
+    },
+    {
+        "label": "detailProjet",
+        "kind": 2,
+        "importPath": "projet.views",
+        "description": "projet.views",
+        "peekOfCode": "def detailProjet(request):\n    return render(request, \"projet/detail-projet.html\")\n# Create your views here.",
+        "detail": "projet.views",
+        "documentation": {}
+    },
+    {
+        "label": "ReportsConfig",
+        "kind": 6,
+        "importPath": "reports.apps",
+        "description": "reports.apps",
+        "peekOfCode": "class ReportsConfig(AppConfig):\n    default_auto_field = 'django.db.models.BigAutoField'\n    name = 'reports'",
+        "detail": "reports.apps",
+        "documentation": {}
+    },
+    {
+        "label": "urlpatterns",
+        "kind": 5,
+        "importPath": "reports.urls",
+        "description": "reports.urls",
+        "peekOfCode": "urlpatterns = [\n    path('rapport-conge/', rapportConge, name='rapportConge'),\n    path('rapport-facture/', rapportFacture, name='rapportFacture'),\n    path('rapport-fiche-paie/', rapportFichePaie, name='rapportFichePaie'),\n]",
+        "detail": "reports.urls",
+        "documentation": {}
+    },
+    {
+        "label": "rapportConge",
+        "kind": 2,
+        "importPath": "reports.views",
+        "description": "reports.views",
+        "peekOfCode": "def rapportConge(request):\n    return render(request, \"reports/rapport-conge.html\")\ndef rapportFacture(request):\n    return render(request, \"reports/rapport-facture.html\")\ndef rapportFichePaie(request):\n    return render(request, \"reports/rapport-fiche-paie.html\")\n# Create your views here.",
+        "detail": "reports.views",
+        "documentation": {}
+    },
+    {
+        "label": "rapportFacture",
+        "kind": 2,
+        "importPath": "reports.views",
+        "description": "reports.views",
+        "peekOfCode": "def rapportFacture(request):\n    return render(request, \"reports/rapport-facture.html\")\ndef rapportFichePaie(request):\n    return render(request, \"reports/rapport-fiche-paie.html\")\n# Create your views here.",
+        "detail": "reports.views",
+        "documentation": {}
+    },
+    {
+        "label": "rapportFichePaie",
+        "kind": 2,
+        "importPath": "reports.views",
+        "description": "reports.views",
+        "peekOfCode": "def rapportFichePaie(request):\n    return render(request, \"reports/rapport-fiche-paie.html\")\n# Create your views here.",
+        "detail": "reports.views",
+        "documentation": {}
+    },
+    {
+        "label": "VenteConfig",
+        "kind": 6,
+        "importPath": "vente.apps",
+        "description": "vente.apps",
+        "peekOfCode": "class VenteConfig(AppConfig):\n    default_auto_field = 'django.db.models.BigAutoField'\n    name = 'vente'",
+        "detail": "vente.apps",
+        "documentation": {}
+    },
+    {
+        "label": "urlpatterns",
+        "kind": 5,
+        "importPath": "vente.urls",
+        "description": "vente.urls",
+        "peekOfCode": "urlpatterns = [\n    path('devis/', devis, name='devis'),\n    path('factures/', facture, name='facture'),\n    path('paiement/', paiement, name='paiement'),\n    path('depense/', depense, name='depense'),\n    path('taxe/', taxe, name='taxe'),\n    path('creer-facture/', creerFacture, name='creerFacture'),\n    path('editer-facture/', editerFacture, name='editerFacture'),\n    path('vue-facture/', vueFacture, name='vueFacture'),\n    path('creer-devis/', creerDevis, name='creerDevis'),",
+        "detail": "vente.urls",
+        "documentation": {}
+    },
+    {
+        "label": "devis",
+        "kind": 2,
+        "importPath": "vente.views",
+        "description": "vente.views",
+        "peekOfCode": "def devis(request):\n    return render(request, \"vente/devis.html\")\ndef facture(request):\n    return render(request, \"vente/facture.html\")\ndef paiement(request):\n    return render(request, \"vente/paiement.html\")\ndef depense(request):\n    return render(request, \"vente/depense.html\")\ndef taxe(request):\n    return render(request, \"vente/taxe.html\")",
+        "detail": "vente.views",
+        "documentation": {}
+    },
+    {
+        "label": "facture",
+        "kind": 2,
+        "importPath": "vente.views",
+        "description": "vente.views",
+        "peekOfCode": "def facture(request):\n    return render(request, \"vente/facture.html\")\ndef paiement(request):\n    return render(request, \"vente/paiement.html\")\ndef depense(request):\n    return render(request, \"vente/depense.html\")\ndef taxe(request):\n    return render(request, \"vente/taxe.html\")\ndef creerFacture(request):\n    return render(request, \"vente/creer-facture.html\")",
+        "detail": "vente.views",
+        "documentation": {}
+    },
+    {
+        "label": "paiement",
+        "kind": 2,
+        "importPath": "vente.views",
+        "description": "vente.views",
+        "peekOfCode": "def paiement(request):\n    return render(request, \"vente/paiement.html\")\ndef depense(request):\n    return render(request, \"vente/depense.html\")\ndef taxe(request):\n    return render(request, \"vente/taxe.html\")\ndef creerFacture(request):\n    return render(request, \"vente/creer-facture.html\")\ndef editerFacture(request):\n    return render(request, \"vente/editer-facture.html\")",
+        "detail": "vente.views",
+        "documentation": {}
+    },
+    {
+        "label": "depense",
+        "kind": 2,
+        "importPath": "vente.views",
+        "description": "vente.views",
+        "peekOfCode": "def depense(request):\n    return render(request, \"vente/depense.html\")\ndef taxe(request):\n    return render(request, \"vente/taxe.html\")\ndef creerFacture(request):\n    return render(request, \"vente/creer-facture.html\")\ndef editerFacture(request):\n    return render(request, \"vente/editer-facture.html\")\ndef vueFacture(request):\n    return render(request, \"vente/vue-facture.html\")",
+        "detail": "vente.views",
+        "documentation": {}
+    },
+    {
+        "label": "taxe",
+        "kind": 2,
+        "importPath": "vente.views",
+        "description": "vente.views",
+        "peekOfCode": "def taxe(request):\n    return render(request, \"vente/taxe.html\")\ndef creerFacture(request):\n    return render(request, \"vente/creer-facture.html\")\ndef editerFacture(request):\n    return render(request, \"vente/editer-facture.html\")\ndef vueFacture(request):\n    return render(request, \"vente/vue-facture.html\")\ndef creerDevis(request):\n    return render(request, \"vente/creer-devis.html\")",
+        "detail": "vente.views",
+        "documentation": {}
+    },
+    {
+        "label": "creerFacture",
+        "kind": 2,
+        "importPath": "vente.views",
+        "description": "vente.views",
+        "peekOfCode": "def creerFacture(request):\n    return render(request, \"vente/creer-facture.html\")\ndef editerFacture(request):\n    return render(request, \"vente/editer-facture.html\")\ndef vueFacture(request):\n    return render(request, \"vente/vue-facture.html\")\ndef creerDevis(request):\n    return render(request, \"vente/creer-devis.html\")\ndef editerDevis(request):\n    return render(request, \"vente/editer-devis.html\")",
+        "detail": "vente.views",
+        "documentation": {}
+    },
+    {
+        "label": "editerFacture",
+        "kind": 2,
+        "importPath": "vente.views",
+        "description": "vente.views",
+        "peekOfCode": "def editerFacture(request):\n    return render(request, \"vente/editer-facture.html\")\ndef vueFacture(request):\n    return render(request, \"vente/vue-facture.html\")\ndef creerDevis(request):\n    return render(request, \"vente/creer-devis.html\")\ndef editerDevis(request):\n    return render(request, \"vente/editer-devis.html\")\ndef vueDevis(request):\n    return render(request, \"vente/vue-devis.html\")",
+        "detail": "vente.views",
+        "documentation": {}
+    },
+    {
+        "label": "vueFacture",
+        "kind": 2,
+        "importPath": "vente.views",
+        "description": "vente.views",
+        "peekOfCode": "def vueFacture(request):\n    return render(request, \"vente/vue-facture.html\")\ndef creerDevis(request):\n    return render(request, \"vente/creer-devis.html\")\ndef editerDevis(request):\n    return render(request, \"vente/editer-devis.html\")\ndef vueDevis(request):\n    return render(request, \"vente/vue-devis.html\")\ndef voiture(request):\n    return render(request, \"parcAuto/voiture.html\")",
+        "detail": "vente.views",
+        "documentation": {}
+    },
+    {
+        "label": "creerDevis",
+        "kind": 2,
+        "importPath": "vente.views",
+        "description": "vente.views",
+        "peekOfCode": "def creerDevis(request):\n    return render(request, \"vente/creer-devis.html\")\ndef editerDevis(request):\n    return render(request, \"vente/editer-devis.html\")\ndef vueDevis(request):\n    return render(request, \"vente/vue-devis.html\")\ndef voiture(request):\n    return render(request, \"parcAuto/voiture.html\")\ndef planning(request):\n    return render(request, \"parcAuto/planning-auto.html\")",
+        "detail": "vente.views",
+        "documentation": {}
+    },
+    {
+        "label": "editerDevis",
+        "kind": 2,
+        "importPath": "vente.views",
+        "description": "vente.views",
+        "peekOfCode": "def editerDevis(request):\n    return render(request, \"vente/editer-devis.html\")\ndef vueDevis(request):\n    return render(request, \"vente/vue-devis.html\")\ndef voiture(request):\n    return render(request, \"parcAuto/voiture.html\")\ndef planning(request):\n    return render(request, \"parcAuto/planning-auto.html\")\n# Create your views here.",
+        "detail": "vente.views",
+        "documentation": {}
+    },
+    {
+        "label": "vueDevis",
+        "kind": 2,
+        "importPath": "vente.views",
+        "description": "vente.views",
+        "peekOfCode": "def vueDevis(request):\n    return render(request, \"vente/vue-devis.html\")\ndef voiture(request):\n    return render(request, \"parcAuto/voiture.html\")\ndef planning(request):\n    return render(request, \"parcAuto/planning-auto.html\")\n# Create your views here.",
+        "detail": "vente.views",
+        "documentation": {}
+    },
+    {
+        "label": "voiture",
+        "kind": 2,
+        "importPath": "vente.views",
+        "description": "vente.views",
+        "peekOfCode": "def voiture(request):\n    return render(request, \"parcAuto/voiture.html\")\ndef planning(request):\n    return render(request, \"parcAuto/planning-auto.html\")\n# Create your views here.",
+        "detail": "vente.views",
+        "documentation": {}
+    },
+    {
+        "label": "planning",
+        "kind": 2,
+        "importPath": "vente.views",
+        "description": "vente.views",
+        "peekOfCode": "def planning(request):\n    return render(request, \"parcAuto/planning-auto.html\")\n# Create your views here.",
+        "detail": "vente.views",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "manage",
+        "description": "manage",
+        "peekOfCode": "def main():\n    \"\"\"Run administrative tasks.\"\"\"\n    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'HR_ONIAN.settings')\n    try:\n        from django.core.management import execute_from_command_line\n    except ImportError as exc:\n        raise ImportError(\n            \"Couldn't import Django. Are you sure it's installed and \"\n            \"available on your PYTHONPATH environment variable? Did you \"\n            \"forget to activate a virtual environment?\"",
+        "detail": "manage",
+        "documentation": {}
+    },
+    {
+        "label": "BASE_DIR",
+        "kind": 5,
+        "importPath": "settings",
+        "description": "settings",
+        "peekOfCode": "BASE_DIR = Path(__file__).resolve().parent.parent\n# Quick-start development settings - unsuitable for production\n# See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/\n# SECURITY WARNING: keep the secret key used in production secret!\nSECRET_KEY = 'django-insecure-&v(=w-yis!oj=9im0=-i(ii#b!pr(b(ncf!b#h921s$%-+92@#'\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [",
+        "detail": "settings",
+        "documentation": {}
+    },
+    {
+        "label": "SECRET_KEY",
+        "kind": 5,
+        "importPath": "settings",
+        "description": "settings",
+        "peekOfCode": "SECRET_KEY = 'django-insecure-&v(=w-yis!oj=9im0=-i(ii#b!pr(b(ncf!b#h921s$%-+92@#'\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',",
+        "detail": "settings",
+        "documentation": {}
+    },
+    {
+        "label": "DEBUG",
+        "kind": 5,
+        "importPath": "settings",
+        "description": "settings",
+        "peekOfCode": "DEBUG = True\nALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',",
+        "detail": "settings",
+        "documentation": {}
+    },
+    {
+        "label": "ALLOWED_HOSTS",
+        "kind": 5,
+        "importPath": "settings",
+        "description": "settings",
+        "peekOfCode": "ALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n    'employee',",
+        "detail": "settings",
+        "documentation": {}
+    },
+    {
+        "label": "INSTALLED_APPS",
+        "kind": 5,
+        "importPath": "settings",
+        "description": "settings",
+        "peekOfCode": "INSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n    'employee',\n    'client',\n    'projet',",
+        "detail": "settings",
+        "documentation": {}
+    },
+    {
+        "label": "MIDDLEWARE",
+        "kind": 5,
+        "importPath": "settings",
+        "description": "settings",
+        "peekOfCode": "MIDDLEWARE = [\n    'django.middleware.security.SecurityMiddleware',\n    'django.contrib.sessions.middleware.SessionMiddleware',\n    'django.middleware.common.CommonMiddleware',\n    'django.middleware.csrf.CsrfViewMiddleware',\n    'django.contrib.auth.middleware.AuthenticationMiddleware',\n    'django.contrib.messages.middleware.MessageMiddleware',\n    'django.middleware.clickjacking.XFrameOptionsMiddleware',\n]\nROOT_URLCONF = 'HR_ONIAN.urls'",
+        "detail": "settings",
+        "documentation": {}
+    },
+    {
+        "label": "ROOT_URLCONF",
+        "kind": 5,
+        "importPath": "settings",
+        "description": "settings",
+        "peekOfCode": "ROOT_URLCONF = 'HR_ONIAN.urls'\nTEMPLATES = [\n    {\n        'BACKEND': 'django.template.backends.django.DjangoTemplates',\n        'DIRS': [BASE_DIR / 'templates']\n        ,\n        'APP_DIRS': True,\n        'OPTIONS': {\n            'context_processors': [\n                'django.template.context_processors.debug',",
+        "detail": "settings",
+        "documentation": {}
+    },
+    {
+        "label": "TEMPLATES",
+        "kind": 5,
+        "importPath": "settings",
+        "description": "settings",
+        "peekOfCode": "TEMPLATES = [\n    {\n        'BACKEND': 'django.template.backends.django.DjangoTemplates',\n        'DIRS': [BASE_DIR / 'templates']\n        ,\n        'APP_DIRS': True,\n        'OPTIONS': {\n            'context_processors': [\n                'django.template.context_processors.debug',\n                'django.template.context_processors.request',",
+        "detail": "settings",
+        "documentation": {}
+    },
+    {
+        "label": "WSGI_APPLICATION",
+        "kind": 5,
+        "importPath": "settings",
+        "description": "settings",
+        "peekOfCode": "WSGI_APPLICATION = 'HR_ONIAN.wsgi.application'\n# Database\n# https://docs.djangoproject.com/en/4.0/ref/settings/#databases\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.sqlite3',\n        'NAME': BASE_DIR / 'db.sqlite3',\n    }\n}\n# Password validation",
+        "detail": "settings",
+        "documentation": {}
+    },
+    {
+        "label": "DATABASES",
+        "kind": 5,
+        "importPath": "settings",
+        "description": "settings",
+        "peekOfCode": "DATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.sqlite3',\n        'NAME': BASE_DIR / 'db.sqlite3',\n    }\n}\n# Password validation\n# https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators\nAUTH_PASSWORD_VALIDATORS = [\n    {",
+        "detail": "settings",
+        "documentation": {}
+    },
+    {
+        "label": "AUTH_PASSWORD_VALIDATORS",
+        "kind": 5,
+        "importPath": "settings",
+        "description": "settings",
+        "peekOfCode": "AUTH_PASSWORD_VALIDATORS = [\n    {\n        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',\n    },\n    {\n        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',\n    },\n    {\n        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',\n    },",
+        "detail": "settings",
+        "documentation": {}
+    },
+    {
+        "label": "LANGUAGE_CODE",
+        "kind": 5,
+        "importPath": "settings",
+        "description": "settings",
+        "peekOfCode": "LANGUAGE_CODE = 'fr-FR'\nTIME_ZONE = 'UTC'\nUSE_I18N = True\nUSE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/4.0/howto/static-files/\nSTATIC_URL = 'static/'\nAPPEND_SLASH = True\nSTATICFILES_DIRS = [\n    os.path.join(BASE_DIR, 'static')",
+        "detail": "settings",
+        "documentation": {}
+    },
+    {
+        "label": "TIME_ZONE",
+        "kind": 5,
+        "importPath": "settings",
+        "description": "settings",
+        "peekOfCode": "TIME_ZONE = 'UTC'\nUSE_I18N = True\nUSE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/4.0/howto/static-files/\nSTATIC_URL = 'static/'\nAPPEND_SLASH = True\nSTATICFILES_DIRS = [\n    os.path.join(BASE_DIR, 'static')\n]",
+        "detail": "settings",
+        "documentation": {}
+    },
+    {
+        "label": "USE_I18N",
+        "kind": 5,
+        "importPath": "settings",
+        "description": "settings",
+        "peekOfCode": "USE_I18N = True\nUSE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/4.0/howto/static-files/\nSTATIC_URL = 'static/'\nAPPEND_SLASH = True\nSTATICFILES_DIRS = [\n    os.path.join(BASE_DIR, 'static')\n]\n# Default primary key field type",
+        "detail": "settings",
+        "documentation": {}
+    },
+    {
+        "label": "USE_TZ",
+        "kind": 5,
+        "importPath": "settings",
+        "description": "settings",
+        "peekOfCode": "USE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/4.0/howto/static-files/\nSTATIC_URL = 'static/'\nAPPEND_SLASH = True\nSTATICFILES_DIRS = [\n    os.path.join(BASE_DIR, 'static')\n]\n# Default primary key field type\n# https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field",
+        "detail": "settings",
+        "documentation": {}
+    },
+    {
+        "label": "STATIC_URL",
+        "kind": 5,
+        "importPath": "settings",
+        "description": "settings",
+        "peekOfCode": "STATIC_URL = 'static/'\nAPPEND_SLASH = True\nSTATICFILES_DIRS = [\n    os.path.join(BASE_DIR, 'static')\n]\n# Default primary key field type\n# https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
+        "detail": "settings",
+        "documentation": {}
+    },
+    {
+        "label": "APPEND_SLASH",
+        "kind": 5,
+        "importPath": "settings",
+        "description": "settings",
+        "peekOfCode": "APPEND_SLASH = True\nSTATICFILES_DIRS = [\n    os.path.join(BASE_DIR, 'static')\n]\n# Default primary key field type\n# https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
+        "detail": "settings",
+        "documentation": {}
+    },
+    {
+        "label": "STATICFILES_DIRS",
+        "kind": 5,
+        "importPath": "settings",
+        "description": "settings",
+        "peekOfCode": "STATICFILES_DIRS = [\n    os.path.join(BASE_DIR, 'static')\n]\n# Default primary key field type\n# https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
+        "detail": "settings",
+        "documentation": {}
+    },
+    {
+        "label": "DEFAULT_AUTO_FIELD",
+        "kind": 5,
+        "importPath": "settings",
+        "description": "settings",
+        "peekOfCode": "DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
+        "detail": "settings",
+        "documentation": {}
+    }
+]
