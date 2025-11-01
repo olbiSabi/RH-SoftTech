@@ -1,20 +1,8 @@
 {% extends 'base/baseSansMatricule.html' %}
 {% block title %} <title>Poste</title>>{% endblock %}
 {% load static %}
-
 {% block extrastylet %}
-<!-- Datatable CSS -->
-<link rel="stylesheet" href="{% static 'assets/css/dataTables.bootstrap4.min.css' %}">
 
-<!-- Select2 CSS -->
-<link rel="stylesheet" href="{% static 'assets/css/select2.min.css' %}">
-
-<!-- Datetimepicker CSS -->
-<link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
-{% comment %}
-<link rel="stylesheet" type="text/css" href="{% static 'assets/datatables/Bootstrap-5-5.1.3/css/bootstrap.min.css' %}"/>
-<link rel="stylesheet" type="text/css"
-      href="{% static 'assets/datatables/DataTables-1.12.1/css/dataTables.bootstrap5.min.css' %}"/>{% endcomment %}
 {% endblock %}
 
 <!-- Content Body (Page Body) -->
@@ -22,193 +10,164 @@
 {% block pageContent %}
 <!-- Page Content -->
 <div class="content container-fluid">
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="row align-items-center">
-            <div class="col">
-                <h3 class="page-title">Poste</h3>
-                <ul class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Tableau de bord</a></li>
-                    <li class="breadcrumb-item active">Poste</li>
-                </ul>
-            </div>
-            <div class="col-auto float-right ml-auto">
-                <a href="#" class="btn add-btn" data-toggle="modal" data-target="#add_designation"><i
-                        class="fa fa-plus"></i> Ajouter un poste</a>
-            </div>
+    <div class="container-fluid">
+        <div class="col">
+            <h3 class="page-title">📋 Gestion des Postes</h3>
         </div>
-    </div>
+        <div class="dep-content">
+            <div class="form-section">
+                <h2 style="margin-bottom: 25px; color: #667eea;">
+                    <span id="form-title">Nouveau Poste</span>
+                </h2>
+                <form id="posteForm" method="post" action="{% if editing %}{% url 'poste_edit' poste_id %}{% else %}{% url 'poste_list' %}{% endif %}">
+                    {% csrf_token %}
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="table-responsive">
-                <table class="table table-striped custom-table mb-0 datatable">
-                    <thead>
-                    <tr>
-                        <th>Code</th>
-                        <th>Libellé</th>
-                        <th>Département</th>
-                        <th>Statut</th>
-                        <th class="text-right">Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-
-                    <tr>
-                        <td>PST002</td>
-                        <td>Web Designer</td>
-                        <td>Web Development</td>
-                        <td>Actif</td>
-                        <td class="text-right">
-                            <div class="dropdown dropdown-action">
-                                <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown"
-                                   aria-expanded="false"><i class="material-icons">more_vert</i></a>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <a class="dropdown-item" href="#" data-toggle="modal"
-                                       data-target="#edit_designation"><i class="fa fa-pencil m-r-5"></i>Edit</a>
-                                    <a class="dropdown-item" href="#" data-toggle="modal"
-                                       data-target="#delete_confirme"><i class="fa fa-trash-o m-r-5"></i>Delete</a>
-                                </div>
+                    <div class="form-group">
+                        <label for="{{ form.CODE.id_for_label }}">{{ form.CODE.label }}</label>
+                        {{ form.CODE }}
+                        {% if form.CODE.errors %}
+                            <div class="field-error" style="display: block;">
+                                {{ form.CODE.errors.0 }}
                             </div>
-                        </td>
-                    </tr>
-
-
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- /Page Content -->
-
-<!-- Add Designation Modal -->
-<div id="add_designation" class="modal custom-modal fade" role="dialog">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Ajouter le poste</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form>
-                    <div class="row">
-                        <div class="col-sm-6 col-md-6 col-lg-3">
-                            <div class="form-group">
-                                <label>Code </label>
-                                <input class="form-control" value=" " type="text">
-                            </div>
-                        </div>
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                <label>Libellé</label>
-                                <input class="form-control" value=" " type="text">
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-md-6 col-lg-3">
-                            <div class="form-group">
-                                <label>Statut</label>
-                                <select class="form-control select">
-                                    <option>Actif</option>
-                                    <option>Inactif</option>
-                                </select>
-                            </div>
-                        </div>
+                        {% endif %}
+                        {% if form.CODE.help_text %}
+                            <small class="form-text">{{ form.CODE.help_text }}</small>
+                        {% endif %}
                     </div>
 
                     <div class="form-group">
-                        <label>Département <span class="text-danger">*</span></label>
-                        <select class="select">
-                            <option>Sélectionnez le département</option>
-                            <option>Web Development</option>
-                            <option>IT Management</option>
-                            <option> Marketing</option>
-                        </select>
+                        <label for="{{ form.LIBELLE.id_for_label }}">{{ form.LIBELLE.label }}</label>
+                        {{ form.LIBELLE }}
+                        {% if form.LIBELLE.errors %}
+                            <div class="field-error" style="display: block;">
+                                {{ form.LIBELLE.errors.0 }}
+                            </div>
+                        {% endif %}
                     </div>
-                    <div class="submit-section">
-                        <button class="btn btn-primary submit-btn">Soumettre</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- /Add Designation Modal -->
 
-<!-- Edit Designation Modal -->
-<div id="edit_designation" class="modal custom-modal fade" role="dialog">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Modifier le poste</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form>
-                    <div class="row">
-                        <div class="col-sm-6 col-md-6 col-lg-3">
-                            <div class="form-group">
-                                <label>Code </label>
-                                <input class="form-control" value=" " type="text">
-                            </div>
-                        </div>
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                <label>Libellé</label>
-                                <input class="form-control" value=" " type="text">
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-md-6 col-lg-3">
-                            <div class="form-group">
-                                <label>Statut</label>
-                                <select class="form-control select">
-                                    <option>Actif</option>
-                                    <option>Inactif</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
                     <div class="form-group">
-                        <label>Département <span class="text-danger">*</span></label>
-                        <select class="select">
-                            <option>Sélectionnez le département</option>
-                            <option>Web Development</option>
-                            <option>IT Management</option>
-                            <option>Marketing</option>
-                        </select>
+                        <label for="{{ form.DEPARTEMENT.id_for_label }}">{{ form.DEPARTEMENT.label }}</label>
+                        {{ form.DEPARTEMENT }}
+                        {% if form.DEPARTEMENT.errors %}
+                            <div class="field-error" style="display: block;">
+                                {{ form.DEPARTEMENT.errors.0 }}
+                            </div>
+                        {% endif %}
                     </div>
-                    <div class="submit-section">
-                        <button class="btn btn-primary submit-btn">Sauvegarder</button>
+
+                    <div class="form-group">
+                        <label for="{{ form.STATUT.id_for_label }}">{{ form.STATUT.label }}</label>
+                        {{ form.STATUT }}
+                        {% if form.STATUT.errors %}
+                            <div class="field-error" style="display: block;">
+                                {{ form.STATUT.errors.0 }}
+                            </div>
+                        {% endif %}
                     </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.DATEDEB.id_for_label }}">{{ form.DATEDEB.label }}</label>
+                        {{ form.DATEDEB }}
+                        {% if form.DATEDEB.errors %}
+                            <div class="field-error" style="display: block;">
+                                {{ form.DATEDEB.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.DATEFIN.id_for_label }}">{{ form.DATEFIN.label }}</label>
+                        {{ form.DATEFIN }}
+                        <small style="color: #666; font-size: 0.85em; display: block; margin-top: 5px;">
+                            Laisser vide si date de fin non définie
+                        </small>
+                        {% if form.DATEFIN.errors %}
+                            <div class="field-error" style="display: block;">
+                                {{ form.DATEFIN.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <span id="btn-text">{% if editing %}💾 Mettre à jour{% else %}➕ Ajouter{% endif %}</span>
+                    </button>
+
+                    {% if editing %}
+                    <a href="{% url 'poste_list' %}" class="btn btn-secondary" style="text-decoration: none; display: inline-block; text-align: center;">
+                        ❌ Annuler
+                    </a>
+                    {% endif %}
                 </form>
             </div>
-        </div>
-    </div>
-</div>
-<!-- /Edit Designation Modal -->
-<!-- Delete Employee Modal -->
-<div class="modal custom-modal fade" id="delete_confirme" role="dialog">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-body">
-                <div class="form-header">
-                    <h3>Supprimer le poste</h3>
-                    <p>Voulez-vous vraiment supprimer?</p>
+
+            <div class="table-section">
+                <h2 style="color: #667eea;">Liste des Postes</h2>
+
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Rechercher par code, libellé, département...">
                 </div>
-                <div class="modal-btn delete-action">
-                    <div class="row">
-                        <div class="col-6">
-                            <a href="javascript:void(0);" class="btn btn-primary continue-btn">Supprimer</a>
-                        </div>
-                        <div class="col-6">
-                            <a href="javascript:void(0);" data-dismiss="modal"
-                               class="btn btn-primary cancel-btn">annuler</a>
-                        </div>
-                    </div>
+
+                <div class="table-wrapper">
+                    <table id="posteTable">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Libellé</th>
+                                <th>Département</th>
+                                <th>Statut</th>
+                                <th>Date Début</th>
+                                <th>Date Fin</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            {% if postes %}
+                                {% for poste in postes %}
+                                <tr data-id="{{ poste.id }}">
+                                    <td><strong>{{ poste.CODE }}</strong></td>
+                                    <td>{{ poste.LIBELLE }}</td>
+                                    <td>{{ poste.DEPARTEMENT.LIBELLE }}</td>
+                                    <td>
+                                        <span class="status-badge {% if poste.STATUT %}status-actif{% else %}status-inactif{% endif %}">
+                                            {% if poste.STATUT %}Actif{% else %}Inactif{% endif %}
+                                        </span>
+                                    </td>
+                                    <td>{{ poste.DATEDEB|date:"d/m/Y" }}</td>
+                                    <td>
+                                        {% if poste.DATEFIN %}
+                                            {{ poste.DATEFIN|date:"d/m/Y" }}
+                                        {% else %}
+                                            <span style="color: #999; font-style: italic;">-- --</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="action-icons">
+                                            <a href="{% url 'poste_edit' poste.id %}"  title="Modifier" >
+                                                ✏️
+                                            </a>
+                                            <form method="post" action="{% url 'poste_delete' poste.id %}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer le poste {{ poste.CODE }} ?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="icon-btn delete-btn" title="Supprimer">
+                                                     <i class="fa fa-trash-o m-r-5"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr class="empty-state">
+                                    <td colspan="7">
+                                        <div>
+                                            <span style="font-size: 3em;">📂</span>
+                                            <p>Aucun poste enregistré</p>
+                                            <p style="font-size: 0.9em; margin-top: 10px;">Utilisez le formulaire ci-contre pour ajouter votre premier poste</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -218,5 +177,60 @@
 {% endblock %}
 
 {% block extrascript %}
+<script>
+        // Empêcher la re-soumission du formulaire lors de l'actualisation
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
 
+        // Recherche en temps réel
+        const searchInput = document.getElementById('searchInput');
+        const tableBody = document.getElementById('tableBody');
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = tableBody.querySelectorAll('tr:not(.empty-state)');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Afficher un message si aucun résultat
+            const emptyStates = tableBody.querySelectorAll('.empty-state');
+            const searchEmpty = tableBody.querySelector('.search-empty');
+
+            if (visibleCount === 0 && rows.length > 0 && !searchEmpty) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.className = 'empty-state search-empty';
+                emptyRow.innerHTML = `
+                    <td colspan="7">
+                        <div>
+                            <span style="font-size: 3em;">🔍</span>
+                            <p>Aucun résultat trouvé pour "${searchTerm}"</p>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(emptyRow);
+            } else if (visibleCount > 0 && searchEmpty) {
+                searchEmpty.remove();
+            }
+        });
+
+        // Auto-focus sur le premier champ si le formulaire a des erreurs
+        {% if form.errors %}
+        window.addEventListener('DOMContentLoaded', function() {
+            const firstErrorField = document.querySelector('.field-error').previousElementSibling;
+            if (firstErrorField) {
+                firstErrorField.focus();
+            }
+        });
+        {% endif %}
+    </script>
 {% endblock %}

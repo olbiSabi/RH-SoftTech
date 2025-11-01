@@ -1,11 +1,7 @@
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .models import ZDDE
-from .forms import ZDDEForm
-from datetime import date
-
-DATE_MAX = date(2999, 12, 31)
+from .models import ZDDE, ZDPO
+from .forms import ZDDEForm, ZDPOForm
 
 
 def department_list(request):
@@ -28,7 +24,6 @@ def department_list(request):
     return render(request, 'departement/departement.html', {
         'departments': departments,
         'form': form,
-        'date_max': DATE_MAX,
         'editing': False
     })
 
@@ -53,7 +48,6 @@ def department_edit(request, pk):
     return render(request, 'departement/departement.html', {
         'departments': departments,
         'form': form,
-        'date_max': DATE_MAX,
         'editing': True,
         'department_id': pk
     })
@@ -69,5 +63,65 @@ def department_delete(request, pk):
 
     return redirect('list')
 
-def poste(request):
-    return render(request, "departement/poste.html")
+
+# ==========================================
+# VUES POSTE (ZDPO)
+# ==========================================
+
+def poste_list(request):
+    """Vue principale pour afficher et gérer les postes"""
+    postes = ZDPO.objects.select_related('DEPARTEMENT').all().order_by('CODE')
+
+    if request.method == 'POST':
+        form = ZDPOForm(request.POST)
+
+        if form.is_valid():
+            poste = form.save()
+            messages.success(request, f'✓ Poste {poste.CODE} créé avec succès!')
+            return redirect('poste_list')
+        else:
+            messages.error(request, '✗ Erreur de validation. Veuillez corriger les erreurs ci-dessous.')
+    else:
+        form = ZDPOForm()
+
+    return render(request, 'departement/poste.html', {
+        'postes': postes,
+        'form': form,
+        'editing': False
+    })
+
+
+def poste_edit(request, pk):
+    """Éditer un poste existant"""
+    poste = get_object_or_404(ZDPO, pk=pk)
+    postes = ZDPO.objects.select_related('DEPARTEMENT').all().order_by('CODE')
+
+    if request.method == 'POST':
+        form = ZDPOForm(request.POST, instance=poste)
+
+        if form.is_valid():
+            poste = form.save()
+            messages.success(request, f'✓ Poste {poste.CODE} modifié avec succès!')
+            return redirect('poste_list')
+        else:
+            messages.error(request, '✗ Erreur de validation. Veuillez corriger les erreurs ci-dessous.')
+    else:
+        form = ZDPOForm(instance=poste)
+
+    return render(request, 'departement/poste.html', {
+        'postes': postes,
+        'form': form,
+        'editing': True,
+        'poste_id': pk
+    })
+
+
+def poste_delete(request, pk):
+    """Supprimer un poste"""
+    if request.method == 'POST':
+        poste = get_object_or_404(ZDPO, pk=pk)
+        code = poste.CODE
+        poste.delete()
+        messages.success(request, f'✓ Poste {code} supprimé avec succès!')
+
+    return redirect('poste_list')

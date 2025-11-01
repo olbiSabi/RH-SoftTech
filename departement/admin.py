@@ -1,74 +1,69 @@
 from django.contrib import admin
-
-# Register your models here.
-# admin.py
-from django.contrib import admin
-from django.utils import timezone
-from .models import ZDDE  # Remplacez par le nom réel de votre modèle
-
+from .models import ZDDE
+from datetime import date
+from .models import ZDPO
 
 @admin.register(ZDDE)
 class ZDDEAdmin(admin.ModelAdmin):
-    # Colonnes affichées dans la liste
-    list_display = ['CODE', 'LIBELLE', 'STATUT', 'DATEDEB', 'DATEFIN', 'est_actuel']
+    list_display = ('CODE', 'LIBELLE', 'STATUT', 'DATEDEB', 'get_datefin_display', 'get_status_color')
+    list_filter = ('STATUT', 'DATEDEB')
+    search_fields = ('CODE', 'LIBELLE')
+    ordering = ('CODE',)
 
-    # Filtres dans la sidebar
-    list_filter = ['STATUT', 'DATEDEB']
-
-    # Champ de recherche
-    search_fields = ['CODE', 'LIBELLE']
-
-    # Champs éditables directement dans la liste
-    list_editable = ['STATUT']
-
-    # Tri par défaut
-    ordering = ['CODE']
-
-    # Pagination
-    list_per_page = 20
-
-    # Actions personnalisées
-    actions = ['activer_departements', 'desactiver_departements']
-
-    def est_actuel(self, obj):
-        """Colonne personnalisée pour vérifier si le département est actuellement valide"""
-        aujourdhui = timezone.now().date()
-        if obj.DATEFIN and obj.DATEFIN < aujourdhui:
-            return "❌ Expiré"
-        elif obj.DATEDEB > aujourdhui:
-            return "⏳ Futur"
-        else:
-            return "✅ Actuel"
-
-    est_actuel.short_description = "Statut de validité"
-
-    def activer_departements(self, request, queryset):
-        """Action pour activer les départements sélectionnés"""
-        updated = queryset.update(STATUT=True)
-        self.message_user(request, f"{updated} département(s) activé(s) avec succès.")
-
-    activer_departements.short_description = "Activer les départements sélectionnés"
-
-    def desactiver_departements(self, request, queryset):
-        """Action pour désactiver les départements sélectionnés"""
-        updated = queryset.update(STATUT=False)
-        self.message_user(request, f"{updated} département(s) désactivé(s) avec succès.")
-
-    desactiver_departements.short_description = "Désactiver les départements sélectionnés"
-
-    # Configuration du formulaire d'édition
     fieldsets = (
-        ('Informations département', {
+        ('Informations principales', {
             'fields': ('CODE', 'LIBELLE', 'STATUT')
         }),
         ('Période de validité', {
             'fields': ('DATEDEB', 'DATEFIN'),
-            'description': 'Définir la période de validité du département'
+            'description': 'Laisser DATEFIN vide pour une validité infinie'
         }),
     )
 
-    # Textes d'aide pour les champs
-    help_texts = {
-        'CODE': 'Le code doit contenir exactement 3 caractères',
-        'DATEFIN': 'Laisser vide si pas de date de fin prévue',
-    }
+    def get_datefin_display(self, obj):
+        if not obj.DATEFIN:
+            return '-- --'
+        return obj.DATEFIN.strftime('%d/%m/%Y')
+
+    get_datefin_display.short_description = 'Date Fin'
+    def get_status_color(self, obj):
+        """Afficher le statut avec couleur"""
+        if obj.STATUT:
+            return '🟢 Actif'
+        return '🔴 Inactif'
+
+    get_status_color.short_description = 'Statut'
+
+    class Media:
+        css = {
+            'all': ('admin/css/custom_admin.css',)
+        }
+
+
+# Actions personnalisées
+@admin.action(description='Activer les départements sélectionnés')
+def activer_departements(modeladmin, request, queryset):
+    queryset.update(STATUT=True)
+
+
+@admin.action(description='Désactiver les départements sélectionnés')
+def desactiver_departements(modeladmin, request, queryset):
+    queryset.update(STATUT=False)
+
+
+ZDDEAdmin.actions = [activer_departements, desactiver_departements]
+
+
+@admin.register(ZDPO)
+class ZDPOAdmin(admin.ModelAdmin):
+    list_display = ('CODE', 'LIBELLE', 'DEPARTEMENT', 'STATUT', 'DATEDEB', 'get_datefin_display')
+    list_filter = ('STATUT', 'DEPARTEMENT', 'DATEDEB')
+    search_fields = ('CODE', 'LIBELLE', 'DEPARTEMENT__LIBELLE')
+    ordering = ('CODE',)
+
+    def get_datefin_display(self, obj):
+        if not obj.DATEFIN:
+            return '-- --'
+        return obj.DATEFIN.strftime('%d/%m/%Y')
+
+    get_datefin_display.short_description = 'Date Fin'

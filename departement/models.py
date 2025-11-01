@@ -1,13 +1,15 @@
 from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
-from datetime import date
+from django.contrib.auth import get_user_model
 
-# Constante pour la date maximale
-DATE_MAX = date(2999, 12, 31)
+User = get_user_model()
 
-
+# ==========================================
+# MODÈLE ZDPO POUR LE DEPARTEMENT
+# ==========================================
 class ZDDE(models.Model):
+    """Modèle Département"""
     CODE = models.CharField(
         max_length=3,
         unique=True,
@@ -27,9 +29,10 @@ class ZDDE(models.Model):
         verbose_name="Date de début de validité"
     )
     DATEFIN = models.DateField(
-        default=DATE_MAX,  # Utilisation de la constante
+        null=True,
+        blank=True,
         verbose_name="Date de fin de validité",
-        help_text="31/12/2999 si non renseigné"
+        help_text="Laisser vide si date non définie"
     )
 
     class Meta:
@@ -48,24 +51,85 @@ class ZDDE(models.Model):
         if not self.CODE.isalpha():
             raise ValidationError({'CODE': 'Le code ne doit contenir que des lettres.'})
 
-        # S'assurer que DATEFIN n'est jamais null
-        if self.DATEFIN is None:
-            self.DATEFIN = DATE_MAX
-
-        if self.DATEFIN <= self.DATEDEB:
+        # Valider la date de fin seulement si elle est renseignée
+        if self.DATEFIN and self.DATEFIN <= self.DATEDEB:
             raise ValidationError({'DATEFIN': 'La date de fin doit être postérieure à la date de début.'})
 
     def save(self, *args, **kwargs):
         self.CODE = self.CODE.upper().strip()
-
-        # Garantir une valeur pour DATEFIN
-        if self.DATEFIN is None:
-            self.DATEFIN = DATE_MAX
-
         self.full_clean()
         super().save(*args, **kwargs)
 
     def __str__(self):
         statut = "Actif" if self.STATUT else "Inactif"
-        date_fin_display = "∞" if self.DATEFIN == DATE_MAX else self.DATEFIN.strftime('%d/%m/%Y')
-        return f"{self.CODE} - {self.LIBELLE} ({statut}) [{self.DATEDEB} → {date_fin_display}]"
+        date_fin_display = "-- --" if not self.DATEFIN else self.DATEFIN.strftime('%d/%m/%Y')
+        return f"{self.CODE} - {self.LIBELLE} ({statut}) [{self.DATEDEB.strftime('%d/%m/%Y')} → {date_fin_display}]"
+
+# ==========================================
+# MODÈLE ZDPO POUR LE POSTE
+# ==========================================
+class ZDPO(models.Model):
+    """Modèle Poste"""
+    CODE = models.CharField(
+        max_length=6,
+        unique=True,
+        verbose_name="Code poste",
+        help_text="6 caractères alphanumériques (ex: PST001)"
+    )
+    LIBELLE = models.CharField(
+        max_length=100,
+        verbose_name="Libellé du poste"
+    )
+    DEPARTEMENT = models.ForeignKey(
+        ZDDE,
+        on_delete=models.PROTECT,
+        related_name='postes',
+        verbose_name="Département",
+        help_text="Département auquel appartient le poste"
+    )
+    STATUT = models.BooleanField(
+        default=True,
+        verbose_name="Statut actif"
+    )
+    DATEDEB = models.DateField(
+        default=timezone.now,
+        verbose_name="Date de début de validité"
+    )
+    DATEFIN = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name="Date de fin de validité",
+        help_text="Laisser vide si date non définie"
+    )
+
+    class Meta:
+        db_table = 'ZDPO'
+        verbose_name = "Poste"
+        verbose_name_plural = "Postes"
+        ordering = ['CODE']
+
+    def clean(self):
+        """Validation des données"""
+        if self.CODE:
+            self.CODE = self.CODE.upper().strip()
+
+        if len(self.CODE) != 6:
+            raise ValidationError({'CODE': 'Le code doit contenir exactement 5 caractères.'})
+
+        if not self.CODE.isalnum():
+            raise ValidationError({'CODE': 'Le code ne doit contenir que des lettres et des chiffres.'})
+
+        # Valider la date de fin seulement si elle est renseignée
+        if self.DATEFIN and self.DATEFIN <= self.DATEDEB:
+            raise ValidationError({'DATEFIN': 'La date de fin doit être postérieure à la date de début.'})
+
+    def save(self, *args, **kwargs):
+        self.CODE = self.CODE.upper().strip()
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        statut = "Actif" if self.STATUT else "Inactif"
+        date_fin_display = "-- --" if not self.DATEFIN else self.DATEFIN.strftime('%d/%m/%Y')
+        return f"{self.CODE} - {self.LIBELLE} ({self.DEPARTEMENT.LIBELLE}) ({statut}) [{self.DATEDEB.strftime('%d/%m/%Y')} → {date_fin_display}]"
+

@@ -2,15 +2,7 @@
 {% load static %}
 {% block title %} <title>Departement</title>{% endblock %}
 {% block extrastylet %}
-<!-- Select2 CSS -->
-<link rel="stylesheet" href="{% static 'assets/css/select2.min.css' %}">
 
-<!-- Datetimepicker CSS -->
-<link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
-    <!-- Font Awesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<link rel="stylesheet" href="{% static 'assets/css/table.css' %}">
 {% endblock %}
 
 <!-- Content Body (Page Body) -->
@@ -134,10 +126,10 @@
                                 </td>
                                 <td>{{ dept.DATEDEB|date:"d/m/Y" }}</td>
                                 <td>
-                                    {% if dept.DATEFIN.year == 2999 %}
-                                        <span style="font-weight: bold;">∞</span>
-                                    {% else %}
+                                    {% if dept.DATEFIN %}
                                         {{ dept.DATEFIN|date:"d/m/Y" }}
+                                    {% else %}
+                                        <span style="color: #999; font-style: italic;">-- --</span>
                                     {% endif %}
                                 </td>
                                 <td>
@@ -179,30 +171,14 @@
 
 {% block extrascript %}
 <!--JS-->
-<!-- jQuery -->
-<script src="{% static 'assets/js/jquery-3.5.1.min.js' %}"></script>
-
-<!-- Bootstrap Core JS -->
-<script src="{% static 'assets/js/popper.min.js' %}"></script>
-<script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
-
-<!-- Slimscroll JS -->
-<script src="{% static 'assets/js/jquery.slimscroll.min.js' %}"></script>
-
-<!-- Chart JS -->
-<!-- Select2 JS -->
-<script src="{% static 'assets/js/select2.min.js' %}"></script>
-
-<!-- Datetimepicker JS -->
-<script src="{% static 'assets/js/moment.min.js' %}"></script>
-<script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
-<script src="{% static 'plugins/build/js/custom.min.js' %}"></script>
-
-<!-- Custom JS -->
 <script src="{% static 'assets/js/app.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Recherche en temps réel
+    // Empêcher la re-soumission du formulaire lors de l'actualisation
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
+
+        // Recherche en temps réel
         const searchInput = document.getElementById('searchInput');
         const tableBody = document.getElementById('tableBody');
 

@@ -3,237 +3,197 @@
 {% load static %}
 
 {% block extrastylet %}
-<!-- Datatable CSS -->
-<link rel="stylesheet" href="{% static 'assets/css/dataTables.bootstrap4.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/table.css' %}">
 {% endblock %}
 
 <!-- Content Body (Page Body) -->
 {% block pageContent %}
 <div class="content container-fluid">
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="row align-items-center">
-            <div class="col">
-                <h3 class="page-title">Type de congé</h3>
-                <ul class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Tableau de bord</a></li>
-                    <li class="breadcrumb-item active">Type de congé</li>
-                </ul>
-            </div>
-            <div class="col-auto float-right ml-auto">
-                <a href="#" class="btn add-btn" data-toggle="modal" data-target="#add_leavetype"><i
-                        class="fa fa-plus"></i> Ajouter un type de congé</a>
-            </div>
+<div class="container-fluid">
+        <div class="col">
+            <h3 class="page-title">Les types d'absences</h3>
         </div>
-    </div>
+        <div class="dep-content">
+            <div class="form-section">
+                <h2 style="margin-bottom: 25px; color: #667eea;">
+                    <span id="form-title">Nouveau types d'absences</span>
+                </h2>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="table-responsive">
-                <table class="table table-striped custom-table datatable mb-0">
+                <form id="absenceForm" method="post" action="{% if editing %}{% url 'absence_edit' absence_id %}{% else %}{% url 'absence_list' %}{% endif %}">
+                    {% csrf_token %}
+
+                    {% if editing %}
+                    <input type="hidden" name="absence_id" value="{{ absence_id }}">
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label for="{{ form.CODE.id_for_label }}">{{ form.CODE.label }}</label>
+                        {{ form.CODE }}
+                        {% if form.CODE.errors %}
+                            <div class="field-error" style="display: block;">
+                                {{ form.CODE.errors.0 }}
+                            </div>
+                        {% endif %}
+                        {% if form.CODE.help_text %}
+                            <small class="form-text">{{ form.CODE.help_text }}</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.LIBELLE.id_for_label }}">{{ form.LIBELLE.label }}</label>
+                        {{ form.LIBELLE }}
+                        {% if form.LIBELLE.errors %}
+                            <div class="field-error" style="display: block;">
+                                {{ form.LIBELLE.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.STATUT.id_for_label }}">{{ form.STATUT.label }}</label>
+                        {{ form.STATUT }}
+                        {% if form.STATUT.errors %}
+                            <div class="field-error" style="display: block;">
+                                {{ form.STATUT.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <span id="btn-text">{% if editing %}💾 Mettre à jour{% else %}➕ Ajouter{% endif %}</span>
+                    </button>
+
+                    {% if editing %}
+                    <a href="{% url 'list' %}" class="btn btn-secondary" style="text-decoration: none; display: inline-block; text-align: center;">
+                        ❌ Annuler
+                    </a>
+                    {% endif %}
+                </form>
+            </div>
+
+            <div class="table-section">
+                <h2 style="margin-bottom: 20px; color: #667eea;">Liste des Absence</h2>
+
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Rechercher par code, libellé ou statut...">
+                </div>
+                <div class="table-wrapper">
+                <table id="absenceTable">
                     <thead>
-                    <tr>
-                        <th>CODE</th>
-                        <th>Libellé</th>
-                        <th>Statut</th>
-                        <th class="text-right">Action</th>
-                    </tr>
+                        <tr>
+                            <th>Code</th>
+                            <th>Libellé</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
                     </thead>
-                    <tbody>
-                    <tr>
-                        <td>CPN</td>
-                        <td>Congé occasionnel</td>
-                        <td>Actif</td>
-                        <td class="text-right">
-                            <div class="dropdown dropdown-action">
-                                <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown"
-                                   aria-expanded="false"><i class="material-icons">more_vert</i></a>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#edit_leavetype"><i
-                                            class="fa fa-pencil m-r-5"></i> Editer</a>
-                                    <a class="dropdown-item" href="#" data-toggle="modal"
-                                       data-target="#delete_leavetype"><i class="fa fa-trash-o m-r-5"></i> Supprimer</a>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>MAL</td>
-                        <td>Congé de maladie</td>
-                        <td>Inactif</td>
-                        <td class="text-right">
-                            <div class="dropdown dropdown-action">
-                                <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown"
-                                   aria-expanded="false"><i class="material-icons">more_vert</i></a>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#edit_leavetype"><i
-                                            class="fa fa-pencil m-r-5"></i> Editer</a>
-                                    <a class="dropdown-item" href="#" data-toggle="modal"
-                                       data-target="#delete_leavetype"><i class="fa fa-trash-o m-r-5"></i> Supprimer</a>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>TER</td>
-                        <td>Perte de salaire</td>
-                        <td>Active</td>
-                        <td class="text-right">
-                            <div class="dropdown dropdown-action">
-                                <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown"
-                                   aria-expanded="false"><i class="material-icons">more_vert</i></a>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#edit_leavetype"><i
-                                            class="fa fa-pencil m-r-5"></i> Editer</a>
-                                    <a class="dropdown-item" href="#" data-toggle="modal"
-                                       data-target="#delete_leavetype"><i class="fa fa-trash-o m-r-5"></i> Supprimer</a>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
+                    <tbody id="tableBody">
+                        {% if absences %}
+                            {% for abs in absences %}
+                            <tr data-id="{{ abs.id }}">
+                                <td><strong>{{ abs.CODE }}</strong></td>
+                                <td>{{ abs.LIBELLE }}</td>
+                                <td>
+                                    <span class="status-badge {% if abs.STATUT %}status-actif{% else %}status-inactif{% endif %}">
+                                        {% if abs.STATUT %}Actif{% else %}Inactif{% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="action-icons">
+                                        <a href="{% url 'absence_edit' abs.id %}" title="Modifier">
+                                            ✏️
+                                        </a>
+                                        <form method="post" action="{% url 'absence_delete' abs.id %}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer le département {{ abs.CODE }} ?');">
+                                            {% csrf_token %}
+                                            <button type="submit" class="icon-btn delete-btn" title="Supprimer">
+                                               <i class="fa fa-trash-o m-r-5"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr class="empty-state">
+                                <td colspan="6">
+                                    <div>
+                                        <span style="font-size: 3em;">📂</span>
+                                        <p>Aucun département enregistré</p>
+                                        <p style="font-size: 0.9em; margin-top: 10px;">Utilisez le formulaire ci-contre pour ajouter votre premier département</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
                     </tbody>
                 </table>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-<!-- Add Leavetype Modal -->
-<div id="add_leavetype" class="modal custom-modal fade" role="dialog">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Ajouter un type de congé</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form>
-                    <div class="row">
-                        <div class="col-sm-6 col-md-6 col-lg-3">
-                            <div class="form-group">
-                                <label>Code </label>
-                                <input class="form-control" value=" " type="text">
-                            </div>
-                        </div>
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                <label>Libellé</label>
-                                <input class="form-control" value=" " type="text">
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-md-6 col-lg-3">
-                            <div class="form-group">
-                                <label>Statut</label>
-                                <select class="form-control select">
-                                    <option>Actif</option>
-                                    <option>Inactif</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="submit-section">
-                        <button class="btn btn-primary submit-btn">Soumettre</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- /Add Leavetype Modal -->
-
-<!-- Edit Leavetype Modal -->
-<div id="edit_leavetype" class="modal custom-modal fade" role="dialog">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Modifier le type de congé</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form>
-                    <div class="row">
-                        <div class="col-sm-6 col-md-6 col-lg-3">
-                            <div class="form-group">
-                                <label>Code </label>
-                                <input class="form-control" value=" " type="text">
-                            </div>
-                        </div>
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                <label>Libellé</label>
-                                <input class="form-control" value=" " type="text">
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-md-6 col-lg-3">
-                            <div class="form-group">
-                                <label>Statut</label>
-                                <select class="form-control select">
-                                    <option>Actif</option>
-                                    <option>Inactif</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="submit-section">
-                        <button class="btn btn-primary submit-btn">Sauvegarder</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- /Edit Leavetype Modal -->
-
-<!-- Delete Leavetype Modal -->
-<div class="modal custom-modal fade" id="delete_leavetype" role="dialog">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-body">
-                <div class="form-header">
-                    <h3>Supprimer le type de congé</h3>
-                    <p>Voulez-vous vraiment supprimer?</p>
-                </div>
-                <div class="modal-btn delete-action">
-                    <div class="row">
-                        <div class="col-6">
-                            <a href="javascript:void(0);" class="btn btn-primary continue-btn">Supprimer</a>
-                        </div>
-                        <div class="col-6">
-                            <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-primary cancel-btn">Annuler</a>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<!-- /Delete Leavetype Modal -->
+
 {% endblock %}
 
+
 {% block extrascript %}
-<!--JS-->
-<!-- jQuery -->
-<script src="{% static 'assets/js/jquery-3.5.1.min.js' %}"></script>
-
-<!-- Bootstrap Core JS -->
-<script src="{% static 'assets/js/popper.min.js' %}"></script>
-<script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
-
-<!-- Slimscroll JS -->
-<script src="{% static 'assets/js/jquery.slimscroll.min.js' %}"></script>
-
-<!-- Datatable JS -->
-<script src="{% static 'assets/js/jquery.dataTables.min.js' %}"></script>
-<script src="{% static 'assets/js/dataTables.bootstrap4.min.js' %}"></script>
-
 <!-- Custom JS -->
 <script src="{% static 'assets/js/app.js' %}"></script>
+<script>
+    // Empêcher la re-soumission du formulaire lors de l'actualisation
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
+
+        // Recherche en temps réel
+        const searchInput = document.getElementById('searchInput');
+        const tableBody = document.getElementById('tableBody');
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = tableBody.querySelectorAll('tr:not(.empty-state)');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Afficher un message si aucun résultat
+            const emptyStates = tableBody.querySelectorAll('.empty-state');
+            const searchEmpty = tableBody.querySelector('.search-empty');
+
+            if (visibleCount === 0 && rows.length > 0 && !searchEmpty) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.className = 'empty-state search-empty';
+                emptyRow.innerHTML = `
+                    <td colspan="6">
+                        <div>
+                            <span style="font-size: 3em;">🔍</span>
+                            <p>Aucun résultat trouvé pour "${searchTerm}"</p>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(emptyRow);
+            } else if (visibleCount > 0 && searchEmpty) {
+                searchEmpty.remove();
+            }
+        });
+
+        // Auto-focus sur le premier champ si le formulaire a des erreurs
+        {% if form.errors %}
+        window.addEventListener('DOMContentLoaded', function() {
+            const firstErrorField = document.querySelector('.field-error').previousElementSibling;
+            if (firstErrorField) {
+                firstErrorField.focus();
+            }
+        });
+        {% endif %}
+</script>
+
 
 {% endblock %}

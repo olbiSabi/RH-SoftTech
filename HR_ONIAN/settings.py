@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'comptabilite',
     'reports',
     'parametre',
+    'core',
 ]
 
 MIDDLEWARE = [
@@ -56,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'core.middleware.CurrentRequestMiddleware',  # ← NOUVEAU
 ]
 
 ROOT_URLCONF = 'HR_ONIAN.urls'
