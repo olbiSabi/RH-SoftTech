@@ -41,6 +41,12 @@ class ZDAB(models.Model):
         if len(self.CODE) != 3:
             raise ValidationError({'CODE': 'Le code doit contenir exactement 3 caractères.'})
 
+        # Transformer le premier caractère du LIBELLE en majuscule
+        if self.LIBELLE:
+            self.LIBELLE = self.LIBELLE.strip()
+            if self.LIBELLE:  # Vérifier que le libellé n'est pas vide après strip
+                self.LIBELLE = self.LIBELLE[0].upper() + self.LIBELLE[1:]
+
         if not self.CODE.isalpha():
             raise ValidationError({'CODE': 'Le code ne doit contenir que des lettres.'})
 

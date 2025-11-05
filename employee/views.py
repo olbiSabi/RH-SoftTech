@@ -1,6 +1,9 @@
 from django.shortcuts import render
 
 
+def embaucheAgent(request):
+    return render(request, "employee/embauche-agent.html")
+
 def listeEmployee(request):
     return render(request, "employee/employees-list.html")
 

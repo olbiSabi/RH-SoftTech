@@ -32,7 +32,7 @@ def absence_list(request):
 
 def absence_edit(request, pk):
     """Éditer un absence existant"""
-    absence = get_object_or_404(ZDAB, pk=pk)
+    absence = get_object_or_404(ZDAB, pk=pk )
     absences = ZDAB.objects.all().order_by('CODE')
 
     if request.method == 'POST':

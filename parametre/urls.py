@@ -5,7 +5,7 @@ from .views import *
 urlpatterns = [
 # Routes Absence
     path('poste/', views.absence_list, name='absence_list'),
-    path('poste/edit/<int:pk>/', views.absence_edit, name='absence_edit'),
+    path('poste/edit/<str:pk>/', views.absence_edit, name='absence_edit'),
     path('poste/delete/<int:pk>/', views.absence_delete, name='absence_delete'),
 
     path('parametre-home/', parametreHome, name='parametreHome'),

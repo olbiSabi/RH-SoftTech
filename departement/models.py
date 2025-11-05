@@ -51,6 +51,12 @@ class ZDDE(models.Model):
         if not self.CODE.isalpha():
             raise ValidationError({'CODE': 'Le code ne doit contenir que des lettres.'})
 
+        # Transformer le premier caractère du LIBELLE en majuscule
+        if self.LIBELLE:
+            self.LIBELLE = self.LIBELLE.strip()
+            if self.LIBELLE:  # Vérifier que le libellé n'est pas vide après strip
+                self.LIBELLE = self.LIBELLE[0].upper() + self.LIBELLE[1:]
+
         # Valider la date de fin seulement si elle est renseignée
         if self.DATEFIN and self.DATEFIN <= self.DATEDEB:
             raise ValidationError({'DATEFIN': 'La date de fin doit être postérieure à la date de début.'})
@@ -119,6 +125,12 @@ class ZDPO(models.Model):
         if not self.CODE.isalnum():
             raise ValidationError({'CODE': 'Le code ne doit contenir que des lettres et des chiffres.'})
 
+        # Transformer le premier caractère du LIBELLE en majuscule
+        if self.LIBELLE:
+            self.LIBELLE = self.LIBELLE.strip()
+            if self.LIBELLE:  # Vérifier que le libellé n'est pas vide après strip
+                self.LIBELLE = self.LIBELLE[0].upper() + self.LIBELLE[1:]
+
         # Valider la date de fin seulement si elle est renseignée
         if self.DATEFIN and self.DATEFIN <= self.DATEDEB:
             raise ValidationError({'DATEFIN': 'La date de fin doit être postérieure à la date de début.'})
@@ -131,5 +143,5 @@ class ZDPO(models.Model):
     def __str__(self):
         statut = "Actif" if self.STATUT else "Inactif"
         date_fin_display = "-- --" if not self.DATEFIN else self.DATEFIN.strftime('%d/%m/%Y')
-        return f"{self.CODE} - {self.LIBELLE} ({self.DEPARTEMENT.LIBELLE}) ({statut}) [{self.DATEDEB.strftime('%d/%m/%Y')} → {date_fin_display}]"
+        return f"{self.CODE} - {self.LIBELLE} ({self.DEPARTEMENT.LIBELLE}) "
 
