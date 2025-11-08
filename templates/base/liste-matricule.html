@@ -19,10 +19,10 @@
                 <tbody id="employeesList">
                     <!-- Les employés seront ajoutés par Django -->
                     {% for employe in employes %}
-                        <tr class="employee-row" data-matricule="{{ employee.matricule }}">
+                        <tr class="employee-row" data-matricule="{{ employee.uuid }}">
                             <td>
                                 <div>
-                                    <a class="dropdown-it" href="{% url 'detail_employe' employe.matricule %}">
+                                    <a href="{% url 'dossier_detail' employe.uuid %}" class=" dropdown-it list-group-item-action {% if employe_selectionne and employe_selectionne.uuid == employe.uuid %}active{% endif %}">
                                         <span class="employee-name">{{ employe.nom}} {{ employe.prenoms}}</span>
                                         <br>
                                         <span class="employee-matricule">{{ employe.matricule }}</span>

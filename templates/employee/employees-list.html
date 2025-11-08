@@ -137,13 +137,13 @@
                                             <i class="material-icons">more_vert</i>
                                         </a>
                                         <div class="dropdown-menu dropdown-menu-right">
-                                            <a class="dropdown-item" href="{% url 'detail_employe' employe.matricule %}">
+                                            <a class="dropdown-item" href="{% url 'detail_employe' employe.uuid %}">
                                                 <i class="fa fa-eye text-primary"></i>  View
                                             </a>
-                                            <a class="dropdown-item" href="{% url 'modifier_employe' employe.matricule %}">
+                                            <a class="dropdown-item" href="{% url 'modifier_employe' employe.uuid %}">
                                                 <i class="fa fa-pencil m-r-5"></i> Edit
                                             </a>
-                                            <a class="dropdown-item" href="{% url 'supprimer_employe' employe.matricule %}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer {{ employe.nom }} {{ employe.prenoms }} ?')">
+                                            <a class="dropdown-item" href="{% url 'supprimer_employe' employe.uuid %}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer {{ employe.nom }} {{ employe.prenoms }} ?')">
                                                 <i class="fa fa-trash-o m-r-5"></i> Delete
                                             </a>
                                         </div>

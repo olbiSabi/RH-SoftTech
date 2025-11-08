@@ -279,7 +279,7 @@
                             </button>
 
                             {% if form.instance.matricule %}
-                                <a href="{% url 'detail_employe' form.instance.matricule %}" class="btn btn-secondary btn-lg">
+                                <a href="{% url 'detail_employe' form.instance.uuid %}" class="btn btn-secondary btn-lg">
                                     <i class="bi bi-x-circle"></i> Annuler
                                 </a>
                             {% else %}
@@ -301,7 +301,7 @@
                                     <i class="bi bi-exclamation-triangle"></i>
                                     <strong>Note:</strong> Cette modification n'affecte que les données personnelles de l'employé.
                                     Pour modifier les contrats, affectations, téléphones, emails ou adresses,
-                                    consultez la <a href="{% url 'detail_employe' form.instance.matricule %}">page de détail</a>.
+                                    consultez la <a href="{% url 'detail_employe' form.instance.uuid %}">page de détail</a>.
                                     {% endif %}
                                 </small>
                             </p>

@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db import transaction
@@ -102,9 +103,9 @@ def embauche_agent(request):
     return render(request, 'employee/embauche-agent.html', {'form': form})
 
 
-def valider_embauche(request, matricule):
+def valider_embauche(request, uuid):
     """Valider une pré-embauche et passer le type de dossier à SAL"""
-    employe = get_object_or_404(ZY00, matricule=matricule)
+    employe = get_object_or_404(ZY00, uuid=uuid)
 
     if employe.type_dossier == 'PRE':
         employe.type_dossier = 'SAL'
@@ -114,7 +115,7 @@ def valider_embauche(request, matricule):
     else:
         messages.warning(request, "Cet employé est déjà validé.")
 
-    return redirect('detail_employe', matricule=matricule)
+    return redirect('detail_employe', uuid=uuid)
 
 
 # ===============================
@@ -165,33 +166,65 @@ class EmployeUpdateView(UpdateView):
     model = ZY00
     form_class = ZY00Form
     template_name = 'employee/employe_form.html'
-    pk_url_kwarg = 'matricule'
+    slug_field = 'uuid'
+    slug_url_kwarg = 'uuid'
+    context_object_name = 'employe'
+
+    def get_object(self, queryset=None):
+        """Surcharge pour mieux gérer les erreurs"""
+        try:
+            return super().get_object(queryset)
+        except ZY00.DoesNotExist:
+            messages.error(self.request, "❌ Employé non trouvé")
+            raise Http404("Employé non trouvé")
 
     def get_success_url(self):
-        # Rediriger vers la page de détail de l'employé modifié
-        return reverse_lazy('detail_employe', kwargs={'matricule': self.object.matricule})
-
-    def form_valid(self, form):
         messages.success(self.request, "✅ Employé modifié avec succès!")
-        return super().form_valid(form)
+        # Rediriger vers le détail du dossier individuel
+        return reverse_lazy('dossier_detail', kwargs={'uuid': self.object.uuid})
+
+
+from django.urls import reverse_lazy
+from django.contrib import messages
+from django.shortcuts import get_object_or_404
 
 
 class EmployeDeleteView(DeleteView):
     """Supprimer un employé (suppression en cascade)"""
     model = ZY00
     template_name = 'employee/employe_confirm_delete.html'
-    success_url = reverse_lazy('liste_employes')
-    pk_url_kwarg = 'matricule'
+    success_url = reverse_lazy('liste_dossiers')  # Corriger le nom de l'URL
+
+    # CORRECTION : Utiliser slug_field et slug_url_kwarg pour UUID
+    slug_field = 'uuid'
+    slug_url_kwarg = 'uuid'
+
+    def get_object(self, queryset=None):
+        """Surcharge pour mieux gérer la récupération par UUID"""
+        if queryset is None:
+            queryset = self.get_queryset()
+
+        uuid = self.kwargs.get('uuid')
+        if uuid is not None:
+            queryset = queryset.filter(uuid=uuid)
+
+        obj = get_object_or_404(queryset)
+        return obj
 
     def delete(self, request, *args, **kwargs):
         employe = self.get_object()
-        messages.success(request, f"Employé {employe.nom} {employe.prenoms} supprimé avec succès!")
+        messages.success(request, f"Employé {employe.nom} {employe.prenom} supprimé avec succès!")
         return super().delete(request, *args, **kwargs)
 
+    # Optionnel : pour personnaliser le contexte
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['employe'] = self.get_object()
+        return context
 
-def detail_employe(request, matricule):
+def detail_employe(request, uuid):
     """Détails d'un employé avec toutes ses informations"""
-    employe = get_object_or_404(ZY00, matricule=matricule)
+    employe = get_object_or_404(ZY00, uuid=uuid)
 
     context = {
         'employe': employe,
@@ -205,8 +238,9 @@ def detail_employe(request, matricule):
     return render(request, 'employee/detail_employe.html', context)
 
 
-class dossierIndividuel(ListView):
-    """Liste de tous les employés"""
+
+class DossierIndividuelView(ListView):
+    """Affiche la liste des employés + détail d'un employé sélectionné"""
     model = ZY00
     template_name = 'employee/dossier-individuel.html'
     context_object_name = 'employes'
@@ -216,6 +250,27 @@ class dossierIndividuel(ListView):
         queryset = super().get_queryset()
         return queryset.order_by('-matricule')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Vérifier si un UUID est passé dans l'URL
+        uuid = self.kwargs.get('uuid')
+        if uuid:
+            employe_selectionne = get_object_or_404(ZY00, uuid=uuid)
+            context['employe'] = employe_selectionne
+            context['contrats'] = employe_selectionne.contrats.all()
+            context['telephones'] = employe_selectionne.telephones.all()
+            context['emails'] = employe_selectionne.emails.all()
+            context['affectations'] = employe_selectionne.affectations.all()
+            context['adresses'] = employe_selectionne.adresses.all()
+
+        return context
+
+    def get(self, request, *args, **kwargs):
+        # Cette méthode permet de gérer les deux cas :
+        # - Accès à la liste seule
+        # - Accès à la liste + détail d'un employé
+        return super().get(request, *args, **kwargs)
 
 # ===============================
 # VUES POUR LES CONTRATS (ZYCO)

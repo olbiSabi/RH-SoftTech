@@ -5,16 +5,20 @@ from . import views
 urlpatterns = [
 
     path('embauche-agent/', views.embauche_agent, name='embauche_agent'),
-    path('employe/<str:matricule>/valider/', views.valider_embauche, name='valider_embauche'),
+    path('employe/<uuid:uuid>/valider/', views.valider_embauche, name='valider_embauche'),
     # ===============================
     # URLs pour les employés (ZY00)
     # ===============================
     path('liste-employee/', views.EmployeListView.as_view(), name='liste_employes'),
-    path('employe/<str:matricule>/', views.detail_employe, name='detail_employe'),
-    path('employe/<str:matricule>/modifier/', views.EmployeUpdateView.as_view(), name='modifier_employe'),
-    path('employe/<str:matricule>/supprimer/', views.EmployeDeleteView.as_view(), name='supprimer_employe'),
-    # path('dossier_individuel/', views.dossierIndividuel, name='dossier_individuel'),
-    path('dossier-individuel/', views.dossierIndividuel.as_view(), name='dossier_individuel'),
+    path('matricule/<uuid:uuid>/', views.detail_employe, name='detail_employe'),
+    # Pour la liste seule (premier chargement)
+    path('dossier-individuel/', views.DossierIndividuelView.as_view(), name='liste_dossiers'),
+    # Pour la liste + détail d'un employé
+    path('dossier-individuel/<uuid:uuid>/', views.DossierIndividuelView.as_view(), name='dossier_detail'),
+    path('employe/<uuid:uuid>/modifier/', views.EmployeUpdateView.as_view(), name='modifier_employe'),
+    path('employe/<uuid:uuid>/supprimer/', views.EmployeDeleteView.as_view(), name='supprimer_employe'),
+
+
     # path('employe/nouveau/', views.EmployeCreateView.as_view(), name='creer_employe'),
 
     # ===============================
