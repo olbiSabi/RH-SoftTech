@@ -143,5 +143,5 @@ class ZDPO(models.Model):
     def __str__(self):
         statut = "Actif" if self.STATUT else "Inactif"
         date_fin_display = "-- --" if not self.DATEFIN else self.DATEFIN.strftime('%d/%m/%Y')
-        return f"{self.CODE} - {self.LIBELLE} ({self.DEPARTEMENT.LIBELLE}) "
+        return f"{self.CODE} - {self.LIBELLE} "
 

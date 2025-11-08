@@ -1,0 +1,253 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supprimer l'employé {{ object.matricule }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        .danger-zone {
+            border: 2px solid #dc3545;
+            border-radius: 10px;
+            background-color: #fff5f5;
+        }
+        .warning-icon {
+            font-size: 4rem;
+            color: #dc3545;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .cascade-info {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .affected-item {
+            padding: 5px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .affected-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+
+                <!-- En-tête avec icône d'avertissement -->
+                <div class="text-center mb-4">
+                    <i class="bi bi-exclamation-triangle-fill warning-icon"></i>
+                    <h1 class="mt-3">
+                        <i class="bi bi-trash"></i> Confirmation de suppression
+                    </h1>
+                </div>
+
+                <!-- Zone de danger principale -->
+                <div class="danger-zone p-4 mb-4">
+                    <h3 class="text-danger mb-3">
+                        <i class="bi bi-person-x"></i>
+                        Êtes-vous sûr de vouloir supprimer cet employé ?
+                    </h3>
+
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-person-badge"></i>
+                                {{ object.nom }} {{ object.prenoms }}
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-1"><strong>Matricule:</strong> {{ object.matricule }}</p>
+                                    <p class="mb-1"><strong>Date de naissance:</strong> {{ object.date_naissance|date:"d/m/Y" }}</p>
+                                    <p class="mb-1"><strong>Sexe:</strong> {{ object.get_sexe_display }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-1"><strong>Type de dossier:</strong>
+                                        {% if object.type_dossier == 'PRE' %}
+                                            <span class="badge bg-warning text-dark">Pré-embauche</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Salarié</span>
+                                        {% endif %}
+                                    </p>
+                                    <p class="mb-1"><strong>Type d'ID:</strong> {{ object.get_type_id_display }}</p>
+                                    <p class="mb-1"><strong>Numéro ID:</strong> {{ object.numero_id }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Avertissement sur la suppression en cascade -->
+                    <div class="cascade-info">
+                        <h5 class="text-warning mb-3">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <strong>ATTENTION : Suppression en cascade</strong>
+                        </h5>
+                        <p class="mb-2">
+                            <i class="bi bi-info-circle"></i>
+                            Cette action supprimera <strong>définitivement et irréversiblement</strong> toutes les données suivantes :
+                        </p>
+
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="affected-item">
+                                    <i class="bi bi-file-earmark-text text-danger"></i>
+                                    <strong>Tous les contrats</strong>
+                                    {% if object.contrats.count > 0 %}
+                                        <span class="badge bg-danger">{{ object.contrats.count }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">0</span>
+                                    {% endif %}
+                                </div>
+                                <div class="affected-item">
+                                    <i class="bi bi-telephone text-danger"></i>
+                                    <strong>Tous les téléphones</strong>
+                                    {% if object.telephones.count > 0 %}
+                                        <span class="badge bg-danger">{{ object.telephones.count }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">0</span>
+                                    {% endif %}
+                                </div>
+                                <div class="affected-item">
+                                    <i class="bi bi-envelope text-danger"></i>
+                                    <strong>Tous les emails</strong>
+                                    {% if object.emails.count > 0 %}
+                                        <span class="badge bg-danger">{{ object.emails.count }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">0</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="affected-item">
+                                    <i class="bi bi-briefcase text-danger"></i>
+                                    <strong>Toutes les affectations</strong>
+                                    {% if object.affectations.count > 0 %}
+                                        <span class="badge bg-danger">{{ object.affectations.count }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">0</span>
+                                    {% endif %}
+                                </div>
+                                <div class="affected-item">
+                                    <i class="bi bi-geo-alt text-danger"></i>
+                                    <strong>Toutes les adresses</strong>
+                                    {% if object.adresses.count > 0 %}
+                                        <span class="badge bg-danger">{{ object.adresses.count }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">0</span>
+                                    {% endif %}
+                                </div>
+                                <div class="affected-item">
+                                    <i class="bi bi-person-vcard text-danger"></i>
+                                    <strong>Toutes les données personnelles</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Message d'avertissement final -->
+                    <div class="alert alert-danger mt-3 mb-0" role="alert">
+                        <i class="bi bi-exclamation-octagon-fill"></i>
+                        <strong>Cette action est IRRÉVERSIBLE !</strong>
+                        <br>
+                        Une fois supprimé, l'employé <strong>{{ object.nom }} {{ object.prenoms }}</strong>
+                        et toutes ses données associées seront <strong>définitivement perdues</strong>.
+                        <br><br>
+                        <i class="bi bi-lightbulb"></i>
+                        <em>Si vous souhaitez conserver l'historique, envisagez plutôt d'archiver ou de désactiver l'employé.</em>
+                    </div>
+                </div>
+
+                <!-- Formulaire de confirmation -->
+                <form method="post" id="delete-form">
+                    {% csrf_token %}
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        <button type="button" class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#confirmModal">
+                            <i class="bi bi-trash-fill"></i> Oui, supprimer définitivement
+                        </button>
+                        <a href="{% url 'liste_employes' %}" class="btn btn-secondary btn-lg">
+                            <i class="bi bi-arrow-left"></i> Non, annuler et retourner
+                        </a>
+                    </div>
+                </form>
+
+                <!-- Note informative -->
+                <div class="text-center mt-4">
+                    <p class="text-muted">
+                        <i class="bi bi-info-circle"></i>
+                        <small>
+                            Vous pouvez également retourner à la
+                            <a href="{% url 'liste_employes' %}">liste des employés</a>
+                            ou consulter la
+                            <a href="{% url 'detail_employe' object.matricule %}">fiche de l'employé</a>.
+                        </small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmation finale -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="confirmModalLabel">
+                        <i class="bi bi-exclamation-triangle-fill"></i> Confirmation finale
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-center mb-3">
+                        <i class="bi bi-question-circle" style="font-size: 3rem; color: #dc3545;"></i>
+                    </p>
+                    <p class="text-center">
+                        <strong>Êtes-vous absolument certain(e) ?</strong>
+                    </p>
+                    <p class="text-center text-muted">
+                        Cette action supprimera <strong>{{ object.nom }} {{ object.prenoms }}</strong> ({{ object.matricule }})
+                        et toutes les données associées de manière <strong>permanente</strong>.
+                    </p>
+                    <div class="alert alert-warning mt-3">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <small>
+                            <strong>Dernière chance !</strong>
+                            Cliquez sur "Confirmer la suppression" pour procéder ou sur "Annuler" pour abandonner.
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Annuler
+                    </button>
+                    <button type="submit" form="delete-form" class="btn btn-danger" id="final-delete-btn">
+                        <i class="bi bi-trash-fill"></i> Confirmer la suppression
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteForm = document.getElementById('delete-form');
+            const finalDeleteBtn = document.getElementById('final-delete-btn');
+
+            // Empêcher la double soumission
+            deleteForm.addEventListener('submit', function() {
+                finalDeleteBtn.disabled = true;
+                finalDeleteBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Suppression en cours...';
+            });
+        });
+    </script>
+</body>
+</html>

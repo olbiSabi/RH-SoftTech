@@ -18,48 +18,23 @@
                 </thead>
                 <tbody id="employeesList">
                     <!-- Les employés seront ajoutés par Django -->
-                    <!--{% for employee in employees %}
+                    {% for employe in employes %}
                         <tr class="employee-row" data-matricule="{{ employee.matricule }}">
                             <td>
-                                <div class="employee-name">{{ employee.name }}</div>
-                                <div class="employee-matricule">{{ employee.matricule }}</div>
+                                <div>
+                                    <a class="dropdown-it" href="{% url 'detail_employe' employe.matricule %}">
+                                        <span class="employee-name">{{ employe.nom}} {{ employe.prenoms}}</span>
+                                        <br>
+                                        <span class="employee-matricule">{{ employe.matricule }}</span>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
                             <td class="no-results">Aucun employé trouvé</td>
                         </tr>
-                         {% endfor %}-->
-                    <tr class="employee-row" data-matricule="EMP002">
-                        <td>
-                            <div class="employee-name">Jean Dupont</div>
-                            <div class="employee-matricule">EMP002</div>
-                        </td>
-                    </tr>
-                    <tr class="employee-row" data-matricule="EMP003">
-                        <td>
-                            <div class="employee-name">Marie Martin</div>
-                            <div class="employee-matricule">EMP003</div>
-                        </td>
-                    </tr>
-                    <tr class="employee-row" data-matricule="EMP004">
-                        <td>
-                            <div class="employee-name">Pierre Bernard</div>
-                            <div class="employee-matricule">EMP004</div>
-                        </td>
-                    </tr>
-                    <tr class="employee-row">
-                        <td>
-                            <div class="employee-name">Sophie Leroy"</div>
-                            <div class="employee-matricule">EMP005</div>
-                        </td>
-                    </tr>
-                    <tr class="employee-row">
-                        <td>
-                            <div class="employee-name">Laura Petit"</div>
-                            <div class="employee-matricule">EMP006</div>
-                        </td>
-                    </tr>
+                         {% endfor %}
                 </tbody>
             </table>
         </div>

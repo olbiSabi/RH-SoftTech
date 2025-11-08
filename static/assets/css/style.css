@@ -1615,31 +1615,45 @@ table.dataTable thead > tr > td.sorting {
 }
 
 .employees-table td {
-    padding: 10px 5px;
     border-bottom: 1px solid #4a5c66;
     font-size: 14px;
 }
 
-.employee-row {
+.employe-row {
     cursor: pointer;
     transition: background-color 0.2s;
 }
 
-.employee-row:hover {
+.employe-row:hover {
     background-color: #3c505a;
-}
-
-.employee-row.selected {
-    background-color: #2a7fff;
 }
 
 .employee-name {
     font-weight: 500;
+    color: #00b0e5;
 }
 
 .employee-matricule {
-    color: #9aa8b1;
+    color: #ffffff;
     font-size: 12px;
+}
+
+.dropdown-it:focus, .dropdown-it:hover {
+    color: #16181b;
+    text-decoration: none;
+    background-color: #96989b61;
+}
+.dropdown-it {
+    display: block;
+    width: 100%;
+    padding: .25rem 1.5rem;
+    clear: both;
+    font-weight: 400;
+    color: #212529;
+    text-align: inherit;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0;
 }
 
 /* Bouton pour ouvrir/fermer le sidebar sur mobile */

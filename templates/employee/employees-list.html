@@ -2,7 +2,27 @@
 {% load static %}
 
 {% block extrastylet %}
-
+<style>
+        .message-container {
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+            margin-bottom: 20px;
+        }
+        .alert {
+            animation: slideDown 0.3s ease-out;
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 {% endblock %}
 
 <!-- Content Body (Page Body) -->
@@ -10,13 +30,192 @@
 {% block pageContent %}
 <!-- Page Content -->
 <div class="content container-fluid">
+ <div class="container mt-5">
+        <h1 class="mb-4">
+            <i class="bi bi-people"></i> Liste des Employés
+        </h1>
 
+        <!-- Zone d'affichage des messages -->
+        <div class="message-container">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {% if message.tags == 'success' %}
+                            <i class="bi bi-check-circle-fill"></i>
+                        {% elif message.tags == 'error' or message.tags == 'danger' %}
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        {% elif message.tags == 'warning' %}
+                            <i class="bi bi-exclamation-circle-fill"></i>
+                        {% else %}
+                            <i class="bi bi-info-circle-fill"></i>
+                        {% endif %}
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <a href="{% url 'embauche_agent' %}" class="btn btn-primary">
+                <i class="bi bi-person-plus"></i> Nouvelle embauche
+            </a>
+        </div>
+
+        <!-- Filtres -->
+        <div class="card mb-3">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Rechercher</label>
+                        <input type="text" name="search" class="form-control" placeholder="Nom, prénom ou matricule..." value="{{ request.GET.search }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Type de dossier</label>
+                        <select name="type_dossier" class="form-control">
+                            <option value="">Tous les types</option>
+                            <option value="PRE" {% if request.GET.type_dossier == 'PRE' %}selected{% endif %}>Pré-embauche</option>
+                            <option value="SAL" {% if request.GET.type_dossier == 'SAL' %}selected{% endif %}>Salarié</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-info me-2">
+                            <i class="bi bi-funnel"></i> Filtrer
+                        </button>
+                        <a href="{% url 'liste_employes' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-counterclockwise"></i> Réinitialiser
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Matricule</th>
+                                <th>Nom</th>
+                                <th>Prénom(s)</th>
+                                <th>Date de naissance</th>
+                                <th>Sexe</th>
+                                <th>Type de dossier</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for employe in employes %}
+                            <tr>
+                                <td><strong>{{ employe.matricule }}</strong></td>
+                                <td>{{ employe.nom }}</td>
+                                <td>{{ employe.prenoms }}</td>
+                                <td>{{ employe.date_naissance|date:"d/m/Y" }}</td>
+                                <td>
+                                    {% if employe.sexe == 'M' %}
+                                        <i class="bi bi-gender-male text-primary"></i> Homme
+                                    {% else %}
+                                        <i class="bi bi-gender-female text-danger"></i> Femme
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if employe.type_dossier == 'PRE' %}
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="bi bi-clock"></i> Pré-embauche
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-check-circle"></i> Salarié
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+
+                                    <div class="dropdown dropdown-action">
+                                        <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                            <i class="material-icons">more_vert</i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right">
+                                            <a class="dropdown-item" href="{% url 'detail_employe' employe.matricule %}">
+                                                <i class="fa fa-eye text-primary"></i>  View
+                                            </a>
+                                            <a class="dropdown-item" href="{% url 'modifier_employe' employe.matricule %}">
+                                                <i class="fa fa-pencil m-r-5"></i> Edit
+                                            </a>
+                                            <a class="dropdown-item" href="{% url 'supprimer_employe' employe.matricule %}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer {{ employe.nom }} {{ employe.prenoms }} ?')">
+                                                <i class="fa fa-trash-o m-r-5"></i> Delete
+                                            </a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">
+                                    <i class="bi bi-inbox"></i> Aucun employé trouvé
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <nav aria-label="Navigation des pages">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.type_dossier %}&type_dossier={{ request.GET.type_dossier }}{% endif %}">
+                                <i class="bi bi-chevron-double-left"></i> Première
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.type_dossier %}&type_dossier={{ request.GET.type_dossier }}{% endif %}">
+                                <i class="bi bi-chevron-left"></i> Précédent
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link">
+                                Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
+                            </span>
+                        </li>
+
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.type_dossier %}&type_dossier={{ request.GET.type_dossier }}{% endif %}">
+                                Suivant <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.type_dossier %}&type_dossier={{ request.GET.type_dossier }}{% endif %}">
+                                Dernière <i class="bi bi-chevron-double-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
 <!-- /Page Content -->
 {% endblock %}
 
 {% block extrascript %}
-<script>
-
-</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-hide messages after 5 seconds
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
 {% endblock %}

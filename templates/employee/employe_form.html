@@ -1,0 +1,367 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+    {% block title %} <title>{% if form.instance.matricule %}Modifier{% else %}Créer{% endif %} un employé</title> {% endblock %}
+
+{% block extrastylet %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        .section-header {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #0d6efd;
+        }
+        .required::after {
+            content: " *";
+            color: red;
+        }
+        .message-container {
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+            margin-bottom: 20px;
+        }
+        .form-help {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+    </style>
+{% endblock %}
+
+<!-- Content Body (Page Body) -->
+
+{% block pageContent %}
+<!-- Page Content -->
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="mb-4">
+                    {% if form.instance.matricule %}
+                        <i class="bi bi-pencil-square"></i> Modifier l'employé {{ form.instance.matricule }}
+                    {% else %}
+                        <i class="bi bi-person-plus-fill"></i> Créer un employé
+                    {% endif %}
+                </h1>
+
+                <!-- Zone d'affichage des messages -->
+                <div class="message-container">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {% if message.tags == 'success' %}
+                                    <i class="bi bi-check-circle-fill"></i>
+                                {% elif message.tags == 'error' or message.tags == 'danger' %}
+                                    <i class="bi bi-exclamation-triangle-fill"></i>
+                                {% elif message.tags == 'warning' %}
+                                    <i class="bi bi-exclamation-circle-fill"></i>
+                                {% else %}
+                                    <i class="bi bi-info-circle-fill"></i>
+                                {% endif %}
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                {% if form.instance.matricule %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> <strong>Matricule:</strong> {{ form.instance.matricule }}
+                    (Le matricule ne peut pas être modifié)
+                </div>
+                {% endif %}
+
+                <form method="post" id="employe-form">
+                    {% csrf_token %}
+
+                    <!-- Informations personnelles -->
+                    <div class="section-header">
+                        <h4><i class="bi bi-person-vcard"></i> Informations Personnelles</h4>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.nom.id_for_label }}" class="form-label required">Nom</label>
+                            {{ form.nom }}
+                            {% if form.nom.help_text %}
+                            <div class="form-help">{{ form.nom.help_text }}</div>
+                            {% endif %}
+                            {% if form.nom.errors %}
+                            <div class="text-danger">
+                                {% for error in form.nom.errors %}
+                                    <small>{{ error }}</small><br>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.prenoms.id_for_label }}" class="form-label required">Prénom(s)</label>
+                            {{ form.prenoms }}
+                            {% if form.prenoms.help_text %}
+                            <div class="form-help">{{ form.prenoms.help_text }}</div>
+                            {% endif %}
+                            {% if form.prenoms.errors %}
+                            <div class="text-danger">
+                                {% for error in form.prenoms.errors %}
+                                    <small>{{ error }}</small><br>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.date_naissance.id_for_label }}" class="form-label required">Date de naissance</label>
+                            {{ form.date_naissance }}
+                            {% if form.date_naissance.help_text %}
+                            <div class="form-help">{{ form.date_naissance.help_text }}</div>
+                            {% endif %}
+                            {% if form.date_naissance.errors %}
+                            <div class="text-danger">
+                                {% for error in form.date_naissance.errors %}
+                                    <small>{{ error }}</small><br>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.sexe.id_for_label }}" class="form-label required">Sexe</label>
+                            {{ form.sexe }}
+                            {% if form.sexe.help_text %}
+                            <div class="form-help">{{ form.sexe.help_text }}</div>
+                            {% endif %}
+                            {% if form.sexe.errors %}
+                            <div class="text-danger">
+                                {% for error in form.sexe.errors %}
+                                    <small>{{ error }}</small><br>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.situation_familiale.id_for_label }}" class="form-label">Situation familiale</label>
+                            {{ form.situation_familiale }}
+                            {% if form.situation_familiale.help_text %}
+                            <div class="form-help">{{ form.situation_familiale.help_text }}</div>
+                            {% endif %}
+                            {% if form.situation_familiale.errors %}
+                            <div class="text-danger">
+                                {% for error in form.situation_familiale.errors %}
+                                    <small>{{ error }}</small><br>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.ville_naissance.id_for_label }}" class="form-label">Ville de naissance</label>
+                            {{ form.ville_naissance }}
+                            {% if form.ville_naissance.help_text %}
+                            <div class="form-help">{{ form.ville_naissance.help_text }}</div>
+                            {% endif %}
+                            {% if form.ville_naissance.errors %}
+                            <div class="text-danger">
+                                {% for error in form.ville_naissance.errors %}
+                                    <small>{{ error }}</small><br>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.pays_naissance.id_for_label }}" class="form-label">Pays de naissance</label>
+                            {{ form.pays_naissance }}
+                            {% if form.pays_naissance.help_text %}
+                            <div class="form-help">{{ form.pays_naissance.help_text }}</div>
+                            {% endif %}
+                            {% if form.pays_naissance.errors %}
+                            <div class="text-danger">
+                                {% for error in form.pays_naissance.errors %}
+                                    <small>{{ error }}</small><br>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Pièce d'identité -->
+                    <div class="section-header">
+                        <h4><i class="bi bi-card-checklist"></i> Pièce d'Identité</h4>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.type_id.id_for_label }}" class="form-label required">Type d'identité</label>
+                            {{ form.type_id }}
+                            {% if form.type_id.help_text %}
+                            <div class="form-help">{{ form.type_id.help_text }}</div>
+                            {% endif %}
+                            {% if form.type_id.errors %}
+                            <div class="text-danger">
+                                {% for error in form.type_id.errors %}
+                                    <small>{{ error }}</small><br>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-8 mb-3">
+                            <label for="{{ form.numero_id.id_for_label }}" class="form-label required">Numéro d'identité</label>
+                            {{ form.numero_id }}
+                            {% if form.numero_id.help_text %}
+                            <div class="form-help">{{ form.numero_id.help_text }}</div>
+                            {% endif %}
+                            {% if form.numero_id.errors %}
+                            <div class="text-danger">
+                                {% for error in form.numero_id.errors %}
+                                    <small>{{ error }}</small><br>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.date_validite_id.id_for_label }}" class="form-label required">Date de validité ID</label>
+                            {{ form.date_validite_id }}
+                            {% if form.date_validite_id.help_text %}
+                            <div class="form-help">{{ form.date_validite_id.help_text }}</div>
+                            {% endif %}
+                            {% if form.date_validite_id.errors %}
+                            <div class="text-danger">
+                                {% for error in form.date_validite_id.errors %}
+                                    <small>{{ error }}</small><br>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.date_expiration_id.id_for_label }}" class="form-label required">Date d'expiration ID</label>
+                            {{ form.date_expiration_id }}
+                            <div class="form-help">La date d'expiration doit être supérieure à la date de validité</div>
+                            {% if form.date_expiration_id.errors %}
+                            <div class="text-danger">
+                                {% for error in form.date_expiration_id.errors %}
+                                    <small>{{ error }}</small><br>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Erreurs non-field (erreurs générales du formulaire) -->
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        {% for error in form.non_field_errors %}
+                            {{ error }}<br>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Boutons d'action -->
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
+                                <i class="bi bi-check-circle"></i>
+                                {% if form.instance.matricule %}Enregistrer les modifications{% else %}Créer l'employé{% endif %}
+                            </button>
+
+                            {% if form.instance.matricule %}
+                                <a href="{% url 'detail_employe' form.instance.matricule %}" class="btn btn-secondary btn-lg">
+                                    <i class="bi bi-x-circle"></i> Annuler
+                                </a>
+                            {% else %}
+                                <a href="{% url 'liste_employes' %}" class="btn btn-secondary btn-lg">
+                                    <i class="bi bi-x-circle"></i> Annuler
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <p class="text-muted">
+                                <small>
+                                    <i class="bi bi-info-circle"></i>
+                                    Les champs marqués d'un <span class="text-danger">*</span> sont obligatoires.
+                                    {% if form.instance.matricule %}
+                                    <br>
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                    <strong>Note:</strong> Cette modification n'affecte que les données personnelles de l'employé.
+                                    Pour modifier les contrats, affectations, téléphones, emails ou adresses,
+                                    consultez la <a href="{% url 'detail_employe' form.instance.matricule %}">page de détail</a>.
+                                    {% endif %}
+                                </small>
+                            </p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+<!-- /Page Content -->
+{% endblock %}
+
+{% block extrascript %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('employe-form');
+            const submitButton = document.getElementById('submit-btn');
+            let formModified = false;
+
+            // Détecter les modifications du formulaire
+            const formInputs = form.querySelectorAll('input, select, textarea');
+            formInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    formModified = true;
+                });
+            });
+
+            // Empêcher la double soumission
+            form.addEventListener('submit', function(e) {
+                formModified = false;
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enregistrement en cours...';
+            });
+
+            // Avertir avant de quitter si des modifications non sauvegardées
+            window.addEventListener('beforeunload', function(e) {
+                if (formModified) {
+                    e.preventDefault();
+                    e.returnValue = 'Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter cette page ?';
+                    return e.returnValue;
+                }
+            });
+
+            // Auto-fermer les messages de succès après 5 secondes
+            setTimeout(function() {
+                var alerts = document.querySelectorAll('.alert-success');
+                alerts.forEach(function(alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+
+        // Empêcher la re-soumission du formulaire lors de l'actualisation
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
+    </script>
+{% endblock %}
+
+
+
