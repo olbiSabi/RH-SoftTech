@@ -1,11 +1,16 @@
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
+from datetime import datetime
 from django.db import transaction
 from django.db.models import Q
-from django.urls import reverse_lazy
+from django.views.decorators.http import require_POST
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.utils import timezone
+from django.urls import reverse_lazy
+from django.contrib import messages
+from django.shortcuts import get_object_or_404
+
+from departement.models import ZDPO
 from .models import ZY00, ZYCO, ZYTE, ZYME, ZYAF, ZYAD
 from .forms import (
     ZY00Form, EmbaucheAgentForm, ZYCOForm, ZYTEForm,
@@ -16,6 +21,35 @@ from .forms import (
 # ===============================
 # VUES POUR L'EMBAUCHE
 # ===============================
+def validate_date_overlap(queryset, date_debut, date_fin, exclude_pk=None):
+    """
+    Fonction utilitaire pour valider les chevauchements de dates
+    """
+    overlap_query = Q()
+
+    if date_fin:
+        # Cas avec date de fin
+        overlap_query = (
+                Q(date_debut__lte=date_debut, date_fin__gte=date_debut) |
+                Q(date_debut__lte=date_fin, date_fin__gte=date_fin) |
+                Q(date_debut__gte=date_debut, date_fin__lte=date_fin) |
+                Q(date_debut__lte=date_fin, date_fin__isnull=True)
+        )
+    else:
+        # Cas sans date de fin (actif)
+        overlap_query = (
+                Q(date_fin__gte=date_debut) | Q(date_fin__isnull=True)
+        )
+
+    queryset = queryset.filter(overlap_query)
+
+    if exclude_pk:
+        queryset = queryset.exclude(pk=exclude_pk)
+
+    overlapping = queryset.first()
+    return (overlapping is not None, overlapping)
+
+
 
 def embauche_agent(request):
     """Vue pour l'embauche d'un nouvel agent (pré-embauche)"""
@@ -184,18 +218,11 @@ class EmployeUpdateView(UpdateView):
         return reverse_lazy('dossier_detail', kwargs={'uuid': self.object.uuid})
 
 
-from django.urls import reverse_lazy
-from django.contrib import messages
-from django.shortcuts import get_object_or_404
-
-
 class EmployeDeleteView(DeleteView):
     """Supprimer un employé (suppression en cascade)"""
     model = ZY00
     template_name = 'employee/employe_confirm_delete.html'
-    success_url = reverse_lazy('liste_dossiers')  # Corriger le nom de l'URL
-
-    # CORRECTION : Utiliser slug_field et slug_url_kwarg pour UUID
+    success_url = reverse_lazy('liste_dossiers')
     slug_field = 'uuid'
     slug_url_kwarg = 'uuid'
 
@@ -253,16 +280,32 @@ class DossierIndividuelView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        # Ajouter un deuxième jeu de données avec un nom personnalisé
+        context['employes_actifs'] = ZY00.objects.filter(
+            type_dossier='SAL'
+        ).order_by('matricule')
+
         # Vérifier si un UUID est passé dans l'URL
         uuid = self.kwargs.get('uuid')
         if uuid:
             employe_selectionne = get_object_or_404(ZY00, uuid=uuid)
+
+            # Données de l'employé
             context['employe'] = employe_selectionne
-            context['contrats'] = employe_selectionne.contrats.all()
-            context['telephones'] = employe_selectionne.telephones.all()
-            context['emails'] = employe_selectionne.emails.all()
-            context['affectations'] = employe_selectionne.affectations.all()
-            context['adresses'] = employe_selectionne.adresses.all()
+
+            # Entités liées (optimisées avec select_related)
+            context['contrats'] = employe_selectionne.contrats.all().order_by('-date_debut')
+            context['affectations'] = employe_selectionne.affectations.select_related(
+                'poste__DEPARTEMENT'
+            ).order_by('-date_debut')
+            context['telephones'] = employe_selectionne.telephones.all().order_by('-date_debut_validite')
+            context['emails'] = employe_selectionne.emails.all().order_by('-date_debut_validite')
+            context['adresses'] = employe_selectionne.adresses.all().order_by('-date_debut')
+
+            # Postes disponibles pour le modal d'affectation ← AJOUTÉ
+            context['postes'] = ZDPO.objects.filter(
+                STATUT=True
+            ).select_related('DEPARTEMENT').order_by('DEPARTEMENT__LIBELLE', 'CODE')
 
         return context
 
@@ -272,239 +315,532 @@ class DossierIndividuelView(ListView):
         # - Accès à la liste + détail d'un employé
         return super().get(request, *args, **kwargs)
 
-# ===============================
-# VUES POUR LES CONTRATS (ZYCO)
-# ===============================
 
-class ContratListView(ListView):
-    """Liste de tous les contrats"""
-    model = ZYCO
-    template_name = 'contrats/liste_contrats.html'
-    context_object_name = 'contrats'
-    paginate_by = 20
+# ========================================
+# CONTRATS (ZYCO)
+# ========================================
 
+@require_POST
+def contrat_create_ajax(request):
+    """Créer un contrat via AJAX"""
+    try:
+        employe_matricule = request.POST.get('employe_matricule')
+        type_contrat = request.POST.get('type_contrat')
+        date_debut = request.POST.get('date_debut')
+        date_fin = request.POST.get('date_fin')
 
-class ContratCreateView(CreateView):
-    """Créer un contrat"""
-    model = ZYCO
-    form_class = ZYCOForm
-    template_name = 'contrats/contrat_form.html'
-    success_url = reverse_lazy('liste_contrats')
+        if not all([employe_matricule, type_contrat, date_debut]):
+            return JsonResponse({
+                'success': False,
+                'error': 'Tous les champs obligatoires doivent être remplis'
+            })
 
-    def form_valid(self, form):
-        messages.success(self.request, "Contrat créé avec succès!")
-        return super().form_valid(form)
+        # ✅ NOUVEAU CODE
+        employe_identifier = request.POST.get('employe_matricule')  # Peut être UUID ou matricule
 
+        # Essayer de trouver par UUID d'abord, puis par matricule
+        try:
+            employe = get_object_or_404(ZY00, uuid=employe_identifier)
+        except:
+            employe = get_object_or_404(ZY00, matricule=employe_identifier)
 
-class ContratUpdateView(UpdateView):
-    """Modifier un contrat"""
-    model = ZYCO
-    form_class = ZYCOForm
-    template_name = 'contrats/contrat_form.html'
-    success_url = reverse_lazy('liste_contrats')
+        date_debut_obj = datetime.strptime(date_debut, '%Y-%m-%d').date()
+        date_fin_obj = datetime.strptime(date_fin, '%Y-%m-%d').date() if date_fin else None
 
-    def form_valid(self, form):
-        messages.success(self.request, "Contrat modifié avec succès!")
-        return super().form_valid(form)
+        # Vérifier date fin > date début
+        if date_fin_obj and date_fin_obj <= date_debut_obj:
+            return JsonResponse({
+                'success': False,
+                'error': '❌ La date de fin doit être supérieure à la date de début'
+            })
 
+        # Vérifier un seul contrat actif
+        contrats_actifs = ZYCO.objects.filter(employe=employe, date_fin__isnull=True)
+        if contrats_actifs.exists():
+            contrat = contrats_actifs.first()
+            return JsonResponse({
+                'success': False,
+                'error': f'❌ Un contrat actif existe depuis le {contrat.date_debut.strftime("%d/%m/%Y")}'
+            })
 
-class ContratDeleteView(DeleteView):
-    """Supprimer un contrat"""
-    model = ZYCO
-    template_name = 'contrats/contrat_confirm_delete.html'
-    success_url = reverse_lazy('liste_contrats')
+        # Vérifier chevauchement
+        base_queryset = ZYCO.objects.filter(employe=employe)
+        has_overlap, overlapping = validate_date_overlap(base_queryset, date_debut_obj, date_fin_obj)
 
-    def delete(self, request, *args, **kwargs):
-        messages.success(request, "Contrat supprimé avec succès!")
-        return super().delete(request, *args, **kwargs)
+        if has_overlap:
+            date_fin_str = overlapping.date_fin.strftime("%d/%m/%Y") if overlapping.date_fin else "En cours"
+            return JsonResponse({
+                'success': False,
+                'error': f'❌ Chevauchement avec contrat du {overlapping.date_debut.strftime("%d/%m/%Y")} au {date_fin_str}'
+            })
 
+        contrat = ZYCO.objects.create(
+            employe=employe,
+            type_contrat=type_contrat,
+            date_debut=date_debut_obj,
+            date_fin=date_fin_obj
+        )
 
-# ===============================
-# VUES POUR LES TÉLÉPHONES (ZYTE)
-# ===============================
+        return JsonResponse({'success': True, 'message': '✅ Contrat créé'})
 
-class TelephoneListView(ListView):
-    """Liste de tous les téléphones"""
-    model = ZYTE
-    template_name = 'telephones/liste_telephones.html'
-    context_object_name = 'telephones'
-    paginate_by = 20
-
-
-class TelephoneCreateView(CreateView):
-    """Créer un téléphone"""
-    model = ZYTE
-    form_class = ZYTEForm
-    template_name = 'telephones/telephone_form.html'
-    success_url = reverse_lazy('liste_telephones')
-
-    def form_valid(self, form):
-        messages.success(self.request, "Téléphone créé avec succès!")
-        return super().form_valid(form)
-
-
-class TelephoneUpdateView(UpdateView):
-    """Modifier un téléphone"""
-    model = ZYTE
-    form_class = ZYTEForm
-    template_name = 'telephones/telephone_form.html'
-    success_url = reverse_lazy('liste_telephones')
-
-    def form_valid(self, form):
-        messages.success(self.request, "Téléphone modifié avec succès!")
-        return super().form_valid(form)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
 
-class TelephoneDeleteView(DeleteView):
-    """Supprimer un téléphone"""
-    model = ZYTE
-    template_name = 'telephones/telephone_confirm_delete.html'
-    success_url = reverse_lazy('liste_telephones')
+@require_POST
+def contrat_update_ajax(request, pk):
+    """Modifier un contrat via AJAX"""
+    try:
+        contrat = get_object_or_404(ZYCO, pk=pk)
+        type_contrat = request.POST.get('type_contrat')
+        date_debut = request.POST.get('date_debut')
+        date_fin = request.POST.get('date_fin')
 
-    def delete(self, request, *args, **kwargs):
-        messages.success(request, "Téléphone supprimé avec succès!")
-        return super().delete(request, *args, **kwargs)
+        if not all([type_contrat, date_debut]):
+            return JsonResponse({'success': False, 'error': 'Champs obligatoires manquants'})
 
+        date_debut_obj = datetime.strptime(date_debut, '%Y-%m-%d').date()
+        date_fin_obj = datetime.strptime(date_fin, '%Y-%m-%d').date() if date_fin else None
 
-# ===============================
-# VUES POUR LES EMAILS (ZYME)
-# ===============================
+        if date_fin_obj and date_fin_obj <= date_debut_obj:
+            return JsonResponse({'success': False, 'error': '❌ Date fin > date début'})
 
-class EmailListView(ListView):
-    """Liste de tous les emails"""
-    model = ZYME
-    template_name = 'emails/liste_emails.html'
-    context_object_name = 'emails'
-    paginate_by = 20
+        # Vérifier contrat actif
+        if not date_fin_obj:
+            contrats_actifs = ZYCO.objects.filter(
+                employe=contrat.employe,
+                date_fin__isnull=True
+            ).exclude(pk=pk)
+            if contrats_actifs.exists():
+                return JsonResponse({'success': False, 'error': '❌ Un autre contrat actif existe'})
 
+        # Vérifier chevauchement
+        base_queryset = ZYCO.objects.filter(employe=contrat.employe)
+        has_overlap, overlapping = validate_date_overlap(base_queryset, date_debut_obj, date_fin_obj, pk)
 
-class EmailCreateView(CreateView):
-    """Créer un email"""
-    model = ZYME
-    form_class = ZYMEForm
-    template_name = 'emails/email_form.html'
-    success_url = reverse_lazy('liste_emails')
+        if has_overlap:
+            return JsonResponse({'success': False, 'error': '❌ Chevauchement détecté'})
 
-    def form_valid(self, form):
-        messages.success(self.request, "Email créé avec succès!")
-        return super().form_valid(form)
+        contrat.type_contrat = type_contrat
+        contrat.date_debut = date_debut_obj
+        contrat.date_fin = date_fin_obj
+        contrat.save()
 
+        return JsonResponse({'success': True, 'message': '✅ Contrat modifié'})
 
-class EmailUpdateView(UpdateView):
-    """Modifier un email"""
-    model = ZYME
-    form_class = ZYMEForm
-    template_name = 'emails/email_form.html'
-    success_url = reverse_lazy('liste_emails')
-
-    def form_valid(self, form):
-        messages.success(self.request, "Email modifié avec succès!")
-        return super().form_valid(form)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
 
-class EmailDeleteView(DeleteView):
-    """Supprimer un email"""
-    model = ZYME
-    template_name = 'emails/email_confirm_delete.html'
-    success_url = reverse_lazy('liste_emails')
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(request, "Email supprimé avec succès!")
-        return super().delete(request, *args, **kwargs)
-
-
-# ===============================
-# VUES POUR LES AFFECTATIONS (ZYAF)
-# ===============================
-
-class AffectationListView(ListView):
-    """Liste de toutes les affectations"""
-    model = ZYAF
-    template_name = 'affectations/liste_affectations.html'
-    context_object_name = 'affectations'
-    paginate_by = 20
+@require_POST
+def contrat_delete_ajax(request, pk):
+    """Supprimer un contrat via AJAX"""
+    try:
+        contrat = get_object_or_404(ZYCO, pk=pk)
+        contrat.delete()
+        return JsonResponse({'success': True, 'message': '✅ Contrat supprimé'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
 
-class AffectationCreateView(CreateView):
-    """Créer une affectation"""
-    model = ZYAF
-    form_class = ZYAFForm
-    template_name = 'affectations/affectation_form.html'
-    success_url = reverse_lazy('liste_affectations')
+# ========================================
+# AFFECTATIONS (ZYAF)
+# ========================================
 
-    def form_valid(self, form):
-        messages.success(self.request, "Affectation créée avec succès!")
-        return super().form_valid(form)
+@require_POST
+def affectation_create_ajax(request):
+    """Créer une affectation via AJAX"""
+    try:
+        employe_matricule = request.POST.get('employe_matricule')
+        poste_id = request.POST.get('poste_id')
+        date_debut = request.POST.get('date_debut')
+        date_fin = request.POST.get('date_fin')
 
+        if not all([employe_matricule, poste_id, date_debut]):
+            return JsonResponse({'success': False, 'error': 'Champs obligatoires manquants'})
 
-class AffectationUpdateView(UpdateView):
-    """Modifier une affectation"""
-    model = ZYAF
-    form_class = ZYAFForm
-    template_name = 'affectations/affectation_form.html'
-    success_url = reverse_lazy('liste_affectations')
+        # ✅ NOUVEAU CODE
+        employe_identifier = request.POST.get('employe_matricule')  # Peut être UUID ou matricule
 
-    def form_valid(self, form):
-        messages.success(self.request, "Affectation modifiée avec succès!")
-        return super().form_valid(form)
+        # Essayer de trouver par UUID d'abord, puis par matricule
+        try:
+            employe = get_object_or_404(ZY00, uuid=employe_identifier)
+        except:
+            employe = get_object_or_404(ZY00, matricule=employe_identifier)
 
+        poste = get_object_or_404(ZDPO, pk=poste_id)
+        date_debut_obj = datetime.strptime(date_debut, '%Y-%m-%d').date()
+        date_fin_obj = datetime.strptime(date_fin, '%Y-%m-%d').date() if date_fin else None
 
-class AffectationDeleteView(DeleteView):
-    """Supprimer une affectation"""
-    model = ZYAF
-    template_name = 'affectations/affectation_confirm_delete.html'
-    success_url = reverse_lazy('liste_affectations')
+        if date_fin_obj and date_fin_obj <= date_debut_obj:
+            return JsonResponse({'success': False, 'error': '❌ Date fin > date début'})
 
-    def delete(self, request, *args, **kwargs):
-        messages.success(request, "Affectation supprimée avec succès!")
-        return super().delete(request, *args, **kwargs)
+        # Vérifier une seule affectation active
+        affectations_actives = ZYAF.objects.filter(employe=employe, date_fin__isnull=True)
+        if affectations_actives.exists():
+            aff = affectations_actives.first()
+            return JsonResponse({
+                'success': False,
+                'error': f'❌ Une affectation active existe depuis le {aff.date_debut.strftime("%d/%m/%Y")}'
+            })
 
+        # Vérifier chevauchement
+        base_queryset = ZYAF.objects.filter(employe=employe)
+        has_overlap, overlapping = validate_date_overlap(base_queryset, date_debut_obj, date_fin_obj)
 
-# ===============================
-# VUES POUR LES ADRESSES (ZYAD)
-# ===============================
+        if has_overlap:
+            return JsonResponse({'success': False, 'error': '❌ Chevauchement détecté'})
 
-class AdresseListView(ListView):
-    """Liste de toutes les adresses"""
-    model = ZYAD
-    template_name = 'adresses/liste_adresses.html'
-    context_object_name = 'adresses'
-    paginate_by = 20
+        ZYAF.objects.create(
+            employe=employe,
+            poste=poste,
+            date_debut=date_debut_obj,
+            date_fin=date_fin_obj
+        )
 
+        return JsonResponse({'success': True, 'message': '✅ Affectation créée'})
 
-class AdresseCreateView(CreateView):
-    """Créer une adresse"""
-    model = ZYAD
-    form_class = ZYADForm
-    template_name = 'adresses/adresse_form.html'
-    success_url = reverse_lazy('liste_adresses')
-
-    def form_valid(self, form):
-        messages.success(self.request, "Adresse créée avec succès!")
-        return super().form_valid(form)
-
-
-class AdresseUpdateView(UpdateView):
-    """Modifier une adresse"""
-    model = ZYAD
-    form_class = ZYADForm
-    template_name = 'adresses/adresse_form.html'
-    success_url = reverse_lazy('liste_adresses')
-
-    def form_valid(self, form):
-        messages.success(self.request, "Adresse modifiée avec succès!")
-        return super().form_valid(form)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
 
-class AdresseDeleteView(DeleteView):
-    """Supprimer une adresse"""
-    model = ZYAD
-    template_name = 'adresses/adresse_confirm_delete.html'
-    success_url = reverse_lazy('liste_adresses')
+@require_POST
+def affectation_update_ajax(request, pk):
+    """Modifier une affectation via AJAX"""
+    try:
+        affectation = get_object_or_404(ZYAF, pk=pk)
+        poste_id = request.POST.get('poste_id')
+        date_debut = request.POST.get('date_debut')
+        date_fin = request.POST.get('date_fin')
 
-    def delete(self, request, *args, **kwargs):
-        messages.success(request, "Adresse supprimée avec succès!")
-        return super().delete(request, *args, **kwargs)
+        if not all([poste_id, date_debut]):
+            return JsonResponse({'success': False, 'error': 'Champs obligatoires manquants'})
+
+        poste = get_object_or_404(ZDPO, pk=poste_id)
+        date_debut_obj = datetime.strptime(date_debut, '%Y-%m-%d').date()
+        date_fin_obj = datetime.strptime(date_fin, '%Y-%m-%d').date() if date_fin else None
+
+        if date_fin_obj and date_fin_obj <= date_debut_obj:
+            return JsonResponse({'success': False, 'error': '❌ Date fin > date début'})
+
+        if not date_fin_obj:
+            affectations_actives = ZYAF.objects.filter(
+                employe=affectation.employe,
+                date_fin__isnull=True
+            ).exclude(pk=pk)
+            if affectations_actives.exists():
+                return JsonResponse({'success': False, 'error': '❌ Une autre affectation active existe'})
+
+        base_queryset = ZYAF.objects.filter(employe=affectation.employe)
+        has_overlap, overlapping = validate_date_overlap(base_queryset, date_debut_obj, date_fin_obj, pk)
+
+        if has_overlap:
+            return JsonResponse({'success': False, 'error': '❌ Chevauchement détecté'})
+
+        affectation.poste = poste
+        affectation.date_debut = date_debut_obj
+        affectation.date_fin = date_fin_obj
+        affectation.save()
+
+        return JsonResponse({'success': True, 'message': '✅ Affectation modifiée'})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+@require_POST
+def affectation_delete_ajax(request, pk):
+    """Supprimer une affectation via AJAX"""
+    try:
+        affectation = get_object_or_404(ZYAF, pk=pk)
+        affectation.delete()
+        return JsonResponse({'success': True, 'message': '✅ Affectation supprimée'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+# ========================================
+# TÉLÉPHONES (ZYTE)
+# ========================================
+
+@require_POST
+def telephone_create_ajax(request):
+    """Créer un téléphone via AJAX"""
+    try:
+        employe_matricule = request.POST.get('employe_matricule')
+        numero = request.POST.get('numero')
+        date_debut = request.POST.get('date_debut')
+        date_fin = request.POST.get('date_fin')
+
+        if not all([employe_matricule, numero, date_debut]):
+            return JsonResponse({'success': False, 'error': 'Champs obligatoires manquants'})
+
+        # ✅ NOUVEAU CODE
+        employe_identifier = request.POST.get('employe_matricule')  # Peut être UUID ou matricule
+        try:
+            employe = get_object_or_404(ZY00, uuid=employe_identifier)
+        except:
+            employe = get_object_or_404(ZY00, matricule=employe_identifier)
+
+        date_debut_obj = datetime.strptime(date_debut, '%Y-%m-%d').date()
+        date_fin_obj = datetime.strptime(date_fin, '%Y-%m-%d').date() if date_fin else None
+
+        if date_fin_obj and date_fin_obj <= date_debut_obj:
+            return JsonResponse({'success': False, 'error': '❌ Date fin > date début'})
+
+        ZYTE.objects.create(
+            employe=employe,
+            numero=numero,
+            date_debut_validite=date_debut_obj,
+            date_fin_validite=date_fin_obj
+        )
+
+        return JsonResponse({'success': True, 'message': '✅ Téléphone ajouté'})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+@require_POST
+def telephone_update_ajax(request, pk):
+    """Modifier un téléphone via AJAX"""
+    try:
+        telephone = get_object_or_404(ZYTE, pk=pk)
+        numero = request.POST.get('numero')
+        date_debut = request.POST.get('date_debut')
+        date_fin = request.POST.get('date_fin')
+
+        if not all([numero, date_debut]):
+            return JsonResponse({'success': False, 'error': 'Champs obligatoires manquants'})
+
+        date_debut_obj = datetime.strptime(date_debut, '%Y-%m-%d').date()
+        date_fin_obj = datetime.strptime(date_fin, '%Y-%m-%d').date() if date_fin else None
+
+        if date_fin_obj and date_fin_obj <= date_debut_obj:
+            return JsonResponse({'success': False, 'error': '❌ Date fin > date début'})
+
+        telephone.numero = numero
+        telephone.date_debut_validite = date_debut_obj
+        telephone.date_fin_validite = date_fin_obj
+        telephone.save()
+
+        return JsonResponse({'success': True, 'message': '✅ Téléphone modifié'})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+@require_POST
+def telephone_delete_ajax(request, pk):
+    """Supprimer un téléphone via AJAX"""
+    try:
+        telephone = get_object_or_404(ZYTE, pk=pk)
+        telephone.delete()
+        return JsonResponse({'success': True, 'message': '✅ Téléphone supprimé'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+# ========================================
+# EMAILS (ZYME)
+# ========================================
+
+@require_POST
+def email_create_ajax(request):
+    """Créer un email via AJAX"""
+    try:
+        employe_matricule = request.POST.get('employe_matricule')
+        email = request.POST.get('email')
+        date_debut = request.POST.get('date_debut')
+        date_fin = request.POST.get('date_fin')
+
+        if not all([employe_matricule, email, date_debut]):
+            return JsonResponse({'success': False, 'error': 'Champs obligatoires manquants'})
+
+        # ✅ NOUVEAU CODE
+        employe_identifier = request.POST.get('employe_matricule')  # Peut être UUID ou matricule
+        try:
+            employe = get_object_or_404(ZY00, uuid=employe_identifier)
+        except:
+            employe = get_object_or_404(ZY00, matricule=employe_identifier)
+
+        date_debut_obj = datetime.strptime(date_debut, '%Y-%m-%d').date()
+        date_fin_obj = datetime.strptime(date_fin, '%Y-%m-%d').date() if date_fin else None
+
+        if date_fin_obj and date_fin_obj <= date_debut_obj:
+            return JsonResponse({'success': False, 'error': '❌ Date fin > date début'})
+
+        ZYME.objects.create(
+            employe=employe,
+            email=email,
+            date_debut_validite=date_debut_obj,
+            date_fin_validite=date_fin_obj
+        )
+
+        return JsonResponse({'success': True, 'message': '✅ Email ajouté'})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+@require_POST
+def email_update_ajax(request, pk):
+    """Modifier un email via AJAX"""
+    try:
+        email_obj = get_object_or_404(ZYME, pk=pk)
+        email = request.POST.get('email')
+        date_debut = request.POST.get('date_debut')
+        date_fin = request.POST.get('date_fin')
+
+        if not all([email, date_debut]):
+            return JsonResponse({'success': False, 'error': 'Champs obligatoires manquants'})
+
+        date_debut_obj = datetime.strptime(date_debut, '%Y-%m-%d').date()
+        date_fin_obj = datetime.strptime(date_fin, '%Y-%m-%d').date() if date_fin else None
+
+        if date_fin_obj and date_fin_obj <= date_debut_obj:
+            return JsonResponse({'success': False, 'error': '❌ Date fin > date début'})
+
+        email_obj.email = email
+        email_obj.date_debut_validite = date_debut_obj
+        email_obj.date_fin_validite = date_fin_obj
+        email_obj.save()
+
+        return JsonResponse({'success': True, 'message': '✅ Email modifié'})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+@require_POST
+def email_delete_ajax(request, pk):
+    """Supprimer un email via AJAX"""
+    try:
+        email = get_object_or_404(ZYME, pk=pk)
+        email.delete()
+        return JsonResponse({'success': True, 'message': '✅ Email supprimé'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+# ========================================
+# ADRESSES (ZYAD)
+# ========================================
+
+@require_POST
+def adresse_create_ajax(request):
+    """Créer une adresse via AJAX"""
+    try:
+        employe_matricule = request.POST.get('employe_matricule')
+        rue = request.POST.get('rue')
+        ville = request.POST.get('ville')
+        pays = request.POST.get('pays')
+        code_postal = request.POST.get('code_postal')
+        type_adresse = request.POST.get('type_adresse')
+        date_debut = request.POST.get('date_debut')
+        date_fin = request.POST.get('date_fin')
+
+        if not all([employe_matricule, rue, ville, pays, code_postal, type_adresse, date_debut]):
+            return JsonResponse({'success': False, 'error': 'Champs obligatoires manquants'})
+
+        employe_identifier = request.POST.get('employe_matricule')  # Peut être UUID ou matricule
+        try:
+            employe = get_object_or_404(ZY00, uuid=employe_identifier)
+        except:
+            employe = get_object_or_404(ZY00, matricule=employe_identifier)
+
+        date_debut_obj = datetime.strptime(date_debut, '%Y-%m-%d').date()
+        date_fin_obj = datetime.strptime(date_fin, '%Y-%m-%d').date() if date_fin else None
+
+        if date_fin_obj and date_fin_obj <= date_debut_obj:
+            return JsonResponse({'success': False, 'error': '❌ Date fin > date début'})
+
+        # Vérifier une seule adresse principale active
+        if type_adresse == 'PRINCIPALE' and not date_fin_obj:
+            adresses_principales = ZYAD.objects.filter(
+                employe=employe,
+                type_adresse='PRINCIPALE',
+                date_fin__isnull=True
+            )
+            if adresses_principales.exists():
+                return JsonResponse({
+                    'success': False,
+                    'error': '❌ Une adresse principale active existe déjà'
+                })
+
+        ZYAD.objects.create(
+            employe=employe,
+            rue=rue,
+            ville=ville,
+            pays=pays,
+            code_postal=code_postal,
+            type_adresse=type_adresse,
+            date_debut=date_debut_obj,
+            date_fin=date_fin_obj
+        )
+
+        return JsonResponse({'success': True, 'message': '✅ Adresse ajoutée'})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+@require_POST
+def adresse_update_ajax(request, pk):
+    """Modifier une adresse via AJAX"""
+    try:
+        adresse = get_object_or_404(ZYAD, pk=pk)
+        rue = request.POST.get('rue')
+        ville = request.POST.get('ville')
+        pays = request.POST.get('pays')
+        code_postal = request.POST.get('code_postal')
+        type_adresse = request.POST.get('type_adresse')
+        date_debut = request.POST.get('date_debut')
+        date_fin = request.POST.get('date_fin')
+
+        if not all([rue, ville, pays, code_postal, type_adresse, date_debut]):
+            return JsonResponse({'success': False, 'error': 'Champs obligatoires manquants'})
+
+        date_debut_obj = datetime.strptime(date_debut, '%Y-%m-%d').date()
+        date_fin_obj = datetime.strptime(date_fin, '%Y-%m-%d').date() if date_fin else None
+
+        if date_fin_obj and date_fin_obj <= date_debut_obj:
+            return JsonResponse({'success': False, 'error': '❌ Date fin > date début'})
+
+        if type_adresse == 'PRINCIPALE' and not date_fin_obj:
+            adresses_principales = ZYAD.objects.filter(
+                employe=adresse.employe,
+                type_adresse='PRINCIPALE',
+                date_fin__isnull=True
+            ).exclude(pk=pk)
+            if adresses_principales.exists():
+                return JsonResponse({'success': False, 'error': '❌ Une autre adresse principale active existe'})
+
+        adresse.rue = rue
+        adresse.ville = ville
+        adresse.pays = pays
+        adresse.code_postal = code_postal
+        adresse.type_adresse = type_adresse
+        adresse.date_debut = date_debut_obj
+        adresse.date_fin = date_fin_obj
+        adresse.save()
+
+        return JsonResponse({'success': True, 'message': '✅ Adresse modifiée'})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+
+@require_POST
+def adresse_delete_ajax(request, pk):
+    """Supprimer une adresse via AJAX"""
+    try:
+        adresse = get_object_or_404(ZYAD, pk=pk)
+        adresse.delete()
+        return JsonResponse({'success': True, 'message': '✅ Adresse supprimée'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
 
 

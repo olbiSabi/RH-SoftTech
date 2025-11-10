@@ -2,7 +2,7 @@ from django import forms
 from django.forms import inlineformset_factory
 from django.utils import timezone
 from .models import ZY00, ZYCO, ZYTE, ZYME, ZYAF, ZYAD, ZDPO
-
+from .pays_choices import PAYS_CHOICES
 
 class ZY00Form(forms.ModelForm):
     """Formulaire pour l'employé"""
@@ -20,7 +20,7 @@ class ZY00Form(forms.ModelForm):
             'date_naissance': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'sexe': forms.Select(attrs={'class': 'form-control'}),
             'ville_naissance': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ville de naissance'}),
-            'pays_naissance': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Pays de naissance'}),
+            'pays_naissance': forms.Select(choices=PAYS_CHOICES, attrs={'class': 'form-control'}),
             'situation_familiale': forms.Select(attrs={'class': 'form-control'}),
             'type_id': forms.Select(attrs={'class': 'form-control'}),
             'numero_id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Numéro d\'identité'}),
@@ -79,9 +79,10 @@ class EmbaucheAgentForm(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ville'}),
         label="Ville"
     )
-    pays = forms.CharField(
-        max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Pays'}),
+
+    pays = forms.ChoiceField(
+        choices=PAYS_CHOICES,  # ← ChoiceField supporte 'choices'
+        widget=forms.Select(attrs={'class': 'form-control'}),
         label="Pays"
     )
     code_postal = forms.CharField(
@@ -107,7 +108,7 @@ class EmbaucheAgentForm(forms.ModelForm):
             'date_naissance': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'sexe': forms.Select(attrs={'class': 'form-control'}),
             'ville_naissance': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ville de naissance'}),
-            'pays_naissance': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Pays de naissance'}),
+            'pays_naissance': forms.Select(choices=PAYS_CHOICES, attrs={'class': 'form-control'}),
             'situation_familiale': forms.Select(attrs={'class': 'form-control'}),
             'type_id': forms.Select(attrs={'class': 'form-control'}),
             'numero_id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Numéro d\'identité'}),
@@ -182,7 +183,7 @@ class ZYADForm(forms.ModelForm):
             'employe': forms.Select(attrs={'class': 'form-control'}),
             'rue': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Rue'}),
             'ville': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ville'}),
-            'pays': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Pays'}),
+            'pays': forms.Select(choices=PAYS_CHOICES, attrs={'class': 'form-control'}),
             'code_postal': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Code postal'}),
             'type_adresse': forms.Select(attrs={'class': 'form-control'}),
             'date_debut': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),

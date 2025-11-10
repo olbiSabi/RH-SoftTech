@@ -36,6 +36,11 @@ class ZY00(models.Model):
         ('SAL', 'Salarié'),
     ]
 
+    ETAT_CHOICES = [
+        ('actif', 'Actif'),
+        ('inactif', 'Inactif'),
+    ]
+
     matricule = models.CharField(
         max_length=8,
         unique=True,
@@ -49,6 +54,8 @@ class ZY00(models.Model):
     sexe = models.CharField(max_length=1, choices=SEXE_CHOICES, verbose_name="Sexe")
     ville_naissance = models.CharField(max_length=100, blank=True, verbose_name="Ville de naissance")
     pays_naissance = models.CharField(max_length=100, blank=True, verbose_name="Pays de naissance")
+
+
     situation_familiale = models.CharField(
         max_length=20,
         choices=SITUATION_FAMILIALE_CHOICES,
@@ -71,6 +78,8 @@ class ZY00(models.Model):
         verbose_name="Date de validation embauche"
     )
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    etat = models.CharField(max_length=20, choices=ETAT_CHOICES, default='actif')
+
 
     class Meta:
         db_table = 'ZY00'
@@ -124,6 +133,14 @@ class ZY00(models.Model):
         self.full_clean()
         super().save(*args, **kwargs)
 
+    def desactiver_donnees_associees(self):
+        """Désactive toutes les données associées lorsque l'employé est radié ou licencié"""
+        if self.etat in ['inactif']:
+            self.contrats.filter(actif=True).update(actif=False)
+            self.telephones.filter(actif=True).update(actif=False)
+            self.emails.filter(actif=True).update(actif=False)
+            self.affectations.filter(actif=True).update(actif=False)
+            self.adresses.filter(actif=True).update(actif=False)
 
 class ZYCO(models.Model):
     """Table des contrats"""
@@ -151,6 +168,7 @@ class ZYCO(models.Model):
     )
     date_debut = models.DateField(verbose_name="Date de début")
     date_fin = models.DateField(null=True, blank=True, verbose_name="Date de fin")
+    actif = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'ZYCO'
@@ -192,6 +210,7 @@ class ZYTE(models.Model):
         blank=True,
         verbose_name="Date de fin de validité"
     )
+    actif = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'ZYTE'
@@ -219,6 +238,7 @@ class ZYME(models.Model):
         blank=True,
         verbose_name="Date de fin de validité"
     )
+    actif = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'ZYME'
@@ -251,6 +271,7 @@ class ZYAF(models.Model):
         blank=True,
         verbose_name="Date de fin d'affectation"
     )
+    actif = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'ZYAF'
@@ -305,6 +326,7 @@ class ZYAD(models.Model):
         blank=True,
         verbose_name="Date de fin"
     )
+    actif = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'ZYAD'

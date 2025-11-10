@@ -12,6 +12,14 @@
             margin-bottom: 15px;
             border-left: 4px solid #0d6efd;
         }
+
+         .card-header {
+            background: linear-gradient(135deg, #59a19f 0%, #385061 100%);
+            color: rgb(255, 255, 255);
+            border-radius: 12px 12px 0 0 !important;
+            padding: 15px 20px;
+        }
+
         .required::after {
             content: " *";
             color: red;
@@ -43,7 +51,6 @@
 {% block pageContent %}
 <!-- Page Content -->
     <div class="container mt-5">
-
         <!-- ======= ZONE DE MESSAGES - TRÈS IMPORTANT ======= -->
         {% if messages %}
             {% for message in messages %}
@@ -68,11 +75,14 @@
             <h1><i class="bi bi-person-badge"></i> {{ employe.nom }} {{ employe.prenoms }}</h1>
         </div>
 
+        <!-- ========================================== -->
+        <!-- Identité -->
+        <!-- ========================================== -->
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-person-vcard"></i> Informations personnelles</h5>
+                <h4 class="mb-0"><i class="bi bi-person-vcard"></i> Informations personnelles</h4>
                 {% if employe.type_dossier == 'PRE' %}
-                    <a href="{% url 'valider_embauche' employe.matricule %}" class="btn btn-success">
+                    <a href="{% url 'valider_embauche' employe.uuid %}" class="btn btn-success">
                         <i class="bi bi-check-circle"></i> Valider l'embauche
                     </a>
                 {% else %}
@@ -82,7 +92,7 @@
                 {% endif %}
                 <div class="pro-edit">
                     {% if form.instance.matricule %}
-                        <a href="{% url 'modifier_employe' employe.matricule %}"  class="edit-icon">
+                        <a href="{% url 'modifier_employe' employe.uuid %}"  class="edit-icon">
                             <i class="fa fa-pencil"></i>
                         </a>
                     {% else %}
@@ -119,10 +129,19 @@
             </div>
         </div>
 
+        <!-- ========================================== -->
         <!-- Contrats -->
-        <div class="card mb-3">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-file-earmark-text"></i> Contrats</h5>
+        <!-- ========================================== -->
+        <div class="card mb-3 ">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="bi bi-file-earmark-text"></i> Contrats</h4>
+                {% if contrats %}
+                <button class="btn btn-light btn-sm" onclick="openContratModal()">
+                    <i class="bi bi-plus-circle"></i> Ajouter un contrat
+                </button>
+                {% else %}
+
+                {% endif %}
             </div>
             <div class="card-body">
                 {% if contrats %}
@@ -133,6 +152,7 @@
                             <th>Date de début</th>
                             <th>Date de fin</th>
                             <th>Statut</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -148,6 +168,16 @@
                                 <span class="badge bg-secondary">Clôturé</span>
                                 {% endif %}
                             </td>
+                            <td>
+                                <button class="btn btn-sm btn-warning" onclick="openContratModal({{ contrat.id }}, '{{ contrat.type_contrat }}', '{{ contrat.date_debut|date:"Y-m-d" }}', '{{ contrat.date_fin|date:"Y-m-d"|default:'' }}')">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger"
+                                        onclick="confirmDeleteContrat({{ contrat.id }}, '{{ contrat.get_type_contrat_display }}', '{{ contrat.date_debut|date:"d/m/Y" }}')"
+                                        title="Supprimer">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -158,10 +188,19 @@
             </div>
         </div>
 
-        <!-- Affectations -->
+        <!-- ========================================== -->
+        <!-- SECTION AFFECTATIONS -->
+        <!-- ========================================== -->
         <div class="card mb-3">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-briefcase"></i> Affectations</h5>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="bi bi-briefcase"></i> Affectations</h4>
+                {% if contrats %}
+                <button class="btn btn-light btn-sm" onclick="openAffectationModal()">
+                    <i class="bi bi-plus-circle"></i> Ajouter une affectation
+                </button>
+                {% else %}
+
+                {% endif %}
             </div>
             <div class="card-body">
                 {% if affectations %}
@@ -170,135 +209,275 @@
                         <tr>
                             <th>Poste</th>
                             <th>Département</th>
-                            <th>Date de début</th>
-                            <th>Date de fin</th>
+                            <th>Date début</th>
+                            <th>Date fin</th>
                             <th>Statut</th>
+                            <th class="text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for affectation in affectations %}
+                        {% for aff in affectations %}
                         <tr>
-                            <td>{{ affectation.poste.CODE }} - {{ affectation.poste.LIBELLE }}</td>
-                            <td>{{ affectation.poste.DEPARTEMENT.LIBELLE }}</td>
-                            <td>{{ affectation.date_debut|date:"d/m/Y" }}</td>
-                            <td>{{ affectation.date_fin|date:"d/m/Y"|default:"En cours" }}</td>
+                            <td><strong>{{ aff.poste.CODE }}</strong><br><small class="text-muted">{{ aff.poste.LIBELLE }}</small></td>
+                            <td>{{ aff.poste.DEPARTEMENT.LIBELLE }}</td>
+                            <td>{{ aff.date_debut|date:"d/m/Y" }}</td>
+                            <td>{{ aff.date_fin|date:"d/m/Y"|default:"En cours" }}</td>
                             <td>
-                                {% if not affectation.date_fin %}
-                                <span class="badge bg-success">Active</span>
+                                {% if not aff.date_fin %}
+                                <span class="badge bg-success badge-actif"><i class="bi bi-check-circle"></i> Active</span>
                                 {% else %}
                                 <span class="badge bg-secondary">Clôturée</span>
                                 {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-warning"
+                                        onclick="openAffectationModal({{ aff.id }}, {{ aff.poste.id }}, '{{ aff.date_debut|date:"Y-m-d" }}', '{{ aff.date_fin|date:"Y-m-d"|default:'' }}')"
+                                     title="Modifier">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger"
+                                        onclick="confirmDeleteAffectation({{ aff.id }}, '{{ aff.poste.LIBELLE }}')"
+                                        title="Supprimer">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted text-center py-3">
+                    <i class="bi bi-inbox"></i> Aucune affectation enregistrée
+                </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- SECTION TÉLÉPHONES -->
+        <!-- ========================================== -->
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="bi bi-telephone"></i> Téléphones</h4>
+                {% if contrats %}
+                    <button class="btn btn-light btn-sm" onclick="openTelephoneModal()">
+                        <i class="bi bi-plus-circle"></i> Ajouter un téléphone
+                    </button>
+                {% else %}
+
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if telephones %}
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Numéro</th>
+                            <th>Date début validité</th>
+                            <th>Date fin validité</th>
+                            <th>Statut</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tel in telephones %}
+                        <tr>
+                            <td><i class="bi bi-phone"></i> <strong>{{ tel.numero }}</strong></td>
+                            <td>{{ tel.date_debut_validite|date:"d/m/Y" }}</td>
+                            <td>{{ tel.date_fin_validite|date:"d/m/Y"|default:"Actif" }}</td>
+                            <td>
+                                {% if not tel.date_fin_validite %}
+                                <span class="badge bg-success badge-actif"><i class="bi bi-check-circle"></i> Actif</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Inactif</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-warning"
+                                        onclick="openTelephoneModal({{ tel.id }}, '{{ tel.numero }}', '{{ tel.date_debut_validite|date:"Y-m-d" }}', '{{ tel.date_fin_validite|date:"Y-m-d"|default:'' }}')"
+                                        title="Modifier">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger"
+                                        onclick="confirmDeleteTelephone({{ tel.id }}, '{{ tel.numero }}')"
+                                        title="Supprimer">
+                                    <i class="bi bi-trash"></i>
+                                </button>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
                 {% else %}
-                <p class="text-muted">Aucune affectation</p>
+                <p class="text-muted text-center py-3">
+                    <i class="bi bi-inbox"></i> Aucun téléphone enregistré
+                </p>
                 {% endif %}
             </div>
         </div>
 
-        <!-- Coordonnées -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <h5 class="mb-0"><i class="bi bi-telephone"></i> Téléphones</h5>
-                    </div>
-                    <div class="card-body">
-                        {% if telephones %}
-                        <ul class="list-group list-group-flush">
-                            {% for tel in telephones %}
-                            <li class="list-group-item">
-                                <i class="bi bi-phone"></i> {{ tel.numero }}
-                                <br><small class="text-muted">Du {{ tel.date_debut_validite|date:"d/m/Y" }}
-                                {% if tel.date_fin_validite %}au {{ tel.date_fin_validite|date:"d/m/Y" }}{% else %}(Actif){% endif %}</small>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                        {% else %}
-                        <p class="text-muted">Aucun téléphone</p>
-                        {% endif %}
-                    </div>
-                </div>
+        <!-- ========================================== -->
+        <!-- SECTION EMAILS -->
+        <!-- ========================================== -->
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="bi bi-envelope"></i> Emails</h4>
+                {% if contrats %}
+                    <button class="btn btn-light btn-sm" onclick="openEmailModal()">
+                     <i class="bi bi-plus-circle"></i> Ajouter un email
+                    </button>
+                {% else %}
+
+                {% endif %}
             </div>
-            <div class="col-md-6">
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <h5 class="mb-0"><i class="bi bi-envelope"></i> Emails</h5>
-                    </div>
-                    <div class="card-body">
-                        {% if emails %}
-                        <ul class="list-group list-group-flush">
-                            {% for email in emails %}
-                            <li class="list-group-item">
-                                <i class="bi bi-envelope-at"></i> {{ email.email }}
-                                <br><small class="text-muted">Du {{ email.date_debut_validite|date:"d/m/Y" }}
-                                {% if email.date_fin_validite %}au {{ email.date_fin_validite|date:"d/m/Y" }}{% else %}(Actif){% endif %}</small>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                        {% else %}
-                        <p class="text-muted">Aucun email</p>
-                        {% endif %}
-                    </div>
-                </div>
+            <div class="card-body">
+                {% if emails %}
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Adresse email</th>
+                        <th>Date début validité</th>
+                        <th>Date fin validité</th>
+                        <th>Statut</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for email in emails %}
+                    <tr>
+                        <td><i class="bi bi-envelope-at"></i> <strong>{{ email.email }}</strong></td>
+                        <td>{{ email.date_debut_validite|date:"d/m/Y" }}</td>
+                        <td>{{ email.date_fin_validite|date:"d/m/Y"|default:"Actif" }}</td>
+                        <td>
+                            {% if not email.date_fin_validite %}
+                            <span class="badge bg-success badge-actif"><i class="bi bi-check-circle"></i> Actif</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inactif</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-warning"
+                                    onclick="openEmailModal({{ email.id }}, '{{ email.email }}', '{{ email.date_debut_validite|date:" Y-m-d" }}', '{{ email.date_fin_validite|date:"Y-m-d"|default:'' }}')"
+                            title="Modifier">
+                            <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger"
+                                    onclick="confirmDeleteEmail({{ email.id }}, '{{ email.email }}')"
+                                    title="Supprimer">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted text-center py-3">
+                    <i class="bi bi-inbox"></i> Aucun email enregistré
+                </p>
+                {% endif %}
             </div>
         </div>
 
-        <!-- Adresses -->
+        <!-- ========================================== -->
+        <!-- SECTION ADRESSES -->
+        <!-- ========================================== -->
         <div class="card mb-3">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-geo-alt"></i> Adresses</h5>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="bi bi-geo-alt"></i> Adresses</h4>
+                {% if contrats %}
+                    <button class="btn btn-light btn-sm" onclick="openAdresseModal()">
+                        <i class="bi bi-plus-circle"></i> Ajouter une adresse
+                    </button>
+                {% else %}
+
+                {% endif %}
             </div>
             <div class="card-body">
                 {% if adresses %}
                 <div class="row">
                     {% for adresse in adresses %}
                     <div class="col-md-6 mb-3">
-                        <div class="card">
+                        <div class="card h-100">
                             <div class="card-body">
-                                <h6>
-                                    {% if adresse.type_adresse == 'PRINCIPALE' %}
-                                    <span class="badge bg-primary">Principale</span>
-                                    {% else %}
-                                    <span class="badge bg-secondary">Secondaire</span>
-                                    {% endif %}
-                                </h6>
-                                <p>
-                                    <i class="bi bi-house-door"></i> {{ adresse.rue }}<br>
-                                    <i class="bi bi-signpost"></i> {{ adresse.code_postal }} {{ adresse.ville }}<br>
-                                    <i class="bi bi-globe"></i> {{ adresse.pays }}<br>
-                                    <small class="text-muted">Du {{ adresse.date_debut|date:"d/m/Y" }}
-                                    {% if adresse.date_fin %}au {{ adresse.date_fin|date:"d/m/Y" }}{% else %}(Actuelle){% endif %}</small>
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="mb-0">
+                                        {% if adresse.type_adresse == 'PRINCIPALE' %}
+                                        <span class="badge bg-primary">
+                                    <i class="bi bi-star-fill"></i> Principale
+                                </span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">Secondaire</span>
+                                        {% endif %}
+                                        {% if not adresse.date_fin %}
+                                        <span class="badge bg-success badge-actif ms-1">
+                                    <i class="bi bi-check-circle"></i> Active
+                                </span>
+                                        {% else %}
+                                        <span class="badge bg-secondary ms-1">Inactive</span>
+                                        {% endif %}
+                                    </h6>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-warning"
+                                                onclick="openAdresseModal({{ adresse.id }}, '{{ adresse.rue|escapejs }}', '{{ adresse.ville }}', '{{ adresse.pays }}', '{{ adresse.code_postal }}', '{{ adresse.type_adresse }}', '{{ adresse.date_debut|date:" Y-m-d" }}', '{{ adresse.date_fin|date:"Y-m-d"|default:'' }}')"
+                                        title="Modifier">
+                                        <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger"
+                                                onclick="confirmDeleteAdresse({{ adresse.id }}, '{{ adresse.ville }}', '{{ adresse.get_type_adresse_display }}')"
+                                                title="Supprimer">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <hr>
+                                <p class="mb-1"><i class="bi bi-house-door"></i> <strong>{{ adresse.rue }}</strong></p>
+                                <p class="mb-1"><i class="bi bi-geo"></i> {{ adresse.code_postal }} {{ adresse.ville }}
                                 </p>
+                                <p class="mb-1"><i class="bi bi-globe"></i> {{ adresse.pays }}</p>
+                                <hr>
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar"></i>
+                                    Du {{ adresse.date_debut|date:"d/m/Y" }}
+                                    {% if adresse.date_fin %}
+                                    au {{ adresse.date_fin|date:"d/m/Y" }}
+                                    {% else %}
+                                    à aujourd'hui
+                                    {% endif %}
+                                </small>
                             </div>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
                 {% else %}
-                <p class="text-muted">Aucune adresse</p>
+                <p class="text-muted text-center py-3">
+                    <i class="bi bi-inbox"></i> Aucune adresse enregistrée
+                </p>
                 {% endif %}
             </div>
         </div>
     </div>
+
+ <!-- MODAL CONTRAT -->
+{% include 'employee/modal/modal_employee.html' %}
+
 <!-- /Page Content -->
 {% endblock %}
 
 {% block extrascript %}
-   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Auto-fermer les messages de succès après 5 secondes
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'assets/js/modal.js' %}"></script>
+<script>
+         // Auto-fermer les messages
         setTimeout(function() {
-            var alerts = document.querySelectorAll('.alert-success');
+            const alerts = document.querySelectorAll('.alert-success');
             alerts.forEach(function(alert) {
-                var bsAlert = new bootstrap.Alert(alert);
+                const bsAlert = new bootstrap.Alert(alert);
                 bsAlert.close();
             });
         }, 5000);
-    </script>
+</script>
 {% endblock %}
 
 

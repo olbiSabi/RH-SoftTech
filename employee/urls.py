@@ -11,55 +11,47 @@ urlpatterns = [
     # ===============================
     path('liste-employee/', views.EmployeListView.as_view(), name='liste_employes'),
     path('matricule/<uuid:uuid>/', views.detail_employe, name='detail_employe'),
-    # Pour la liste seule (premier chargement)
     path('dossier-individuel/', views.DossierIndividuelView.as_view(), name='liste_dossiers'),
-    # Pour la liste + détail d'un employé
     path('dossier-individuel/<uuid:uuid>/', views.DossierIndividuelView.as_view(), name='dossier_detail'),
     path('employe/<uuid:uuid>/modifier/', views.EmployeUpdateView.as_view(), name='modifier_employe'),
     path('employe/<uuid:uuid>/supprimer/', views.EmployeDeleteView.as_view(), name='supprimer_employe'),
-
-
     # path('employe/nouveau/', views.EmployeCreateView.as_view(), name='creer_employe'),
 
     # ===============================
     # URLs pour les contrats (ZYCO)
     # ===============================
-    path('contrats/', views.ContratListView.as_view(), name='liste_contrats'),
-    path('contrat/nouveau/', views.ContratCreateView.as_view(), name='creer_contrat'),
-    path('contrat/<int:pk>/modifier/', views.ContratUpdateView.as_view(), name='modifier_contrat'),
-    path('contrat/<int:pk>/supprimer/', views.ContratDeleteView.as_view(), name='supprimer_contrat'),
+    path('contrat/nouveau-ajax/', views.contrat_create_ajax, name='contrat_create_ajax'),
+    path('contrat/<int:pk>/modifier-ajax/', views.contrat_update_ajax, name='contrat_update_ajax'),
+    path('contrat/<int:pk>/supprimer-ajax/', views.contrat_delete_ajax, name='contrat_delete_ajax'),
 
     # ===============================
-    # URLs pour les téléphones (ZYTE)
+    # AFFECTATIONS (ZYAF)
     # ===============================
-    path('telephones/', views.TelephoneListView.as_view(), name='liste_telephones'),
-    path('telephone/nouveau/', views.TelephoneCreateView.as_view(), name='creer_telephone'),
-    path('telephone/<int:pk>/modifier/', views.TelephoneUpdateView.as_view(), name='modifier_telephone'),
-    path('telephone/<int:pk>/supprimer/', views.TelephoneDeleteView.as_view(), name='supprimer_telephone'),
+    path('affectation/nouveau-ajax/', views.affectation_create_ajax, name='affectation_create_ajax'),
+    path('affectation/<int:pk>/modifier-ajax/', views.affectation_update_ajax, name='affectation_update_ajax'),
+    path('affectation/<int:pk>/supprimer-ajax/', views.affectation_delete_ajax, name='affectation_delete_ajax'),
 
     # ===============================
-    # URLs pour les emails (ZYME)
+    # TÉLÉPHONES (ZYTE)
     # ===============================
-    path('emails/', views.EmailListView.as_view(), name='liste_emails'),
-    path('email/nouveau/', views.EmailCreateView.as_view(), name='creer_email'),
-    path('email/<int:pk>/modifier/', views.EmailUpdateView.as_view(), name='modifier_email'),
-    path('email/<int:pk>/supprimer/', views.EmailDeleteView.as_view(), name='supprimer_email'),
+    path('telephone/nouveau-ajax/', views.telephone_create_ajax, name='telephone_create_ajax'),
+    path('telephone/<int:pk>/modifier-ajax/', views.telephone_update_ajax, name='telephone_update_ajax'),
+    path('telephone/<int:pk>/supprimer-ajax/', views.telephone_delete_ajax, name='telephone_delete_ajax'),
 
     # ===============================
-    # URLs pour les affectations (ZYAF)
+    # EMAILS (ZYME)
     # ===============================
-    path('affectations/', views.AffectationListView.as_view(), name='liste_affectations'),
-    path('affectation/nouvelle/', views.AffectationCreateView.as_view(), name='creer_affectation'),
-    path('affectation/<int:pk>/modifier/', views.AffectationUpdateView.as_view(), name='modifier_affectation'),
-    path('affectation/<int:pk>/supprimer/', views.AffectationDeleteView.as_view(), name='supprimer_affectation'),
+    path('email/nouveau-ajax/', views.email_create_ajax, name='email_create_ajax'),
+    path('email/<int:pk>/modifier-ajax/', views.email_update_ajax, name='email_update_ajax'),
+    path('email/<int:pk>/supprimer-ajax/', views.email_delete_ajax, name='email_delete_ajax'),
 
     # ===============================
-    # URLs pour les adresses (ZYAD)
+    # ADRESSES (ZYAD)
     # ===============================
-    path('adresses/', views.AdresseListView.as_view(), name='liste_adresses'),
-    path('adresse/nouvelle/', views.AdresseCreateView.as_view(), name='creer_adresse'),
-    path('adresse/<int:pk>/modifier/', views.AdresseUpdateView.as_view(), name='modifier_adresse'),
-    path('adresse/<int:pk>/supprimer/', views.AdresseDeleteView.as_view(), name='supprimer_adresse'),
+    path('adresse/nouveau-ajax/', views.adresse_create_ajax, name='adresse_create_ajax'),
+    path('adresse/<int:pk>/modifier-ajax/', views.adresse_update_ajax, name='adresse_update_ajax'),
+    path('adresse/<int:pk>/supprimer-ajax/', views.adresse_delete_ajax, name='adresse_delete_ajax'),
+
 
     # path('liste-employee/', listeEmployee, name='liste_employes'),
     path('dossierSortie/', dossierSortie, name='dossier-sortie'),

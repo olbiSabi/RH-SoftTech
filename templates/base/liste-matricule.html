@@ -18,7 +18,7 @@
                 </thead>
                 <tbody id="employeesList">
                     <!-- Les employés seront ajoutés par Django -->
-                    {% for employe in employes %}
+                    {% for employe in employes_actifs %}
                         <tr class="employee-row" data-matricule="{{ employee.uuid }}">
                             <td>
                                 <div>
