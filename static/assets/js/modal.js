@@ -1,5 +1,13 @@
-let contratModal;
-        let deleteModal;
+<!-- ========================================== -->
+<!-- JAVASCRIPT POUR TOUS LES MODALS -->
+<!-- ========================================== -->
+
+// ===== VARIABLES GLOBALES =====
+let affectationModal, deleteAffectationModal;
+let telephoneModal, deleteTelephoneModal;
+let emailModal, deleteEmailModal;
+let adresseModal, deleteAdresseModal;
+let contratModal, let deleteModal;
 
         document.addEventListener('DOMContentLoaded', function() {
             contratModal = new bootstrap.Modal(document.getElementById('contratModal'));
@@ -120,15 +128,6 @@ let contratModal;
         }
 
 
-<!-- ========================================== -->
-<!-- JAVASCRIPT POUR TOUS LES MODALS -->
-<!-- ========================================== -->
-
-// ===== VARIABLES GLOBALES =====
-let affectationModal, deleteAffectationModal;
-let telephoneModal, deleteTelephoneModal;
-let emailModal, deleteEmailModal;
-let adresseModal, deleteAdresseModal;
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialiser tous les modals
@@ -429,6 +428,77 @@ function deleteAdresse() {
     .then(data => {
         if (data.success) {
             deleteAdresseModal.hide();
+            window.location.reload();
+        } else {
+            alert('Erreur : ' + data.error);
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialiser les modals
+    documentModal = new bootstrap.Modal(document.getElementById('documentModal'));
+    deleteDocumentModal = new bootstrap.Modal(document.getElementById('deleteDocumentModal'));
+
+    // Soumettre le formulaire
+    document.getElementById('documentForm').addEventListener('submit', e => {
+        e.preventDefault();
+        saveDocument();
+    });
+});
+
+// ===== FONCTIONS DOCUMENT =====
+function openDocumentModal() {
+    document.getElementById('documentForm').reset();
+    document.getElementById('documentError').classList.add('d-none');
+    document.getElementById('documentModalTitle').textContent = 'Joindre un document';
+    documentModal.show();
+}
+
+function saveDocument() {
+    const formData = new FormData(document.getElementById('documentForm'));
+    const url = '/employe/ajax/document/create/';
+
+    fetch(url, {
+        method: 'POST',
+        body: formData,
+        headers: {'X-Requested-With': 'XMLHttpRequest'}
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            documentModal.hide();
+            window.location.reload();
+        } else {
+            document.getElementById('documentError').textContent = data.error;
+            document.getElementById('documentError').classList.remove('d-none');
+        }
+    })
+    .catch(error => {
+        document.getElementById('documentError').textContent = 'Erreur de connexion au serveur';
+        document.getElementById('documentError').classList.remove('d-none');
+    });
+}
+
+function confirmDeleteDocument(id, typeDocument) {
+    document.getElementById('deleteDocumentId').value = id;
+    document.getElementById('deleteDocumentMessage').textContent = `Supprimer le document "${typeDocument}" ?`;
+    deleteDocumentModal.show();
+}
+
+function deleteDocument() {
+    const id = document.getElementById('deleteDocumentId').value;
+    fetch(`/employe/ajax/document/delete/${id}/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            deleteDocumentModal.hide();
             window.location.reload();
         } else {
             alert('Erreur : ' + data.error);

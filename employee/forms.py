@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import inlineformset_factory
 from django.utils import timezone
-from .models import ZY00, ZYCO, ZYTE, ZYME, ZYAF, ZYAD, ZDPO
+from .models import ZY00, ZYCO, ZYTE, ZYME, ZYAF, ZYAD, ZDPO, ZYDO
 from .pays_choices import PAYS_CHOICES
 
 class ZY00Form(forms.ModelForm):
@@ -226,3 +226,45 @@ AdresseFormSet = inlineformset_factory(
     extra=1,
     can_delete=True
 )
+
+
+# Champs pour les document
+class ZYDOForm(forms.ModelForm):
+    """Formulaire pour joindre des documents"""
+
+    class Meta:
+        model = ZYDO
+        fields = ['type_document', 'description', 'fichier']
+        widgets = {
+            'type_document': forms.Select(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Description (optionnelle)',
+                'rows': 3
+            }),
+            'fichier': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': '.pdf,.doc,.docx,.jpg,.jpeg,.png'
+            }),
+        }
+
+    def clean_fichier(self):
+        """Validation du fichier"""
+        fichier = self.cleaned_data.get('fichier')
+
+        if fichier:
+            # Vérifier la taille (max 10 Mo)
+            if fichier.size > 10 * 1024 * 1024:
+                raise forms.ValidationError("Le fichier ne doit pas dépasser 10 Mo.")
+
+            # Vérifier l'extension
+            import os
+            ext = os.path.splitext(fichier.name)[1].lower()
+            extensions_autorisees = ['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png']
+
+            if ext not in extensions_autorisees:
+                raise forms.ValidationError(
+                    f"Extension non autorisée. Extensions autorisées : {', '.join(extensions_autorisees)}"
+                )
+
+        return fichier

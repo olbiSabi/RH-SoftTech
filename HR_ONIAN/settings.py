@@ -139,3 +139,12 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Configuration pour les fichiers media
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Taille maximale des fichiers uploadés (optionnel)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 Mo
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 Mo

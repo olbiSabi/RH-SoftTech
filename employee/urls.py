@@ -52,8 +52,17 @@ urlpatterns = [
     path('adresse/<int:pk>/modifier-ajax/', views.adresse_update_ajax, name='adresse_update_ajax'),
     path('adresse/<int:pk>/supprimer-ajax/', views.adresse_delete_ajax, name='adresse_delete_ajax'),
 
+    # ===============================
+    # Gestion des documents ZYDO
+    # ===============================
+    path('documents/<str:matricule>/', views.gerer_documents_employe, name='gerer_documents_employe'),
+    path('documents/telecharger/<int:pk>/', views.telecharger_document, name='telecharger_document'),
+    path('ajax/document/create/', views.document_create_ajax, name='document_create_ajax'),
+    path('ajax/document/delete/<int:pk>/', views.document_delete_ajax, name='document_delete_ajax'),
 
-    # path('liste-employee/', listeEmployee, name='liste_employes'),
+
+
+
     path('dossierSortie/', dossierSortie, name='dossier-sortie'),
     path('profil-employee/', profilEmployee, name='profile-employee'),
     path('conges/', conges, name='conges'),

@@ -1,14 +1,17 @@
-from django.http import Http404, JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
 from datetime import datetime
 from django.db import transaction
 from django.db.models import Q
-from django.views.decorators.http import require_POST
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.utils import timezone
 from django.urls import reverse_lazy
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.shortcuts import get_object_or_404
+from django.http import FileResponse, Http404
+from django.contrib.auth.decorators import login_required
+from .models import ZYDO
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+import os
 
 from departement.models import ZDPO
 from .models import ZY00, ZYCO, ZYTE, ZYME, ZYAF, ZYAD
@@ -260,6 +263,7 @@ def detail_employe(request, uuid):
         'emails': employe.emails.all(),
         'affectations': employe.affectations.all(),
         'adresses': employe.adresses.all(),
+        'documents': employe.documents.all(),
     }
 
     return render(request, 'employee/detail_employe.html', context)
@@ -301,6 +305,7 @@ class DossierIndividuelView(ListView):
             context['telephones'] = employe_selectionne.telephones.all().order_by('-date_debut_validite')
             context['emails'] = employe_selectionne.emails.all().order_by('-date_debut_validite')
             context['adresses'] = employe_selectionne.adresses.all().order_by('-date_debut')
+            context['documents'] = employe_selectionne.documents.all().order_by('-date_ajout')
 
             # Postes disponibles pour le modal d'affectation ← AJOUTÉ
             context['postes'] = ZDPO.objects.filter(
@@ -841,6 +846,101 @@ def adresse_delete_ajax(request, pk):
         return JsonResponse({'success': True, 'message': '✅ Adresse supprimée'})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+
+
+@require_POST
+def document_create_ajax(request):
+    """Créer un document via AJAX"""
+    try:
+        employe_identifier = request.POST.get('employe_matricule')
+        type_document = request.POST.get('type_document')
+        description = request.POST.get('description', '')
+        fichier = request.FILES.get('fichier')
+
+        # Validation des champs obligatoires
+        if not all([employe_identifier, type_document, fichier]):
+            return JsonResponse({'success': False, 'error': 'Champs obligatoires manquants'})
+
+        # Récupérer l'employé par UUID ou matricule
+        try:
+            employe = get_object_or_404(ZY00, uuid=employe_identifier)
+        except:
+            employe = get_object_or_404(ZY00, matricule=employe_identifier)
+
+        # Vérifier la taille du fichier (max 10 Mo)
+        if fichier.size > 10 * 1024 * 1024:
+            return JsonResponse({'success': False, 'error': 'Le fichier ne doit pas dépasser 10 Mo.'})
+
+        # Vérifier l'extension
+        ext = os.path.splitext(fichier.name)[1].lower()
+        extensions_autorisees = ['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png']
+        if ext not in extensions_autorisees:
+            return JsonResponse({
+                'success': False,
+                'error': f'Extension non autorisée. Extensions autorisées : {", ".join(extensions_autorisees)}'
+            })
+
+        # Créer le document
+        document = ZYDO.objects.create(
+            employe=employe,
+            type_document=type_document,
+            description=description,
+            fichier=fichier
+        )
+
+        return JsonResponse({
+            'success': True,
+            'message': f'✅ Document "{document.get_type_document_display()}" ajouté avec succès'
+        })
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+@require_POST
+def document_delete_ajax(request, pk):
+    """Supprimer un document via AJAX"""
+    try:
+        document = get_object_or_404(ZYDO, pk=pk, actif=True)
+        document.delete()
+
+        return JsonResponse({
+            'success': True,
+            'message': f'✅ Document ✅ supprimé avec succès'
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+@login_required
+def gerer_documents_employe(request, matricule):
+    """Page pour joindre et gérer les documents d'un employé"""
+    employe = get_object_or_404(ZY00, matricule=matricule)
+    documents = ZYDO.objects.filter(employe=employe, actif=True)
+
+    # Récupérer les choix directement depuis le modèle
+    type_documents = ZYDO.TYPE_DOCUMENT_CHOICES
+
+    context = {
+        'employe': employe,
+        'documents': documents,
+        'type_documents': type_documents,
+    }
+    return render(request, 'employee/modal/modal_employee.html', context)
+
+
+@login_required
+def telecharger_document(request, document_id):
+    """Télécharger un document"""
+    document = get_object_or_404(ZYDO, id=document_id, actif=True)
+
+    try:
+        response = FileResponse(document.fichier.open('rb'))
+        response['Content-Type'] = 'application/octet-stream'
+        response['Content-Disposition'] = f'attachment; filename="{document.get_nom_fichier()}"'
+        return response
+    except FileNotFoundError:
+        raise Http404("Fichier introuvable")
 
 
 

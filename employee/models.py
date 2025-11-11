@@ -361,3 +361,99 @@ class ZYAD(models.Model):
                 raise ValidationError(
                     "Une adresse principale active existe déjà pour cet employé."
                 )
+
+
+class ZYDO(models.Model):
+    """Table des documents joints aux employés"""
+
+    TYPE_DOCUMENT_CHOICES = [
+        ('CV', 'CV'),
+        ('LETTRE_MOTIVATION', 'Lettre de motivation'),
+        ('DIPLOME', 'Diplôme'),
+        ('ATTESTATION_FORMATION', 'Attestation de formation'),
+        ('CERTIFICAT_TRAVAIL', 'Certificat de travail'),
+        ('LETTRE_RECOMMANDATION', 'Lettre de recommandation'),
+        ('CNI', 'Carte Nationale d\'Identité'),
+        ('PASSEPORT', 'Passeport'),
+        ('ACTE_NAISSANCE', 'Acte de naissance'),
+        ('CERTIFICAT_RESIDENCE', 'Certificat de résidence'),
+        ('RIB', 'RIB'),
+        ('ATTESTATION_SECURITE_SOCIALE', 'Attestation sécurité sociale'),
+        ('CERTIFICAT_MEDICAL', 'Certificat médical'),
+        ('CONTRAT_SIGNE', 'Contrat signé'),
+        ('ATTESTATION_ASSURANCE', 'Attestation d\'assurance'),
+        ('JUSTIFICATIF_DOMICILE', 'Justificatif de domicile'),
+        ('PHOTO_IDENTITE', 'Photo d\'identité'),
+        ('AUTRES', 'Autres'),
+    ]
+
+    employe = models.ForeignKey(
+        ZY00,
+        on_delete=models.CASCADE,
+        related_name='documents',
+        verbose_name="Employé"
+    )
+    type_document = models.CharField(
+        max_length=50,
+        choices=TYPE_DOCUMENT_CHOICES,
+        verbose_name="Type de document"
+    )
+    description = models.TextField(
+        blank=True,
+        verbose_name="Description"
+    )
+    fichier = models.FileField(
+        upload_to='documents/employes/%Y/%m/',
+        verbose_name="Fichier"
+    )
+    date_ajout = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Date d'ajout"
+    )
+    date_modification = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Date de modification"
+    )
+    taille_fichier = models.IntegerField(
+        null=True,
+        blank=True,
+        verbose_name="Taille (octets)"
+    )
+    actif = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'ZYDO'
+        verbose_name = "Document"
+        verbose_name_plural = "Documents"
+        ordering = ['-date_ajout']
+
+    def __str__(self):
+        return f"{self.employe.matricule} - {self.get_type_document_display()}"
+
+    def save(self, *args, **kwargs):
+        """Calculer la taille du fichier avant sauvegarde"""
+        if self.fichier:
+            self.taille_fichier = self.fichier.size
+        super().save(*args, **kwargs)
+
+    def get_extension(self):
+        """Retourne l'extension du fichier"""
+        import os
+        return os.path.splitext(self.fichier.name)[1].lower()
+
+    def get_taille_lisible(self):
+        """Retourne la taille du fichier dans un format lisible"""
+        if not self.taille_fichier:
+            return "N/A"
+
+        taille = self.taille_fichier
+        for unit in ['o', 'Ko', 'Mo', 'Go']:
+            if taille < 1024.0:
+                return f"{taille:.1f} {unit}"
+            taille /= 1024.0
+        return f"{taille:.1f} To"
+
+    def get_nom_fichier(self):
+        """Retourne le nom du fichier original"""
+        import os
+        return os.path.basename(self.fichier.name)

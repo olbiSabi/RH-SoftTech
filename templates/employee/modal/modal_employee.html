@@ -533,4 +533,101 @@
         </div>
     </div>
 </div>
+ <!-- ========================================== -->
+<!-- MODALS Document -->
+<!-- ========================================== -->
+<!-- Modal Ajouter Document -->
+<div class="modal fade" id="documentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="documentModalTitle">
+                    <i class="fas fa-plus"></i> Joindre un document
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="documentForm" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="employe_matricule" value="{{ employe.matricule }}">
 
+                <div class="modal-body">
+                    <div class="alert alert-danger d-none" id="documentError"></div>
+
+                    <div class="mb-3">
+                        <label for="documentType" class="form-label">Type de document *</label>
+                        <select class="form-control" id="type_document" name="type_document" required>
+                            <option value="">-- Sélectionner --</option>
+                            <option value="CV">CV</option>
+                            <option value="LETTRE_MOTIVATION">Lettre de motivation</option>
+                            <option value="DIPLOME">Diplôme</option>
+                            <option value="ATTESTATION_FORMATION">Attestation de formation</option>
+                            <option value="CERTIFICAT_TRAVAIL">Certificat de travail</option>
+                            <option value="LETTRE_RECOMMANDATION">Lettre de recommandation</option>
+                            <option value="CNI">Carte Nationale d\'Identité</option>
+                            <option value="PASSEPORT">Passeport</option>
+                            <option value="ACTE_NAISSANCE">Acte de naissance</option>
+                            <option value="CERTIFICAT_RESIDENCE">Certificat de résidence</option>
+                            <option value="RIB">RIB</option>
+                            <option value="ATTESTATION_SECURITE_SOCIALE">Attestation sécurité sociale</option>
+                            <option value="CERTIFICAT_MEDICAL">Certificat médical</option>
+                            <option value="CONTRAT_SIGNE">Contrat signé</option>
+                            <option value="ATTESTATION_ASSURANCE">Attestation d\'assurance</option>
+                            <option value="JUSTIFICATIF_DOMICILE">Justificatif de domicile</option>
+                            <option value="PHOTO_IDENTITE">Photo d\'identité</option>
+                            <option value="AUTRES">Autres</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="documentDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="documentDescription" name="description" rows="3" placeholder="Description (optionnelle)"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="documentFichier" class="form-label">Fichier * (max 10 Mo)</label>
+                        <input type="file" class="form-control" id="documentFichier" name="fichier"
+                               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                        <small class="form-text text-muted">
+                            Formats acceptés : PDF, Word, Images (JPG, PNG)
+                        </small>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Annuler
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-upload"></i> Ajouter le document
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Confirmation Suppression -->
+<div class="modal fade" id="deleteDocumentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle"></i> Confirmer la suppression
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="deleteDocumentId">
+                <p id="deleteDocumentMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+                <button type="button" class="btn btn-danger" onclick="deleteDocument()">
+                    <i class="fas fa-trash"></i> Confirmer la suppression
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
