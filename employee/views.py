@@ -12,7 +12,6 @@ from .models import ZYDO
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 import os
-
 from departement.models import ZDPO
 from .models import ZY00, ZYCO, ZYTE, ZYME, ZYAF, ZYAD
 from .forms import (
@@ -930,9 +929,9 @@ def gerer_documents_employe(request, matricule):
 
 
 @login_required
-def telecharger_document(request, document_id):
+def telecharger_document(request, pk):
     """Télécharger un document"""
-    document = get_object_or_404(ZYDO, id=document_id, actif=True)
+    document = get_object_or_404(ZYDO, pk=pk, actif=True)
 
     try:
         response = FileResponse(document.fichier.open('rb'))
@@ -944,9 +943,94 @@ def telecharger_document(request, document_id):
 
 
 
+@require_POST
+@login_required
+def modifier_photo_ajax(request):
+    """Vue AJAX pour modifier la photo de profil d'un employé"""
+    try:
+        employe_uuid = request.POST.get('employe_uuid')
+        photo = request.FILES.get('photo')
 
-def listeEmployee(request):
-    return render(request, "employee/employees-list.html")
+        if not employe_uuid or not photo:
+            return JsonResponse({
+                'success': False,
+                'error': 'UUID de l\'employé ou photo manquant'
+            })
+
+        # Récupérer l'employé
+        employe = get_object_or_404(ZY00, uuid=employe_uuid)
+
+        # Vérifier la taille du fichier (max 5MB)
+        if photo.size > 5 * 1024 * 1024:
+            return JsonResponse({
+                'success': False,
+                'error': 'La taille de la photo ne doit pas dépasser 5 MB'
+            })
+
+        # Vérifier l'extension du fichier
+        ext = os.path.splitext(photo.name)[1].lower()
+        valid_extensions = ['.jpg', '.jpeg', '.png', '.gif']
+        if ext not in valid_extensions:
+            return JsonResponse({
+                'success': False,
+                'error': f'Format non autorisé. Formats acceptés: {", ".join(valid_extensions)}'
+            })
+
+        # Supprimer l'ancienne photo si elle existe
+        if employe.photo:
+            try:
+                if os.path.isfile(employe.photo.path):
+                    os.remove(employe.photo.path)
+            except Exception:
+                pass  # Ignorer les erreurs de suppression
+
+        # Enregistrer la nouvelle photo
+        employe.photo = photo
+        employe.save()
+
+        return JsonResponse({
+            'success': True,
+            'photo_url': employe.get_photo_url()
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
+
+
+# Alternative: Vue pour supprimer la photo
+@require_POST
+@login_required
+def supprimer_photo_ajax(request, uuid):
+    """Vue AJAX pour supprimer la photo de profil d'un employé"""
+    try:
+        employe = get_object_or_404(ZY00, uuid=uuid)
+
+        # Supprimer le fichier photo
+        if employe.photo:
+            try:
+                if os.path.isfile(employe.photo.path):
+                    os.remove(employe.photo.path)
+            except Exception:
+                pass
+
+            # Supprimer la référence dans la base de données
+            employe.photo = None
+            employe.save()
+
+        return JsonResponse({
+            'success': True,
+            'photo_url': employe.get_photo_url()  # Retourne l'URL de la photo par défaut
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
+
 
 def dossierSortie(request):
     return render(request, "employee/dossier-sortie.html")

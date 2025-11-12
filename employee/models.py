@@ -2,9 +2,16 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 import uuid
+import os
 
 # Import du modèle ZDPO depuis l'application departement
 from departement.models import ZDPO
+
+def employee_photo_path(instance, filename):
+    """Fonction pour définir le chemin de sauvegarde de la photo"""
+    ext = filename.split('.')[-1]
+    filename = f"{instance.matricule}_photo.{ext}"
+    return os.path.join('photos/employes/', filename)
 
 
 class ZY00(models.Model):
@@ -54,7 +61,14 @@ class ZY00(models.Model):
     sexe = models.CharField(max_length=1, choices=SEXE_CHOICES, verbose_name="Sexe")
     ville_naissance = models.CharField(max_length=100, blank=True, verbose_name="Ville de naissance")
     pays_naissance = models.CharField(max_length=100, blank=True, verbose_name="Pays de naissance")
-
+    # NOUVEAU CHAMP PHOTO
+    photo = models.ImageField(
+        upload_to=employee_photo_path,
+        null=True,
+        blank=True,
+        verbose_name="Photo de profil",
+        help_text="Photo de profil de l'employé (formats acceptés: JPG, PNG)"
+    )
 
     situation_familiale = models.CharField(
         max_length=20,
@@ -118,8 +132,35 @@ class ZY00(models.Model):
             if self.ville_naissance:  # Vérifier que le ville_naissance n'est pas vide après strip
                 self.ville_naissance = self.ville_naissance[0].upper() + self.ville_naissance[1:]
 
+        # 🆕 VALIDATION DE LA PHOTO
+        if self.photo:
+            # Vérifier l'extension du fichier
+            ext = os.path.splitext(self.photo.name)[1].lower()
+            valid_extensions = ['.jpg', '.jpeg', '.png', '.gif']
+            if ext not in valid_extensions:
+                raise ValidationError({
+                     'photo': f"Format de fichier non autorisé. Formats acceptés: {', '.join(valid_extensions)}"
+                })
+
+            # Vérifier la taille du fichier (max 5MB)
+            if self.photo.size > 5 * 1024 * 1024:
+                raise ValidationError({
+                    'photo': "La taille de la photo ne doit pas dépasser 5 MB."
+                })
+
     def save(self, *args, **kwargs):
         """Générer automatiquement le matricule lors de la création"""
+        # 🆕 SUPPRIMER L'ANCIENNE PHOTO SI UNE NOUVELLE EST UPLOADÉE
+        if self.pk:
+            try:
+                old_instance = ZY00.objects.get(pk=self.pk)
+                if old_instance.photo and old_instance.photo != self.photo:
+                    # Supprimer l'ancien fichier
+                    if os.path.isfile(old_instance.photo.path):
+                        os.remove(old_instance.photo.path)
+            except ZY00.DoesNotExist:
+                pass
+
         if not self.matricule:
             # Récupérer le dernier matricule
             last_employee = ZY00.objects.all().order_by('matricule').last()
@@ -132,6 +173,16 @@ class ZY00(models.Model):
 
         self.full_clean()
         super().save(*args, **kwargs)
+
+    def get_photo_url(self):
+        """Retourne l'URL de la photo ou une photo par défaut"""
+        if self.photo and hasattr(self.photo, 'url'):
+            return self.photo.url
+        # Retourner une photo par défaut selon le sexe
+        if self.sexe == 'F':
+            return '/static/assets/img/default_female_avatar.png'
+        else:
+            return '/static/assets/img/default_male_avatar.png'
 
     def desactiver_donnees_associees(self):
         """Désactive toutes les données associées lorsque l'employé est radié ou licencié"""

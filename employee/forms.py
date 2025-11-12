@@ -228,7 +228,7 @@ AdresseFormSet = inlineformset_factory(
 )
 
 
-# Champs pour les document
+# Champs pour les documents
 class ZYDOForm(forms.ModelForm):
     """Formulaire pour joindre des documents"""
 

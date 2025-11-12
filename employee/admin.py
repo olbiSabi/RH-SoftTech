@@ -43,7 +43,7 @@ class ZY00Admin(admin.ModelAdmin):
     """Administration des employés"""
     list_display = [
         'matricule', 'nom', 'prenoms', 'date_naissance',
-        'sexe', 'type_dossier', 'date_validation_embauche', 'etat'
+        'sexe', 'type_dossier', 'date_validation_embauche', 'etat', 'photo'
     ]
     list_filter = ['type_dossier', 'sexe', 'situation_familiale']
     search_fields = ['matricule', 'nom', 'prenoms', 'numero_id']

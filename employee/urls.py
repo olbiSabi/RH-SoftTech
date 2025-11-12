@@ -16,6 +16,9 @@ urlpatterns = [
     path('employe/<uuid:uuid>/modifier/', views.EmployeUpdateView.as_view(), name='modifier_employe'),
     path('employe/<uuid:uuid>/supprimer/', views.EmployeDeleteView.as_view(), name='supprimer_employe'),
     # path('employe/nouveau/', views.EmployeCreateView.as_view(), name='creer_employe'),
+    # 🆕 URLs pour la gestion de la photo de profil
+    path('photo/modifier-ajax/', views.modifier_photo_ajax, name='modifier_photo_ajax'),
+    path('photo/<uuid:uuid>/supprimer-ajax/', views.supprimer_photo_ajax, name='supprimer_photo_ajax'),
 
     # ===============================
     # URLs pour les contrats (ZYCO)

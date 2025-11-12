@@ -1,155 +1,365 @@
-<!-- ========================================== -->
-<!-- JAVASCRIPT POUR TOUS LES MODALS -->
-<!-- ========================================== -->
+// ========================================
+// Gestion de la photo de profil + Modals
+// ========================================
 
 // ===== VARIABLES GLOBALES =====
+let contratModal, deleteModal;
 let affectationModal, deleteAffectationModal;
 let telephoneModal, deleteTelephoneModal;
 let emailModal, deleteEmailModal;
 let adresseModal, deleteAdresseModal;
-let contratModal, let deleteModal;
+let documentModal, deleteDocumentModal;
+let photoModal;
 
-        document.addEventListener('DOMContentLoaded', function() {
-            contratModal = new bootstrap.Modal(document.getElementById('contratModal'));
-            deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-
-            // Soumettre le formulaire
-            document.getElementById('contratForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                saveContrat();
-            });
-        });
-
-        // Ouvrir le modal (création ou modification)
-        function openContratModal(id = null, type = '', dateDebut = '', dateFin = '') {
-            const form = document.getElementById('contratForm');
-            const modalTitle = document.getElementById('modalTitle');
-            const errorMessage = document.getElementById('errorMessage');
-
-            // Réinitialiser le formulaire
-            form.reset();
-            errorMessage.classList.add('d-none');
-
-            if (id) {
-                // Mode modification
-                modalTitle.textContent = 'Modifier le contrat';
-                document.getElementById('contratId').value = id;
-                document.getElementById('typeContrat').value = type;
-                document.getElementById('dateDebut').value = dateDebut;
-                document.getElementById('dateFin').value = dateFin;
-            } else {
-                // Mode création
-                modalTitle.textContent = 'Ajouter un contrat';
-                document.getElementById('contratId').value = '';
-            }
-
-            contratModal.show();
-        }
-
-        // Confirmer la suppression
-        function confirmDeleteContrat(id, type, dateDebut) {
-            document.getElementById('deleteContratId').value = id;
-            document.getElementById('deleteMessage').textContent =
-                `Voulez-vous vraiment supprimer le contrat ${type} du ${dateDebut} ?`;
-            deleteModal.show();
-        }
-
-        // Supprimer le contrat
-        function deleteContrat() {
-            const contratId = document.getElementById('deleteContratId').value;
-
-            fetch(`/employe/contrat/${contratId}/supprimer-ajax/`, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    deleteModal.hide();
-                    window.location.reload();
-                } else {
-                    alert('Erreur : ' + (data.error || 'Impossible de supprimer le contrat'));
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                alert('Erreur de connexion au serveur');
-            });
-        }
-
-        // Enregistrer le contrat (AJAX)
-        function saveContrat() {
-            const form = document.getElementById('contratForm');
-            const formData = new FormData(form);
-            const contratId = document.getElementById('contratId').value;
-            const errorMessage = document.getElementById('errorMessage');
-
-            // Validation des dates
-            const dateDebut = document.getElementById('dateDebut').value;
-            const dateFin = document.getElementById('dateFin').value;
-
-            if (dateFin && dateFin <= dateDebut) {
-                errorMessage.textContent = 'La date de fin doit être supérieure à la date de début';
-                errorMessage.classList.remove('d-none');
-                return;
-            }
-
-            // URL selon création ou modification
-            const url = contratId ?
-                `/employe/contrat/${contratId}/modifier-ajax/` :
-                '/employe/contrat/nouveau-ajax/';
-
-            // Envoi AJAX
-            fetch(url, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    contratModal.hide();
-                    window.location.reload();
-                } else {
-                    errorMessage.textContent = data.error || 'Une erreur est survenue';
-                    errorMessage.classList.remove('d-none');
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                errorMessage.textContent = 'Erreur de connexion au serveur';
-                errorMessage.classList.remove('d-none');
-            });
-        }
-
-
-
+// ========================================
+// INITIALISATION AU CHARGEMENT DU DOM
+// ========================================
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🎨 Initialisation des modals et photo de profil...');
+
     // Initialiser tous les modals
-    affectationModal = new bootstrap.Modal(document.getElementById('affectationModal'));
-    deleteAffectationModal = new bootstrap.Modal(document.getElementById('deleteAffectationModal'));
-    telephoneModal = new bootstrap.Modal(document.getElementById('telephoneModal'));
-    deleteTelephoneModal = new bootstrap.Modal(document.getElementById('deleteTelephoneModal'));
-    emailModal = new bootstrap.Modal(document.getElementById('emailModal'));
-    deleteEmailModal = new bootstrap.Modal(document.getElementById('deleteEmailModal'));
-    adresseModal = new bootstrap.Modal(document.getElementById('adresseModal'));
-    deleteAdresseModal = new bootstrap.Modal(document.getElementById('deleteAdresseModal'));
+    try {
+        contratModal = new bootstrap.Modal(document.getElementById('contratModal'));
+        deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        affectationModal = new bootstrap.Modal(document.getElementById('affectationModal'));
+        deleteAffectationModal = new bootstrap.Modal(document.getElementById('deleteAffectationModal'));
+        telephoneModal = new bootstrap.Modal(document.getElementById('telephoneModal'));
+        deleteTelephoneModal = new bootstrap.Modal(document.getElementById('deleteTelephoneModal'));
+        emailModal = new bootstrap.Modal(document.getElementById('emailModal'));
+        deleteEmailModal = new bootstrap.Modal(document.getElementById('deleteEmailModal'));
+        adresseModal = new bootstrap.Modal(document.getElementById('adresseModal'));
+        deleteAdresseModal = new bootstrap.Modal(document.getElementById('deleteAdresseModal'));
+        documentModal = new bootstrap.Modal(document.getElementById('documentModal'));
+        deleteDocumentModal = new bootstrap.Modal(document.getElementById('deleteDocumentModal'));
+
+        console.log('✅ Tous les modals initialisés avec succès');
+    } catch(e) {
+        console.error('❌ Erreur lors de l\'initialisation des modals:', e);
+    }
+
+    // Initialiser le modal photo
+    const photoModalElement = document.getElementById('photoModal');
+    if (photoModalElement) {
+        photoModal = new bootstrap.Modal(photoModalElement);
+        console.log('✅ Modal photo initialisé');
+    }
 
     // Soumettre les formulaires
+    document.getElementById('contratForm').addEventListener('submit', e => { e.preventDefault(); saveContrat(); });
     document.getElementById('affectationForm').addEventListener('submit', e => { e.preventDefault(); saveAffectation(); });
     document.getElementById('telephoneForm').addEventListener('submit', e => { e.preventDefault(); saveTelephone(); });
     document.getElementById('emailForm').addEventListener('submit', e => { e.preventDefault(); saveEmail(); });
     document.getElementById('adresseForm').addEventListener('submit', e => { e.preventDefault(); saveAdresse(); });
+    document.getElementById('documentForm').addEventListener('submit', e => { e.preventDefault(); saveDocument(); });
+
+    // 🆕 GESTION FORMULAIRE PHOTO - EMPÊCHER LA SOUMISSION PAR DÉFAUT
+    const photoForm = document.getElementById('photoForm');
+    if (photoForm) {
+        photoForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // 🔴 TOUJOURS empêcher la soumission par défaut
+            e.stopPropagation(); // 🔴 Empêcher la propagation de l'événement
+            savePhoto();
+        });
+    }
+
+    // Aperçu de la photo avant upload
+    const photoFileInput = document.getElementById('photoFile');
+    if (photoFileInput) {
+        photoFileInput.addEventListener('change', handlePhotoPreview);
+    }
+
+    // Auto-fermer les messages de succès
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert-success');
+        alerts.forEach(function(alert) {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
 });
 
+// ========================================
+// FONCTIONS PHOTO DE PROFIL
+// ========================================
 
-// ===== FONCTIONS AFFECTATION =====
+/**
+ * Gère l'aperçu de la photo avant l'upload
+ */
+function handlePhotoPreview(e) {
+    const file = e.target.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    // Vérifier la taille du fichier (5 MB max)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+        showPhotoError('La taille du fichier ne doit pas dépasser 5 MB');
+        e.target.value = '';
+        return;
+    }
+
+    // Vérifier le type de fichier
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+        showPhotoError('Format non valide. Utilisez JPG, PNG ou GIF');
+        e.target.value = '';
+        return;
+    }
+
+    // Afficher l'aperçu
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const previewImage = document.getElementById('previewImage');
+        const photoPreview = document.getElementById('photoPreview');
+
+        if (previewImage && photoPreview) {
+            previewImage.src = e.target.result;
+            photoPreview.classList.remove('d-none');
+        }
+    };
+    reader.onerror = function() {
+        showPhotoError('Erreur lors de la lecture du fichier');
+    };
+    reader.readAsDataURL(file);
+}
+
+/**
+ * Ouvre le modal pour modifier la photo
+ */
+function openPhotoModal() {
+    console.log('📸 Ouverture du modal photo');
+
+    const photoForm = document.getElementById('photoForm');
+    const photoPreview = document.getElementById('photoPreview');
+    const photoError = document.getElementById('photoError');
+
+    // Réinitialiser le formulaire
+    if (photoForm) {
+        photoForm.reset();
+    }
+
+    // Cacher l'aperçu et les erreurs
+    if (photoPreview) {
+        photoPreview.classList.add('d-none');
+    }
+    if (photoError) {
+        photoError.classList.add('d-none');
+    }
+
+    // Afficher le modal
+    if (photoModal) {
+        photoModal.show();
+    } else {
+        console.error('❌ Modal photo non initialisé');
+    }
+}
+
+/**
+ * Sauvegarde la photo via AJAX
+ */
+function savePhoto() {
+    console.log('💾 Tentative d\'envoi de la photo...');
+
+    const form = document.getElementById('photoForm');
+    const photoFileInput = document.getElementById('photoFile');
+    const submitButton = form.querySelector('button[type="submit"]');
+
+    // 🔴 VÉRIFICATION CRITIQUE #1 : Fichier sélectionné ?
+    if (!photoFileInput.files || photoFileInput.files.length === 0) {
+        console.warn('⚠️ Aucun fichier sélectionné');
+        showPhotoError('Veuillez sélectionner une photo avant d\'enregistrer');
+        return false; // 🔴 ARRÊT TOTAL - Pas d'envoi, pas de rafraîchissement
+    }
+
+    const photoFile = photoFileInput.files[0];
+
+    // 🔴 VÉRIFICATION CRITIQUE #2 : Fichier valide ?
+    if (!photoFile) {
+        console.warn('⚠️ Fichier invalide');
+        showPhotoError('Le fichier sélectionné est invalide');
+        return false; // 🔴 ARRÊT TOTAL
+    }
+
+    console.log('✅ Fichier valide détecté:', photoFile.name);
+
+    // Créer le FormData
+    const formData = new FormData(form);
+
+    // Désactiver le bouton pendant l'upload
+    if (submitButton) {
+        submitButton.disabled = true;
+        const originalText = submitButton.innerHTML;
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Envoi en cours...';
+
+        fetch('/employe/photo/modifier-ajax/', {
+            method: 'POST',
+            body: formData,
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalText;
+
+            if (data.success) {
+                console.log('✅ Photo mise à jour avec succès');
+                photoModal.hide();
+
+                // Afficher un message de succès
+                showSuccessMessage('Photo de profil mise à jour avec succès');
+
+                // Recharger la page après un court délai
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                console.error('❌ Erreur serveur:', data.error);
+                showPhotoError(data.error || 'Une erreur est survenue lors de l\'upload');
+            }
+        })
+        .catch(error => {
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalText;
+            console.error('❌ Erreur réseau:', error);
+            showPhotoError('Erreur de connexion au serveur. Veuillez réessayer.');
+        });
+    }
+
+    return false; // 🔴 Important : retourner false pour empêcher toute soumission
+}
+
+/**
+ * Affiche un message d'erreur dans le modal photo
+ */
+function showPhotoError(message) {
+    const photoError = document.getElementById('photoError');
+    if (photoError) {
+        photoError.textContent = message;
+        photoError.classList.remove('d-none');
+        photoError.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    console.error('🚫 Erreur photo:', message);
+}
+
+/**
+ * Affiche un message de succès temporaire
+ */
+function showSuccessMessage(message) {
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
+    alert.style.zIndex = '9999';
+    alert.innerHTML = `
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <strong>${message}</strong>
+    `;
+
+    document.body.appendChild(alert);
+
+    setTimeout(() => {
+        alert.classList.remove('show');
+        setTimeout(() => alert.remove(), 150);
+    }, 3000);
+}
+
+// ========================================
+// FONCTIONS CONTRAT
+// ========================================
+function openContratModal(id = null, type = '', dateDebut = '', dateFin = '') {
+    console.log('openContratModal appelé', id);
+    const form = document.getElementById('contratForm');
+    const modalTitle = document.getElementById('modalTitle');
+    const errorMessage = document.getElementById('errorMessage');
+
+    form.reset();
+    errorMessage.classList.add('d-none');
+
+    if (id) {
+        modalTitle.textContent = 'Modifier le contrat';
+        document.getElementById('contratId').value = id;
+        document.getElementById('typeContrat').value = type;
+        document.getElementById('dateDebut').value = dateDebut;
+        document.getElementById('dateFin').value = dateFin;
+    } else {
+        modalTitle.textContent = 'Ajouter un contrat';
+        document.getElementById('contratId').value = '';
+    }
+
+    contratModal.show();
+}
+
+function confirmDeleteContrat(id, type, dateDebut) {
+    console.log('confirmDeleteContrat appelé', id);
+    document.getElementById('deleteContratId').value = id;
+    document.getElementById('deleteMessage').textContent = `Voulez-vous vraiment supprimer le contrat ${type} du ${dateDebut} ?`;
+    deleteModal.show();
+}
+
+function deleteContrat() {
+    const contratId = document.getElementById('deleteContratId').value;
+    fetch(`/employe/contrat/${contratId}/supprimer-ajax/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            deleteModal.hide();
+            window.location.reload();
+        } else {
+            alert('Erreur : ' + (data.error || 'Impossible de supprimer'));
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Erreur de connexion au serveur');
+    });
+}
+
+function saveContrat() {
+    const form = document.getElementById('contratForm');
+    const formData = new FormData(form);
+    const contratId = document.getElementById('contratId').value;
+    const errorMessage = document.getElementById('errorMessage');
+
+    const url = contratId ? `/employe/contrat/${contratId}/modifier-ajax/` : '/employe/contrat/nouveau-ajax/';
+
+    fetch(url, {
+        method: 'POST',
+        body: formData,
+        headers: {'X-Requested-With': 'XMLHttpRequest'}
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            contratModal.hide();
+            window.location.reload();
+        } else {
+            errorMessage.textContent = data.error || 'Une erreur est survenue';
+            errorMessage.classList.remove('d-none');
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        errorMessage.textContent = 'Erreur de connexion au serveur';
+        errorMessage.classList.remove('d-none');
+    });
+}
+
+// ========================================
+// FONCTIONS AFFECTATION
+// ========================================
 function openAffectationModal(id = null, posteId = '', dateDebut = '', dateFin = '') {
+    console.log('openAffectationModal appelé', id);
     document.getElementById('affectationForm').reset();
     document.getElementById('affectationError').classList.add('d-none');
     document.getElementById('affectationModalTitle').textContent = id ? 'Modifier l\'affectation' : 'Ajouter une affectation';
@@ -167,9 +377,7 @@ function openAffectationModal(id = null, posteId = '', dateDebut = '', dateFin =
 function saveAffectation() {
     const formData = new FormData(document.getElementById('affectationForm'));
     const affectationId = document.getElementById('affectationId').value;
-    const url = affectationId ?
-        `/employe/affectation/${affectationId}/modifier-ajax/` :
-        '/employe/affectation/nouveau-ajax/';
+    const url = affectationId ? `/employe/affectation/${affectationId}/modifier-ajax/` : '/employe/affectation/nouveau-ajax/';
 
     fetch(url, {
         method: 'POST',
@@ -193,6 +401,7 @@ function saveAffectation() {
 }
 
 function confirmDeleteAffectation(id, poste) {
+    console.log('confirmDeleteAffectation appelé', id);
     document.getElementById('deleteAffectationId').value = id;
     document.getElementById('deleteAffectationMessage').textContent = `Supprimer l'affectation "${poste}" ?`;
     deleteAffectationModal.show();
@@ -218,9 +427,11 @@ function deleteAffectation() {
     });
 }
 
-
-// ===== FONCTIONS TÉLÉPHONE =====
+// ========================================
+// FONCTIONS TÉLÉPHONE
+// ========================================
 function openTelephoneModal(id = null, numero = '', dateDebut = '', dateFin = '') {
+    console.log('openTelephoneModal appelé', id);
     document.getElementById('telephoneForm').reset();
     document.getElementById('telephoneError').classList.add('d-none');
     document.getElementById('telephoneModalTitle').textContent = id ? 'Modifier le téléphone' : 'Ajouter un téléphone';
@@ -238,9 +449,7 @@ function openTelephoneModal(id = null, numero = '', dateDebut = '', dateFin = ''
 function saveTelephone() {
     const formData = new FormData(document.getElementById('telephoneForm'));
     const telephoneId = document.getElementById('telephoneId').value;
-    const url = telephoneId ?
-        `/employe/telephone/${telephoneId}/modifier-ajax/` :
-        '/employe/telephone/nouveau-ajax/';
+    const url = telephoneId ? `/employe/telephone/${telephoneId}/modifier-ajax/` : '/employe/telephone/nouveau-ajax/';
 
     fetch(url, {
         method: 'POST',
@@ -258,12 +467,13 @@ function saveTelephone() {
         }
     })
     .catch(error => {
-        document.getElementById('telephoneError').textContent = 'Erreur de connexion au serveur';
+        document.getElementById('telephoneError').textContent = 'Erreur de connexion';
         document.getElementById('telephoneError').classList.remove('d-none');
     });
 }
 
 function confirmDeleteTelephone(id, numero) {
+    console.log('confirmDeleteTelephone appelé', id);
     document.getElementById('deleteTelephoneId').value = id;
     document.getElementById('deleteTelephoneMessage').textContent = `Supprimer le numéro "${numero}" ?`;
     deleteTelephoneModal.show();
@@ -289,9 +499,11 @@ function deleteTelephone() {
     });
 }
 
-
-// ===== FONCTIONS EMAIL =====
+// ========================================
+// FONCTIONS EMAIL
+// ========================================
 function openEmailModal(id = null, email = '', dateDebut = '', dateFin = '') {
+    console.log('openEmailModal appelé', id);
     document.getElementById('emailForm').reset();
     document.getElementById('emailError').classList.add('d-none');
     document.getElementById('emailModalTitle').textContent = id ? 'Modifier l\'email' : 'Ajouter un email';
@@ -309,9 +521,7 @@ function openEmailModal(id = null, email = '', dateDebut = '', dateFin = '') {
 function saveEmail() {
     const formData = new FormData(document.getElementById('emailForm'));
     const emailId = document.getElementById('emailId').value;
-    const url = emailId ?
-        `/employe/email/${emailId}/modifier-ajax/` :
-        '/employe/email/nouveau-ajax/';
+    const url = emailId ? `/employe/email/${emailId}/modifier-ajax/` : '/employe/email/nouveau-ajax/';
 
     fetch(url, {
         method: 'POST',
@@ -329,12 +539,13 @@ function saveEmail() {
         }
     })
     .catch(error => {
-        document.getElementById('emailError').textContent = 'Erreur de connexion au serveur';
+        document.getElementById('emailError').textContent = 'Erreur de connexion';
         document.getElementById('emailError').classList.remove('d-none');
     });
 }
 
 function confirmDeleteEmail(id, email) {
+    console.log('confirmDeleteEmail appelé', id);
     document.getElementById('deleteEmailId').value = id;
     document.getElementById('deleteEmailMessage').textContent = `Supprimer l'email "${email}" ?`;
     deleteEmailModal.show();
@@ -360,9 +571,11 @@ function deleteEmail() {
     });
 }
 
-
-// ===== FONCTIONS ADRESSE =====
+// ========================================
+// FONCTIONS ADRESSE
+// ========================================
 function openAdresseModal(id = null, rue = '', ville = '', pays = '', codePostal = '', type = '', dateDebut = '', dateFin = '') {
+    console.log('openAdresseModal appelé', id);
     document.getElementById('adresseForm').reset();
     document.getElementById('adresseError').classList.add('d-none');
     document.getElementById('adresseModalTitle').textContent = id ? 'Modifier l\'adresse' : 'Ajouter une adresse';
@@ -384,9 +597,7 @@ function openAdresseModal(id = null, rue = '', ville = '', pays = '', codePostal
 function saveAdresse() {
     const formData = new FormData(document.getElementById('adresseForm'));
     const adresseId = document.getElementById('adresseId').value;
-    const url = adresseId ?
-        `/employe/adresse/${adresseId}/modifier-ajax/` :
-        '/employe/adresse/nouveau-ajax/';
+    const url = adresseId ? `/employe/adresse/${adresseId}/modifier-ajax/` : '/employe/adresse/nouveau-ajax/';
 
     fetch(url, {
         method: 'POST',
@@ -404,12 +615,13 @@ function saveAdresse() {
         }
     })
     .catch(error => {
-        document.getElementById('adresseError').textContent = 'Erreur de connexion au serveur';
+        document.getElementById('adresseError').textContent = 'Erreur de connexion';
         document.getElementById('adresseError').classList.remove('d-none');
     });
 }
 
 function confirmDeleteAdresse(id, ville, type) {
+    console.log('confirmDeleteAdresse appelé', id);
     document.getElementById('deleteAdresseId').value = id;
     document.getElementById('deleteAdresseMessage').textContent = `Supprimer l'adresse de ${ville} (${type}) ?`;
     deleteAdresseModal.show();
@@ -435,20 +647,11 @@ function deleteAdresse() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialiser les modals
-    documentModal = new bootstrap.Modal(document.getElementById('documentModal'));
-    deleteDocumentModal = new bootstrap.Modal(document.getElementById('deleteDocumentModal'));
-
-    // Soumettre le formulaire
-    document.getElementById('documentForm').addEventListener('submit', e => {
-        e.preventDefault();
-        saveDocument();
-    });
-});
-
-// ===== FONCTIONS DOCUMENT =====
+// ========================================
+// FONCTIONS DOCUMENT
+// ========================================
 function openDocumentModal() {
+    console.log('openDocumentModal appelé');
     document.getElementById('documentForm').reset();
     document.getElementById('documentError').classList.add('d-none');
     document.getElementById('documentModalTitle').textContent = 'Joindre un document';
@@ -475,12 +678,13 @@ function saveDocument() {
         }
     })
     .catch(error => {
-        document.getElementById('documentError').textContent = 'Erreur de connexion au serveur';
+        document.getElementById('documentError').textContent = 'Erreur de connexion';
         document.getElementById('documentError').classList.remove('d-none');
     });
 }
 
 function confirmDeleteDocument(id, typeDocument) {
+    console.log('confirmDeleteDocument appelé', id);
     document.getElementById('deleteDocumentId').value = id;
     document.getElementById('deleteDocumentMessage').textContent = `Supprimer le document "${typeDocument}" ?`;
     deleteDocumentModal.show();
@@ -505,3 +709,5 @@ function deleteDocument() {
         }
     });
 }
+
+console.log('✅ Script complet chargé (modals + photo) - Version corrigée anti-rafraîchissement');

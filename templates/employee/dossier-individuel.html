@@ -4,46 +4,348 @@
 {% block extrastylet %}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <style>
-        .section-header {
-            background-color: #f8f9fa;
-            padding: 10px;
-            margin-top: 20px;
-            margin-bottom: 15px;
-            border-left: 4px solid #0d6efd;
-        }
+<style>
+    /* ========================================== */
+/* Styles généraux */
+/* ========================================== */
+.section-header {
+background-color: #f8f9fa;
+padding: 10px;
+margin-top: 20px;
+margin-bottom: 15px;
+border-left: 4px solid #0d6efd;
+}
 
-         .card-header {
-            background: linear-gradient(135deg, #59a19f 0%, #385061 100%);
-            color: rgb(255, 255, 255);
-            border-radius: 12px 12px 0 0 !important;
-            padding: 15px 20px;
-        }
+.card-header {
+background: linear-gradient(135deg, #59a19f 0%, #385061 100%);
+color: rgb(255, 255, 255);
+border-radius: 12px 12px 0 0 !important;
+padding: 15px 20px;
+}
 
-        .required::after {
-            content: " *";
-            color: red;
-        }
-        .message-container {
-            position: sticky;
-            top: 20px;
-            z-index: 1000;
-            margin-bottom: 20px;
-        }
-        .alert {
-            animation: slideDown 0.3s ease-out;
-        }
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
+.required::after {
+content: " *";
+color: red;
+}
+
+/* ========================================== */
+/* Messages d'alerte */
+/* ========================================== */
+.message-container {
+position: sticky;
+top: 20px;
+z-index: 1000;
+margin-bottom: 20px;
+}
+
+.alert {
+animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+from {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+to {
+    opacity: 1;
+    transform: translateY(0);
+}
+}
+
+/* ========================================== */
+/* Photo de profil - Section principale */
+/* 🔴 CORRECTION : DIMENSIONS EXACTES 110x110px */
+/* ========================================== */
+.profile-header {
+display: flex;
+align-items: center;
+gap: 20px;
+}
+
+.profile-photo-container {
+position: relative;
+cursor: pointer;
+/* 🔴 Forcer les dimensions du conteneur */
+width: 110px !important;
+height: 110px !important;
+flex-shrink: 0; /* Empêcher le rétrécissement */
+}
+
+/* 🔴 PHOTO CARRÉE 110x110px - DIMENSIONS FORCÉES */
+.profile-photo {
+width: 110px !important;
+height: 110px !important;
+min-width: 110px !important;
+min-height: 110px !important;
+max-width: 110px !important;
+max-height: 110px !important;
+border-radius: 8px; /* Coins légèrement arrondis */
+object-fit: cover; /* Recadrage automatique */
+border: 3px solid #59a19f;
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+transition: all 0.3s ease;
+display: block; /* Éliminer les espaces inline */
+}
+
+.profile-photo:hover {
+transform: scale(1.05);
+box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* ========================================== */
+/* Overlay pour modifier la photo */
+/* 🔴 CORRECTION : MÊME DIMENSIONS QUE LA PHOTO */
+/* ========================================== */
+.photo-overlay {
+position: absolute;
+top: 0;
+left: 0;
+width: 110px !important;
+height: 110px !important;
+border-radius: 8px;
+background: rgba(0, 0, 0, 0.6);
+display: flex;
+align-items: center;
+justify-content: center;
+opacity: 0;
+transition: opacity 0.3s ease;
+cursor: pointer;
+}
+
+.profile-photo-container:hover .photo-overlay {
+opacity: 1;
+}
+
+.photo-overlay i {
+color: white;
+font-size: 2rem;
+transition: transform 0.2s ease;
+}
+
+.photo-overlay:hover i {
+transform: scale(1.1);
+}
+
+/* ========================================== */
+/* Informations du profil */
+/* ========================================== */
+.profile-info {
+flex: 1;
+}
+
+.profile-info h1 {
+margin: 0;
+font-size: 2rem;
+font-weight: 600;
+color: #2c3e50;
+}
+
+.profile-status {
+margin-top: 8px;
+display: flex;
+gap: 8px;
+flex-wrap: wrap;
+}
+
+/* ========================================== */
+/* Badges personnalisés */
+/* ========================================== */
+.badge-custom {
+font-size: 0.9rem;
+padding: 6px 14px;
+font-weight: 500;
+border-radius: 6px;
+}
+
+.badge-actif {
+background-color: #28a745 !important;
+animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+0%, 100% {
+    opacity: 1;
+}
+50% {
+    opacity: 0.8;
+}
+}
+
+/* ========================================== */
+/* Modal photo - Aperçu */
+/* ========================================== */
+#photoPreview {
+margin-top: 15px;
+padding: 10px;
+background-color: #f8f9fa;
+border-radius: 8px;
+}
+
+#previewImage {
+max-width: 100%;
+max-height: 300px;
+border-radius: 8px;
+box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ========================================== */
+/* Responsive - Mobile */
+/* 🔴 CORRECTION : DIMENSIONS RESPONSIVE FORCÉES */
+/* ========================================== */
+@media (max-width: 768px) {
+.profile-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+}
+
+.profile-photo-container {
+    width: 90px !important;
+    height: 90px !important;
+}
+
+.profile-photo {
+    width: 90px !important;
+    height: 90px !important;
+    min-width: 90px !important;
+    min-height: 90px !important;
+    max-width: 90px !important;
+    max-height: 90px !important;
+}
+
+.photo-overlay {
+    width: 90px !important;
+    height: 90px !important;
+}
+
+.profile-info h1 {
+    font-size: 1.5rem;
+}
+
+.profile-status {
+    justify-content: center;
+}
+}
+
+@media (max-width: 576px) {
+.profile-photo-container {
+    width: 80px !important;
+    height: 80px !important;
+}
+
+.profile-photo {
+    width: 80px !important;
+    height: 80px !important;
+    min-width: 80px !important;
+    min-height: 80px !important;
+    max-width: 80px !important;
+    max-height: 80px !important;
+    border-width: 2px;
+}
+
+.photo-overlay {
+    width: 80px !important;
+    height: 80px !important;
+}
+
+.photo-overlay i {
+    font-size: 1.5rem;
+}
+
+.profile-info h1 {
+    font-size: 1.3rem;
+}
+
+.badge-custom {
+    font-size: 0.8rem;
+    padding: 4px 10px;
+}
+}
+
+/* ========================================== */
+/* Amélioration des cards */
+/* ========================================== */
+.card {
+border: none;
+box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* ========================================== */
+/* Boutons personnalisés */
+/* ========================================== */
+.btn-light:hover {
+background-color: #e9ecef;
+transform: translateY(-1px);
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-sm {
+transition: all 0.2s ease;
+}
+
+.btn-sm:hover {
+transform: translateY(-1px);
+}
+
+/* ========================================== */
+/* Tables */
+/* ========================================== */
+.table-hover tbody tr:hover {
+background-color: #f8f9fa;
+cursor: pointer;
+}
+
+/* ========================================== */
+/* Icônes */
+/* ========================================== */
+.bi {
+vertical-align: middle;
+}
+
+/* ========================================== */
+/* Animation de chargement */
+/* ========================================== */
+.loading-spinner {
+display: inline-block;
+width: 20px;
+height: 20px;
+border: 3px solid rgba(0, 0, 0, 0.1);
+border-radius: 50%;
+border-top-color: #59a19f;
+animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+to { transform: rotate(360deg); }
+}
+
+/* ========================================== */
+/* 🔴 CORRECTION SUPPLÉMENTAIRE : */
+/* Empêcher tout débordement ou distorsion */
+/* ========================================== */
+.profile-photo-container * {
+box-sizing: border-box;
+}
+
+/* Forcer l'aspect ratio 1:1 */
+.profile-photo-container::before {
+content: '';
+display: block;
+padding-top: 100%; /* Aspect ratio 1:1 */
+}
+
+.profile-photo-container img {
+position: absolute;
+top: 0;
+left: 0;
+}
+</style>
 {% endblock %}
 
 <!-- Content Body (Page Body) -->
@@ -51,7 +353,7 @@
 {% block pageContent %}
 <!-- Page Content -->
     <div class="container mt-5">
-        <!-- ======= ZONE DE MESSAGES - TRÈS IMPORTANT ======= -->
+        <!-- ======= ZONE DE MESSAGES ======= -->
         {% if messages %}
             {% for message in messages %}
                 <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
@@ -71,9 +373,35 @@
         {% endif %}
         <!-- ======= FIN ZONE DE MESSAGES ======= -->
 
+        <!-- EN-TÊTE AVEC PHOTO DE PROFIL -->
+        {% if contrats %}
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1><i class="bi bi-person-badge"></i> {{ employe.nom }} {{ employe.prenoms }}</h1>
+            <div class="profile-header">
+                <!-- Photo de profil (carrée 110x110px) -->
+                <div class="profile-photo-container" onclick="openPhotoModal()">
+                    <img src="{{ employe.get_photo_url }}"
+                         alt="Photo de {{ employe.nom }} {{ employe.prenoms }}"
+                         class="profile-photo"
+                         onerror="this.src='{% static '/static/assets/img/default_male_avatar.png' %}'">
+                    <div class="photo-overlay">
+                        <i class="bi bi-camera-fill"></i>
+                    </div>
+                </div>
+
+                <!-- Informations de profil -->
+                <div class="profile-info">
+                    <h1>
+                        {{ employe.nom }} {{ employe.prenoms }}
+                    </h1>
+                </div>
+            </div>
         </div>
+        {% else %}
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="bi bi-person-badge"></i> </h1>
+        </div>
+        {% endif %}
+
 
         <!-- ========================================== -->
         <!-- Identité -->
@@ -95,10 +423,7 @@
                         <a href="{% url 'modifier_employe' employe.uuid %}"  class="edit-icon">
                             <i class="fa fa-pencil"></i>
                         </a>
-                    {% else %}
-
-                            {% endif %}
-
+                    {% endif %}
                 </div>
             </div>
             <div class="card-body">
@@ -139,8 +464,6 @@
                 <button class="btn btn-light btn-sm" onclick="openContratModal()">
                     <i class="bi bi-plus-circle"></i> Ajouter un contrat
                 </button>
-                {% else %}
-
                 {% endif %}
             </div>
             <div class="card-body">
@@ -198,8 +521,6 @@
                 <button class="btn btn-light btn-sm" onclick="openAffectationModal()">
                     <i class="bi bi-plus-circle"></i> Ajouter une affectation
                 </button>
-                {% else %}
-
                 {% endif %}
             </div>
             <div class="card-body">
@@ -263,8 +584,6 @@
                     <button class="btn btn-light btn-sm" onclick="openTelephoneModal()">
                         <i class="bi bi-plus-circle"></i> Ajouter un téléphone
                     </button>
-                {% else %}
-
                 {% endif %}
             </div>
             <div class="card-body">
@@ -326,8 +645,6 @@
                     <button class="btn btn-light btn-sm" onclick="openEmailModal()">
                      <i class="bi bi-plus-circle"></i> Ajouter un email
                     </button>
-                {% else %}
-
                 {% endif %}
             </div>
             <div class="card-body">
@@ -389,8 +706,6 @@
                     <button class="btn btn-light btn-sm" onclick="openAdresseModal()">
                         <i class="bi bi-plus-circle"></i> Ajouter une adresse
                     </button>
-                {% else %}
-
                 {% endif %}
             </div>
             <div class="card-body">
@@ -468,8 +783,6 @@
                     <button type="button" class="btn btn-light btn-sm" onclick="openDocumentModal()">
                         <i class="bi bi-plus-circle"></i> Joindre un document
                     </button>
-                {% else %}
-
                 {% endif %}
             </div>
             <div class="card-body">
@@ -528,7 +841,52 @@
 
     </div>
 
- <!-- MODAL CONTRAT -->
+<!-- MODAL POUR MODIFIER LA PHOTO -->
+<div class="modal fade" id="photoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-camera"></i> Modifier la photo de profil
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="photoForm" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="employe_uuid" value="{{ employe.uuid }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="photoFile" class="form-label">Choisir une photo <span class="text-danger">*</span></label>
+                        <input type="file"
+                               class="form-control"
+                               id="photoFile"
+                               name="photo"
+                               accept="image/jpeg,image/png,image/gif"
+                               required>
+                        <div class="form-text">
+                            📐 Format carré recommandé (1:1) - Max 5 MB<br>
+                            📄 Formats acceptés: JPG, PNG, GIF
+                        </div>
+                    </div>
+                    <div id="photoPreview" class="text-center d-none">
+                        <img id="previewImage" src="" alt="Aperçu" style="max-width: 100%; max-height: 300px; border-radius: 8px;">
+                    </div>
+                    <div class="alert alert-danger d-none" id="photoError"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-upload"></i> Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+ <!-- MODAL -->
 {% include 'employee/modal/modal_employee.html' %}
 
 <!-- /Page Content -->
@@ -537,91 +895,5 @@
 {% block extrascript %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{% static 'assets/js/modal.js' %}"></script>
-<script>
-         // Auto-fermer les messages
-        setTimeout(function() {
-            const alerts = document.querySelectorAll('.alert-success');
-            alerts.forEach(function(alert) {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            });
-        }, 5000);
 
-// ===== VARIABLES GLOBALES =====
-let documentModal, deleteDocumentModal;
-
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialiser les modals
-    documentModal = new bootstrap.Modal(document.getElementById('documentModal'));
-    deleteDocumentModal = new bootstrap.Modal(document.getElementById('deleteDocumentModal'));
-
-    // Soumettre le formulaire
-    document.getElementById('documentForm').addEventListener('submit', e => {
-        e.preventDefault();
-        saveDocument();
-    });
-});
-
-// ===== FONCTIONS DOCUMENT =====
-function openDocumentModal() {
-    document.getElementById('documentForm').reset();
-    document.getElementById('documentError').classList.add('d-none');
-    document.getElementById('documentModalTitle').textContent = 'Joindre un document';
-    documentModal.show();
-}
-
-function saveDocument() {
-    const formData = new FormData(document.getElementById('documentForm'));
-    const url = '/employe/ajax/document/create/';
-
-    fetch(url, {
-        method: 'POST',
-        body: formData,
-        headers: {'X-Requested-With': 'XMLHttpRequest'}
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            documentModal.hide();
-            window.location.reload();
-        } else {
-            document.getElementById('documentError').textContent = data.error;
-            document.getElementById('documentError').classList.remove('d-none');
-        }
-    })
-    .catch(error => {
-        document.getElementById('documentError').textContent = 'Erreur de connexion au serveur';
-        document.getElementById('documentError').classList.remove('d-none');
-    });
-}
-
-function confirmDeleteDocument(id, typeDocument) {
-    document.getElementById('deleteDocumentId').value = id;
-    document.getElementById('deleteDocumentMessage').textContent = `Supprimer le document "${typeDocument}" ?`;
-    deleteDocumentModal.show();
-}
-
-function deleteDocument() {
-    const id = document.getElementById('deleteDocumentId').value;
-    fetch(`/employe/ajax/document/delete/${id}/`, {
-        method: 'POST',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            deleteDocumentModal.hide();
-            window.location.reload();
-        } else {
-            alert('Erreur : ' + data.error);
-        }
-    });
-}
-</script>
 {% endblock %}
-
-
-

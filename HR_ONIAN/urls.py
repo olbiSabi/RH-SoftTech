@@ -31,4 +31,6 @@ urlpatterns = [
     path('comptabilite/', include('comptabilite.urls')),
     path('report/', include('reports.urls')),
     path('parametre/', include('parametre.urls')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
