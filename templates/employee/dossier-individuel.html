@@ -4,842 +4,61 @@
 {% block extrastylet %}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-<style>
-    /* ========================================== */
-/* Styles généraux */
-/* ========================================== */
-.section-header {
-background-color: #f8f9fa;
-padding: 10px;
-margin-top: 20px;
-margin-bottom: 15px;
-border-left: 4px solid #0d6efd;
-}
-
-.card-header {
-background: linear-gradient(135deg, #59a19f 0%, #385061 100%);
-color: rgb(255, 255, 255);
-border-radius: 12px 12px 0 0 !important;
-padding: 15px 20px;
-}
-
-.required::after {
-content: " *";
-color: red;
-}
-
-/* ========================================== */
-/* Messages d'alerte */
-/* ========================================== */
-.message-container {
-position: sticky;
-top: 20px;
-z-index: 1000;
-margin-bottom: 20px;
-}
-
-.alert {
-animation: slideDown 0.3s ease-out;
-}
-
-@keyframes slideDown {
-from {
-    opacity: 0;
-    transform: translateY(-20px);
-}
-to {
-    opacity: 1;
-    transform: translateY(0);
-}
-}
-
-/* ========================================== */
-/* Photo de profil - Section principale */
-/* 🔴 CORRECTION : DIMENSIONS EXACTES 110x110px */
-/* ========================================== */
-.profile-header {
-display: flex;
-align-items: center;
-gap: 20px;
-}
-
-.profile-photo-container {
-position: relative;
-cursor: pointer;
-/* 🔴 Forcer les dimensions du conteneur */
-width: 110px !important;
-height: 110px !important;
-flex-shrink: 0; /* Empêcher le rétrécissement */
-}
-
-/* 🔴 PHOTO CARRÉE 110x110px - DIMENSIONS FORCÉES */
-.profile-photo {
-width: 110px !important;
-height: 110px !important;
-min-width: 110px !important;
-min-height: 110px !important;
-max-width: 110px !important;
-max-height: 110px !important;
-border-radius: 8px; /* Coins légèrement arrondis */
-object-fit: cover; /* Recadrage automatique */
-border: 3px solid #59a19f;
-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-transition: all 0.3s ease;
-display: block; /* Éliminer les espaces inline */
-}
-
-.profile-photo:hover {
-transform: scale(1.05);
-box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-}
-
-/* ========================================== */
-/* Overlay pour modifier la photo */
-/* 🔴 CORRECTION : MÊME DIMENSIONS QUE LA PHOTO */
-/* ========================================== */
-.photo-overlay {
-position: absolute;
-top: 0;
-left: 0;
-width: 110px !important;
-height: 110px !important;
-border-radius: 8px;
-background: rgba(0, 0, 0, 0.6);
-display: flex;
-align-items: center;
-justify-content: center;
-opacity: 0;
-transition: opacity 0.3s ease;
-cursor: pointer;
-}
-
-.profile-photo-container:hover .photo-overlay {
-opacity: 1;
-}
-
-.photo-overlay i {
-color: white;
-font-size: 2rem;
-transition: transform 0.2s ease;
-}
-
-.photo-overlay:hover i {
-transform: scale(1.1);
-}
-
-/* ========================================== */
-/* Informations du profil */
-/* ========================================== */
-.profile-info {
-flex: 1;
-}
-
-.profile-info h1 {
-margin: 0;
-font-size: 2rem;
-font-weight: 600;
-color: #2c3e50;
-}
-
-.profile-status {
-margin-top: 8px;
-display: flex;
-gap: 8px;
-flex-wrap: wrap;
-}
-
-/* ========================================== */
-/* Badges personnalisés */
-/* ========================================== */
-.badge-custom {
-font-size: 0.9rem;
-padding: 6px 14px;
-font-weight: 500;
-border-radius: 6px;
-}
-
-.badge-actif {
-background-color: #28a745 !important;
-animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-0%, 100% {
-    opacity: 1;
-}
-50% {
-    opacity: 0.8;
-}
-}
-
-/* ========================================== */
-/* Modal photo - Aperçu */
-/* ========================================== */
-#photoPreview {
-margin-top: 15px;
-padding: 10px;
-background-color: #f8f9fa;
-border-radius: 8px;
-}
-
-#previewImage {
-max-width: 100%;
-max-height: 300px;
-border-radius: 8px;
-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* ========================================== */
-/* Responsive - Mobile */
-/* 🔴 CORRECTION : DIMENSIONS RESPONSIVE FORCÉES */
-/* ========================================== */
-@media (max-width: 768px) {
-.profile-header {
-    flex-direction: column;
-    text-align: center;
-    gap: 15px;
-}
-
-.profile-photo-container {
-    width: 90px !important;
-    height: 90px !important;
-}
-
-.profile-photo {
-    width: 90px !important;
-    height: 90px !important;
-    min-width: 90px !important;
-    min-height: 90px !important;
-    max-width: 90px !important;
-    max-height: 90px !important;
-}
-
-.photo-overlay {
-    width: 90px !important;
-    height: 90px !important;
-}
-
-.profile-info h1 {
-    font-size: 1.5rem;
-}
-
-.profile-status {
-    justify-content: center;
-}
-}
-
-@media (max-width: 576px) {
-.profile-photo-container {
-    width: 80px !important;
-    height: 80px !important;
-}
-
-.profile-photo {
-    width: 80px !important;
-    height: 80px !important;
-    min-width: 80px !important;
-    min-height: 80px !important;
-    max-width: 80px !important;
-    max-height: 80px !important;
-    border-width: 2px;
-}
-
-.photo-overlay {
-    width: 80px !important;
-    height: 80px !important;
-}
-
-.photo-overlay i {
-    font-size: 1.5rem;
-}
-
-.profile-info h1 {
-    font-size: 1.3rem;
-}
-
-.badge-custom {
-    font-size: 0.8rem;
-    padding: 4px 10px;
-}
-}
-
-/* ========================================== */
-/* Amélioration des cards */
-/* ========================================== */
-.card {
-border: none;
-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-transition: box-shadow 0.3s ease;
-}
-
-.card:hover {
-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-}
-
-/* ========================================== */
-/* Boutons personnalisés */
-/* ========================================== */
-.btn-light:hover {
-background-color: #e9ecef;
-transform: translateY(-1px);
-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.btn-sm {
-transition: all 0.2s ease;
-}
-
-.btn-sm:hover {
-transform: translateY(-1px);
-}
-
-/* ========================================== */
-/* Tables */
-/* ========================================== */
-.table-hover tbody tr:hover {
-background-color: #f8f9fa;
-cursor: pointer;
-}
-
-/* ========================================== */
-/* Icônes */
-/* ========================================== */
-.bi {
-vertical-align: middle;
-}
-
-/* ========================================== */
-/* Animation de chargement */
-/* ========================================== */
-.loading-spinner {
-display: inline-block;
-width: 20px;
-height: 20px;
-border: 3px solid rgba(0, 0, 0, 0.1);
-border-radius: 50%;
-border-top-color: #59a19f;
-animation: spin 1s ease-in-out infinite;
-}
-
-@keyframes spin {
-to { transform: rotate(360deg); }
-}
-
-/* ========================================== */
-/* 🔴 CORRECTION SUPPLÉMENTAIRE : */
-/* Empêcher tout débordement ou distorsion */
-/* ========================================== */
-.profile-photo-container * {
-box-sizing: border-box;
-}
-
-/* Forcer l'aspect ratio 1:1 */
-.profile-photo-container::before {
-content: '';
-display: block;
-padding-top: 100%; /* Aspect ratio 1:1 */
-}
-
-.profile-photo-container img {
-position: absolute;
-top: 0;
-left: 0;
-}
-</style>
+<!-- STYLES DES ONGLETS -->
+<link rel="stylesheet" href="{% static 'assets/css/employee_tabs.css' %}">
 {% endblock %}
 
-<!-- Content Body (Page Body) -->
-
 {% block pageContent %}
-<!-- Page Content -->
-    <div class="container mt-5">
-        <!-- ======= ZONE DE MESSAGES ======= -->
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {% if message.tags == 'success' %}
-                        <i class="bi bi-check-circle-fill"></i>
-                    {% elif message.tags == 'error' or message.tags == 'danger' %}
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                    {% elif message.tags == 'warning' %}
-                        <i class="bi bi-exclamation-circle-fill"></i>
-                    {% else %}
-                        <i class="bi bi-info-circle-fill"></i>
-                    {% endif %}
-                    <strong>{{ message }}</strong>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
-        <!-- ======= FIN ZONE DE MESSAGES ======= -->
 
-        <!-- EN-TÊTE AVEC PHOTO DE PROFIL -->
-        {% if contrats %}
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div class="profile-header">
-                <!-- Photo de profil (carrée 110x110px) -->
-                <div class="profile-photo-container" onclick="openPhotoModal()">
-                    <img src="{{ employe.get_photo_url }}"
-                         alt="Photo de {{ employe.nom }} {{ employe.prenoms }}"
-                         class="profile-photo"
-                         onerror="this.src='{% static '/static/assets/img/default_male_avatar.png' %}'">
-                    <div class="photo-overlay">
-                        <i class="bi bi-camera-fill"></i>
-                    </div>
-                </div>
-
-                <!-- Informations de profil -->
-                <div class="profile-info">
-                    <h1>
-                        {{ employe.nom }} {{ employe.prenoms }}
-                    </h1>
-                </div>
-            </div>
-        </div>
-        {% else %}
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1><i class="bi bi-person-badge"></i> </h1>
-        </div>
-        {% endif %}
-
-
-        <!-- ========================================== -->
-        <!-- Identité -->
-        <!-- ========================================== -->
-        <div class="card mb-3">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="mb-0"><i class="bi bi-person-vcard"></i> Informations personnelles</h4>
-                {% if employe.type_dossier == 'PRE' %}
-                    <a href="{% url 'valider_embauche' employe.uuid %}" class="btn btn-success">
-                        <i class="bi bi-check-circle"></i> Valider l'embauche
-                    </a>
-                {% else %}
-                    <span class="badge bg-success">
-                        <i class="bi bi-check-circle-fill"></i> Employé validé
-                    </span>
-                {% endif %}
-                <div class="pro-edit">
-                    {% if form.instance.matricule %}
-                        <a href="{% url 'modifier_employe' employe.uuid %}"  class="edit-icon">
-                            <i class="fa fa-pencil"></i>
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong><i class="bi bi-upc"></i> Matricule:</strong> {{ employe.matricule }}</p>
-                        <p><strong><i class="bi bi-person"></i> Nom:</strong> {{ employe.nom }}</p>
-                        <p><strong><i class="bi bi-person-fill"></i> Prénom(s):</strong> {{ employe.prenoms }}</p>
-                        <p><strong><i class="bi bi-calendar"></i> Date de naissance:</strong> {{ employe.date_naissance|date:"d/m/Y" }}</p>
-                        <p><strong><i class="bi bi-gender-ambiguous"></i> Sexe:</strong> {{ employe.get_sexe_display }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong><i class="bi bi-heart"></i> Situation familiale:</strong> {{ employe.get_situation_familiale_display|default:"Non renseignée" }}</p>
-                        <p><strong><i class="bi bi-file-text"></i> Type de dossier:</strong>
-                            {% if employe.type_dossier == 'PRE' %}
-                                <span class="badge bg-warning text-dark">Pré-embauche</span>
-                            {% else %}
-                                <span class="badge bg-success">Salarié</span>
-                            {% endif %}
-                        </p>
-                        {% if employe.date_validation_embauche %}
-                        <p><strong><i class="bi bi-check-circle"></i> Date de validation:</strong> {{ employe.date_validation_embauche|date:"d/m/Y" }}</p>
-                        {% endif %}
-                        <p><strong><i class="bi bi-card-text"></i> Type d'ID:</strong> {{ employe.get_type_id_display }}</p>
-                        <p><strong><i class="bi bi-123"></i> Numéro ID:</strong> {{ employe.numero_id }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- Contrats -->
-        <!-- ========================================== -->
-        <div class="card mb-3 ">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="mb-0"><i class="bi bi-file-earmark-text"></i> Contrats</h4>
-                {% if contrats %}
-                <button class="btn btn-light btn-sm" onclick="openContratModal()">
-                    <i class="bi bi-plus-circle"></i> Ajouter un contrat
-                </button>
-                {% endif %}
-            </div>
-            <div class="card-body">
-                {% if contrats %}
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Date de début</th>
-                            <th>Date de fin</th>
-                            <th>Statut</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for contrat in contrats %}
-                        <tr>
-                            <td>{{ contrat.get_type_contrat_display }}</td>
-                            <td>{{ contrat.date_debut|date:"d/m/Y" }}</td>
-                            <td>{{ contrat.date_fin|date:"d/m/Y"|default:"En cours" }}</td>
-                            <td>
-                                {% if not contrat.date_fin %}
-                                <span class="badge bg-success">Actif</span>
-                                {% else %}
-                                <span class="badge bg-secondary">Clôturé</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-warning" onclick="openContratModal({{ contrat.id }}, '{{ contrat.type_contrat }}', '{{ contrat.date_debut|date:"Y-m-d" }}', '{{ contrat.date_fin|date:"Y-m-d"|default:'' }}')">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger"
-                                        onclick="confirmDeleteContrat({{ contrat.id }}, '{{ contrat.get_type_contrat_display }}', '{{ contrat.date_debut|date:"d/m/Y" }}')"
-                                        title="Supprimer">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                {% else %}
-                <p class="text-muted">Aucun contrat</p>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- SECTION AFFECTATIONS -->
-        <!-- ========================================== -->
-        <div class="card mb-3">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="mb-0"><i class="bi bi-briefcase"></i> Affectations</h4>
-                {% if contrats %}
-                <button class="btn btn-light btn-sm" onclick="openAffectationModal()">
-                    <i class="bi bi-plus-circle"></i> Ajouter une affectation
-                </button>
-                {% endif %}
-            </div>
-            <div class="card-body">
-                {% if affectations %}
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Poste</th>
-                            <th>Département</th>
-                            <th>Date début</th>
-                            <th>Date fin</th>
-                            <th>Statut</th>
-                            <th class="text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for aff in affectations %}
-                        <tr>
-                            <td><strong>{{ aff.poste.CODE }}</strong><br><small class="text-muted">{{ aff.poste.LIBELLE }}</small></td>
-                            <td>{{ aff.poste.DEPARTEMENT.LIBELLE }}</td>
-                            <td>{{ aff.date_debut|date:"d/m/Y" }}</td>
-                            <td>{{ aff.date_fin|date:"d/m/Y"|default:"En cours" }}</td>
-                            <td>
-                                {% if not aff.date_fin %}
-                                <span class="badge bg-success badge-actif"><i class="bi bi-check-circle"></i> Active</span>
-                                {% else %}
-                                <span class="badge bg-secondary">Clôturée</span>
-                                {% endif %}
-                            </td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-warning"
-                                        onclick="openAffectationModal({{ aff.id }}, {{ aff.poste.id }}, '{{ aff.date_debut|date:"Y-m-d" }}', '{{ aff.date_fin|date:"Y-m-d"|default:'' }}')"
-                                     title="Modifier">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger"
-                                        onclick="confirmDeleteAffectation({{ aff.id }}, '{{ aff.poste.LIBELLE }}')"
-                                        title="Supprimer">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                {% else %}
-                <p class="text-muted text-center py-3">
-                    <i class="bi bi-inbox"></i> Aucune affectation enregistrée
-                </p>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- SECTION TÉLÉPHONES -->
-        <!-- ========================================== -->
-        <div class="card mb-3">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="mb-0"><i class="bi bi-telephone"></i> Téléphones</h4>
-                {% if contrats %}
-                    <button class="btn btn-light btn-sm" onclick="openTelephoneModal()">
-                        <i class="bi bi-plus-circle"></i> Ajouter un téléphone
-                    </button>
-                {% endif %}
-            </div>
-            <div class="card-body">
-                {% if telephones %}
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Numéro</th>
-                            <th>Date début validité</th>
-                            <th>Date fin validité</th>
-                            <th>Statut</th>
-                            <th class="text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for tel in telephones %}
-                        <tr>
-                            <td><i class="bi bi-phone"></i> <strong>{{ tel.numero }}</strong></td>
-                            <td>{{ tel.date_debut_validite|date:"d/m/Y" }}</td>
-                            <td>{{ tel.date_fin_validite|date:"d/m/Y"|default:"Actif" }}</td>
-                            <td>
-                                {% if not tel.date_fin_validite %}
-                                <span class="badge bg-success badge-actif"><i class="bi bi-check-circle"></i> Actif</span>
-                                {% else %}
-                                <span class="badge bg-secondary">Inactif</span>
-                                {% endif %}
-                            </td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-warning"
-                                        onclick="openTelephoneModal({{ tel.id }}, '{{ tel.numero }}', '{{ tel.date_debut_validite|date:"Y-m-d" }}', '{{ tel.date_fin_validite|date:"Y-m-d"|default:'' }}')"
-                                        title="Modifier">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger"
-                                        onclick="confirmDeleteTelephone({{ tel.id }}, '{{ tel.numero }}')"
-                                        title="Supprimer">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                {% else %}
-                <p class="text-muted text-center py-3">
-                    <i class="bi bi-inbox"></i> Aucun téléphone enregistré
-                </p>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- SECTION EMAILS -->
-        <!-- ========================================== -->
-        <div class="card mb-3">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="mb-0"><i class="bi bi-envelope"></i> Emails</h4>
-                {% if contrats %}
-                    <button class="btn btn-light btn-sm" onclick="openEmailModal()">
-                     <i class="bi bi-plus-circle"></i> Ajouter un email
-                    </button>
-                {% endif %}
-            </div>
-            <div class="card-body">
-                {% if emails %}
-                <table class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th>Adresse email</th>
-                        <th>Date début validité</th>
-                        <th>Date fin validité</th>
-                        <th>Statut</th>
-                        <th class="text-center">Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for email in emails %}
-                    <tr>
-                        <td><i class="bi bi-envelope-at"></i> <strong>{{ email.email }}</strong></td>
-                        <td>{{ email.date_debut_validite|date:"d/m/Y" }}</td>
-                        <td>{{ email.date_fin_validite|date:"d/m/Y"|default:"Actif" }}</td>
-                        <td>
-                            {% if not email.date_fin_validite %}
-                            <span class="badge bg-success badge-actif"><i class="bi bi-check-circle"></i> Actif</span>
-                            {% else %}
-                            <span class="badge bg-secondary">Inactif</span>
-                            {% endif %}
-                        </td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-warning"
-                                    onclick="openEmailModal({{ email.id }}, '{{ email.email }}', '{{ email.date_debut_validite|date:" Y-m-d" }}', '{{ email.date_fin_validite|date:"Y-m-d"|default:'' }}')"
-                            title="Modifier">
-                            <i class="bi bi-pencil"></i>
+<!-- CONTENEUR PRINCIPAL AVEC ANIMATION -->
+<div class="page-container">
+    <div class="container mt-2">
+        <!-- BARRE D'ONGLETS -->
+        <div class="card tab-box">
+            <div class="row user-tabs">
+                <div class="col-12">
+                    <ul class="nav nav-tabs nav-tabs-bottom" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="emp_agent-tab" data-bs-toggle="tab" data-bs-target="#emp_agent" type="button" role="tab" aria-controls="emp_agent" aria-selected="true">
+                                <i class="bi bi-person-badge"></i> Agent
                             </button>
-                            <button class="btn btn-sm btn-danger"
-                                    onclick="confirmDeleteEmail({{ email.id }}, '{{ email.email }}')"
-                                    title="Supprimer">
-                                <i class="bi bi-trash"></i>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="emp_coordonnee-tab" data-bs-toggle="tab" data-bs-target="#emp_coordonnee" type="button" role="tab" aria-controls="emp_coordonnee" aria-selected="false">
+                                <i class="bi bi-telephone"></i> Coordonnées
                             </button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                {% else %}
-                <p class="text-muted text-center py-3">
-                    <i class="bi bi-inbox"></i> Aucun email enregistré
-                </p>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- SECTION ADRESSES -->
-        <!-- ========================================== -->
-        <div class="card mb-3">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="mb-0"><i class="bi bi-geo-alt"></i> Adresses</h4>
-                {% if contrats %}
-                    <button class="btn btn-light btn-sm" onclick="openAdresseModal()">
-                        <i class="bi bi-plus-circle"></i> Ajouter une adresse
-                    </button>
-                {% endif %}
-            </div>
-            <div class="card-body">
-                {% if adresses %}
-                <div class="row">
-                    {% for adresse in adresses %}
-                    <div class="col-md-6 mb-3">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h6 class="mb-0">
-                                        {% if adresse.type_adresse == 'PRINCIPALE' %}
-                                        <span class="badge bg-primary">
-                                    <i class="bi bi-star-fill"></i> Principale
-                                </span>
-                                        {% else %}
-                                        <span class="badge bg-secondary">Secondaire</span>
-                                        {% endif %}
-                                        {% if not adresse.date_fin %}
-                                        <span class="badge bg-success badge-actif ms-1">
-                                    <i class="bi bi-check-circle"></i> Active
-                                </span>
-                                        {% else %}
-                                        <span class="badge bg-secondary ms-1">Inactive</span>
-                                        {% endif %}
-                                    </h6>
-                                    <div class="btn-group btn-group-sm">
-                                        <button class="btn btn-outline-warning"
-                                                onclick="openAdresseModal({{ adresse.id }}, '{{ adresse.rue|escapejs }}', '{{ adresse.ville }}', '{{ adresse.pays }}', '{{ adresse.code_postal }}', '{{ adresse.type_adresse }}', '{{ adresse.date_debut|date:" Y-m-d" }}', '{{ adresse.date_fin|date:"Y-m-d"|default:'' }}')"
-                                        title="Modifier">
-                                        <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="btn btn-outline-danger"
-                                                onclick="confirmDeleteAdresse({{ adresse.id }}, '{{ adresse.ville }}', '{{ adresse.get_type_adresse_display }}')"
-                                                title="Supprimer">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <hr>
-                                <p class="mb-1"><i class="bi bi-house-door"></i> <strong>{{ adresse.rue }}</strong></p>
-                                <p class="mb-1"><i class="bi bi-geo"></i> {{ adresse.code_postal }} {{ adresse.ville }}
-                                </p>
-                                <p class="mb-1"><i class="bi bi-globe"></i> {{ adresse.pays }}</p>
-                                <hr>
-                                <small class="text-muted">
-                                    <i class="bi bi-calendar"></i>
-                                    Du {{ adresse.date_debut|date:"d/m/Y" }}
-                                    {% if adresse.date_fin %}
-                                    au {{ adresse.date_fin|date:"d/m/Y" }}
-                                    {% else %}
-                                    à aujourd'hui
-                                    {% endif %}
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="emp_famille-tab" data-bs-toggle="tab" data-bs-target="#emp_famille" type="button" role="tab" aria-controls="emp_famille" aria-selected="false">
+                                <i class="bi bi-people"></i> Famille
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="bank_statutory-tab" data-bs-toggle="tab" data-bs-target="#bank_statutory" type="button" role="tab" aria-controls="bank_statutory" aria-selected="false">
+                                <i class="bi bi-bank"></i> Banque & Situation
+                            </button>
+                        </li>
+                    </ul>
                 </div>
-                {% else %}
-                <p class="text-muted text-center py-3">
-                    <i class="bi bi-inbox"></i> Aucune adresse enregistrée
-                </p>
-                {% endif %}
             </div>
         </div>
 
-        <!-- ========================================== -->
-        <!-- Document à joindre -->
-        <!-- ========================================== -->
-        <div class="card mb-3">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="mb-0"><i class="bi bi-envelope"></i> Documents Employés</h4>
-                {% if contrats %}
-                    <button type="button" class="btn btn-light btn-sm" onclick="openDocumentModal()">
-                        <i class="bi bi-plus-circle"></i> Joindre un document
-                    </button>
-                {% endif %}
-            </div>
-            <div class="card-body">
-                {% if documents %}
-                <table class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th>Type de document</th>
-                        <th>Nom du fichier</th>
-                        <th>Description</th>
-                        <th>Date d'ajout</th>
-                        <th>Taille</th>
-                        <th class="text-center">Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for document in documents %}
-                    <tr>
-                        <td><i class="bi bi-envelope-at"></i> <strong>{{ document.get_type_document_display }}</strong></td>
-                        <td>{{ document.get_nom_fichier }}</td>
-                        <td>
-                            {% if document.description %}
-                            <small>{{ document.description|truncatewords:10 }}</small>
-                            {% else %}
-                            <small class="text-muted">-</small>
-                            {% endif %}
-                        </td>
-                        <td>{{ document.date_ajout|date:"d/m/Y H:i" }}</td>
-                        <td>{{ document.get_taille_lisible }}</td>
-                        <td class="text-center">
-                            <div class="btn-group" role="group">
-                                                <a href="{% url 'telecharger_document' document.id %}"
-                                                   class="btn btn-sm btn-success"
-                                                   title="Télécharger">
-                                                    <i class="fas fa-download"></i>
-                                                </a>
-                                                <button type="button"
-                                                        class="btn btn-sm btn-danger"
-                                                        onclick="confirmDeleteDocument({{ document.id }}, '{{ document.get_type_document_display|escapejs }}')"
-                                                        title="Supprimer">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                {% else %}
-                <p class="text-muted text-center py-3">
-                    <i class="bi bi-inbox"></i> Aucun document enregistré
-                </p>
-                {% endif %}
-            </div>
-        </div>
+        <!-- CONTENU DES ONGLETS -->
+        <div class="tab-content" id="employeeTabContent">
+            <!-- ONGLET 1 : AGENT -->
+            {% include 'employee/onglets/agents.html' %}
 
+            <!-- ONGLET 2 : COORDONNÉES -->
+            {% include 'employee/onglets/coordonnees.html' %}
+
+            <!-- ONGLET 3 : FAMILLE -->
+            {% include 'employee/onglets/famille.html' %}
+
+            <!-- ONGLET 4 : BANQUE & SITUATION -->
+            {% include 'employee/onglets/banque_situation.html' %}
+        </div>
     </div>
+</div>
 
 <!-- MODAL POUR MODIFIER LA PHOTO -->
 <div class="modal fade" id="photoModal" tabindex="-1">
@@ -857,15 +76,10 @@ left: 0;
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="photoFile" class="form-label">Choisir une photo <span class="text-danger">*</span></label>
-                        <input type="file"
-                               class="form-control"
-                               id="photoFile"
-                               name="photo"
-                               accept="image/jpeg,image/png,image/gif"
-                               required>
+                        <input type="file" class="form-control" id="photoFile" name="photo" accept="image/jpeg,image/png,image/gif" required>
                         <div class="form-text">
-                            📐 Format carré recommandé (1:1) - Max 5 MB<br>
-                            📄 Formats acceptés: JPG, PNG, GIF
+                            Format carré recommandé (1:1) - Max 5 MB<br>
+                            Formats acceptés: JPG, PNG, GIF
                         </div>
                     </div>
                     <div id="photoPreview" class="text-center d-none">
@@ -886,14 +100,162 @@ left: 0;
     </div>
 </div>
 
- <!-- MODAL -->
+<!-- AUTRES MODALS -->
 {% include 'employee/modal/modal_employee.html' %}
 
-<!-- /Page Content -->
 {% endblock %}
 
 {% block extrascript %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{% static 'assets/js/modal.js' %}"></script>
 
+<script>
+    /**
+ * ========================================
+ * CONSERVATION DE L'ONGLET ACTIF
+ * ========================================
+ *
+ * Ce script permet de :
+ * 1. Sauvegarder l'onglet actif dans l'URL (#)
+ * 2. Restaurer l'onglet après rechargement de la page
+ * 3. Rester sur l'onglet après une action (ajout/modif/suppression)
+ */
+
+(function() {
+    'use strict';
+
+    // ========================================
+    // 1. RESTAURER L'ONGLET AU CHARGEMENT
+    // ========================================
+    document.addEventListener('DOMContentLoaded', function() {
+        // Récupérer l'onglet depuis l'URL (après le #)
+        let hash = window.location.hash;
+
+        // Si pas de hash, récupérer depuis localStorage (fallback)
+        if (!hash) {
+            hash = localStorage.getItem('activeTab');
+        }
+
+        if (hash) {
+            // Activer l'onglet correspondant
+            const tabTrigger = document.querySelector(`button[data-bs-target="${hash}"]`);
+            if (tabTrigger) {
+                const tab = new bootstrap.Tab(tabTrigger);
+                tab.show();
+
+                // Scroller vers le haut de la page
+                window.scrollTo(0, 0);
+            }
+        }
+    });
+
+    // ========================================
+    // 2. SAUVEGARDER L'ONGLET AU CLIC
+    // ========================================
+    document.addEventListener('shown.bs.tab', function(event) {
+        // Récupérer l'ID de l'onglet activé
+        const tabId = event.target.getAttribute('data-bs-target');
+
+        // Sauvegarder dans l'URL
+        history.pushState(null, null, tabId);
+
+        // Sauvegarder dans localStorage (fallback)
+        localStorage.setItem('activeTab', tabId);
+    });
+
+    // ========================================
+    // 3. CONSERVER L'ONGLET LORS DES ACTIONS FORMULAIRE
+    // ========================================
+
+    // Intercepter tous les formulaires
+    document.addEventListener('submit', function(event) {
+        const form = event.target;
+
+        // Récupérer l'onglet actif
+        const activeTab = document.querySelector('.nav-link.active');
+        if (activeTab) {
+            const tabId = activeTab.getAttribute('data-bs-target');
+
+            // Ajouter l'onglet comme champ caché dans le formulaire
+            let hiddenField = form.querySelector('input[name="active_tab"]');
+            if (!hiddenField) {
+                hiddenField = document.createElement('input');
+                hiddenField.type = 'hidden';
+                hiddenField.name = 'active_tab';
+                form.appendChild(hiddenField);
+            }
+            hiddenField.value = tabId;
+        }
+    });
+
+    // ========================================
+    // 4. GESTION DES MODALS
+    // ========================================
+
+    // Quand on ouvre un modal, sauvegarder l'onglet actif
+    document.querySelectorAll('.modal').forEach(function(modal) {
+        modal.addEventListener('show.bs.modal', function() {
+            const activeTab = document.querySelector('.nav-link.active');
+            if (activeTab) {
+                const tabId = activeTab.getAttribute('data-bs-target');
+
+                // Sauvegarder dans le modal
+                const form = modal.querySelector('form');
+                if (form) {
+                    let hiddenField = form.querySelector('input[name="active_tab"]');
+                    if (!hiddenField) {
+                        hiddenField = document.createElement('input');
+                        hiddenField.type = 'hidden';
+                        hiddenField.name = 'active_tab';
+                        form.appendChild(hiddenField);
+                    }
+                    hiddenField.value = tabId;
+                }
+            }
+        });
+    });
+
+    // ========================================
+    // 5. GESTION DES LIENS DE SUPPRESSION
+    // ========================================
+
+    // Ajouter l'onglet actif aux liens de suppression
+    document.addEventListener('click', function(event) {
+        const target = event.target.closest('a[href*="supprimer"], a[href*="delete"]');
+
+        if (target) {
+            const activeTab = document.querySelector('.nav-link.active');
+            if (activeTab) {
+                const tabId = activeTab.getAttribute('data-bs-target');
+                const url = new URL(target.href, window.location.origin);
+                url.searchParams.set('active_tab', tabId);
+                target.href = url.toString();
+            }
+        }
+    });
+
+    // ========================================
+    // 6. GESTION DES SUPPRESSIONS AJAX
+    // ========================================
+
+    // Pour les fonctions de confirmation de suppression
+    window.getActiveTabId = function() {
+        const activeTab = document.querySelector('.nav-link.active');
+        return activeTab ? activeTab.getAttribute('data-bs-target') : '#emp_agent';
+    };
+
+    // ========================================
+    // 7. DEBUGGING (à supprimer en production)
+    // ========================================
+
+    // Afficher l'onglet actif dans la console
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        document.addEventListener('shown.bs.tab', function(event) {
+            console.log('🔄 Onglet activé:', event.target.getAttribute('data-bs-target'));
+        });
+    }
+
+})();
+
+</script>
 {% endblock %}

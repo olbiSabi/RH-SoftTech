@@ -1,0 +1,256 @@
+{% load static %}
+<!-- ========================================== -->
+<!-- ONGLET BANQUE & SITUATION -->
+<!-- ========================================== -->
+<div class="tab-pane fade"
+     id="bank_statutory"
+     role="tabpanel"
+     aria-labelledby="bank_statutory-tab">
+
+    <!-- Placeholder - À compléter selon vos besoins -->
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-bank" style="font-size: 4rem; color: #ccc; margin-bottom: 20px;"></i>
+            <h4 class="text-muted mb-3">Section Banque & Situation</h4>
+            <p class="text-muted mb-4">
+                Cette section permettra de gérer les informations bancaires et statutaires de l'employé
+            </p>
+
+            <!-- Suggestions de contenu -->
+            <div class="row mt-4">
+                <div class="col-md-3">
+                    <div class="card border-light">
+                        <div class="card-body">
+                            <i class="bi bi-bank2" style="font-size: 2rem; color: #59a19f;"></i>
+                            <h6 class="mt-2">Comptes bancaires</h6>
+                            <small class="text-muted">RIB, IBAN, etc.</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-light">
+                        <div class="card-body">
+                            <i class="bi bi-currency-dollar" style="font-size: 2rem; color: #59a19f;"></i>
+                            <h6 class="mt-2">Salaire</h6>
+                            <small class="text-muted">Historique des salaires</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-light">
+                        <div class="card-body">
+                            <i class="bi bi-shield-check" style="font-size: 2rem; color: #59a19f;"></i>
+                            <h6 class="mt-2">Sécurité sociale</h6>
+                            <small class="text-muted">N° SS, mutuelle</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-light">
+                        <div class="card-body">
+                            <i class="bi bi-file-text" style="font-size: 2rem; color: #59a19f;"></i>
+                            <h6 class="mt-2">Situation fiscale</h6>
+                            <small class="text-muted">N° fiscal, impôts</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bouton pour démarrer -->
+            <div class="mt-4">
+                <button class="btn btn-outline-primary" disabled>
+                    <i class="bi bi-plus-circle"></i> Ajouter des informations
+                </button>
+                <p class="text-muted mt-2 small">
+                    <i class="bi bi-info-circle"></i> Section en cours de développement
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- EXEMPLE DE STRUCTURE POUR COMPTES BANCAIRES (à décommenter quand prêt) -->
+    <!-- ========================================== -->
+    <!--
+    <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0"><i class="bi bi-bank2"></i> Comptes bancaires</h4>
+            <button class="btn btn-light btn-sm" onclick="openCompteBancaireModal()">
+                <i class="bi bi-plus-circle"></i> Ajouter un compte
+            </button>
+        </div>
+        <div class="card-body">
+            {% if comptes_bancaires %}
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Banque</th>
+                        <th>Type de compte</th>
+                        <th>IBAN</th>
+                        <th>Statut</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for compte in comptes_bancaires %}
+                    <tr>
+                        <td><strong>{{ compte.nom_banque }}</strong></td>
+                        <td>{{ compte.get_type_compte_display }}</td>
+                        <td><code>{{ compte.iban }}</code></td>
+                        <td>
+                            {% if compte.principal %}
+                            <span class="badge bg-primary">Principal</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Secondaire</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-warning" title="Modifier">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" title="Supprimer">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted text-center py-3">
+                <i class="bi bi-inbox"></i> Aucun compte bancaire enregistré
+            </p>
+            {% endif %}
+        </div>
+    </div>
+    -->
+
+    <!-- ========================================== -->
+    <!-- EXEMPLE DE STRUCTURE POUR SALAIRES (à décommenter quand prêt) -->
+    <!-- ========================================== -->
+    <!--
+    <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0"><i class="bi bi-currency-dollar"></i> Historique des salaires</h4>
+            <button class="btn btn-light btn-sm" onclick="openSalaireModal()">
+                <i class="bi bi-plus-circle"></i> Ajouter un salaire
+            </button>
+        </div>
+        <div class="card-body">
+            {% if salaires %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Période</th>
+                            <th>Salaire de base</th>
+                            <th>Primes</th>
+                            <th>Total brut</th>
+                            <th>Total net</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for salaire in salaires %}
+                        <tr>
+                            <td>{{ salaire.date_debut|date:"d/m/Y" }} - {{ salaire.date_fin|date:"d/m/Y"|default:"En cours" }}</td>
+                            <td><strong>{{ salaire.salaire_base|floatformat:0 }} FCFA</strong></td>
+                            <td>{{ salaire.primes|floatformat:0 }} FCFA</td>
+                            <td>{{ salaire.total_brut|floatformat:0 }} FCFA</td>
+                            <td><strong class="text-success">{{ salaire.total_net|floatformat:0 }} FCFA</strong></td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-info" title="Détails">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-warning" title="Modifier">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted text-center py-3">
+                <i class="bi bi-inbox"></i> Aucun historique de salaire
+            </p>
+            {% endif %}
+        </div>
+    </div>
+    -->
+
+    <!-- ========================================== -->
+    <!-- EXEMPLE DE STRUCTURE POUR SÉCURITÉ SOCIALE (à décommenter quand prêt) -->
+    <!-- ========================================== -->
+    <!--
+    <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0"><i class="bi bi-shield-check"></i> Sécurité sociale & Mutuelle</h4>
+            <button class="btn btn-light btn-sm" onclick="openSecoSocialeModal()">
+                <i class="bi bi-pencil"></i> Modifier
+            </button>
+        </div>
+        <div class="card-body">
+            {% if secu_sociale %}
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="text-muted mb-3">Sécurité sociale</h6>
+                    <p><strong><i class="bi bi-card-text"></i> N° Sécurité sociale:</strong> {{ secu_sociale.numero_ss }}</p>
+                    <p><strong><i class="bi bi-building"></i> Organisme:</strong> {{ secu_sociale.organisme }}</p>
+                    <p><strong><i class="bi bi-calendar-check"></i> Date d'affiliation:</strong> {{ secu_sociale.date_affiliation|date:"d/m/Y" }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="text-muted mb-3">Mutuelle</h6>
+                    {% if mutuelle %}
+                    <p><strong><i class="bi bi-hospital"></i> Mutuelle:</strong> {{ mutuelle.nom_mutuelle }}</p>
+                    <p><strong><i class="bi bi-card-text"></i> N° adhérent:</strong> {{ mutuelle.numero_adherent }}</p>
+                    <p><strong><i class="bi bi-calendar-check"></i> Date début:</strong> {{ mutuelle.date_debut|date:"d/m/Y" }}</p>
+                    {% else %}
+                    <p class="text-muted"><i class="bi bi-info-circle"></i> Aucune mutuelle enregistrée</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <p class="text-muted text-center py-3">
+                <i class="bi bi-inbox"></i> Aucune information de sécurité sociale
+            </p>
+            {% endif %}
+        </div>
+    </div>
+    -->
+
+    <!-- ========================================== -->
+    <!-- EXEMPLE DE STRUCTURE POUR SITUATION FISCALE (à décommenter quand prêt) -->
+    <!-- ========================================== -->
+    <!--
+    <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0"><i class="bi bi-file-text"></i> Situation fiscale</h4>
+            <button class="btn btn-light btn-sm" onclick="openSituationFiscaleModal()">
+                <i class="bi bi-pencil"></i> Modifier
+            </button>
+        </div>
+        <div class="card-body">
+            {% if situation_fiscale %}
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong><i class="bi bi-card-text"></i> Numéro fiscal:</strong> {{ situation_fiscale.numero_fiscal }}</p>
+                    <p><strong><i class="bi bi-people"></i> Nombre de parts:</strong> {{ situation_fiscale.nombre_parts }}</p>
+                    <p><strong><i class="bi bi-percent"></i> Taux d'imposition:</strong> {{ situation_fiscale.taux_imposition }}%</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong><i class="bi bi-building"></i> Centre des impôts:</strong> {{ situation_fiscale.centre_impots }}</p>
+                    <p><strong><i class="bi bi-calendar"></i> Dernière déclaration:</strong> {{ situation_fiscale.date_derniere_declaration|date:"d/m/Y" }}</p>
+                </div>
+            </div>
+            {% else %}
+            <p class="text-muted text-center py-3">
+                <i class="bi bi-inbox"></i> Aucune information fiscale
+            </p>
+            {% endif %}
+        </div>
+    </div>
+    -->
+</div>
+<!-- FIN ONGLET BANQUE & SITUATION -->

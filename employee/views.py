@@ -3,7 +3,8 @@ from django.db import transaction
 from django.db.models import Q
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.utils import timezone
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
+from django.shortcuts import render, redirect, get_object_or_404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import FileResponse, Http404
@@ -12,6 +13,7 @@ from .models import ZYDO
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 import os
+from .utils import get_redirect_url_with_tab, get_active_tab_for_ajax
 from departement.models import ZDPO
 from .models import ZY00, ZYCO, ZYTE, ZYME, ZYAF, ZYAD
 from .forms import (
@@ -151,7 +153,10 @@ def valider_embauche(request, uuid):
     else:
         messages.warning(request, "Cet employé est déjà validé.")
 
-    return redirect('detail_employe', uuid=uuid)
+    # ✅ MODIFICATION : Conservation de l'onglet actif
+    base_url = reverse('dossier_detail', kwargs={'uuid': uuid})
+    redirect_url = get_redirect_url_with_tab(request, base_url)
+    return redirect(redirect_url)
 
 
 # ===============================
@@ -216,9 +221,9 @@ class EmployeUpdateView(UpdateView):
 
     def get_success_url(self):
         messages.success(self.request, "✅ Employé modifié avec succès!")
-        # Rediriger vers le détail du dossier individuel
-        return reverse_lazy('dossier_detail', kwargs={'uuid': self.object.uuid})
-
+        # ✅ MODIFICATION : Conservation de l'onglet actif
+        base_url = reverse('dossier_detail', kwargs={'uuid': self.object.uuid})
+        return get_redirect_url_with_tab(self.request, base_url)
 
 class EmployeDeleteView(DeleteView):
     """Supprimer un employé (suppression en cascade)"""
@@ -385,7 +390,7 @@ def contrat_create_ajax(request):
             date_fin=date_fin_obj
         )
 
-        return JsonResponse({'success': True, 'message': '✅ Contrat créé'})
+        return JsonResponse({'success': True, 'message': '✅ Contrat créé', **get_active_tab_for_ajax(request)})
 
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
@@ -430,7 +435,7 @@ def contrat_update_ajax(request, pk):
         contrat.date_fin = date_fin_obj
         contrat.save()
 
-        return JsonResponse({'success': True, 'message': '✅ Contrat modifié'})
+        return JsonResponse({'success': True, 'message': '✅ Contrat modifié', **get_active_tab_for_ajax(request)})
 
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
@@ -442,7 +447,7 @@ def contrat_delete_ajax(request, pk):
     try:
         contrat = get_object_or_404(ZYCO, pk=pk)
         contrat.delete()
-        return JsonResponse({'success': True, 'message': '✅ Contrat supprimé'})
+        return JsonResponse({'success': True, 'message': '✅ Contrat supprimé', **get_active_tab_for_ajax(request)})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
@@ -502,7 +507,7 @@ def affectation_create_ajax(request):
             date_fin=date_fin_obj
         )
 
-        return JsonResponse({'success': True, 'message': '✅ Affectation créée'})
+        return JsonResponse({'success': True, 'message': '✅ Affectation créée', **get_active_tab_for_ajax(request)})
 
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
@@ -546,7 +551,7 @@ def affectation_update_ajax(request, pk):
         affectation.date_fin = date_fin_obj
         affectation.save()
 
-        return JsonResponse({'success': True, 'message': '✅ Affectation modifiée'})
+        return JsonResponse({'success': True, 'message': '✅ Affectation modifiée', **get_active_tab_for_ajax(request)})
 
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
@@ -558,7 +563,7 @@ def affectation_delete_ajax(request, pk):
     try:
         affectation = get_object_or_404(ZYAF, pk=pk)
         affectation.delete()
-        return JsonResponse({'success': True, 'message': '✅ Affectation supprimée'})
+        return JsonResponse({'success': True, 'message': '✅ Affectation supprimée', **get_active_tab_for_ajax(request)})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
@@ -599,7 +604,7 @@ def telephone_create_ajax(request):
             date_fin_validite=date_fin_obj
         )
 
-        return JsonResponse({'success': True, 'message': '✅ Téléphone ajouté'})
+        return JsonResponse({'success': True, 'message': '✅ Téléphone ajouté', **get_active_tab_for_ajax(request)})
 
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
@@ -628,7 +633,7 @@ def telephone_update_ajax(request, pk):
         telephone.date_fin_validite = date_fin_obj
         telephone.save()
 
-        return JsonResponse({'success': True, 'message': '✅ Téléphone modifié'})
+        return JsonResponse({'success': True, 'message': '✅ Téléphone modifié', **get_active_tab_for_ajax(request)})
 
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
@@ -640,7 +645,7 @@ def telephone_delete_ajax(request, pk):
     try:
         telephone = get_object_or_404(ZYTE, pk=pk)
         telephone.delete()
-        return JsonResponse({'success': True, 'message': '✅ Téléphone supprimé'})
+        return JsonResponse({'success': True, 'message': '✅ Téléphone supprimé', **get_active_tab_for_ajax(request)})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
@@ -681,7 +686,7 @@ def email_create_ajax(request):
             date_fin_validite=date_fin_obj
         )
 
-        return JsonResponse({'success': True, 'message': '✅ Email ajouté'})
+        return JsonResponse({'success': True, 'message': '✅ Email ajouté', **get_active_tab_for_ajax(request)})
 
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
@@ -710,7 +715,7 @@ def email_update_ajax(request, pk):
         email_obj.date_fin_validite = date_fin_obj
         email_obj.save()
 
-        return JsonResponse({'success': True, 'message': '✅ Email modifié'})
+        return JsonResponse({'success': True, 'message': '✅ Email modifié', **get_active_tab_for_ajax(request)})
 
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
@@ -722,7 +727,7 @@ def email_delete_ajax(request, pk):
     try:
         email = get_object_or_404(ZYME, pk=pk)
         email.delete()
-        return JsonResponse({'success': True, 'message': '✅ Email supprimé'})
+        return JsonResponse({'success': True, 'message': '✅ Email supprimé', **get_active_tab_for_ajax(request)})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
@@ -783,7 +788,7 @@ def adresse_create_ajax(request):
             date_fin=date_fin_obj
         )
 
-        return JsonResponse({'success': True, 'message': '✅ Adresse ajoutée'})
+        return JsonResponse({'success': True, 'message': '✅ Adresse ajoutée', **get_active_tab_for_ajax(request)})
 
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
@@ -829,7 +834,7 @@ def adresse_update_ajax(request, pk):
         adresse.date_fin = date_fin_obj
         adresse.save()
 
-        return JsonResponse({'success': True, 'message': '✅ Adresse modifiée'})
+        return JsonResponse({'success': True, 'message': '✅ Adresse modifiée', **get_active_tab_for_ajax(request)})
 
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
@@ -842,7 +847,7 @@ def adresse_delete_ajax(request, pk):
     try:
         adresse = get_object_or_404(ZYAD, pk=pk)
         adresse.delete()
-        return JsonResponse({'success': True, 'message': '✅ Adresse supprimée'})
+        return JsonResponse({'success': True, 'message': '✅ Adresse supprimée', **get_active_tab_for_ajax(request)})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
@@ -889,7 +894,8 @@ def document_create_ajax(request):
 
         return JsonResponse({
             'success': True,
-            'message': f'✅ Document "{document.get_type_document_display()}" ajouté avec succès'
+            'message': f'✅ Document "{document.get_type_document_display()}" ajouté avec succès',
+            **get_active_tab_for_ajax(request)
         })
 
     except Exception as e:
@@ -905,7 +911,8 @@ def document_delete_ajax(request, pk):
 
         return JsonResponse({
             'success': True,
-            'message': f'✅ Document ✅ supprimé avec succès'
+            'message': f'✅ Document ✅ supprimé avec succès',
+            **get_active_tab_for_ajax(request)
         })
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
@@ -990,7 +997,8 @@ def modifier_photo_ajax(request):
 
         return JsonResponse({
             'success': True,
-            'photo_url': employe.get_photo_url()
+            'photo_url': employe.get_photo_url(),
+            **get_active_tab_for_ajax(request)
         })
 
     except Exception as e:
@@ -1022,7 +1030,8 @@ def supprimer_photo_ajax(request, uuid):
 
         return JsonResponse({
             'success': True,
-            'photo_url': employe.get_photo_url()  # Retourne l'URL de la photo par défaut
+            'photo_url': employe.get_photo_url(), # Retourne l'URL de la photo par défaut
+            **get_active_tab_for_ajax(request)
         })
 
     except Exception as e:
