@@ -242,32 +242,32 @@
                         <h4>Adresse</h4>
                     </div>
                     <div class="row">
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="{{ form.rue.id_for_label }}" class="form-label required">Rue</label>
                             {{ form.rue }}
                             {% if form.rue.errors %}
                                 <div class="text-danger">{{ form.rue.errors }}</div>
                             {% endif %}
                         </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="{{ form.ville.id_for_label }}" class="form-label required">Ville</label>
                             {{ form.ville }}
                             {% if form.ville.errors %}
                                 <div class="text-danger">{{ form.ville.errors }}</div>
                             {% endif %}
                         </div>
-                        <div class="col-md-4 mb-3">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
                             <label for="{{ form.pays.id_for_label }}" class="form-label required">Pays</label>
                             {{ form.pays }}
                             {% if form.pays.errors %}
                                 <div class="text-danger">{{ form.pays.errors }}</div>
                             {% endif %}
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="{{ form.code_postal.id_for_label }}" class="form-label required">Code postal</label>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.code_postal.id_for_label }}" class="form-label ">Code postal</label>
                             {{ form.code_postal }}
                             {% if form.code_postal.errors %}
                                 <div class="text-danger">{{ form.code_postal.errors }}</div>
@@ -283,15 +283,21 @@
                                 <div class="text-danger">{{ form.date_debut_adresse.errors }}</div>
                             {% endif %}
                         </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.complement.id_for_label }}" class="form-label">Complement à l'adresse</label>
+                            {{ form.complement }}
+                            {% if form.complement.errors %}
+                                <div class="text-danger">{{ form.complement.errors }}</div>
+                            {% endif %}
+                        </div>
                     </div>
-
                     <!-- Boutons -->
                     <div class="row mt-4">
                         <div class="col-md-12">
                             <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
                                 <i class="bi bi-check-circle"></i> Valider la pré-embauche
                             </button>
-                            <a href="{% url 'liste_employes' %}" class="btn btn-secondary btn-lg">
+                            <a href="{% url 'dossier_individuel' %}" class="btn btn-secondary btn-lg">
                                 <i class="bi bi-x-circle"></i> Annuler
                             </a>
                         </div>

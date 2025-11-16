@@ -13,7 +13,9 @@ def employee_photo_path(instance, filename):
     filename = f"{instance.matricule}_photo.{ext}"
     return os.path.join('photos/employes/', filename)
 
-
+######################
+###  Employe ZY00  ###
+######################
 class ZY00(models.Model):
     """Table principale des employés"""
 
@@ -193,6 +195,9 @@ class ZY00(models.Model):
             self.affectations.filter(actif=True).update(actif=False)
             self.adresses.filter(actif=True).update(actif=False)
 
+######################
+###  Contrat ZYCO  ###
+######################
 class ZYCO(models.Model):
     """Table des contrats"""
 
@@ -244,7 +249,9 @@ class ZYCO(models.Model):
                     "Veuillez clôturer l'ancien contrat avant d'en créer un nouveau."
                 )
 
-
+######################
+### Telephone ZYTE ###
+######################
 class ZYTE(models.Model):
     """Table des téléphones"""
 
@@ -272,7 +279,9 @@ class ZYTE(models.Model):
     def __str__(self):
         return f"{self.employe.matricule} - {self.numero}"
 
-
+######################
+#####  Mail ZYME  ####
+######################
 class ZYME(models.Model):
     """Table des emails"""
 
@@ -300,8 +309,9 @@ class ZYME(models.Model):
     def __str__(self):
         return f"{self.employe.matricule} - {self.email}"
 
-
-
+######################
+## Affectation ZYAF ##
+######################
 class ZYAF(models.Model):
     """Table des affectations"""
 
@@ -347,7 +357,9 @@ class ZYAF(models.Model):
                     "Veuillez clôturer l'ancienne affectation avant d'en créer une nouvelle."
                 )
 
-
+######################
+###  Adresse ZYAD  ###
+######################
 class ZYAD(models.Model):
     """Table des adresses"""
 
@@ -363,6 +375,12 @@ class ZYAD(models.Model):
         verbose_name="Employé"
     )
     rue = models.CharField(max_length=200, verbose_name="Rue")
+    complement = models.CharField(  # ← AJOUTEZ CE CHAMP
+        max_length=200,
+        blank=True,
+        null=True,
+        verbose_name="Complément d'adresse"
+    )
     ville = models.CharField(max_length=100, verbose_name="Ville")
     pays = models.CharField(max_length=100, verbose_name="Pays")
     code_postal = models.CharField(max_length=10, verbose_name="Code postal")
@@ -389,10 +407,6 @@ class ZYAD(models.Model):
         return f"{self.employe.matricule} - {self.ville} ({self.type_adresse})"
 
     def save(self, *args, **kwargs):
-        # Formater le pays en majuscules avant sauvegarde
-        if self.pays:
-            self.pays = self.pays.upper()
-
         # Formater la ville : première lettre en majuscule avant sauvegarde
         if self.ville:
             self.ville = self.ville.title()
@@ -400,20 +414,26 @@ class ZYAD(models.Model):
         super().save(*args, **kwargs)
 
     def clean(self):
-        """Validation: une seule adresse principale active par employé"""
+        """Validation: une seule adresse principale ACTIVE par employé"""
+        # Vérifier seulement si c'est une adresse principale SANS date de fin (active)
         if self.type_adresse == 'PRINCIPALE' and not self.date_fin:
-            adresses_principales = ZYAD.objects.filter(
+            # Chercher les autres adresses principales ACTIVES pour le même employé
+            adresses_principales_actives = ZYAD.objects.filter(
                 employe=self.employe,
                 type_adresse='PRINCIPALE',
-                date_fin__isnull=True
-            ).exclude(pk=self.pk)
+                date_fin__isnull=True  # Pas de date de fin = active
+            ).exclude(pk=self.pk)  # Exclure l'instance courante si elle existe
 
-            if adresses_principales.exists():
+            if adresses_principales_actives.exists():
                 raise ValidationError(
-                    "Une adresse principale active existe déjà pour cet employé."
+                    "Une adresse principale active existe déjà pour cet employé. "
+                    "Veuillez clôturer l'adresse existante en ajoutant une date de fin "
+                    "avant de créer une nouvelle adresse principale."
                 )
 
-
+######################
+### Documment ZYDO ###
+######################
 class ZYDO(models.Model):
     """Table des documents joints aux employés"""
 
@@ -508,3 +528,73 @@ class ZYDO(models.Model):
         """Retourne le nom du fichier original"""
         import os
         return os.path.basename(self.fichier.name)
+
+######################
+###  Famille  ZYFA ###
+######################
+class ZYFA(models.Model):
+    """Table des personnes à charge (famille)"""
+
+    PERSONNE_CHARGE_CHOICES = [
+        ('ENFANT', 'Enfant'),
+        ('CONJOINT', 'Conjoint'),
+        ('PARENT', 'Parent'),
+        ('AUTRE', 'Autre personne à charge'),
+    ]
+
+    SEXE_CHOICES = [
+        ('M', 'Masculin'),
+        ('F', 'Féminin'),
+    ]
+
+    employe = models.ForeignKey(
+        ZY00,
+        on_delete=models.CASCADE,
+        related_name='personnes_charge',
+        verbose_name="Employé"
+    )
+    personne_charge = models.CharField(
+        max_length=20,
+        choices=PERSONNE_CHARGE_CHOICES,
+        verbose_name="Personne en charge"
+    )
+    nom = models.CharField(max_length=100, verbose_name="Nom")
+    prenom = models.CharField(max_length=200, verbose_name="Prénom")
+    sexe = models.CharField(max_length=1, choices=SEXE_CHOICES, verbose_name="Sexe")
+    date_naissance = models.DateField(verbose_name="Date de naissance")
+    date_debut_prise_charge = models.DateField(verbose_name="Date de début de prise en charge")
+    date_fin_prise_charge = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name="Date de fin de prise en charge"
+    )
+    actif = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'ZYFA'
+        verbose_name = "Personne à charge"
+        verbose_name_plural = "Personnes à charge"
+        ordering = ['-date_debut_prise_charge']
+
+    def __str__(self):
+        return f"{self.employe.matricule} - {self.prenom} {self.nom} ({self.get_personne_charge_display()})"
+
+    def save(self, *args, **kwargs):
+        # Si c'est un enfant et date_debut_prise_charge n'est pas définie, utiliser date_naissance
+        if self.personne_charge == 'ENFANT' and not self.date_debut_prise_charge:
+            self.date_debut_prise_charge = self.date_naissance
+        super().save(*args, **kwargs)
+
+    def clean(self):
+        """Validation personnalisée"""
+        # Vérifier que la date de fin est après la date de début
+        if self.date_fin_prise_charge and self.date_fin_prise_charge <= self.date_debut_prise_charge:
+            raise ValidationError({
+                'date_fin_prise_charge': 'La date de fin doit être supérieure à la date de début.'
+            })
+
+        # Vérifier que la date de naissance est dans le passé
+        if self.date_naissance > timezone.now().date():
+            raise ValidationError({
+                'date_naissance': 'La date de naissance doit être dans le passé.'
+            })

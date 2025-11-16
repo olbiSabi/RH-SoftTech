@@ -69,7 +69,8 @@ class ZDDE(models.Model):
     def __str__(self):
         statut = "Actif" if self.STATUT else "Inactif"
         date_fin_display = "-- --" if not self.DATEFIN else self.DATEFIN.strftime('%d/%m/%Y')
-        return f"{self.CODE} - {self.LIBELLE} ({statut}) [{self.DATEDEB.strftime('%d/%m/%Y')} → {date_fin_display}]"
+        return f"{self.LIBELLE} "
+        #return f"{self.CODE} - {self.LIBELLE} ({statut}) [{self.DATEDEB.strftime('%d/%m/%Y')} → {date_fin_display}]"
 
 # ==========================================
 # MODÈLE ZDPO POUR LE POSTE

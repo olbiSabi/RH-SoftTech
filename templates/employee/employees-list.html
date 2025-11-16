@@ -22,6 +22,53 @@
                 transform: translateY(0);
             }
         }
+
+    .action-icons {
+    display: flex;
+    gap: 8px;
+}
+
+.icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+
+.icon-btn i {
+    font-size: 16px;
+}
+
+.view-btn {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.edit-btn {
+    background-color: #fff3e0;
+    color: #f57c00;
+}
+
+.delete-btn {
+    background-color: #ffebee;
+    color: #d32f2f;
+}
+
+.icon-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.view-btn:hover { background-color: #1976d2; color: white; }
+.edit-btn:hover { background-color: #f57c00; color: white; }
+.delete-btn:hover { background-color: #d32f2f; color: white; }
+
     </style>
 {% endblock %}
 
@@ -131,22 +178,22 @@
                                     {% endif %}
                                 </td>
                                 <td>
-
-                                    <div class="dropdown dropdown-action">
-                                        <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                            <i class="material-icons">more_vert</i>
+                                    <div class="action-icons">
+                                        <a class="icon-btn view-btn" href="{% url 'detail_employe' employe.uuid %}"
+                                           title="View">
+                                            <i class="fa fa-eye"></i>
                                         </a>
-                                        <div class="dropdown-menu dropdown-menu-right">
-                                            <a class="dropdown-item" href="{% url 'detail_employe' employe.uuid %}">
-                                                <i class="fa fa-eye text-primary"></i>  View
-                                            </a>
-                                            <a class="dropdown-item" href="{% url 'modifier_employe' employe.uuid %}">
-                                                <i class="fa fa-pencil m-r-5"></i> Edit
-                                            </a>
-                                            <a class="dropdown-item" href="{% url 'supprimer_employe' employe.uuid %}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer {{ employe.nom }} {{ employe.prenoms }} ?')">
-                                                <i class="fa fa-trash-o m-r-5"></i> Delete
-                                            </a>
-                                        </div>
+
+                                        <a class="icon-btn edit-btn" href="{% url 'modifier_employe' employe.uuid %}"
+                                           title="Edit">
+                                            <i class="fa-solid fa-pencil"></i>
+                                        </a>
+
+                                        <a class="icon-btn delete-btn" href="{% url 'supprimer_employe' employe.uuid %}"
+                                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer {{ employe.nom }} {{ employe.prenoms }} ?')"
+                                           title="Delete">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>

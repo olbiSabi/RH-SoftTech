@@ -1,122 +1,448 @@
 from django.contrib import admin
-from .models import ZY00, ZYCO, ZYTE, ZYME, ZYAF, ZYAD, ZYDO
+from .models import ZY00, ZYCO, ZYTE, ZYME, ZYAF, ZYAD, ZYDO, ZYFA
 from django.utils.html import format_html
 from django.urls import reverse
 
+# ===============================
+# ADMIN INLINES
+# ===============================
+
 class ZYCOInline(admin.TabularInline):
-    """Inline pour les contrats"""
+    """Contrats inline dans l'admin employé"""
     model = ZYCO
-    extra = 1
-    fields = ['type_contrat', 'date_debut', 'date_fin', 'actif']
+    extra = 0
+    fields = ('type_contrat', 'date_debut', 'date_fin', 'actif')
+    readonly_fields = ('actif',)
 
 
 class ZYTEInline(admin.TabularInline):
-    """Inline pour les téléphones"""
+    """Téléphones inline dans l'admin employé"""
     model = ZYTE
-    extra = 1
-    fields = ['numero', 'date_debut_validite', 'date_fin_validite', 'actif']
+    extra = 0
+    fields = ('numero', 'date_debut_validite', 'date_fin_validite', 'actif')
+    readonly_fields = ('actif',)
 
 
 class ZYMEInline(admin.TabularInline):
-    """Inline pour les emails"""
+    """Emails inline dans l'admin employé"""
     model = ZYME
-    extra = 1
-    fields = ['email', 'date_debut_validite', 'date_fin_validite', 'actif']
+    extra = 0
+    fields = ('email', 'date_debut_validite', 'date_fin_validite', 'actif')
+    readonly_fields = ('actif',)
 
 
 class ZYAFInline(admin.TabularInline):
-    """Inline pour les affectations"""
+    """Affectations inline dans l'admin employé"""
     model = ZYAF
-    extra = 1
-    fields = ['poste', 'date_debut', 'date_fin', 'actif']
+    extra = 0
+    fields = ('poste', 'date_debut', 'date_fin', 'actif')
+    readonly_fields = ('actif',)
 
 
 class ZYADInline(admin.TabularInline):
-    """Inline pour les adresses"""
+    """Adresses inline dans l'admin employé"""
     model = ZYAD
-    extra = 1
-    fields = ['rue', 'ville', 'pays', 'code_postal', 'type_adresse', 'date_debut', 'date_fin', 'actif']
+    extra = 0
+    fields = ('type_adresse', 'rue', 'ville', 'pays', 'date_debut', 'date_fin', 'actif')
+    readonly_fields = ('actif',)
 
+
+class ZYDOInline(admin.TabularInline):
+    """Documents inline dans l'admin employé"""
+    model = ZYDO
+    extra = 0
+    fields = ('type_document', 'fichier', 'description', 'date_ajout')
+    readonly_fields = ('date_ajout',)
+
+
+class ZYFAInline(admin.TabularInline):
+    """Personnes à charge inline dans l'admin employé"""
+    model = ZYFA
+    extra = 0
+    fields = ('personne_charge', 'nom', 'prenom', 'sexe', 'date_naissance', 'actif')
+    readonly_fields = ('actif',)
+
+
+# ===============================
+# ADMIN MODEL ADMINS
+# ===============================
 
 @admin.register(ZY00)
 class ZY00Admin(admin.ModelAdmin):
-    """Administration des employés"""
-    list_display = [
-        'matricule', 'nom', 'prenoms', 'date_naissance',
-        'sexe', 'type_dossier', 'date_validation_embauche', 'etat', 'photo'
-    ]
-    list_filter = ['type_dossier', 'sexe', 'situation_familiale']
-    search_fields = ['matricule', 'nom', 'prenoms', 'numero_id']
-    readonly_fields = ['matricule', 'uuid']
-
+    """Admin pour les employés (ZY00)"""
+    list_display = (
+        'matricule',
+        'nom_complet',
+        'type_dossier_display',
+        'etat_display',
+        'photo_preview'
+    )
+    list_filter = (
+        'type_dossier',
+        'etat',
+        'sexe',
+        'situation_familiale'
+    )
+    search_fields = (
+        'matricule',
+        'nom',
+        'prenoms',
+        'ville_naissance',
+        'pays_naissance'
+    )
+    readonly_fields = (
+        'matricule',
+        'uuid',
+        'photo_preview'
+    )
     fieldsets = (
-        ('Identification', {
-            'fields': ('matricule', 'uuid')
-        }),
-        ('Informations personnelles', {
+        ('Informations Personnelles', {
             'fields': (
-                'nom', 'prenoms', 'date_naissance', 'sexe',
-                'ville_naissance', 'pays_naissance', 'situation_familiale'
+                'photo_preview',
+                'photo',
+                'nom',
+                'prenoms',
+                'date_naissance',
+                'sexe',
+                'situation_familiale'
             )
         }),
-        ('Pièce d\'identité', {
+        ('Lieu de Naissance', {
             'fields': (
-                'type_id', 'numero_id',
-                'date_validite_id', 'date_expiration_id'
+                'ville_naissance',
+                'pays_naissance',
             )
         }),
-        ('Statut', {
-            'fields': ('type_dossier', 'date_validation_embauche')
+        ('Pièce d\'Identité', {
+            'fields': (
+                'type_id',
+                'numero_id',
+                'date_validite_id',
+                'date_expiration_id'
+            )
+        }),
+        ('Informations Administratives', {
+            'fields': (
+                'type_dossier',
+                'etat',
+                'date_validation_embauche'
+            )
+        }),
+        ('Métadonnées', {
+            'fields': (
+                'matricule',
+                'uuid'
+            ),
+            'classes': ('collapse',)
+        }),
+    )
+    inlines = [
+        ZYCOInline,
+        ZYTEInline,
+        ZYMEInline,
+        ZYAFInline,
+        ZYADInline,
+        ZYDOInline,
+        ZYFAInline,
+    ]
+
+    def nom_complet(self, obj):
+        return f"{obj.nom} {obj.prenoms}"
+    nom_complet.short_description = 'Nom complet'
+
+    def type_dossier_display(self, obj):
+        return obj.get_type_dossier_display()
+    type_dossier_display.short_description = 'Type dossier'
+
+    def etat_display(self, obj):
+        return obj.get_etat_display()
+    etat_display.short_description = 'État'
+
+    def photo_preview(self, obj):
+        if obj.photo:
+            return format_html(
+                '<img src="{}" style="max-height: 100px; max-width: 100px; border-radius: 5px;" />',
+                obj.photo.url
+            )
+        return "Aucune photo"
+    photo_preview.short_description = 'Photo'
+
+
+@admin.register(ZYFA)
+class ZYFAAdmin(admin.ModelAdmin):
+    """Admin pour les personnes à charge (Famille)"""
+    list_display = (
+        'employe',
+        'personne_charge_display',
+        'nom_complet',
+        'sexe_display',
+        'date_naissance',
+        'date_debut_prise_charge',
+        'actif_status'
+    )
+    list_filter = (
+        'personne_charge',
+        'sexe',
+        'actif',
+        'date_naissance',
+        'date_debut_prise_charge'
+    )
+    search_fields = (
+        'employe__nom',
+        'employe__prenoms',
+        'employe__matricule',
+        'nom',
+        'prenom'
+    )
+    fieldsets = (
+        ('Informations Personnelles', {
+            'fields': (
+                'employe',
+                'personne_charge',
+                'nom',
+                'prenom',
+                'sexe',
+                'date_naissance'
+            )
+        }),
+        ('Prise en Charge', {
+            'fields': (
+                'date_debut_prise_charge',
+                'date_fin_prise_charge',
+                'actif'
+            )
         }),
     )
 
-    inlines = [ZYCOInline, ZYTEInline, ZYMEInline, ZYAFInline, ZYADInline]
+    def employe_display(self, obj):
+        return f"{obj.employe.nom} {obj.employe.prenoms} ({obj.employe.matricule})"
+    employe_display.short_description = 'Employé'
 
-    def save_model(self, request, obj, form, change):
-        """Validation de l'embauche automatique si demandé"""
-        super().save_model(request, obj, form, change)
+    def personne_charge_display(self, obj):
+        icons = {
+            'ENFANT': '👶',
+            'CONJOINT': '💑',
+            'PARENT': '👵',
+            'AUTRE': '👤',
+        }
+        icon = icons.get(obj.personne_charge, '👤')
+        return f"{icon} {obj.get_personne_charge_display()}"
+    personne_charge_display.short_description = 'Type'
+
+    def nom_complet(self, obj):
+        return f"{obj.nom} {obj.prenom}"
+    nom_complet.short_description = 'Nom complet'
+
+    def sexe_display(self, obj):
+        return obj.get_sexe_display()
+    sexe_display.short_description = 'Sexe'
+
+    def actif_status(self, obj):
+        if obj.actif:
+            return format_html('<span style="color: green;">● Actif</span>')
+        return format_html('<span style="color: red;">● Inactif</span>')
+    actif_status.short_description = 'Statut'
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('employe')
 
 
 @admin.register(ZYCO)
 class ZYCOAdmin(admin.ModelAdmin):
-    """Administration des contrats"""
-    list_display = ['employe', 'type_contrat', 'date_debut', 'date_fin', 'actif']
-    list_filter = ['type_contrat', 'date_debut']
-    search_fields = ['employe__matricule', 'employe__nom', 'employe__prenoms']
-    date_hierarchy = 'date_debut'
+    """Admin pour les contrats"""
+    list_display = (
+        'employe',
+        'type_contrat_display',
+        'date_debut',
+        'date_fin',
+        'duree_contrat',
+        'actif_status'
+    )
+    list_filter = (
+        'type_contrat',
+        'date_debut',
+        'date_fin'
+    )
+    search_fields = (
+        'employe__nom',
+        'employe__prenoms',
+        'employe__matricule'
+    )
+
+    def employe_display(self, obj):
+        return f"{obj.employe.nom} {obj.employe.prenoms}"
+    employe_display.short_description = 'Employé'
+
+    def type_contrat_display(self, obj):
+        return obj.get_type_contrat_display()
+    type_contrat_display.short_description = 'Type de contrat'
+
+    def duree_contrat(self, obj):
+        if obj.date_fin:
+            return f"{(obj.date_fin - obj.date_debut).days} jours"
+        return "En cours"
+    duree_contrat.short_description = 'Durée'
+
+    def actif_status(self, obj):
+        if obj.actif:
+            return format_html('<span style="color: green;">● Actif</span>')
+        return format_html('<span style="color: red;">● Inactif</span>')
+    actif_status.short_description = 'Statut'
 
 
 @admin.register(ZYTE)
 class ZYTEAdmin(admin.ModelAdmin):
-    """Administration des téléphones"""
-    list_display = ['employe', 'numero', 'date_debut_validite', 'date_fin_validite', 'actif']
-    search_fields = ['employe__matricule', 'employe__nom', 'numero']
-    list_filter = ['date_debut_validite']
+    """Admin pour les téléphones"""
+    list_display = (
+        'employe',
+        'numero',
+        'date_debut_validite',
+        'date_fin_validite',
+        'actif_status'
+    )
+    list_filter = (
+        'actif',
+        'date_debut_validite',
+        'date_fin_validite'
+    )
+    search_fields = (
+        'employe__nom',
+        'employe__prenoms',
+        'numero'
+    )
+
+    def employe_display(self, obj):
+        return f"{obj.employe.nom} {obj.employe.prenoms}"
+    employe_display.short_description = 'Employé'
+
+    def actif_status(self, obj):
+        if obj.actif:
+            return format_html('<span style="color: green;">● Actif</span>')
+        return format_html('<span style="color: red;">● Inactif</span>')
+    actif_status.short_description = 'Statut'
 
 
 @admin.register(ZYME)
 class ZYMEAdmin(admin.ModelAdmin):
-    """Administration des emails"""
-    list_display = ['employe', 'email', 'date_debut_validite', 'date_fin_validite', 'actif']
-    search_fields = ['employe__matricule', 'employe__nom', 'email']
-    list_filter = ['date_debut_validite']
+    """Admin pour les emails"""
+    list_display = (
+        'employe',
+        'email',
+        'date_debut_validite',
+        'date_fin_validite',
+        'actif_status'
+    )
+    list_filter = (
+        'actif',
+        'date_debut_validite',
+        'date_fin_validite'
+    )
+    search_fields = (
+        'employe__nom',
+        'employe__prenoms',
+        'email'
+    )
+
+    def employe_display(self, obj):
+        return f"{obj.employe.nom} {obj.employe.prenoms}"
+    employe_display.short_description = 'Employé'
+
+    def actif_status(self, obj):
+        if obj.actif:
+            return format_html('<span style="color: green;">● Actif</span>')
+        return format_html('<span style="color: red;">● Inactif</span>')
+    actif_status.short_description = 'Statut'
 
 
 @admin.register(ZYAF)
 class ZYAFAdmin(admin.ModelAdmin):
-    """Administration des affectations"""
-    list_display = ['employe', 'poste', 'date_debut', 'date_fin', 'actif']
-    list_filter = ['poste', 'date_debut']
-    search_fields = ['employe__matricule', 'employe__nom', 'poste__libelle']
-    date_hierarchy = 'date_debut'
+    """Admin pour les affectations"""
+    list_display = (
+        'employe',
+        'poste_display',
+        'departement_display',
+        'date_debut',
+        'date_fin',
+        'actif_status'
+    )
+    list_filter = (
+        'poste__DEPARTEMENT',
+        'actif',
+        'date_debut',
+        'date_fin'
+    )
+    search_fields = (
+        'employe__nom',
+        'employe__prenoms',
+        'poste__LIBELLE',
+        'poste__DEPARTEMENT__LIBELLE'
+    )
+
+    def employe_display(self, obj):
+        return f"{obj.employe.nom} {obj.employe.prenoms}"
+    employe_display.short_description = 'Employé'
+
+    def poste_display(self, obj):
+        return obj.poste.LIBELLE
+    poste_display.short_description = 'Poste'
+
+    def departement_display(self, obj):
+        return obj.poste.DEPARTEMENT.LIBELLE
+    departement_display.short_description = 'Département'
+
+    def actif_status(self, obj):
+        if obj.actif:
+            return format_html('<span style="color: green;">● Actif</span>')
+        return format_html('<span style="color: red;">● Inactif</span>')
+    actif_status.short_description = 'Statut'
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('employe', 'poste', 'poste__DEPARTEMENT')
 
 
 @admin.register(ZYAD)
 class ZYADAdmin(admin.ModelAdmin):
-    """Administration des adresses"""
-    list_display = ['employe', 'ville', 'pays', 'type_adresse', 'date_debut', 'date_fin', 'actif']
-    list_filter = ['type_adresse', 'pays', 'ville']
-    search_fields = ['employe__matricule', 'employe__nom', 'ville', 'rue']
+    """Admin pour les adresses"""
+    list_display = (
+        'employe',
+        'type_adresse_display',
+        'adresse_complete',
+        'date_debut',
+        'date_fin',
+        'actif_status'
+    )
+    list_filter = (
+        'type_adresse',
+        'pays',
+        'actif',
+        'date_debut',
+        'date_fin'
+    )
+    search_fields = (
+        'employe__nom',
+        'employe__prenoms',
+        'rue',
+        'ville',
+        'pays'
+    )
+
+    def employe_display(self, obj):
+        return f"{obj.employe.nom} {obj.employe.prenoms}"
+    employe_display.short_description = 'Employé'
+
+    def type_adresse_display(self, obj):
+        return obj.get_type_adresse_display()
+    type_adresse_display.short_description = 'Type'
+
+    def adresse_complete(self, obj):
+        return f"{obj.rue}, {obj.code_postal} {obj.ville}, {obj.pays}"
+    adresse_complete.short_description = 'Adresse'
+
+    def actif_status(self, obj):
+        if obj.actif:
+            return format_html('<span style="color: green;">● Actif</span>')
+        return format_html('<span style="color: red;">● Inactif</span>')
+    actif_status.short_description = 'Statut'
 
 
 
@@ -316,3 +642,12 @@ class ZYDOAdmin(admin.ModelAdmin):
         return response
 
     exporter_liste.short_description = "Exporter la liste en CSV"
+
+
+
+# ===============================
+# CUSTOMIZATION DE L'ADMIN
+# ===============================
+
+# Personnalisation du titre de l'admin
+admin.site.site_header = "Gestion des Employés"

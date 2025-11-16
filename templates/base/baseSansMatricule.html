@@ -11,27 +11,17 @@
     {% block extrastylet %} {% endblock %}
     <!-- Lien pour les icônes (Font Awesome) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/AdminLTELogo.png' %}">
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="{% static 'assets/bootstrap/css/bootstrap.min.css' %}">
-    <!-- Fontawesome CSS -->
-    <link rel="stylesheet" href="{% static 'assets/css/font-awesome.min.css' %}">
-    <!-- Lineawesome CSS -->
-    <link rel="stylesheet" href="{% static 'assets/css/line-awesome.min.css' %}">
-    <!-- Main CSS -->
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/table.css' %}">
-    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-        <!--[if lt IE 9]>
-    <script src="{% static 'assets/js/html5shiv.min.js' %}"></script>
-    <script src="{% static 'assets/js/respond.min.js' %}"></script>
-    <![endif]-->
 </head>
 
 <body class="no-sidebar-toggle">
 <!-- Main Wrapper -->
-    {% include 'base/new_header.html' %}
+    {% include 'base/header.html' %}
+
+
 <div class="main-wrapper">
 
     <div class="page-wrapper" id="mainContent">
@@ -45,18 +35,6 @@
 
     {% endblock %}
 </div>
-<!--JS-->
-<!-- jQuery -->
-<script src="{% static 'assets/js/jquery-3.5.1.min.js' %}"></script>
-<!-- Bootstrap Core JS -->
-<script src="{% static 'assets/js/popper.min.js' %}"></script>
-<script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
-<!-- Select2 JS -->
-<script src="{% static 'assets/js/select2.min.js' %}"></script>
-<!-- Datetimepicker JS -->
-<script src="{% static 'assets/js/moment.min.js' %}"></script>
-<script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
-
 <!-- Custom JS -->
 <script src="{% static 'assets/js/app.js' %}"></script>
 <script src="{% static 'assets/js/sidebar.js' %}"></script>

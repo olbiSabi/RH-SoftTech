@@ -11,67 +11,68 @@ urlpatterns = [
     # ===============================
     path('liste-employee/', views.EmployeListView.as_view(), name='liste_employes'),
     path('matricule/<uuid:uuid>/', views.detail_employe, name='detail_employe'),
-    path('dossier-individuel/', views.DossierIndividuelView.as_view(), name='liste_dossiers'),
-    path('dossier-individuel/<uuid:uuid>/', views.DossierIndividuelView.as_view(), name='dossier_detail'),
     path('employe/<uuid:uuid>/modifier/', views.EmployeUpdateView.as_view(), name='modifier_employe'),
     path('employe/<uuid:uuid>/supprimer/', views.EmployeDeleteView.as_view(), name='supprimer_employe'),
     # path('employe/nouveau/', views.EmployeCreateView.as_view(), name='creer_employe'),
-    # 🆕 URLs pour la gestion de la photo de profil
-    path('photo/modifier-ajax/', views.modifier_photo_ajax, name='modifier_photo_ajax'),
-    path('photo/<uuid:uuid>/supprimer-ajax/', views.supprimer_photo_ajax, name='supprimer_photo_ajax'),
-
-    # ===============================
-    # URLs pour les contrats (ZYCO)
-    # ===============================
-    path('contrat/nouveau-ajax/', views.contrat_create_ajax, name='contrat_create_ajax'),
-    path('contrat/<int:pk>/modifier-ajax/', views.contrat_update_ajax, name='contrat_update_ajax'),
-    path('contrat/<int:pk>/supprimer-ajax/', views.contrat_delete_ajax, name='contrat_delete_ajax'),
-
-    # ===============================
-    # AFFECTATIONS (ZYAF)
-    # ===============================
-    path('affectation/nouveau-ajax/', views.affectation_create_ajax, name='affectation_create_ajax'),
-    path('affectation/<int:pk>/modifier-ajax/', views.affectation_update_ajax, name='affectation_update_ajax'),
-    path('affectation/<int:pk>/supprimer-ajax/', views.affectation_delete_ajax, name='affectation_delete_ajax'),
-
-    # ===============================
-    # TÉLÉPHONES (ZYTE)
-    # ===============================
-    path('telephone/nouveau-ajax/', views.telephone_create_ajax, name='telephone_create_ajax'),
-    path('telephone/<int:pk>/modifier-ajax/', views.telephone_update_ajax, name='telephone_update_ajax'),
-    path('telephone/<int:pk>/supprimer-ajax/', views.telephone_delete_ajax, name='telephone_delete_ajax'),
-
-    # ===============================
-    # EMAILS (ZYME)
-    # ===============================
-    path('email/nouveau-ajax/', views.email_create_ajax, name='email_create_ajax'),
-    path('email/<int:pk>/modifier-ajax/', views.email_update_ajax, name='email_update_ajax'),
-    path('email/<int:pk>/supprimer-ajax/', views.email_delete_ajax, name='email_delete_ajax'),
-
-    # ===============================
-    # ADRESSES (ZYAD)
-    # ===============================
-    path('adresse/nouveau-ajax/', views.adresse_create_ajax, name='adresse_create_ajax'),
-    path('adresse/<int:pk>/modifier-ajax/', views.adresse_update_ajax, name='adresse_update_ajax'),
-    path('adresse/<int:pk>/supprimer-ajax/', views.adresse_delete_ajax, name='adresse_delete_ajax'),
-
-    # ===============================
-    # Gestion des documents ZYDO
-    # ===============================
-    path('documents/<str:matricule>/', views.gerer_documents_employe, name='gerer_documents_employe'),
-    path('documents/telecharger/<int:pk>/', views.telecharger_document, name='telecharger_document'),
-    path('ajax/document/create/', views.document_create_ajax, name='document_create_ajax'),
-    path('ajax/document/delete/<int:pk>/', views.document_delete_ajax, name='document_delete_ajax'),
+    # Route pour la liste des employés sans sélection
+    path('dossier/', DossierIndividuelView.as_view(), name='dossier_individuel'),
+    # Route pour afficher le détail d'un employé spécifique
+    path('dossier/<uuid:uuid>/', DossierIndividuelView.as_view(), name='dossier_individuel_detail'),
 
 
+    # ===== NOUVELLES API POUR LES MODALES =====
+
+    # API Adresses (pour modales)
+    path('api/adresse/<int:id>/', views.api_adresse_detail, name='api_adresse_detail_modal'),
+    path('api/adresse/create/', views.api_adresse_create_modal, name='api_adresse_create_modal'),
+    path('api/adresse/<int:id>/update/', views.api_adresse_update_modal, name='api_adresse_update_modal'),
+    path('api/adresse/<int:id>/delete/', views.api_adresse_delete_modal, name='api_adresse_delete_modal'),
+
+    # API Téléphones (pour modales)
+    path('api/telephone/<int:id>/', views.api_telephone_detail, name='api_telephone_detail_modal'),
+    path('api/telephone/create/', views.api_telephone_create_modal, name='api_telephone_create_modal'),
+    path('api/telephone/<int:id>/update/', views.api_telephone_update_modal, name='api_telephone_update_modal'),
+    path('api/telephone/<int:id>/delete/', views.api_telephone_delete_modal, name='api_telephone_delete_modal'),
+
+    # API Emails (pour modales)
+    path('api/email/<int:id>/', views.api_email_detail, name='api_email_detail_modal'),
+    path('api/email/create/', views.api_email_create_modal, name='api_email_create_modal'),
+    path('api/email/<int:id>/update/', views.api_email_update_modal, name='api_email_update_modal'),
+    path('api/email/<int:id>/delete/', views.api_email_delete_modal, name='api_email_delete_modal'),
+
+    # API Documents (pour modales)
+    path('api/document/create/', views.api_document_create_modal, name='api_document_create_modal'),
+    path('api/document/<int:id>/delete/', views.api_document_delete_modal, name='api_document_delete_modal'),
+
+    # API Contrats (pour modales)
+    path('api/contrat/<int:id>/', views.api_contrat_detail, name='api_contrat_detail_modal'),
+    path('api/contrat/create/', views.api_contrat_create_modal, name='api_contrat_create_modal'),
+    path('api/contrat/<int:id>/update/', views.api_contrat_update_modal, name='api_contrat_update_modal'),
+    path('api/contrat/<int:id>/delete/', views.api_contrat_delete_modal, name='api_contrat_delete_modal'),
+
+    # API Affectations (pour modales)
+    path('api/affectation/<int:id>/', views.api_affectation_detail, name='api_affectation_detail_modal'),
+    path('api/affectation/create/', views.api_affectation_create_modal, name='api_affectation_create_modal'),
+    path('api/affectation/<int:id>/update/', views.api_affectation_update_modal,
+         name='api_affectation_update_modal'),
+    path('api/affectation/<int:id>/delete/', views.api_affectation_delete_modal,
+         name='api_affectation_delete_modal'),
+
+    # API Helper
+    path('api/postes/', views.api_postes_by_departement, name='api_postes_by_departement'),
 
 
-    path('dossierSortie/', dossierSortie, name='dossier-sortie'),
+    # Photo
+    path('ajax/photo/modifier/', views.modifier_photo_ajax, name='modifier_photo_ajax'),
+    path('ajax/photo/<uuid:uuid>/supprimer/', views.supprimer_photo_ajax, name='supprimer_photo_ajax'),
+
+    # API Famille (ZYFA)
+    path('api/famille/create/', views.api_famille_create_modal, name='api_famille_create'),
+    path('api/famille/<int:id>/update/', views.api_famille_update_modal, name='api_famille_update'),
+    path('api/famille/<int:id>/delete/', views.api_famille_delete_modal, name='api_famille_delete'),
+    path('api/famille/<int:id>/', views.api_famille_detail, name='api_famille_detail'),
+
+
     path('profil-employee/', profilEmployee, name='profile-employee'),
-    path('conges/', conges, name='conges'),
     path('validerConges/', validerConges, name='valider-conges'),
-    path('feuille-de-temps/', feuilleDeTemps, name='feuilleDeTemps'),
-    path('planification/', planification, name='planification'),
-    path('presence/', presence, name='presence'),
-    # path('gestion_absence/', gestion_absence, name='gestion-absence'),
 ]

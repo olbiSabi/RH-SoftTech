@@ -1,261 +1,189 @@
-{% extends 'base/base.html' %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ONIAN-SofTech{% endblock %}</title>
 
-{% block extrastylet %}
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-<!-- STYLES DES ONGLETS -->
-<link rel="stylesheet" href="{% static 'assets/css/employee_tabs.css' %}">
-{% endblock %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/AdminLTELogo.png' %}">
+    <!-- Chargez les CSS un par un pour debug -->
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/dossier_individuel.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/dossier_individuel_base.css' %}">
+</head>
+<body data-employe-uuid="{% if employe %}{{ employe.uuid }}{% endif %}">
+<!-- Header -->
+{% include 'base/header.html' %}
 
-{% block pageContent %}
+<!-- Container principal -->
+<div class="container-fluid">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>Liste des Employés ({{ employes_actifs.count }})</h2>
+            <input type="text" class="search-box" placeholder="Rechercher un employé..." id="searchBox">
+        </div>
+        <ul class="employee-list" id="employeeList">
+            {% for emp in employes_actifs %}
+            <li class="employee-item {% if employe and emp.uuid == employe.uuid %}active{% endif %}"
+                data-uuid="{{ emp.uuid }}">
+                <div class="employee-matricule">{{ emp.matricule }}</div>
+                <div class="employee-name">{{ emp.nom }} {{ emp.prenoms }}</div>
+            </li>
+            {% empty %}
+            <li style="padding: 20px; text-align: center; color: #999;">
+                Aucun employé trouvé
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
 
-<!-- CONTENEUR PRINCIPAL AVEC ANIMATION -->
-<div class="page-container">
-    <div class="container mt-2">
-        <!-- BARRE D'ONGLETS -->
-        <div class="card tab-box">
-            <div class="row user-tabs">
-                <div class="col-12">
-                    <ul class="nav nav-tabs nav-tabs-bottom" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="emp_agent-tab" data-bs-toggle="tab" data-bs-target="#emp_agent" type="button" role="tab" aria-controls="emp_agent" aria-selected="true">
-                                <i class="bi bi-person-badge"></i> Agent
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="emp_coordonnee-tab" data-bs-toggle="tab" data-bs-target="#emp_coordonnee" type="button" role="tab" aria-controls="emp_coordonnee" aria-selected="false">
-                                <i class="bi bi-telephone"></i> Coordonnées
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="emp_famille-tab" data-bs-toggle="tab" data-bs-target="#emp_famille" type="button" role="tab" aria-controls="emp_famille" aria-selected="false">
-                                <i class="bi bi-people"></i> Famille
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="bank_statutory-tab" data-bs-toggle="tab" data-bs-target="#bank_statutory" type="button" role="tab" aria-controls="bank_statutory" aria-selected="false">
-                                <i class="bi bi-bank"></i> Banque & Situation
-                            </button>
-                        </li>
-                    </ul>
-                </div>
+    <!-- Content principal -->
+    <div class="content">
+        {% if not employe %}
+        <div id="emptyState" class="empty-state">
+            <div class="empty-state-icon">👥</div>
+            <h3>Sélectionnez un employé</h3>
+            <p>Cliquez sur un employé dans la liste pour afficher ses informations</p>
+        </div>
+        {% else %}
+        <div class="content-header">
+            <!-- Photo cliquable -->
+            <div class="photo-container">
+                <img src="{{ employe.get_photo_url }}"
+                     alt="{{ employe.nom }}"
+                     class="employee-photo photo-clickable"
+                     id="employeePhoto"
+                     data-employe-uuid="{{ employe.uuid }}">
+                <input type="file"
+                       id="photoInput"
+                       accept=".jpg,.jpeg,.png,.gif"
+                       style="display: none;">
+            </div>
+            <div class="employee-info">
+                <h1 class="employee-title">{{ employe.nom }} {{ employe.prenoms }}</h1>
+                <p class="employee-subtitle">
+                    Matricule: {{ employe.matricule }} |
+                    {% if employe.etat == 'actif' %}
+                    <span class="badge badge-success">Actif</span>
+                    {% else %}
+                    <span class="badge badge-danger">Inactif</span>
+                    {% endif %}
+                </p>
             </div>
         </div>
-
-        <!-- CONTENU DES ONGLETS -->
-        <div class="tab-content" id="employeeTabContent">
-            <!-- ONGLET 1 : AGENT -->
-            {% include 'employee/onglets/agents.html' %}
-
-            <!-- ONGLET 2 : COORDONNÉES -->
-            {% include 'employee/onglets/coordonnees.html' %}
-
-            <!-- ONGLET 3 : FAMILLE -->
-            {% include 'employee/onglets/famille.html' %}
-
-            <!-- ONGLET 4 : BANQUE & SITUATION -->
-            {% include 'employee/onglets/banque_situation.html' %}
+        <!-- Onglets -->
+        <div class="tabs">
+            <a href="{% url 'dossier_individuel_detail' employe.uuid %}?tab=donnees"
+               class="tab {% if request.GET.tab == 'donnees' or not request.GET.tab %}active{% endif %}">
+                Données Agent
+            </a>
+            <a href="{% url 'dossier_individuel_detail' employe.uuid %}?tab=coordonnees"
+               class="tab {% if request.GET.tab == 'coordonnees' %}active{% endif %}">
+                Coordonnées
+            </a>
+            <a href="{% url 'dossier_individuel_detail' employe.uuid %}?tab=contrats"
+               class="tab {% if request.GET.tab == 'contrats' %}active{% endif %}">
+                Contrats & Affectations
+            </a>
+            <a href="{% url 'dossier_individuel_detail' employe.uuid %}?tab=famille"
+               class="tab {% if request.GET.tab == 'famille' %}active{% endif %}">
+                Famille
+            </a>
+            <a href="{% url 'dossier_individuel_detail' employe.uuid %}?tab=documents"
+               class="tab {% if request.GET.tab == 'documents' %}active{% endif %}">
+                Documents
+            </a>
         </div>
+
+        {% include 'employee/onglets/onglet_dossier_individuel.html' %}
+
+        {% endif %}
     </div>
 </div>
 
-<!-- MODAL POUR MODIFIER LA PHOTO -->
-<div class="modal fade" id="photoModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="bi bi-camera"></i> Modifier la photo de profil
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="photoForm" enctype="multipart/form-data">
-                {% csrf_token %}
-                <input type="hidden" name="employe_uuid" value="{{ employe.uuid }}">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="photoFile" class="form-label">Choisir une photo <span class="text-danger">*</span></label>
-                        <input type="file" class="form-control" id="photoFile" name="photo" accept="image/jpeg,image/png,image/gif" required>
-                        <div class="form-text">
-                            Format carré recommandé (1:1) - Max 5 MB<br>
-                            Formats acceptés: JPG, PNG, GIF
-                        </div>
-                    </div>
-                    <div id="photoPreview" class="text-center d-none">
-                        <img id="previewImage" src="" alt="Aperçu" style="max-width: 100%; max-height: 300px; border-radius: 8px;">
-                    </div>
-                    <div class="alert alert-danger d-none" id="photoError"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="bi bi-x-circle"></i> Annuler
-                    </button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-upload"></i> Enregistrer
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+<!-- MODALES -->
+{% if employe %}
 
-<!-- AUTRES MODALS -->
-{% include 'employee/modal/modal_employee.html' %}
+{% include 'employee/modal/modal_dossier_individuel.html' %}
 
-{% endblock %}
+{% endif %}
 
-{% block extrascript %}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="{% static 'assets/js/modal.js' %}"></script>
-
+<script src="{% static 'assets/js/dossier_individuel.js' %}"></script>
 <script>
-    /**
- * ========================================
- * CONSERVATION DE L'ONGLET ACTIF
- * ========================================
- *
- * Ce script permet de :
- * 1. Sauvegarder l'onglet actif dans l'URL (#)
- * 2. Restaurer l'onglet après rechargement de la page
- * 3. Rester sur l'onglet après une action (ajout/modif/suppression)
- */
-
-(function() {
-    'use strict';
-
-    // ========================================
-    // 1. RESTAURER L'ONGLET AU CHARGEMENT
-    // ========================================
+    // Gestion du changement de photo
     document.addEventListener('DOMContentLoaded', function() {
-        // Récupérer l'onglet depuis l'URL (après le #)
-        let hash = window.location.hash;
+        const photoElement = document.getElementById('employeePhoto');
+        const photoInput = document.getElementById('photoInput');
+        const photoOverlay = document.querySelector('.photo-overlay');
 
-        // Si pas de hash, récupérer depuis localStorage (fallback)
-        if (!hash) {
-            hash = localStorage.getItem('activeTab');
-        }
-
-        if (hash) {
-            // Activer l'onglet correspondant
-            const tabTrigger = document.querySelector(`button[data-bs-target="${hash}"]`);
-            if (tabTrigger) {
-                const tab = new bootstrap.Tab(tabTrigger);
-                tab.show();
-
-                // Scroller vers le haut de la page
-                window.scrollTo(0, 0);
+        if (photoElement && photoInput) {
+            // Rendre la photo et l'overlay cliquables
+            photoElement.addEventListener('click', () => photoInput.click());
+            if (photoOverlay) {
+                photoOverlay.addEventListener('click', () => photoInput.click());
             }
-        }
-    });
 
-    // ========================================
-    // 2. SAUVEGARDER L'ONGLET AU CLIC
-    // ========================================
-    document.addEventListener('shown.bs.tab', function(event) {
-        // Récupérer l'ID de l'onglet activé
-        const tabId = event.target.getAttribute('data-bs-target');
+            // Gérer le changement de fichier
+            photoInput.addEventListener('change', async function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
 
-        // Sauvegarder dans l'URL
-        history.pushState(null, null, tabId);
-
-        // Sauvegarder dans localStorage (fallback)
-        localStorage.setItem('activeTab', tabId);
-    });
-
-    // ========================================
-    // 3. CONSERVER L'ONGLET LORS DES ACTIONS FORMULAIRE
-    // ========================================
-
-    // Intercepter tous les formulaires
-    document.addEventListener('submit', function(event) {
-        const form = event.target;
-
-        // Récupérer l'onglet actif
-        const activeTab = document.querySelector('.nav-link.active');
-        if (activeTab) {
-            const tabId = activeTab.getAttribute('data-bs-target');
-
-            // Ajouter l'onglet comme champ caché dans le formulaire
-            let hiddenField = form.querySelector('input[name="active_tab"]');
-            if (!hiddenField) {
-                hiddenField = document.createElement('input');
-                hiddenField.type = 'hidden';
-                hiddenField.name = 'active_tab';
-                form.appendChild(hiddenField);
-            }
-            hiddenField.value = tabId;
-        }
-    });
-
-    // ========================================
-    // 4. GESTION DES MODALS
-    // ========================================
-
-    // Quand on ouvre un modal, sauvegarder l'onglet actif
-    document.querySelectorAll('.modal').forEach(function(modal) {
-        modal.addEventListener('show.bs.modal', function() {
-            const activeTab = document.querySelector('.nav-link.active');
-            if (activeTab) {
-                const tabId = activeTab.getAttribute('data-bs-target');
-
-                // Sauvegarder dans le modal
-                const form = modal.querySelector('form');
-                if (form) {
-                    let hiddenField = form.querySelector('input[name="active_tab"]');
-                    if (!hiddenField) {
-                        hiddenField = document.createElement('input');
-                        hiddenField.type = 'hidden';
-                        hiddenField.name = 'active_tab';
-                        form.appendChild(hiddenField);
-                    }
-                    hiddenField.value = tabId;
+                // Validation
+                const ext = '.' + file.name.split('.').pop().toLowerCase();
+                if (!['.jpg', '.jpeg', '.png', '.gif'].includes(ext)) {
+                    showAlert('Format non autorisé. Formats acceptés: JPG, JPEG, PNG, GIF', 'danger');
+                    return;
                 }
-            }
-        });
-    });
 
-    // ========================================
-    // 5. GESTION DES LIENS DE SUPPRESSION
-    // ========================================
+                if (file.size > 5 * 1024 * 1024) {
+                    showAlert('La taille de la photo ne doit pas dépasser 5 MB', 'danger');
+                    return;
+                }
 
-    // Ajouter l'onglet actif aux liens de suppression
-    document.addEventListener('click', function(event) {
-        const target = event.target.closest('a[href*="supprimer"], a[href*="delete"]');
+                // Aperçu immédiat
+                const reader = new FileReader();
+                reader.onload = (e) => photoElement.src = e.target.result;
+                reader.readAsDataURL(file);
 
-        if (target) {
-            const activeTab = document.querySelector('.nav-link.active');
-            if (activeTab) {
-                const tabId = activeTab.getAttribute('data-bs-target');
-                const url = new URL(target.href, window.location.origin);
-                url.searchParams.set('active_tab', tabId);
-                target.href = url.toString();
-            }
+                // Envoyer au serveur
+                await uploadPhoto(file, photoElement);
+            });
         }
     });
 
-    // ========================================
-    // 6. GESTION DES SUPPRESSIONS AJAX
-    // ========================================
+    async function uploadPhoto(file, photoElement) {
+        const formData = new FormData();
+        formData.append('employe_uuid', photoElement.dataset.employeUuid);
+        formData.append('photo', file);
 
-    // Pour les fonctions de confirmation de suppression
-    window.getActiveTabId = function() {
-        const activeTab = document.querySelector('.nav-link.active');
-        return activeTab ? activeTab.getAttribute('data-bs-target') : '#emp_agent';
-    };
+        showLoading();
+        try {
+            const response = await fetch('/employe/ajax/photo/modifier/', {
+                method: 'POST',
+                headers: {'X-CSRFToken': csrftoken},
+                body: formData
+            });
 
-    // ========================================
-    // 7. DEBUGGING (à supprimer en production)
-    // ========================================
+            const data = await response.json();
 
-    // Afficher l'onglet actif dans la console
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        document.addEventListener('shown.bs.tab', function(event) {
-            console.log('🔄 Onglet activé:', event.target.getAttribute('data-bs-target'));
-        });
+            if (response.ok && data.success) {
+                showAlert('✅ Photo mise à jour avec succès', 'success');
+                if (data.photo_url) {
+                    photoElement.src = data.photo_url + '?t=' + new Date().getTime();
+                }
+            } else {
+                showAlert('❌ ' + (data.error || 'Erreur inconnue'), 'danger');
+            }
+        } catch (error) {
+            showAlert('❌ Erreur lors du téléchargement', 'danger');
+        } finally {
+            hideLoading();
+            document.getElementById('photoInput').value = '';
+        }
     }
-
-})();
-
 </script>
-{% endblock %}
+</body>
+</html>

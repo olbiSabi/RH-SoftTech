@@ -1,0 +1,381 @@
+ {% load static %}
+<!-- Modale Adresse -->
+<div id="adresseModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="adresseModalTitle">Ajouter une adresse</h2>
+            <button type="button" class="close">&times;</button>
+        </div>
+        <form id="adresseForm">
+            {% csrf_token %}
+            <input type="hidden" name="employe_uuid" value="{{ employe.uuid }}">
+            <div class="modal-body">
+                <div class="modal-form-group">
+                    <select id="type_adresse" name="type_adresse" required>  <!-- ← type_adresse sans 's' -->
+                        <option value="">Sélectionner...</option>
+                        <option value="PRINCIPALE">Principale</option>
+                        <option value="SECONDAIRE">Secondaire</option>
+                    </select>
+                </div>
+                <div class="modal-form-group">
+                    <label for="rue" class="required">Rue</label>
+                    <input type="text" id="rue" name="rue" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="complement">Complément d'adresse</label>
+                    <input type="text" id="complement" name="complement">
+                </div>
+                <div class="modal-form-group">
+                    <label for="code_postal" class="required">Code postal</label>
+                    <input type="text" id="code_postal" name="code_postal" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="ville" class="required">Ville</label>
+                    <input type="text" id="ville" name="ville" required>
+                </div>
+                <div class="modal-form-group">
+                    {% include 'employee/modal/pays.html' %}
+                </div>
+                <div class="modal-form-group">
+                    <label for="date_debut" class="required">Date de début</label>
+                    <input type="date" id="date_debut" name="date_debut" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="date_fin">Date de fin</label>
+                    <input type="date" id="date_fin" name="date_fin">
+                </div>
+                <div class="modal-form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="actif" name="actif" checked>
+                        Adresse active
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-cancel">Annuler</button>
+                <button type="submit" class="btn btn-primary" id="adresseSubmitBtn">Ajouter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modale Téléphone -->
+<div id="telephoneModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="telephoneModalTitle">Ajouter un téléphone</h2>
+            <button type="button" class="close">&times;</button>
+        </div>
+        <form id="telephoneForm">
+            {% csrf_token %}
+            <input type="hidden" name="employe_uuid" value="{{ employe.uuid }}">
+            <div class="modal-body">
+                <div class="modal-form-group">
+                    <label for="numero" class="required">Numéro de téléphone</label>
+                    <input type="tel" id="numero" name="numero" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="date_debut_validite_tel" class="required">Date de début de validité</label>
+                    <input type="date" id="date_debut_validite_tel" name="date_debut_validite" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="date_fin_validite_tel">Date de fin de validité</label>
+                    <input type="date" id="date_fin_validite_tel" name="date_fin_validite">
+                </div>
+                <div class="modal-form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="actif_tel" name="actif" checked>
+                        Téléphone actif
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-cancel">Annuler</button>
+                <button type="submit" class="btn btn-primary" id="telephoneSubmitBtn">Ajouter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modale Email -->
+<div id="emailModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="emailModalTitle">Ajouter un email</h2>
+            <button type="button" class="close">&times;</button>
+        </div>
+        <form id="emailForm">
+            {% csrf_token %}
+            <input type="hidden" name="employe_uuid" value="{{ employe.uuid }}">
+            <div class="modal-body">
+                <div class="modal-form-group">
+                    <label for="email" class="required">Adresse email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="date_debut_validite_email" class="required">Date de début de validité</label>
+                    <input type="date" id="date_debut_validite_email" name="date_debut_validite" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="date_fin_validite_email">Date de fin de validité</label>
+                    <input type="date" id="date_fin_validite_email" name="date_fin_validite">
+                </div>
+                <div class="modal-form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="actif_email" name="actif" checked>
+                        Email actif
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-cancel">Annuler</button>
+                <button type="submit" class="btn btn-primary" id="emailSubmitBtn">Ajouter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modale Document -->
+<div id="documentModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="documentModalTitle">Ajouter un document</h2>
+            <button type="button" class="close">&times;</button>
+        </div>
+        <form id="documentForm" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="employe_uuid" value="{{ employe.uuid }}">
+            <div class="modal-body">
+                <div class="modal-form-group">
+                    <label for="type_document" class="required">Type de document</label>
+                    <select id="type_document" name="type_document" required>
+                        <option value="">-- Sélectionner --</option>
+                            <option value="CV">CV</option>
+                            <option value="LETTRE_MOTIVATION">Lettre de motivation</option>
+                            <option value="DIPLOME">Diplôme</option>
+                            <option value="ATTESTATION_FORMATION">Attestation de formation</option>
+                            <option value="CERTIFICAT_TRAVAIL">Certificat de travail</option>
+                            <option value="LETTRE_RECOMMANDATION">Lettre de recommandation</option>
+                            <option value="CNI">Carte Nationale d\'Identité</option>
+                            <option value="PASSEPORT">Passeport</option>
+                            <option value="ACTE_NAISSANCE">Acte de naissance</option>
+                            <option value="CERTIFICAT_RESIDENCE">Certificat de résidence</option>
+                            <option value="RIB">RIB</option>
+                            <option value="ATTESTATION_SECURITE_SOCIALE">Attestation sécurité sociale</option>
+                            <option value="CERTIFICAT_MEDICAL">Certificat médical</option>
+                            <option value="CONTRAT_SIGNE">Contrat signé</option>
+                            <option value="ATTESTATION_ASSURANCE">Attestation d\'assurance</option>
+                            <option value="JUSTIFICATIF_DOMICILE">Justificatif de domicile</option>
+                            <option value="PHOTO_IDENTITE">Photo d\'identité</option>
+                            <option value="AUTRES">Autres</option>
+                    </select>
+                </div>
+                <div class="modal-form-group">
+                    <label for="fichier" class="required">Fichier</label>
+                    <input type="file" id="fichier" name="fichier" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-cancel">Annuler</button>
+                <button type="submit" class="btn btn-primary">Ajouter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modale de confirmation de suppression -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-header">
+            <h2>Confirmer la suppression</h2>
+            <button type="button" class="close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Êtes-vous sûr de vouloir supprimer cet élément ? Cette action est irréversible.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-cancel">Annuler</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Supprimer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Overlay de chargement -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="spinner"></div>
+</div>
+
+<!-- Modale Contrat -->
+<div id="contratModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="contratModalTitle">Ajouter un contrat</h2>
+            <button type="button" class="close">&times;</button>
+        </div>
+        <form id="contratForm">
+            {% csrf_token %}
+            <input type="hidden" name="employe_uuid" value="{{ employe.uuid }}">
+            <div class="modal-body">
+                <div class="modal-form-group">
+                    <label for="type_contrat" class="required">Type de contrat</label>
+                    <select id="type_contrat" name="type_contrat" required>
+                        <option value="">Sélectionner...</option>
+                        <option value="CDI">CDI - Contrat à Durée Indéterminée</option>
+                        <option value="CDD">CDD - Contrat à Durée Déterminée</option>
+                        <option value="Stage">Stage</option>
+                        <option value="Alternance">Alternance</option>
+                        <option value="Prestation">Prestation de service</option>
+                        <option value="Interim">Intérim</option>
+                        <option value="Apprentissage">Apprentissage</option>
+                        <option value="Contractuelle">Contractuelle</option>
+                        <option value="Vacataire">Vacataire</option>
+                    </select>
+                </div>
+                <div class="modal-form-group">
+                    <label for="date_debut_contrat" class="required">Date de début</label>
+                    <input type="date" id="date_debut_contrat" name="date_debut" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="date_fin_contrat">Date de fin</label>
+                    <input type="date" id="date_fin_contrat" name="date_fin">
+                    <small style="color: #666; font-size: 12px;">
+                        Laisser vide pour un contrat sans date de fin (ex: CDI)
+                    </small>
+                </div>
+                <div class="modal-form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="actif_contrat" name="actif" checked>
+                        Contrat actif
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-cancel">Annuler</button>
+                <button type="submit" class="btn btn-primary" id="contratSubmitBtn">Ajouter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modale Affectation -->
+<div id="affectationModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="affectationModalTitle">Ajouter une affectation</h2>
+            <button type="button" class="close">&times;</button>
+        </div>
+        <form id="affectationForm">
+            {% csrf_token %}
+            <input type="hidden" name="employe_uuid" value="{{ employe.uuid }}">
+            <div class="modal-body">
+                <!--<div class="modal-form-group">
+                    <label for="departement" class="required">Département</label>
+                    <select id="departement" name="departement" required>
+                        <option value="">Sélectionner un département...</option>
+                        {% for dept in departements %}
+                        <option value="{{ dept.id }}">{{ dept.LIBELLE }}</option>
+                        {% endfor %}
+                    </select>
+                </div>-->
+                <div class="modal-form-group">
+                    <label for="poste" class="required">Poste</label>
+                    <select id="poste" name="poste" required>
+                        <option value="">Sélectionner un poste...</option>
+                        {% for poste in postes %}
+                        <option value="{{ poste.id }}">{{ poste.LIBELLE }} ( Departement: {{ poste.DEPARTEMENT }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="modal-form-group">
+                    <label for="date_debut_affectation" class="required">Date de début</label>
+                    <input type="date" id="date_debut_affectation" name="date_debut" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="date_fin_affectation">Date de fin</label>
+                    <input type="date" id="date_fin_affectation" name="date_fin">
+                    <small style="color: #666; font-size: 12px;">
+                        Laisser vide pour une affectation en cours
+                    </small>
+                </div>
+                <div class="modal-form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="actif_affectation" name="actif" checked>
+                        Affectation active
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-cancel">Annuler</button>
+                <button type="submit" class="btn btn-primary" id="affectationSubmitBtn">Ajouter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+ <!-- Modale Famille -->
+<div id="familleModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="familleModalTitle">Ajouter une personne à charge</h2>
+            <button type="button" class="close">&times;</button>
+        </div>
+        <form id="familleForm">
+            {% csrf_token %}
+            <input type="hidden" name="employe_uuid" value="{{ employe.uuid }}">
+            <div class="modal-body">
+                <div class="modal-form-group">
+                    <label for="personne_charge" class="required">Personne en charge</label>
+                    <select id="personne_charge" name="personne_charge" required>
+                        <option value="">Sélectionner...</option>
+                        <option value="ENFANT">Enfant</option>
+                        <option value="CONJOINT">Conjoint</option>
+                        <option value="PARENT">Parent</option>
+                        <option value="AUTRE">Autre personne à charge</option>
+                    </select>
+                </div>
+                <div class="modal-form-group">
+                    <label for="nom" class="required">Nom</label>
+                    <input type="text" id="nom" name="nom" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="prenom" class="required">Prénom</label>
+                    <input type="text" id="prenom" name="prenom" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="sexe" class="required">Sexe</label>
+                    <select id="sexe" name="sexe" required>
+                        <option value="">Sélectionner...</option>
+                        <option value="M">Masculin</option>
+                        <option value="F">Féminin</option>
+                    </select>
+                </div>
+                <div class="modal-form-group">
+                    <label for="date_naissance" class="required">Date de naissance</label>
+                    <input type="date" id="date_naissance" name="date_naissance" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="date_debut_prise_charge" class="required">Date de début de prise en charge</label>
+                    <input type="date" id="date_debut_prise_charge" name="date_debut_prise_charge" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="date_fin_prise_charge">Date de fin de prise en charge</label>
+                    <input type="date" id="date_fin_prise_charge" name="date_fin_prise_charge">
+                </div>
+                <div class="modal-form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="actif_famille" name="actif" checked>
+                        Prise en charge active
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-cancel">Annuler</button>
+                <button type="submit" class="btn btn-primary" id="familleSubmitBtn">Ajouter</button>
+            </div>
+        </form>
+    </div>
+</div>

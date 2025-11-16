@@ -35,6 +35,46 @@
                 transform: translateY(0);
             }
         }
+
+
+.icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+
+.icon-btn i {
+    font-size: 16px;
+}
+
+.view-btn {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.edit-btn {
+    background-color: #fff3e0;
+    color: #f57c00;
+}
+
+.delete-btn {
+    background-color: #ffebee;
+    color: #d32f2f;
+}
+
+.icon-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+
     </style>
 {% endblock %}
 
@@ -86,8 +126,8 @@
                     </span>
                 {% endif %}
                 <div class="pro-edit">
-                    <a href="{% url 'modifier_employe' employe.uuid %}"  class="edit-icon">
-                    <i class="fa fa-pencil"></i> </a>
+                    <a href="{% url 'modifier_employe' employe.uuid %}"  class="icon-btn edit-btn">
+                    <i class="fa-solid fa-pencil"></i> </a>
                 </div>
             </div>
             <div class="card-body">
