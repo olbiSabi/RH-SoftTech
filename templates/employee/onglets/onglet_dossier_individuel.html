@@ -75,6 +75,40 @@
                 <label>État du dossier</label>
                 <input type="text" value="{{ employe.get_etat_display }}" readonly>
             </div>
+            <!-- NOUVEAU CHAMP : MANAGER -->
+            <div class="form-group">
+    <label>Manager responsable</label>
+    {% with manager=employe.get_manager_responsable %}
+        {% if manager %}
+        <div class="manager-display">
+            <div class="d-flex align-items-center">
+                {% if manager.employe.photo %}
+                <img src="{{ manager.employe.photo.url }}" alt="Photo manager"
+                     class="rounded-circle me-2" width="32" height="32">
+                {% else %}
+                <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center"
+                     style="width: 32px; height: 32px;">
+                    <i class="fas fa-user text-white"></i>
+                </div>
+                {% endif %}
+                <div>
+                    <strong>{{ manager.employe.nom }} {{ manager.employe.prenoms }}</strong>
+                    <br>
+                    <small class="text-muted">
+                        {{ manager.departement.LIBELLE }}
+                        (depuis le {{ manager.date_debut|date:"d/m/Y" }})
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-muted">
+            <i class="fas fa-exclamation-circle me-1"></i>
+            Aucun manager défini
+        </div>
+        {% endif %}
+    {% endwith %}
+</div>
         </div>
     </div>
 </div>

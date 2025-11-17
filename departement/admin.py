@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import ZDDE
+from django.utils.html import format_html
+
+from .models import ZDDE, ZYMA
 from datetime import date
 from .models import ZDPO
 
@@ -67,3 +69,45 @@ class ZDPOAdmin(admin.ModelAdmin):
         return obj.DATEFIN.strftime('%d/%m/%Y')
 
     get_datefin_display.short_description = 'Date Fin'
+
+
+@admin.register(ZYMA)
+class ZYMAAdmin(admin.ModelAdmin):
+    """Admin pour les managers de département"""
+    list_display = (
+        'departement_display',
+        'employe_display',
+        'date_debut',
+        'date_fin',
+        'statut_actif'  # ← CORRIGER ICI - changer le nom
+    )
+    list_filter = (
+        'departement',
+        'actif',
+        'date_debut',
+        'date_fin'
+    )
+    search_fields = (
+        'departement__LIBELLE',
+        'employe__nom',
+        'employe__prenoms',
+        'employe__matricule'
+    )
+    readonly_fields = ('actif',)
+
+    def departement_display(self, obj):
+        return f"{obj.departement.LIBELLE} ({obj.departement.CODE})"
+    departement_display.short_description = 'Département'
+
+    def employe_display(self, obj):
+        return f"{obj.employe.nom} {obj.employe.prenoms} ({obj.employe.matricule})"
+    employe_display.short_description = 'Manager'
+
+    def statut_actif(self, obj):  # ← CORRIGER ICI - renommer la méthode
+        if obj.actif:
+            return format_html('<span style="color: green;">● Actif</span>')
+        return format_html('<span style="color: red;">● Inactif</span>')
+    statut_actif.short_description = 'Statut'
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('departement', 'employe')

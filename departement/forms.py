@@ -1,5 +1,7 @@
 from django import forms
-from .models import ZDDE, ZDPO
+
+from employee.models import ZY00
+from .models import ZDDE, ZDPO, ZYMA
 from datetime import datetime
 
 
@@ -212,3 +214,29 @@ class ZDPOForm(forms.ModelForm):
                 })
 
         return cleaned_data
+
+
+# Dans forms.py
+class ZYMAForm(forms.ModelForm):
+    """Formulaire pour les managers de département"""
+
+    class Meta:
+        model = ZYMA
+        fields = ['departement', 'employe', 'date_debut', 'date_fin']
+        widgets = {
+            'date_debut': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'date_fin': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'departement': forms.Select(attrs={'class': 'form-control'}),
+            'employe': forms.Select(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'date_debut': 'Date de début de gestion',
+            'date_fin': 'Date de fin de gestion (optionnelle)',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filtrer les employés pour ne montrer que les salariés
+        self.fields['employe'].queryset = ZY00.objects.filter(type_dossier='SAL', etat='actif')
+        # Filtrer les départements actifs
+        self.fields['departement'].queryset = ZDDE.objects.filter(STATUT=True)

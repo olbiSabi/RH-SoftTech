@@ -195,6 +195,22 @@ class ZY00(models.Model):
             self.affectations.filter(actif=True).update(actif=False)
             self.adresses.filter(actif=True).update(actif=False)
 
+    def get_manager_responsable(self):
+        """Retourne le manager responsable de cet employé"""
+        try:
+            from departement.models import ZYMA
+            # Récupérer l'affectation active
+            affectation_active = self.affectations.filter(
+                date_fin__isnull=True
+            ).select_related('poste__DEPARTEMENT').first()
+
+            if affectation_active and affectation_active.poste.DEPARTEMENT:
+                return ZYMA.get_manager_actif(affectation_active.poste.DEPARTEMENT)
+            return None
+        except Exception:
+            return None
+
+
 ######################
 ###  Contrat ZYCO  ###
 ######################

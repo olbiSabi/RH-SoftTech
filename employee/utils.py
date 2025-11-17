@@ -57,3 +57,25 @@ def get_active_tab_for_ajax(request):
         return {'active_tab': active_tab}
 
     return {}
+
+
+# employee/utils.py
+def get_manager_employe(employe):
+    """Retourne le manager d'un employé basé sur son département d'affectation"""
+    try:
+        from .models import ZYAF
+        from departement.models import ZYMA
+
+        # Récupérer l'affectation active de l'employé
+        affectation_active = ZYAF.objects.filter(
+            employe=employe,
+            date_fin__isnull=True
+        ).first()
+
+        if affectation_active and affectation_active.poste.DEPARTEMENT:
+            # Récupérer le manager du département de l'affectation
+            manager = ZYMA.get_manager_actif(affectation_active.poste.DEPARTEMENT)
+            return manager
+        return None
+    except Exception:
+        return None

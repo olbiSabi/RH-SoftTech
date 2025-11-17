@@ -272,7 +272,7 @@
             {% csrf_token %}
             <input type="hidden" name="employe_uuid" value="{{ employe.uuid }}">
             <div class="modal-body">
-                <!--<div class="modal-form-group">
+                <div class="modal-form-group">
                     <label for="departement" class="required">Département</label>
                     <select id="departement" name="departement" required>
                         <option value="">Sélectionner un département...</option>
@@ -280,13 +280,13 @@
                         <option value="{{ dept.id }}">{{ dept.LIBELLE }}</option>
                         {% endfor %}
                     </select>
-                </div>-->
+                </div>
                 <div class="modal-form-group">
                     <label for="poste" class="required">Poste</label>
                     <select id="poste" name="poste" required>
                         <option value="">Sélectionner un poste...</option>
                         {% for poste in postes %}
-                        <option value="{{ poste.id }}">{{ poste.LIBELLE }} ( Departement: {{ poste.DEPARTEMENT }})</option>
+                        <option value="{{ poste.id }}">{{ poste.LIBELLE }}</option>
                         {% endfor %}
                     </select>
                 </div>
