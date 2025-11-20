@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}ONIAN-EasyM{% endblock %}</title>
+    <title>{% block title %}EasyM{% endblock %}</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/AdminLTELogo.png' %}">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/logo/Onian-EasyM.png' %}">
     <!-- Chargez les CSS un par un pour debug -->
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/dossier_individuel.css' %}">
@@ -63,7 +63,7 @@
                        style="display: none;">
             </div>
             <div class="employee-info">
-                <h1 class="employee-title">{{ employe.nom }} {{ employe.prenoms }}</h1>
+                <h1 class="employee-title">{{ employe.username }} {{ employe.prenomuser }}</h1>
                 <p class="employee-subtitle">
                     Matricule: {{ employe.matricule }} |
                     {% if employe.etat == 'actif' %}
