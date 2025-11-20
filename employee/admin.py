@@ -1,7 +1,8 @@
 from django.contrib import admin
-from .models import ZY00, ZYCO, ZYTE, ZYME, ZYAF, ZYAD, ZYDO, ZYFA
+from .models import ZY00, ZYCO, ZYTE, ZYME, ZYAF, ZYAD, ZYDO, ZYFA, ZYNP, ZYPP, ZYIB
 from django.utils.html import format_html
 from django.urls import reverse
+from django.utils import timezone
 
 # ===============================
 # ADMIN INLINES
@@ -63,6 +64,53 @@ class ZYFAInline(admin.TabularInline):
     readonly_fields = ('actif',)
 
 
+class ZYNPInline(admin.TabularInline):
+    """Historique noms/prénoms inline dans l'admin employé"""
+    model = ZYNP
+    extra = 0
+    fields = ('nom', 'prenoms', 'date_debut_validite', 'date_fin_validite', 'actif_status')
+    readonly_fields = ('actif_status',)
+    ordering = ['-date_debut_validite']
+
+    def actif_status(self, obj):
+        if obj.actif and not obj.date_fin_validite:
+            return format_html('<span style="color: green; font-weight: bold;">● Actuel</span>')
+        elif obj.actif:
+            return format_html('<span style="color: orange;">● Futur</span>')
+        else:
+            return format_html('<span style="color: red;">● Passé</span>')
+
+    actif_status.short_description = 'Statut'
+
+
+class ZYPPInline(admin.TabularInline):
+    """Inline pour afficher les personnes à prévenir dans l'admin de ZY00"""
+    model = ZYPP
+    extra = 0
+    max_num = 3  # Maximum 3 contacts (un par priorité)
+
+    fields = [
+        'ordre_priorite',
+        'prenom',
+        'nom',
+        'lien_parente',
+        'telephone_principal',
+        'telephone_secondaire',
+        'actif',
+    ]
+
+    readonly_fields = []
+
+    classes = ['collapse']
+
+    verbose_name = "Personne à prévenir en cas d'urgence"
+    verbose_name_plural = "Personnes à prévenir en cas d'urgence"
+
+    def get_queryset(self, request):
+        """Affiche uniquement les contacts actifs par défaut"""
+        qs = super().get_queryset(request)
+        return qs.filter(actif=True, date_fin_validite__isnull=True).order_by('ordre_priorite')
+
 # ===============================
 # ADMIN MODEL ADMINS
 # ===============================
@@ -72,7 +120,8 @@ class ZY00Admin(admin.ModelAdmin):
     """Admin pour les employés (ZY00)"""
     list_display = (
         'matricule',
-        'nom_complet',
+        'username',
+        'prenomuser',
         'type_dossier_display',
         'etat_display',
         'photo_preview'
@@ -85,8 +134,8 @@ class ZY00Admin(admin.ModelAdmin):
     )
     search_fields = (
         'matricule',
-        'nom',
-        'prenoms',
+        'username',
+        'prenomuser',
         'ville_naissance',
         'pays_naissance'
     )
@@ -644,6 +693,588 @@ class ZYDOAdmin(admin.ModelAdmin):
     exporter_liste.short_description = "Exporter la liste en CSV"
 
 
+@admin.register(ZYNP)
+class ZYNPAdmin(admin.ModelAdmin):
+    """Admin pour l'historique des noms et prénoms"""
+    list_display = (
+        'employe_display',
+        'nom_complet_historique',
+        'date_debut_validite',
+        'date_fin_validite',
+        'statut_actif',
+        'duree_validite',
+        'employe_link'
+    )
+    list_filter = (
+        'actif',
+        'date_debut_validite',
+        'date_fin_validite',
+        'employe__type_dossier'
+    )
+    search_fields = (
+        'nom',
+        'prenoms',
+        'employe__matricule',
+        'employe__nom',
+        'employe__prenoms'
+    )
+    readonly_fields = (
+        'date_creation',
+        'employe_link',
+        'informations_employe'
+    )
+    fieldsets = (
+        ('Informations Employé', {
+            'fields': ('employe_link', 'employe', 'informations_employe')
+        }),
+        ('Historique Nom/Prénom', {
+            'fields': (
+                'nom',
+                'prenoms',
+                'date_debut_validite',
+                'date_fin_validite',
+                'actif'
+            )
+        }),
+        ('Dates Techniques', {
+            'fields': ('date_creation',),
+            'classes': ('collapse',)
+        })
+    )
+
+    def employe_display(self, obj):
+        return f"{obj.employe.matricule}"
+    employe_display.short_description = 'Matricule'
+    employe_display.admin_order_field = 'employe__matricule'
+
+    def nom_complet_historique(self, obj):
+        return f"{obj.nom} {obj.prenoms}"
+    nom_complet_historique.short_description = 'Nom Complet (Historique)'
+    nom_complet_historique.admin_order_field = 'nom'
+
+    def statut_actif(self, obj):
+        if obj.actif and not obj.date_fin_validite:
+            return format_html('<span style="color: green; font-weight: bold;">● Actuel</span>')
+        elif obj.actif:
+            return format_html('<span style="color: orange;">● Futur</span>')
+        else:
+            return format_html('<span style="color: red;">● Passé</span>')
+    statut_actif.short_description = 'Statut'
+
+    def employe_link(self, obj):
+        if obj.employe:
+            url = reverse('admin:employee_zy00_change', args=[obj.employe.matricule])
+            return format_html(
+                '<a href="{}"><strong>{} - {} {}</strong></a>',
+                url,
+                obj.employe.matricule,
+                obj.employe.username or obj.employe.nom,
+                obj.employe.prenomuser or obj.employe.prenoms
+            )
+        return "-"
+    employe_link.short_description = 'Employé'
+
+    def informations_employe(self, obj):
+        if obj.employe:
+            return format_html(
+                """
+                <div style="background: #f8f9fa; padding: 10px; border-radius: 5px;">
+                    <strong>Informations actuelles de l'employé :</strong><br>
+                    • Nom affiché: <strong>{} {}</strong><br>
+                    • Nom original: {} {}<br>
+                    • Type dossier: {}<br>
+                    • État: {}
+                </div>
+                """,
+                obj.employe.username or obj.employe.nom,
+                obj.employe.prenomuser or obj.employe.prenoms,
+                obj.employe.nom,
+                obj.employe.prenoms,
+                obj.employe.get_type_dossier_display(),
+                obj.employe.get_etat_display()
+            )
+        return "-"
+    informations_employe.short_description = 'État actuel'
+
+    def duree_validite(self, obj):
+        if obj.date_fin_validite:
+            jours = (obj.date_fin_validite - obj.date_debut_validite).days
+            return format_html(
+                "{} → {}<br><small>({} jours)</small>",
+                obj.date_debut_validite.strftime("%d/%m/%Y"),
+                obj.date_fin_validite.strftime("%d/%m/%Y"),
+                jours
+            )
+        else:
+            jours_ecoules = (timezone.now().date() - obj.date_debut_validite).days
+            return format_html(
+                "Depuis {}<br><small>({} jours)</small>",
+                obj.date_debut_validite.strftime("%d/%m/%Y"),
+                jours_ecoules
+            )
+    duree_validite.short_description = 'Période'
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('employe')
+
+    # Actions personnalisées
+    actions = ['desactiver_historiques', 'activer_historiques']
+
+    def desactiver_historiques(self, request, queryset):
+        """Action pour désactiver les historiques sélectionnés"""
+        updated = queryset.update(actif=False)
+        self.message_user(request, f"{updated} historique(s) désactivé(s) avec succès.")
+    desactiver_historiques.short_description = "Désactiver les historiques sélectionnés"
+
+    def activer_historiques(self, request, queryset):
+        """Action pour activer les historiques sélectionnés"""
+        updated = queryset.update(actif=True)
+        self.message_user(request, f"{updated} historique(s) activé(s) avec succès.")
+    activer_historiques.short_description = "Activer les historiques sélectionnés"
+
+
+@admin.register(ZYPP)
+class ZYPPAdmin(admin.ModelAdmin):
+    """Administration des personnes à prévenir en cas d'urgence"""
+
+    list_display = [
+        'get_employe_info',
+        'get_nom_complet',
+        'lien_parente',
+        'telephone_principal',
+        'get_ordre_priorite_display',
+        'get_statut',
+        'date_debut_validite',
+        'date_fin_validite',
+    ]
+
+    list_filter = [
+        'lien_parente',
+        'ordre_priorite',
+        'actif',
+        'date_debut_validite',
+        'employe__type_dossier',
+    ]
+
+    search_fields = [
+        'nom',
+        'prenom',
+        'telephone_principal',
+        'telephone_secondaire',
+        'email',
+        'employe__matricule',
+        'employe__nom',
+        'employe__prenoms',
+    ]
+
+    readonly_fields = [
+        'date_creation',
+        'date_modification',
+        'get_nom_complet',
+        'get_telephones_display',
+        'get_statut_actuel',
+    ]
+
+    fieldsets = (
+        ('👤 Employé Concerné', {
+            'fields': ('employe',)
+        }),
+        ('📋 Informations Personnelles', {
+            'fields': (
+                'nom',
+                'prenom',
+                'get_nom_complet',
+                'lien_parente',
+            )
+        }),
+        ('📞 Coordonnées', {
+            'fields': (
+                'telephone_principal',
+                'telephone_secondaire',
+                'get_telephones_display',
+                'email',
+                'adresse',
+            )
+        }),
+        ('⚠️ Informations d\'Urgence', {
+            'fields': (
+                'ordre_priorite',
+                'remarques',
+            ),
+            'description': 'Priorité de contact en cas d\'urgence'
+        }),
+        ('📅 Période de Validité', {
+            'fields': (
+                'date_debut_validite',
+                'date_fin_validite',
+                'actif',
+                'get_statut_actuel',
+            )
+        }),
+        ('ℹ️ Métadonnées', {
+            'fields': (
+                'date_creation',
+                'date_modification',
+            ),
+            'classes': ('collapse',)
+        }),
+    )
+
+    autocomplete_fields = ['employe']
+
+    date_hierarchy = 'date_debut_validite'
+
+    ordering = ['employe__matricule', 'ordre_priorite', '-date_debut_validite']
+
+    list_per_page = 25
+
+    actions = [
+        'activer_contacts',
+        'desactiver_contacts',
+        'cloturer_contacts',
+    ]
+
+    # ===== MÉTHODES D'AFFICHAGE =====
+
+    @admin.display(description='Employé', ordering='employe__matricule')
+    def get_employe_info(self, obj):
+        """Affiche les informations de l'employé"""
+        return f"{obj.employe.matricule} - {obj.employe.username} {obj.employe.prenomuser}"
+
+    @admin.display(description='Nom Complet')
+    def get_nom_complet(self, obj):
+        """Affiche le nom complet de la personne à prévenir"""
+        return f"{obj.prenom} {obj.nom}"
+
+    @admin.display(description='Priorité', ordering='ordre_priorite')
+    def get_ordre_priorite_display(self, obj):
+        """Affiche la priorité avec icône"""
+        icons = {
+            1: '🔴',  # Contact principal
+            2: '🟠',  # Contact secondaire
+            3: '🟡',  # Contact tertiaire
+        }
+        icon = icons.get(obj.ordre_priorite, '⚪')
+        return f"{icon} {obj.get_ordre_priorite_display()}"
+
+    @admin.display(description='Statut', boolean=True)
+    def get_statut(self, obj):
+        """Indique si le contact est actuellement actif"""
+        return obj.est_actif()
+
+    @admin.display(description='Téléphones')
+    def get_telephones_display(self, obj):
+        """Affiche tous les téléphones disponibles"""
+        telephones = [f"📞 Principal: {obj.telephone_principal}"]
+        if obj.telephone_secondaire:
+            telephones.append(f"📱 Secondaire: {obj.telephone_secondaire}")
+        return " | ".join(telephones)
+
+    @admin.display(description='Statut Actuel')
+    def get_statut_actuel(self, obj):
+        """Affiche le statut détaillé du contact"""
+        from django.utils import timezone
+        today = timezone.now().date()
+
+        if not obj.actif:
+            return "❌ Désactivé"
+
+        if obj.date_fin_validite and obj.date_fin_validite < today:
+            return "⏹️ Clôturé"
+
+        if obj.date_debut_validite > today:
+            return f"⏳ Débute le {obj.date_debut_validite.strftime('%d/%m/%Y')}"
+
+        if obj.date_fin_validite:
+            return f"✅ Actif jusqu'au {obj.date_fin_validite.strftime('%d/%m/%Y')}"
+
+        return "✅ Actif (sans date de fin)"
+
+    # ===== ACTIONS PERSONNALISÉES =====
+
+    @admin.action(description='✅ Activer les contacts sélectionnés')
+    def activer_contacts(self, request, queryset):
+        """Active les contacts sélectionnés"""
+        updated = queryset.update(actif=True)
+        self.message_user(
+            request,
+            f"{updated} contact(s) activé(s) avec succès.",
+            level='success'
+        )
+
+    @admin.action(description='❌ Désactiver les contacts sélectionnés')
+    def desactiver_contacts(self, request, queryset):
+        """Désactive les contacts sélectionnés"""
+        updated = queryset.update(actif=False)
+        self.message_user(
+            request,
+            f"{updated} contact(s) désactivé(s) avec succès.",
+            level='warning'
+        )
+
+    @admin.action(description='⏹️ Clôturer les contacts sélectionnés (ajouter date de fin)')
+    def cloturer_contacts(self, request, queryset):
+        """Clôture les contacts en ajoutant la date du jour comme date de fin"""
+        from django.utils import timezone
+        today = timezone.now().date()
+
+        contacts_actifs = queryset.filter(date_fin_validite__isnull=True)
+        updated = contacts_actifs.update(date_fin_validite=today)
+
+        self.message_user(
+            request,
+            f"{updated} contact(s) clôturé(s) avec la date du {today.strftime('%d/%m/%Y')}.",
+            level='success'
+        )
+
+    # ===== MÉTHODES DE VALIDATION =====
+
+    def save_model(self, request, obj, form, change):
+        """Validation lors de la sauvegarde"""
+        try:
+            obj.full_clean()
+            super().save_model(request, obj, form, change)
+
+            if change:
+                self.message_user(
+                    request,
+                    f"✅ Contact d'urgence pour {obj.employe.nom} modifié avec succès.",
+                    level='success'
+                )
+            else:
+                self.message_user(
+                    request,
+                    f"✅ Contact d'urgence pour {obj.employe.nom} créé avec succès.",
+                    level='success'
+                )
+        except Exception as e:
+            self.message_user(
+                request,
+                f"❌ Erreur: {str(e)}",
+                level='error'
+            )
+
+    def get_queryset(self, request):
+        """Optimise les requêtes avec select_related"""
+        qs = super().get_queryset(request)
+        return qs.select_related('employe')
+
+    # ===== PERMISSIONS PERSONNALISÉES =====
+
+    def has_delete_permission(self, request, obj=None):
+        """Contrôle les permissions de suppression"""
+        # Vous pouvez ajouter des règles personnalisées ici
+        # Par exemple, empêcher la suppression des contacts actifs
+        if obj and obj.est_actif():
+            return False  # Ne pas permettre la suppression des contacts actifs
+        return super().has_delete_permission(request, obj)
+
+
+@admin.register(ZYIB)
+class ZYIBAdmin(admin.ModelAdmin):
+    """Administration des identités bancaires"""
+
+    list_display = [
+        'get_employe_info',
+        'titulaire_compte',
+        'nom_banque',
+        'get_rib_display',
+        'type_compte',
+        'get_statut',
+        'date_modification',
+    ]
+
+    list_filter = [
+        'type_compte',
+        'actif',
+        'nom_banque',
+        'date_ajout',
+    ]
+
+    search_fields = [
+        'employe__matricule',
+        'employe__nom',
+        'employe__prenoms',
+        'titulaire_compte',
+        'nom_banque',
+        'iban',
+        'numero_compte',
+    ]
+
+    readonly_fields = [
+        'date_ajout',
+        'date_modification',
+        'get_rib_complet',
+        'get_iban_display',
+        'get_validation_rib',
+    ]
+
+    fieldsets = (
+        ('👤 Employé', {
+            'fields': ('employe',)
+        }),
+        ('🏦 Informations Bancaires', {
+            'fields': (
+                'titulaire_compte',
+                'nom_banque',
+                'type_compte',
+                'domiciliation',
+                'date_ouverture',
+            )
+        }),
+        ('📋 RIB', {
+            'fields': (
+                'code_banque',
+                'code_guichet',
+                'numero_compte',
+                'cle_rib',
+                'get_rib_complet',
+                'get_validation_rib',
+            ),
+            'description': 'Relevé d\'Identité Bancaire'
+        }),
+        ('🌍 IBAN / BIC', {
+            'fields': (
+                'iban',
+                'get_iban_display',
+                'bic',
+            ),
+            'description': 'Identifiants bancaires internationaux'
+        }),
+        ('📝 Informations Complémentaires', {
+            'fields': (
+                'remarques',
+                'actif',
+            )
+        }),
+        ('ℹ️ Métadonnées', {
+            'fields': (
+                'date_ajout',
+                'date_modification',
+            ),
+            'classes': ('collapse',)
+        }),
+    )
+
+    autocomplete_fields = ['employe']
+
+    date_hierarchy = 'date_modification'
+
+    ordering = ['-date_modification']
+
+    list_per_page = 25
+
+    actions = [
+        'activer_identites',
+        'desactiver_identites',
+        'valider_ribs',
+    ]
+
+    # ===== MÉTHODES D'AFFICHAGE =====
+
+    @admin.display(description='Employé', ordering='employe__matricule')
+    def get_employe_info(self, obj):
+        """Affiche les informations de l'employé"""
+        return f"{obj.employe.matricule} - {obj.employe.username} {obj.employe.prenomuser}"
+
+    @admin.display(description='RIB')
+    def get_rib_display(self, obj):
+        """Affiche le RIB formaté"""
+        return obj.get_rib()
+
+    @admin.display(description='RIB Complet')
+    def get_rib_complet(self, obj):
+        """Affiche le RIB complet avec espaces"""
+        return f"🏦 {obj.get_rib()}"
+
+    @admin.display(description='IBAN Formaté')
+    def get_iban_display(self, obj):
+        """Affiche l'IBAN formaté"""
+        if obj.iban:
+            return f"🌍 {obj.get_iban_formate()}"
+        return "-"
+
+    @admin.display(description='Validation RIB', boolean=True)
+    def get_validation_rib(self, obj):
+        """Indique si le RIB est valide"""
+        return obj.valider_rib()
+
+    @admin.display(description='Statut', boolean=True)
+    def get_statut(self, obj):
+        """Indique si l'identité bancaire est active"""
+        return obj.actif
+
+    # ===== ACTIONS PERSONNALISÉES =====
+
+    @admin.action(description='✅ Activer les identités bancaires sélectionnées')
+    def activer_identites(self, request, queryset):
+        """Active les identités bancaires sélectionnées"""
+        updated = queryset.update(actif=True)
+        self.message_user(
+            request,
+            f"{updated} identité(s) bancaire(s) activée(s) avec succès.",
+            level='success'
+        )
+
+    @admin.action(description='❌ Désactiver les identités bancaires sélectionnées')
+    def desactiver_identites(self, request, queryset):
+        """Désactive les identités bancaires sélectionnées"""
+        updated = queryset.update(actif=False)
+        self.message_user(
+            request,
+            f"{updated} identité(s) bancaire(s) désactivée(s) avec succès.",
+            level='warning'
+        )
+
+    @admin.action(description='🔍 Valider les RIB sélectionnés')
+    def valider_ribs(self, request, queryset):
+        """Valide les RIB sélectionnés"""
+        valides = 0
+        invalides = 0
+
+        for ib in queryset:
+            if ib.valider_rib():
+                valides += 1
+            else:
+                invalides += 1
+
+        self.message_user(
+            request,
+            f"✅ {valides} RIB valide(s) | ❌ {invalides} RIB invalide(s)",
+            level='info'
+        )
+
+    # ===== MÉTHODES DE VALIDATION =====
+
+    def save_model(self, request, obj, form, change):
+        """Validation lors de la sauvegarde"""
+        try:
+            obj.full_clean()
+            super().save_model(request, obj, form, change)
+
+            if change:
+                self.message_user(
+                    request,
+                    f"✅ Identité bancaire pour {obj.employe.nom} modifiée avec succès.",
+                    level='success'
+                )
+            else:
+                self.message_user(
+                    request,
+                    f"✅ Identité bancaire pour {obj.employe.nom} créée avec succès.",
+                    level='success'
+                )
+        except Exception as e:
+            self.message_user(
+                request,
+                f"❌ Erreur: {str(e)}",
+                level='error'
+            )
+
+    def get_queryset(self, request):
+        """Optimise les requêtes avec select_related"""
+        qs = super().get_queryset(request)
+        return qs.select_related('employe')
 
 # ===============================
 # CUSTOMIZATION DE L'ADMIN

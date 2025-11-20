@@ -59,6 +59,18 @@ class ZY00(models.Model):
     )
     nom = models.CharField(max_length=100, verbose_name="Nom")
     prenoms = models.CharField(max_length=200, verbose_name="Prénom(s)")
+    username = models.CharField(
+        max_length=100,
+        verbose_name="Nom d'utilisateur",
+        blank=True,
+        help_text="Nom utilisé pour l'authentification et l'affichage"
+    )
+    prenomuser = models.CharField(
+        max_length=200,
+        verbose_name="Prénom utilisateur",
+        blank=True,
+        help_text="Prénom utilisé pour l'authentification et l'affichage"
+    )
     date_naissance = models.DateField(verbose_name="Date de naissance")
     sexe = models.CharField(max_length=1, choices=SEXE_CHOICES, verbose_name="Sexe")
     ville_naissance = models.CharField(max_length=100, blank=True, verbose_name="Ville de naissance")
@@ -103,13 +115,19 @@ class ZY00(models.Model):
         verbose_name_plural = "Employés"
 
     def __str__(self):
-        return f"{self.matricule} - {self.nom} {self.prenoms}"
+        return f"{self.matricule} - {self.username} {self.prenomuser}" if self.username else f"{self.matricule} - {self.nom} {self.prenoms}"
 
     def clean(self):
         """Validation personnalisée"""
         # Mettre le nom en majuscules
         if self.nom:
             self.nom = self.nom.upper()
+
+        # Initialiser username et prenomuser si vides
+        if not self.username:
+            self.username = self.nom
+        if not self.prenomuser:
+            self.prenomuser = self.prenoms
 
         # Mettre le pays_naissance en majuscules
         if self.pays_naissance:
@@ -173,6 +191,12 @@ class ZY00(models.Model):
                 new_number = 1
             self.matricule = f"MT{new_number:06d}"
 
+        # S'assurer que username et prenomuser sont remplis
+        if not self.username:
+            self.username = self.nom
+        if not self.prenomuser:
+            self.prenomuser = self.prenoms
+
         self.full_clean()
         super().save(*args, **kwargs)
 
@@ -209,6 +233,136 @@ class ZY00(models.Model):
             return None
         except Exception:
             return None
+
+
+######################
+### Historique Nom Prénom ZYNP ###
+######################
+class ZYNP(models.Model):
+    """Table d'historique des noms et prénoms des employés"""
+
+    employe = models.ForeignKey(
+        ZY00,
+        on_delete=models.CASCADE,
+        related_name='historique_noms_prenoms',
+        verbose_name="Employé"
+    )
+    nom = models.CharField(max_length=100, verbose_name="Nom")
+    prenoms = models.CharField(max_length=200, verbose_name="Prénom(s)")
+    date_debut_validite = models.DateField(verbose_name="Date de début de validité")
+    date_fin_validite = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name="Date de fin de validité"
+    )
+    actif = models.BooleanField(default=True, verbose_name="Actif")
+    date_creation = models.DateTimeField(auto_now_add=True, verbose_name="Date de création")
+
+    class Meta:
+        db_table = 'ZYNP'
+        verbose_name = "Historique nom/prénom"
+        verbose_name_plural = "Historiques noms/prénoms"
+        ordering = ['-date_debut_validite', '-date_creation']
+
+    def __str__(self):
+        return f"{self.employe.matricule} - {self.nom} {self.prenoms} ({self.date_debut_validite})"
+
+    def clean(self):
+        """Validation personnalisée"""
+        # Mettre le nom en majuscules
+        if self.nom:
+            self.nom = self.nom.upper()
+
+        # Transformer le premier caractère du prenoms en majuscule
+        if self.prenoms:
+            self.prenoms = self.prenoms.strip()
+            if self.prenoms:
+                self.prenoms = self.prenoms[0].upper() + self.prenoms[1:]
+
+        # Vérifier que la date de fin est après la date de début
+        if self.date_fin_validite and self.date_fin_validite <= self.date_debut_validite:
+            raise ValidationError({
+                'date_fin_validite': "La date de fin doit être supérieure à la date de début."
+            })
+
+        # VALIDATION: Éviter les chevauchements de dates
+        if self.employe and self.date_debut_validite:
+            chevauchements = ZYNP.objects.filter(
+                employe=self.employe
+            ).exclude(pk=self.pk)  # Exclure l'instance courante en cas de modification
+
+            for existant in chevauchements:
+                # Vérifier les chevauchements
+                debut_chevauche = (
+                        existant.date_debut_validite <= self.date_debut_validite and
+                        (existant.date_fin_validite is None or existant.date_fin_validite >= self.date_debut_validite)
+                )
+
+                fin_chevauche = (
+                        self.date_fin_validite and
+                        existant.date_debut_validite <= self.date_fin_validite and
+                        (existant.date_fin_validite is None or existant.date_fin_validite >= self.date_fin_validite)
+                )
+
+                encadrement = (
+                        self.date_debut_validite <= existant.date_debut_validite and
+                        (self.date_fin_validite is None or self.date_fin_validite >= existant.date_debut_validite)
+                )
+
+                if debut_chevauche or fin_chevauche or encadrement:
+                    raise ValidationError({
+                        'date_debut_validite': f"Chevauchement avec l'historique du {existant.date_debut_validite} au {existant.date_fin_validite or 'présent'}. Veuillez ajuster les dates."
+                    })
+
+    def save(self, *args, **kwargs):
+        """S'assurer que les validations sont exécutées"""
+        self.full_clean()
+        # 🆕 Mettre à jour ZY00 si cet historique est actif
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+
+        # Si c'est un nouvel historique actif ou si un historique existant devient actif
+        if self.actif and not self.date_fin_validite:
+            self.update_employe_username()
+
+    def update_employe_username(self):
+        """Mettre à jour les champs username et prenomuser dans ZY00"""
+        try:
+            self.employe.username = self.nom
+            self.employe.prenomuser = self.prenoms
+            self.employe.save(update_fields=['username', 'prenomuser'])
+        except Exception as e:
+            # Logger l'erreur mais ne pas bloquer la sauvegarde
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Erreur lors de la mise à jour des champs username/prenomuser: {e}")
+
+    def delete(self, *args, **kwargs):
+        """Gérer la suppression d'un historique actif"""
+        employe = self.employe
+        was_active = self.actif and not self.date_fin_validite
+
+        super().delete(*args, **kwargs)
+
+        # 🆕 Si l'historique supprimé était actif, trouver le prochain historique actif
+        if was_active:
+            nouveau_actif = ZYNP.objects.filter(
+                employe=employe,
+                actif=True,
+                date_fin_validite__isnull=True
+            ).exclude(pk=self.pk).first()
+
+            if nouveau_actif:
+                # Mettre à jour avec le nouvel historique actif
+                employe.username = nouveau_actif.nom
+                employe.prenomuser = nouveau_actif.prenoms
+                employe.save(update_fields=['username', 'prenomuser'])
+            else:
+                # Revenir aux valeurs originales de ZY00
+                employe.username = employe.nom
+                employe.prenomuser = employe.prenoms
+                employe.save(update_fields=['username', 'prenomuser'])
+
 
 
 ######################
@@ -614,3 +768,423 @@ class ZYFA(models.Model):
             raise ValidationError({
                 'date_naissance': 'La date de naissance doit être dans le passé.'
             })
+
+
+######################
+### Personne à Prévenir ZYPP ###
+######################
+class ZYPP(models.Model):
+    """Table des personnes à prévenir en cas d'urgence"""
+
+    LIEN_PARENTE_CHOICES = [
+        ('CONJOINT', 'Conjoint(e)'),
+        ('PARENT', 'Parent'),
+        ('ENFANT', 'Enfant'),
+        ('FRERE_SOEUR', 'Frère/Sœur'),
+        ('AMI', 'Ami(e)'),
+        ('COLLEGUE', 'Collègue'),
+        ('VOISIN', 'Voisin(e)'),
+        ('AUTRE', 'Autre'),
+    ]
+
+    ORDRE_PRIORITE_CHOICES = [
+        (1, 'Contact principal'),
+        (2, 'Contact secondaire'),
+        (3, 'Contact tertiaire'),
+    ]
+
+    employe = models.ForeignKey(
+        ZY00,
+        on_delete=models.CASCADE,
+        related_name='personnes_prevenir',
+        verbose_name="Employé"
+    )
+    nom = models.CharField(max_length=100, verbose_name="Nom")
+    prenom = models.CharField(max_length=200, verbose_name="Prénom")
+    lien_parente = models.CharField(
+        max_length=20,
+        choices=LIEN_PARENTE_CHOICES,
+        verbose_name="Lien de parenté"
+    )
+    telephone_principal = models.CharField(
+        max_length=20,
+        verbose_name="Téléphone principal"
+    )
+    telephone_secondaire = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        verbose_name="Téléphone secondaire"
+    )
+    email = models.EmailField(
+        blank=True,
+        null=True,
+        verbose_name="Email"
+    )
+    adresse = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Adresse complète"
+    )
+    ordre_priorite = models.IntegerField(
+        choices=ORDRE_PRIORITE_CHOICES,
+        default=1,
+        verbose_name="Ordre de priorité"
+    )
+    remarques = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Remarques"
+    )
+    date_debut_validite = models.DateField(
+        verbose_name="Date de début de validité",
+        default=timezone.now
+    )
+    date_fin_validite = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name="Date de fin de validité"
+    )
+    actif = models.BooleanField(default=True, verbose_name="Actif")
+    date_creation = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Date de création"
+    )
+    date_modification = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Date de modification"
+    )
+
+    class Meta:
+        db_table = 'ZYPP'
+        verbose_name = "Personne à prévenir"
+        verbose_name_plural = "Personnes à prévenir"
+        ordering = ['ordre_priorite', '-date_debut_validite']
+
+    def __str__(self):
+        return f"{self.employe.matricule} - {self.prenom} {self.nom} ({self.get_lien_parente_display()}) - Priorité {self.ordre_priorite}"
+
+    def clean(self):
+        """Validation personnalisée"""
+        # Mettre le nom en majuscules
+        if self.nom:
+            self.nom = self.nom.upper()
+
+        # Transformer le premier caractère du prénom en majuscule
+        if self.prenom:
+            self.prenom = self.prenom.strip()
+            if self.prenom:
+                self.prenom = self.prenom[0].upper() + self.prenom[1:]
+
+        # Vérifier que la date de fin est après la date de début
+        if self.date_fin_validite and self.date_fin_validite <= self.date_debut_validite:
+            raise ValidationError({
+                'date_fin_validite': "La date de fin doit être supérieure à la date de début."
+            })
+
+        # Validation: Vérifier qu'il n'y a pas de doublon de priorité actif pour le même employé
+        if not self.date_fin_validite:  # Contact actif
+            contacts_meme_priorite = ZYPP.objects.filter(
+                employe=self.employe,
+                ordre_priorite=self.ordre_priorite,
+                date_fin_validite__isnull=True
+            ).exclude(pk=self.pk)
+
+            if contacts_meme_priorite.exists():
+                raise ValidationError({
+                    'ordre_priorite': f"Un contact avec la priorité {self.get_ordre_priorite_display()} existe déjà pour cet employé."
+                })
+
+        # VALIDATION: Éviter les chevauchements de dates pour la même personne et priorité
+        if self.employe and self.date_debut_validite:
+            chevauchements = ZYPP.objects.filter(
+                employe=self.employe,
+                ordre_priorite=self.ordre_priorite
+            ).exclude(pk=self.pk)
+
+            for existant in chevauchements:
+                debut_chevauche = (
+                    existant.date_debut_validite <= self.date_debut_validite and
+                    (existant.date_fin_validite is None or existant.date_fin_validite >= self.date_debut_validite)
+                )
+
+                fin_chevauche = (
+                    self.date_fin_validite and
+                    existant.date_debut_validite <= self.date_fin_validite and
+                    (existant.date_fin_validite is None or existant.date_fin_validite >= self.date_fin_validite)
+                )
+
+                encadrement = (
+                    self.date_debut_validite <= existant.date_debut_validite and
+                    (self.date_fin_validite is None or self.date_fin_validite >= existant.date_debut_validite)
+                )
+
+                if debut_chevauche or fin_chevauche or encadrement:
+                    raise ValidationError({
+                        'date_debut_validite': f"Chevauchement de dates pour la priorité {self.get_ordre_priorite_display()} avec le contact du {existant.date_debut_validite} au {existant.date_fin_validite or 'présent'}."
+                    })
+
+    def save(self, *args, **kwargs):
+        """S'assurer que les validations sont exécutées"""
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def get_nom_complet(self):
+        """Retourne le nom complet de la personne"""
+        return f"{self.prenom} {self.nom}"
+
+    def get_telephones(self):
+        """Retourne tous les numéros de téléphone disponibles"""
+        telephones = [self.telephone_principal]
+        if self.telephone_secondaire:
+            telephones.append(self.telephone_secondaire)
+        return telephones
+
+    def est_actif(self):
+        """Vérifie si le contact est actuellement actif"""
+        today = timezone.now().date()
+        if not self.actif:
+            return False
+        if self.date_fin_validite and self.date_fin_validite < today:
+            return False
+        return self.date_debut_validite <= today
+
+
+######################
+### Identité Bancaire ZYIB ###
+######################
+class ZYIB(models.Model):
+    """Table des identités bancaires (RIB)"""
+
+    TYPE_COMPTE_CHOICES = [
+        ('COURANT', 'Compte courant'),
+        ('EPARGNE', 'Compte épargne'),
+        ('JOINT', 'Compte joint'),
+    ]
+
+    employe = models.OneToOneField(
+        ZY00,
+        on_delete=models.CASCADE,
+        related_name='identite_bancaire',
+        verbose_name="Employé",
+        unique=True
+    )
+    titulaire_compte = models.CharField(
+        max_length=200,
+        verbose_name="Titulaire du compte",
+        help_text="Nom du ou des titulaires du compte"
+    )
+    nom_banque = models.CharField(
+        max_length=100,
+        verbose_name="Nom de la banque"
+    )
+    code_banque = models.CharField(
+        max_length=5,
+        verbose_name="Code banque",
+        help_text="5 chiffres"
+    )
+    code_guichet = models.CharField(
+        max_length=5,
+        verbose_name="Code guichet",
+        help_text="5 chiffres"
+    )
+    numero_compte = models.CharField(
+        max_length=11,
+        verbose_name="Numéro de compte",
+        help_text="11 caractères"
+    )
+    cle_rib = models.CharField(
+        max_length=2,
+        verbose_name="Clé RIB",
+        help_text="2 chiffres"
+    )
+    iban = models.CharField(
+        max_length=34,
+        verbose_name="IBAN",
+        blank=True,
+        null=True,
+        help_text="Numéro IBAN international (max 34 caractères)"
+    )
+    bic = models.CharField(
+        max_length=11,
+        verbose_name="BIC/SWIFT",
+        blank=True,
+        null=True,
+        help_text="Code BIC/SWIFT (8 ou 11 caractères)"
+    )
+    type_compte = models.CharField(
+        max_length=20,
+        choices=TYPE_COMPTE_CHOICES,
+        default='COURANT',
+        verbose_name="Type de compte"
+    )
+    domiciliation = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        verbose_name="Domiciliation bancaire",
+        help_text="Adresse complète de l'agence"
+    )
+    date_ouverture = models.DateField(
+        verbose_name="Date d'ouverture du compte",
+        blank=True,
+        null=True
+    )
+    date_ajout = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Date d'ajout"
+    )
+    date_modification = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Date de modification"
+    )
+    actif = models.BooleanField(
+        default=True,
+        verbose_name="Actif"
+    )
+    remarques = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Remarques"
+    )
+
+    class Meta:
+        db_table = 'ZYIB'
+        verbose_name = "Identité bancaire"
+        verbose_name_plural = "Identités bancaires"
+        ordering = ['-date_modification']
+
+    def __str__(self):
+        return f"{self.employe.matricule} - {self.nom_banque} - {self.get_rib()}"
+
+    def clean(self):
+        """Validation personnalisée"""
+        # Validation code banque (5 chiffres)
+        if self.code_banque and not self.code_banque.isdigit():
+            raise ValidationError({
+                'code_banque': 'Le code banque doit contenir uniquement des chiffres.'
+            })
+        if self.code_banque and len(self.code_banque) != 5:
+            raise ValidationError({
+                'code_banque': 'Le code banque doit contenir exactement 5 chiffres.'
+            })
+
+        # Validation code guichet (5 chiffres)
+        if self.code_guichet and not self.code_guichet.isdigit():
+            raise ValidationError({
+                'code_guichet': 'Le code guichet doit contenir uniquement des chiffres.'
+            })
+        if self.code_guichet and len(self.code_guichet) != 5:
+            raise ValidationError({
+                'code_guichet': 'Le code guichet doit contenir exactement 5 chiffres.'
+            })
+
+        # Validation numéro de compte (11 caractères alphanumériques)
+        if self.numero_compte and len(self.numero_compte) != 11:
+            raise ValidationError({
+                'numero_compte': 'Le numéro de compte doit contenir exactement 11 caractères.'
+            })
+
+        # Validation clé RIB (2 chiffres)
+        if self.cle_rib and not self.cle_rib.isdigit():
+            raise ValidationError({
+                'cle_rib': 'La clé RIB doit contenir uniquement des chiffres.'
+            })
+        if self.cle_rib and len(self.cle_rib) != 2:
+            raise ValidationError({
+                'cle_rib': 'La clé RIB doit contenir exactement 2 chiffres.'
+            })
+
+        # Validation IBAN (format français si fourni)
+        if self.iban:
+            iban_clean = self.iban.replace(' ', '').upper()
+            if len(iban_clean) > 34:
+                raise ValidationError({
+                    'iban': 'L\'IBAN ne peut pas dépasser 34 caractères.'
+                })
+            # Format français : FR76 suivi de 23 caractères
+            if iban_clean.startswith('FR') and len(iban_clean) != 27:
+                raise ValidationError({
+                    'iban': 'L\'IBAN français doit contenir 27 caractères (FR + 25 caractères).'
+                })
+
+        # Validation BIC (8 ou 11 caractères)
+        if self.bic:
+            bic_clean = self.bic.replace(' ', '').upper()
+            if len(bic_clean) not in [8, 11]:
+                raise ValidationError({
+                    'bic': 'Le code BIC/SWIFT doit contenir 8 ou 11 caractères.'
+                })
+
+        # Mettre en majuscules
+        if self.titulaire_compte:
+            self.titulaire_compte = self.titulaire_compte.upper()
+        if self.nom_banque:
+            self.nom_banque = self.nom_banque.upper()
+        if self.iban:
+            self.iban = self.iban.replace(' ', '').upper()
+        if self.bic:
+            self.bic = self.bic.replace(' ', '').upper()
+
+    def save(self, *args, **kwargs):
+        """S'assurer que les validations sont exécutées"""
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def get_rib(self):
+        """Retourne le RIB complet formaté"""
+        return f"{self.code_banque} {self.code_guichet} {self.numero_compte} {self.cle_rib}"
+
+    def get_iban_formate(self):
+        """Retourne l'IBAN formaté (par groupes de 4)"""
+        if not self.iban:
+            return ""
+        iban_clean = self.iban.replace(' ', '')
+        return ' '.join([iban_clean[i:i + 4] for i in range(0, len(iban_clean), 4)])
+
+    def generer_iban_depuis_rib(self):
+        """Génère l'IBAN à partir du RIB (pour la France)"""
+        if not all([self.code_banque, self.code_guichet, self.numero_compte, self.cle_rib]):
+            return None
+
+        # Construction du BBAN (Basic Bank Account Number)
+        bban = f"{self.code_banque}{self.code_guichet}{self.numero_compte}{self.cle_rib}"
+
+        # Calcul de la clé de contrôle IBAN
+        # Algorithme : (97 - ((BBAN + "FR00") modulo 97)) = clé
+        temp = bban + "152100"  # FR = 1518, 00 = 00 → 152100
+        cle = 98 - (int(temp) % 97)
+
+        # Construction de l'IBAN
+        iban = f"FR{cle:02d}{bban}"
+        return iban
+
+    def valider_rib(self):
+        """Valide la cohérence du RIB (calcul de la clé)"""
+        if not all([self.code_banque, self.code_guichet, self.numero_compte, self.cle_rib]):
+            return False
+
+        # Algorithme de validation de la clé RIB
+        # Remplacer les lettres par des chiffres
+        compte_numerique = self.numero_compte.upper()
+        correspondance = {
+            'A': '1', 'B': '2', 'C': '3', 'D': '4', 'E': '5', 'F': '6', 'G': '7', 'H': '8', 'I': '9',
+            'J': '1', 'K': '2', 'L': '3', 'M': '4', 'N': '5', 'O': '6', 'P': '7', 'Q': '8', 'R': '9',
+            'S': '2', 'T': '3', 'U': '4', 'V': '5', 'W': '6', 'X': '7', 'Y': '8', 'Z': '9'
+        }
+
+        for lettre, chiffre in correspondance.items():
+            compte_numerique = compte_numerique.replace(lettre, chiffre)
+
+        # Calcul : (89 * code_banque + 15 * code_guichet + 3 * numero_compte + cle) modulo 97 = 0
+        try:
+            valeur = (
+                    89 * int(self.code_banque) +
+                    15 * int(self.code_guichet) +
+                    3 * int(compte_numerique) +
+                    int(self.cle_rib)
+            )
+            return (valeur % 97) == 0
+        except ValueError:
+            return False
+

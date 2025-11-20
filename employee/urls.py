@@ -72,6 +72,23 @@ urlpatterns = [
     path('api/famille/<int:id>/delete/', views.api_famille_delete_modal, name='api_famille_delete'),
     path('api/famille/<int:id>/', views.api_famille_detail, name='api_famille_detail'),
 
+    # API Historique Noms/Prénoms (ZYNP)
+    path('api/znp/<int:id>/', views.api_znp_detail, name='api_znp_detail'),
+    path('api/znp/create/', views.api_znp_create_modal, name='api_znp_create_modal'),
+    path('api/znp/<int:id>/update/', views.api_znp_update_modal, name='api_znp_update_modal'),
+    path('api/znp/<int:id>/delete/', views.api_znp_delete_modal, name='api_znp_delete_modal'),
+
+    # API Personnes à prévenir (ZYPP)
+    path('ajax/personne-prevenir/<int:id>/detail/', api_personne_prevenir_detail, name='api_personne_prevenir_detail'),
+    path('ajax/personne-prevenir/create/', api_personne_prevenir_create_modal, name='api_personne_prevenir_create'),
+    path('ajax/personne-prevenir/<int:id>/update/', api_personne_prevenir_update_modal,name='api_personne_prevenir_update'),
+    path('ajax/personne-prevenir/<int:id>/delete/', api_personne_prevenir_delete_modal,name='api_personne_prevenir_delete'),
+
+    # API Identité Bancaire (ZYIB)
+    path('ajax/identite-bancaire/<uuid:employe_uuid>/detail/', api_identite_bancaire_detail, name='api_identite_bancaire_detail'),
+    path('ajax/identite-bancaire/<uuid:employe_uuid>/save/', api_identite_bancaire_create_or_update, name='api_identite_bancaire_save'),
+    path('ajax/identite-bancaire/<uuid:employe_uuid>/delete/', api_identite_bancaire_delete, name='api_identite_bancaire_delete'),
+
 
     path('profil-employee/', profilEmployee, name='profile-employee'),
     path('validerConges/', validerConges, name='valider-conges'),

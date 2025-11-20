@@ -285,6 +285,78 @@
         margin-bottom: 10px;
     }
 
+
+/* Bouton hamburger - caché par défaut sur desktop */
+.sidebar-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #1c5d5f;
+    cursor: pointer;
+    padding: 10px;
+    margin-right: 10px;
+}
+
+.sidebar-toggle:hover {
+    color: #0d3d3f;
+}
+
+/* Overlay pour fermer le sidebar en cliquant à côté */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+}
+
+.sidebar-overlay.active {
+    display: block;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    /* Afficher le bouton hamburger sur mobile */
+    .sidebar-toggle {
+        display: block;
+    }
+
+    /* Sidebar caché par défaut sur mobile */
+    .sidebar {
+        position: fixed;
+        left: -250px;
+        top: 60px;
+        height: calc(100vh - 60px);
+        width: 250px;
+        z-index: 999;
+        transition: left 0.3s ease;
+        max-height: none;
+    }
+
+    /* Sidebar visible quand actif */
+    .sidebar.active {
+        left: 0;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .container-fluid {
+        flex-direction: column;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .content {
+        margin-left: 0 !important;
+    }
+}
+
+
     /* Responsive */
     @media (max-width: 768px) {
         .sidebar {
@@ -345,4 +417,5 @@
 .photo-container:hover .photo-overlay {
     display: flex;
 }
+
 

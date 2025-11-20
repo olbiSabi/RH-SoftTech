@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}ONIAN-SofTech{% endblock %}</title>
+    <title>{% block title %}ONIAN-EasyM{% endblock %}</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/AdminLTELogo.png' %}">
@@ -30,7 +30,7 @@
             <li class="employee-item {% if employe and emp.uuid == employe.uuid %}active{% endif %}"
                 data-uuid="{{ emp.uuid }}">
                 <div class="employee-matricule">{{ emp.matricule }}</div>
-                <div class="employee-name">{{ emp.nom }} {{ emp.prenoms }}</div>
+                <div class="employee-name">{{ emp.username }} {{ emp.prenomuser }}</div>
             </li>
             {% empty %}
             <li style="padding: 20px; text-align: center; color: #999;">
@@ -75,28 +75,35 @@
             </div>
         </div>
         <!-- Onglets -->
-        <div class="tabs">
-            <a href="{% url 'dossier_individuel_detail' employe.uuid %}?tab=donnees"
-               class="tab {% if request.GET.tab == 'donnees' or not request.GET.tab %}active{% endif %}">
-                Données Agent
-            </a>
-            <a href="{% url 'dossier_individuel_detail' employe.uuid %}?tab=coordonnees"
-               class="tab {% if request.GET.tab == 'coordonnees' %}active{% endif %}">
-                Coordonnées
-            </a>
-            <a href="{% url 'dossier_individuel_detail' employe.uuid %}?tab=contrats"
-               class="tab {% if request.GET.tab == 'contrats' %}active{% endif %}">
-                Contrats & Affectations
-            </a>
-            <a href="{% url 'dossier_individuel_detail' employe.uuid %}?tab=famille"
-               class="tab {% if request.GET.tab == 'famille' %}active{% endif %}">
-                Famille
-            </a>
-            <a href="{% url 'dossier_individuel_detail' employe.uuid %}?tab=documents"
-               class="tab {% if request.GET.tab == 'documents' %}active{% endif %}">
-                Documents
-            </a>
-        </div>
+ <div class="tabs-wrapper">
+    <div class="tabs">
+        <a href="{% url 'dossier_individuel_detail' employe.uuid %}?tab=donnees"
+           class="tab {% if request.GET.tab == 'donnees' or not request.GET.tab %}active{% endif %}">
+            <i class="fas fa-user"></i>
+            <span class="tab-text">Données Agent</span>
+        </a>
+        <a href="{% url 'dossier_individuel_detail' employe.uuid %}?tab=coordonnees"
+           class="tab {% if request.GET.tab == 'coordonnees' %}active{% endif %}">
+            <i class="fas fa-address-book"></i>
+            <span class="tab-text">Coordonnées</span>
+        </a>
+        <a href="{% url 'dossier_individuel_detail' employe.uuid %}?tab=contrats"
+           class="tab {% if request.GET.tab == 'contrats' %}active{% endif %}">
+            <i class="fas fa-file-contract"></i>
+            <span class="tab-text">Contrats & Affectations</span>
+        </a>
+        <a href="{% url 'dossier_individuel_detail' employe.uuid %}?tab=famille"
+           class="tab {% if request.GET.tab == 'famille' %}active{% endif %}">
+            <i class="fas fa-users"></i>
+            <span class="tab-text">Famille</span>
+        </a>
+        <a href="{% url 'dossier_individuel_detail' employe.uuid %}?tab=documents"
+           class="tab {% if request.GET.tab == 'documents' %}active{% endif %}">
+            <i class="fas fa-folder-open"></i>
+            <span class="tab-text">Documents</span>
+        </a>
+    </div>
+</div>
 
         {% include 'employee/onglets/onglet_dossier_individuel.html' %}
 
@@ -113,6 +120,54 @@
 
 <script src="{% static 'assets/js/dossier_individuel.js' %}"></script>
 <script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    // Fonction pour ouvrir le sidebar
+    function openSidebar() {
+        sidebar.classList.add('active');
+        sidebarOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Empêche le scroll du body
+    }
+
+    // Fonction pour fermer le sidebar
+    function closeSidebar() {
+        sidebar.classList.remove('active');
+        sidebarOverlay.classList.remove('active');
+        document.body.style.overflow = ''; // Restaure le scroll
+    }
+
+    // Toggle au clic sur le bouton hamburger
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+            if (sidebar.classList.contains('active')) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        });
+    }
+
+    // Fermer en cliquant sur l'overlay
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', closeSidebar);
+    }
+
+    // Fermer le sidebar après avoir sélectionné un employé (optionnel)
+    const employeeItems = document.querySelectorAll('.employee-item');
+    employeeItems.forEach(item => {
+        item.addEventListener('click', function() {
+            if (window.innerWidth <= 768) {
+                closeSidebar();
+            }
+        });
+    });
+});
+
+
     // Gestion du changement de photo
     document.addEventListener('DOMContentLoaded', function() {
         const photoElement = document.getElementById('employeePhoto');

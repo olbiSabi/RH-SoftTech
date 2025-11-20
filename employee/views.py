@@ -13,7 +13,7 @@ from django.views.decorators.http import require_POST, require_http_methods
 import os
 from .utils import get_redirect_url_with_tab, get_active_tab_for_ajax
 from departement.models import ZDPO, ZDDE
-from .models import ZY00, ZYCO, ZYTE, ZYME, ZYAF, ZYAD, ZYDO, ZYFA
+from .models import ZY00, ZYCO, ZYTE, ZYME, ZYAF, ZYAD, ZYDO, ZYFA, ZYNP, ZYPP, ZYIB
 from .forms import (
     ZY00Form, EmbaucheAgentForm, ZYCOForm, ZYTEForm,
     ZYMEForm, ZYAFForm, ZYADForm, ZYFAForm
@@ -63,8 +63,19 @@ def embauche_agent(request):
                     # Créer l'employé
                     employe = form.save(commit=False)
                     employe.type_dossier = 'PRE'  # Pré-embauche par défaut
+                    # INITIALISER username ET prenomuser
+                    employe.username = employe.nom
+                    employe.prenomuser = employe.prenoms
                     employe.save()
 
+                    # CRÉATION AUTOMATIQUE DANS ZYNP
+                    znp=ZYNP.objects.create(
+                        employe=employe,
+                        nom=employe.nom,
+                        prenoms=employe.prenoms,
+                        date_debut_validite=timezone.now().date(),  # Date d'embauche
+                        actif=True
+                    )
                     # Date du jour pour les dates de début
                     date_jour = timezone.now().date()
 
@@ -126,8 +137,6 @@ def embauche_agent(request):
                 # Redirection après erreur pour éviter la résoumission
                 return redirect('embauche_agent')
         else:
-            # Si le formulaire n'est pas valide, on affiche les erreurs
-            # mais on ajoute un message général
             messages.error(
                 request,
                 "❌ Le formulaire contient des erreurs. Veuillez corriger les champs indiqués ci-dessous."
@@ -302,12 +311,15 @@ class DossierIndividuelView(ListView):
 
             # Données de l'employé
             context['employe'] = employe_selectionne
-
+            # Historique des noms/prénoms
+            historique_actif = get_historique_actif(employe_selectionne)
+            context['historique_actif'] = historique_actif
+            context['historique_noms_prenoms'] = employe_selectionne.historique_noms_prenoms.all().order_by('-date_debut_validite')
+            # Personnes à prévenir
+            context['personnes_prevenir'] = employe_selectionne.personnes_prevenir.all().order_by('ordre_priorite','-date_debut_validite')
             # Entités liées (optimisées avec select_related)
             context['contrats'] = employe_selectionne.contrats.all().order_by('-date_debut')
-            context['affectations'] = employe_selectionne.affectations.select_related(
-                'poste__DEPARTEMENT'
-            ).order_by('-date_debut')
+            context['affectations'] = employe_selectionne.affectations.select_related('poste__DEPARTEMENT').order_by('-date_debut')
             context['telephones'] = employe_selectionne.telephones.all().order_by('-date_debut_validite')
             context['emails'] = employe_selectionne.emails.all().order_by('-date_debut_validite')
             context['adresses'] = employe_selectionne.adresses.all().order_by('-date_debut')
@@ -317,16 +329,22 @@ class DossierIndividuelView(ListView):
             personnes_charge = employe_selectionne.personnes_charge.all()
             context['personnes_charge'] = personnes_charge
 
+            # Personnes à prévenir
+            context['nb_personnes_prevenir'] = employe_selectionne.personnes_prevenir.filter(actif=True,date_fin_validite__isnull=True).count()
             # Calcul des statistiques famille
             context['nb_total'] = personnes_charge.count()
             context['nb_enfants'] = personnes_charge.filter(personne_charge='ENFANT').count()
             context['nb_conjoints'] = personnes_charge.filter(personne_charge='CONJOINT').count()
             context['nb_actifs'] = personnes_charge.filter(actif=True).count()
-
+            # AJOUT : Identité bancaire (RIB)
+            try:
+                context['identite_bancaire'] = employe_selectionne.identite_bancaire
+                context['has_identite_bancaire'] = True
+            except ZYIB.DoesNotExist:
+                context['identite_bancaire'] = None
+                context['has_identite_bancaire'] = False
             # Postes disponibles pour le modal d'affectation
-            context['postes'] = ZDPO.objects.filter(
-                STATUT=True
-            ).select_related('DEPARTEMENT').order_by('DEPARTEMENT__LIBELLE', 'CODE')
+            context['postes'] = ZDPO.objects.filter(STATUT=True).select_related('DEPARTEMENT').order_by('DEPARTEMENT__LIBELLE', 'CODE')
 
         # Variables de test
         context['test_variable'] = "Hello World"
@@ -1513,6 +1531,814 @@ def api_famille_delete_modal(request, id):
             'success': True,
             'message': '✅ Personne à charge supprimée avec succès'
         })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+# ===== API HISTORIQUE NOMS/PRENOMS (ZYNP) =====
+
+@require_http_methods(["GET"])
+def api_znp_detail(request, id):
+    """Récupérer les détails d'un historique nom/prénom"""
+    try:
+        znp = get_object_or_404(ZYNP, id=id)
+        data = {
+            'id': znp.id,
+            'nom': znp.nom,
+            'prenoms': znp.prenoms,
+            'date_debut_validite': znp.date_debut_validite.strftime('%Y-%m-%d') if znp.date_debut_validite else '',
+            'date_fin_validite': znp.date_fin_validite.strftime('%Y-%m-%d') if znp.date_fin_validite else '',
+            'actif': znp.actif,
+        }
+        return JsonResponse(data)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@require_http_methods(["POST"])
+def api_znp_create_modal(request):
+    """Créer un historique nom/prénom via modal avec validation des chevauchements"""
+    try:
+        employe_uuid = request.POST.get('employe_uuid')
+        employe = get_object_or_404(ZY00, uuid=employe_uuid)
+
+        # Validation de base
+        errors = {}
+        required_fields = ['nom', 'prenoms', 'date_debut_validite']
+        for field in required_fields:
+            value = request.POST.get(field)
+            if not value:
+                errors[field] = ['Ce champ est requis']
+
+        if errors:
+            return JsonResponse({'errors': errors}, status=400)
+
+        # Préparation des données
+        nom = request.POST.get('nom')
+        prenoms = request.POST.get('prenoms')
+        date_debut = request.POST.get('date_debut_validite')
+        date_fin = request.POST.get('date_fin_validite')
+
+        try:
+            date_debut_obj = datetime.strptime(date_debut, '%Y-%m-%d').date()
+        except Exception:
+            errors['date_debut_validite'] = ['Format de date invalide']
+
+        date_fin_obj = None
+        if date_fin:
+            try:
+                date_fin_obj = datetime.strptime(date_fin, '%Y-%m-%d').date()
+            except Exception:
+                errors['date_fin_validite'] = ['Format de date invalide']
+
+        # Validation: date fin > date début
+        if date_fin_obj and date_fin_obj <= date_debut_obj:
+            errors['date_fin_validite'] = ['La date de fin doit être supérieure à la date de début']
+
+        if errors:
+            return JsonResponse({'errors': errors}, status=400)
+
+        # Validation des chevauchements de dates
+        historiques_existants = ZYNP.objects.filter(employe=employe)
+
+        for historique in historiques_existants:
+            # Cas 1: L'historique existant n'a pas de date de fin (est actif)
+            if not historique.date_fin_validite:
+                if not date_fin_obj or date_fin_obj >= historique.date_debut_validite:
+                    erreur_msg = (
+                        f"Impossible de créer un nouvel historique. L'historique actuel (du {historique.date_debut_validite.strftime('%d/%m/%Y')} à aujourd'hui) "
+                        f"n'est pas clôturé. Veuillez d'abord ajouter une date de fin à l'historique actuel."
+                    )
+                    return JsonResponse({
+                        'errors': {
+                            '__all__': [erreur_msg]
+                        }
+                    }, status=400)
+
+            # Cas 2: Vérifier les chevauchements entre périodes
+            chevauchement = (
+                # Nouvelle période commence pendant une période existante
+                (date_debut_obj >= historique.date_debut_validite and
+                 (historique.date_fin_validite is None or date_debut_obj <= historique.date_fin_validite)) or
+
+                # Nouvelle période se termine pendant une période existante
+                (date_fin_obj and
+                 date_fin_obj >= historique.date_debut_validite and
+                 (historique.date_fin_validite is None or date_fin_obj <= historique.date_fin_validite)) or
+
+                # Nouvelle période englobe une période existante
+                (date_debut_obj <= historique.date_debut_validite and
+                 (date_fin_obj is None or date_fin_obj >= historique.date_debut_validite))
+            )
+
+            if chevauchement:
+                date_fin_existant = historique.date_fin_validite.strftime(
+                    "%d/%m/%Y") if historique.date_fin_validite else "aujourd'hui"
+                erreur_msg = (
+                    f"Chevauchement détecté avec l'historique existant du {historique.date_debut_validite.strftime('%d/%m/%Y')} "
+                    f"au {date_fin_existant}. Ajustez les dates pour éviter les chevauchements."
+                )
+                return JsonResponse({
+                    'errors': {
+                        '__all__': [erreur_msg]
+                    }
+                }, status=400)
+
+        # Créer l'historique avec validation
+        with transaction.atomic():
+            znp = ZYNP(
+                employe=employe,
+                nom=nom,
+                prenoms=prenoms,
+                date_debut_validite=date_debut_obj,
+                date_fin_validite=date_fin_obj,
+                actif=request.POST.get('actif') == 'on',
+            )
+
+            # Valider le modèle
+            try:
+                znp.full_clean()
+            except ValidationError as e:
+                return JsonResponse({'errors': e.message_dict}, status=400)
+
+            znp.save()
+
+        return JsonResponse({
+            'success': True,
+            'message': '✅ Historique nom/prénom créé avec succès',
+            'id': znp.id
+        })
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@require_http_methods(["POST"])
+def api_znp_update_modal(request, id):
+    """Mettre à jour un historique nom/prénom via modal avec validation des chevauchements"""
+    try:
+        znp = get_object_or_404(ZYNP, id=id)
+
+        # Validation
+        errors = {}
+        if not request.POST.get('nom'):
+            errors['nom'] = ['Ce champ est requis']
+        if not request.POST.get('prenoms'):
+            errors['prenoms'] = ['Ce champ est requis']
+        if not request.POST.get('date_debut_validite'):
+            errors['date_debut_validite'] = ['Ce champ est requis']
+
+        if errors:
+            return JsonResponse({'errors': errors}, status=400)
+
+        date_debut_obj = datetime.strptime(request.POST.get('date_debut_validite'), '%Y-%m-%d').date()
+        date_fin = request.POST.get('date_fin_validite')
+        date_fin_obj = datetime.strptime(date_fin, '%Y-%m-%d').date() if date_fin else None
+
+        # Validation: date fin > date début
+        if date_fin_obj and date_fin_obj <= date_debut_obj:
+            errors['date_fin_validite'] = ['La date de fin doit être supérieure à la date de début']
+            return JsonResponse({'errors': errors}, status=400)
+
+        # 🆕 VALIDATION AVANCÉE: Vérifier les chevauchements de dates (en excluant l'instance courante)
+        historiques_existants = ZYNP.objects.filter(employe=znp.employe).exclude(id=id)
+
+        for historique in historiques_existants:
+            chevauchement = (
+                # Nouvelle période commence pendant une période existante
+                    (date_debut_obj >= historique.date_debut_validite and
+                     (historique.date_fin_validite is None or date_debut_obj <= historique.date_fin_validite)) or
+
+                    # Nouvelle période se termine pendant une période existante
+                    (date_fin_obj and
+                     date_fin_obj >= historique.date_debut_validite and
+                     (historique.date_fin_validite is None or date_fin_obj <= historique.date_fin_validite)) or
+
+                    # Nouvelle période englobe une période existante
+                    (date_debut_obj <= historique.date_debut_validite and
+                     (date_fin_obj is None or date_fin_obj >= historique.date_debut_validite))
+            )
+
+            if chevauchement:
+                date_fin_existant = historique.date_fin_validite.strftime(
+                    "%d/%m/%Y") if historique.date_fin_validite else "aujourd'hui"
+                return JsonResponse({
+                    'errors': {
+                        '__all__': [
+                            f"Chevauchement détecté avec l'historique existant du {historique.date_debut_validite.strftime('%d/%m/%Y')} "
+                            f"au {date_fin_existant}. Ajustez les dates pour éviter les chevauchements."
+                        ]
+                    }
+                }, status=400)
+
+        # Mettre à jour l'historique
+        with transaction.atomic():
+            znp.nom = request.POST.get('nom')
+            znp.prenoms = request.POST.get('prenoms')
+            znp.date_debut_validite = date_debut_obj
+            znp.date_fin_validite = date_fin_obj
+            znp.actif = request.POST.get('actif') == 'on'
+            znp.save()
+
+        return JsonResponse({
+            'success': True,
+            'message': '✅ Historique nom/prénom modifié avec succès'
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@require_http_methods(["POST"])
+def api_znp_delete_modal(request, id):
+    """Supprimer un historique nom/prénom via modal"""
+    try:
+        znp = get_object_or_404(ZYNP, id=id)
+        with transaction.atomic():
+            znp.delete()
+
+        return JsonResponse({
+            'success': True,
+            'message': '✅ Historique nom/prénom supprimé avec succès'
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+def get_historique_actif(employe):
+    """Récupérer l'historique nom/prénom actif (sans date de fin)"""
+    return ZYNP.objects.filter(
+        employe=employe,
+        date_fin_validite__isnull=True
+    ).first()
+
+
+def peut_creer_nouvel_historique(employe, nouvelle_date_debut):
+    """Vérifier si on peut créer un nouvel historique"""
+    historique_actif = get_historique_actif(employe)
+
+    if historique_actif:
+        # Il y a un historique actif non clôturé
+        return False, f"L'historique actuel (du {historique_actif.date_debut_validite.strftime('%d/%m/%Y')}) n'est pas clôturé. Ajoutez une date de fin avant de créer un nouvel historique."
+
+    # Vérifier les chevauchements avec les historiques clôturés
+    historiques = ZYNP.objects.filter(employe=employe)
+
+    for historique in historiques:
+        if (nouvelle_date_debut >= historique.date_debut_validite and
+                (historique.date_fin_validite is None or nouvelle_date_debut <= historique.date_fin_validite)):
+            return False, f"La nouvelle date chevauche avec l'historique du {historique.date_debut_validite.strftime('%d/%m/%Y')} au {historique.date_fin_validite.strftime('%d/%m/%Y') if historique.date_fin_validite else 'présent'}"
+
+    return True, None
+
+
+# ===== API PERSONNES À PRÉVENIR (ZYPP) =====
+
+@require_http_methods(["GET"])
+def api_personne_prevenir_detail(request, id):
+    """Récupérer les détails d'une personne à prévenir"""
+    try:
+        personne = get_object_or_404(ZYPP, id=id)
+        data = {
+            'id': personne.id,
+            'nom': personne.nom,
+            'prenom': personne.prenom,
+            'lien_parente': personne.lien_parente,
+            'telephone_principal': personne.telephone_principal,
+            'telephone_secondaire': personne.telephone_secondaire or '',
+            'email': personne.email or '',
+            'adresse': personne.adresse or '',
+            'ordre_priorite': personne.ordre_priorite,
+            'remarques': personne.remarques or '',
+            'date_debut_validite': personne.date_debut_validite.strftime(
+                '%Y-%m-%d') if personne.date_debut_validite else '',
+            'date_fin_validite': personne.date_fin_validite.strftime('%Y-%m-%d') if personne.date_fin_validite else '',
+            'actif': personne.actif,
+        }
+        return JsonResponse(data)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@require_http_methods(["POST"])
+def api_personne_prevenir_create_modal(request):
+    """Créer une personne à prévenir via modal"""
+    try:
+        print("=" * 50)
+        print("📝 DÉBUT api_personne_prevenir_create_modal")
+        print("=" * 50)
+
+        # Log toutes les données POST reçues
+        print("📦 DONNÉES POST REÇUES:")
+        for key, value in request.POST.items():
+            print(f"   {key}: {value}")
+
+        employe_uuid = request.POST.get('employe_uuid')
+        print(f"🔍 Employe UUID: {employe_uuid}")
+
+        employe = get_object_or_404(ZY00, uuid=employe_uuid)
+        print(f"✅ Employé trouvé: {employe.matricule}")
+
+        # Validation de base
+        errors = {}
+        required_fields = ['nom', 'prenom', 'lien_parente', 'telephone_principal', 'ordre_priorite',
+                           'date_debut_validite']
+        for field in required_fields:
+            value = request.POST.get(field)
+            print(f"🔍 Validation {field}: '{value}'")
+            if not value:
+                errors[field] = ['Ce champ est requis']
+
+        if errors:
+            print(f"❌ ERREURS DE VALIDATION: {errors}")
+            return JsonResponse({'errors': errors}, status=400)
+
+        # Préparation des données
+        nom = request.POST.get('nom')
+        prenom = request.POST.get('prenom')
+        lien_parente = request.POST.get('lien_parente')
+        telephone_principal = request.POST.get('telephone_principal')
+        telephone_secondaire = request.POST.get('telephone_secondaire', '')
+        email = request.POST.get('email', '')
+        adresse = request.POST.get('adresse', '')
+        ordre_priorite = request.POST.get('ordre_priorite')
+        remarques = request.POST.get('remarques', '')
+        date_debut = request.POST.get('date_debut_validite')
+        date_fin = request.POST.get('date_fin_validite')
+
+        print(f"📦 Ordre priorité: {ordre_priorite}")
+        print(f"📦 Date début: {date_debut}")
+        print(f"📦 Date fin: {date_fin}")
+
+        # Conversion des dates
+        try:
+            date_debut_obj = datetime.strptime(date_debut, '%Y-%m-%d').date()
+            print(f"✅ Date début convertie: {date_debut_obj}")
+        except Exception as e:
+            errors['date_debut_validite'] = ['Format de date invalide']
+            print(f"❌ Erreur conversion date_debut: {e}")
+
+        date_fin_obj = None
+        if date_fin:
+            try:
+                date_fin_obj = datetime.strptime(date_fin, '%Y-%m-%d').date()
+                print(f"✅ Date fin convertie: {date_fin_obj}")
+            except Exception as e:
+                errors['date_fin_validite'] = ['Format de date invalide']
+                print(f"❌ Erreur conversion date_fin: {e}")
+
+        # Validation: date fin > date début
+        if date_fin_obj and date_fin_obj <= date_debut_obj:
+            errors['date_fin_validite'] = ['La date de fin doit être supérieure à la date de début']
+            print("❌ Erreur: date_fin <= date_debut")
+
+        # Validation: les deux téléphones ne doivent pas être identiques
+        if telephone_secondaire and telephone_principal == telephone_secondaire:
+            errors['telephone_secondaire'] = ['Le téléphone secondaire doit être différent du téléphone principal']
+            print("❌ Erreur: téléphones identiques")
+
+        # Validation: vérifier le format du téléphone principal
+        telephone_nettoye = ''.join(filter(str.isdigit, telephone_principal.replace('+', '')))
+        if len(telephone_nettoye) < 8:
+            errors['telephone_principal'] = ['Le numéro de téléphone doit contenir au moins 8 chiffres']
+            print("❌ Erreur: téléphone trop court")
+
+        # Validation: vérifier le format du téléphone secondaire si fourni
+        if telephone_secondaire:
+            telephone_sec_nettoye = ''.join(filter(str.isdigit, telephone_secondaire.replace('+', '')))
+            if len(telephone_sec_nettoye) < 8:
+                errors['telephone_secondaire'] = ['Le numéro de téléphone doit contenir au moins 8 chiffres']
+                print("❌ Erreur: téléphone secondaire trop court")
+
+        if errors:
+            return JsonResponse({'errors': errors}, status=400)
+
+        # Validation: pas de doublon de priorité actif pour le même employé
+        if not date_fin_obj:  # Contact actif
+            contacts_meme_priorite = ZYPP.objects.filter(
+                employe=employe,
+                ordre_priorite=ordre_priorite,
+                date_fin_validite__isnull=True
+            )
+
+            if contacts_meme_priorite.exists():
+                contact_existant = contacts_meme_priorite.first()
+                priorite_label = dict(ZYPP.ORDRE_PRIORITE_CHOICES).get(int(ordre_priorite), ordre_priorite)
+                erreur_msg = (
+                    f"Un contact avec la priorité '{priorite_label}' existe déjà "
+                    f"({contact_existant.prenom} {contact_existant.nom}). "
+                    f"Veuillez d'abord clôturer ce contact ou choisir une autre priorité."
+                )
+                return JsonResponse({
+                    'errors': {
+                        'ordre_priorite': [erreur_msg]
+                    }
+                }, status=400)
+
+        # Validation des chevauchements de dates pour la même priorité
+        contacts_existants = ZYPP.objects.filter(
+            employe=employe,
+            ordre_priorite=ordre_priorite
+        )
+
+        for contact in contacts_existants:
+            chevauchement = (
+                # Nouvelle période commence pendant une période existante
+                    (date_debut_obj >= contact.date_debut_validite and
+                     (contact.date_fin_validite is None or date_debut_obj <= contact.date_fin_validite)) or
+
+                    # Nouvelle période se termine pendant une période existante
+                    (date_fin_obj and
+                     date_fin_obj >= contact.date_debut_validite and
+                     (contact.date_fin_validite is None or date_fin_obj <= contact.date_fin_validite)) or
+
+                    # Nouvelle période englobe une période existante
+                    (date_debut_obj <= contact.date_debut_validite and
+                     (date_fin_obj is None or date_fin_obj >= contact.date_debut_validite))
+            )
+
+            if chevauchement:
+                priorite_label = dict(ZYPP.ORDRE_PRIORITE_CHOICES).get(int(ordre_priorite), ordre_priorite)
+                date_fin_contact = contact.date_fin_validite.strftime(
+                    "%d/%m/%Y") if contact.date_fin_validite else "aujourd'hui"
+                erreur_msg = (
+                    f"Chevauchement de dates détecté pour la priorité '{priorite_label}' "
+                    f"avec le contact existant du {contact.date_debut_validite.strftime('%d/%m/%Y')} "
+                    f"au {date_fin_contact}. Ajustez les dates pour éviter les chevauchements."
+                )
+                return JsonResponse({
+                    'errors': {
+                        '__all__': [erreur_msg]
+                    }
+                }, status=400)
+
+        # Créer la personne à prévenir avec validation
+        print("💾 TENTATIVE CRÉATION PERSONNE À PRÉVENIR...")
+        with transaction.atomic():
+            personne = ZYPP(
+                employe=employe,
+                nom=nom,
+                prenom=prenom,
+                lien_parente=lien_parente,
+                telephone_principal=telephone_principal,
+                telephone_secondaire=telephone_secondaire if telephone_secondaire else None,
+                email=email if email else None,
+                adresse=adresse if adresse else None,
+                ordre_priorite=ordre_priorite,
+                remarques=remarques if remarques else None,
+                date_debut_validite=date_debut_obj,
+                date_fin_validite=date_fin_obj,
+                actif=request.POST.get('actif') == 'on',
+            )
+
+            # Valider le modèle
+            try:
+                print("🔍 Validation full_clean()...")
+                personne.full_clean()
+                print("✅ Validation full_clean() réussie")
+            except ValidationError as e:
+                print(f"❌ ERREUR ValidationError: {e.message_dict}")
+                return JsonResponse({'errors': e.message_dict}, status=400)
+
+            personne.save()
+            print(f"✅ PERSONNE À PRÉVENIR CRÉÉE AVEC SUCCÈS - ID: {personne.id}")
+
+        return JsonResponse({
+            'success': True,
+            'message': '✅ Personne à prévenir créée avec succès',
+            'id': personne.id
+        })
+
+    except Exception as e:
+        print(f"💥 ERREUR NON GÉRÉE: {str(e)}")
+        import traceback
+        print(f"🔍 TRACEBACK COMPLET:")
+        print(traceback.format_exc())
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@require_http_methods(["POST"])
+def api_personne_prevenir_update_modal(request, id):
+    """Mettre à jour une personne à prévenir via modal"""
+    try:
+        print("=" * 50)
+        print(f"📝 DÉBUT api_personne_prevenir_update_modal - ID: {id}")
+        print("=" * 50)
+
+        personne = get_object_or_404(ZYPP, id=id)
+        print(f"✅ Personne trouvée: {personne.prenom} {personne.nom}")
+
+        # Validation de base
+        errors = {}
+        required_fields = ['nom', 'prenom', 'lien_parente', 'telephone_principal', 'ordre_priorite',
+                           'date_debut_validite']
+        for field in required_fields:
+            value = request.POST.get(field)
+            if not value:
+                errors[field] = ['Ce champ est requis']
+
+        if errors:
+            print(f"❌ ERREURS DE VALIDATION: {errors}")
+            return JsonResponse({'errors': errors}, status=400)
+
+        # Préparation des données
+        nom = request.POST.get('nom')
+        prenom = request.POST.get('prenom')
+        lien_parente = request.POST.get('lien_parente')
+        telephone_principal = request.POST.get('telephone_principal')
+        telephone_secondaire = request.POST.get('telephone_secondaire', '')
+        email = request.POST.get('email', '')
+        adresse = request.POST.get('adresse', '')
+        ordre_priorite = request.POST.get('ordre_priorite')
+        remarques = request.POST.get('remarques', '')
+        date_debut = request.POST.get('date_debut_validite')
+        date_fin = request.POST.get('date_fin_validite')
+
+        # Conversion des dates
+        try:
+            date_debut_obj = datetime.strptime(date_debut, '%Y-%m-%d').date()
+        except Exception:
+            errors['date_debut_validite'] = ['Format de date invalide']
+
+        date_fin_obj = None
+        if date_fin:
+            try:
+                date_fin_obj = datetime.strptime(date_fin, '%Y-%m-%d').date()
+            except Exception:
+                errors['date_fin_validite'] = ['Format de date invalide']
+
+        # Validation: date fin > date début
+        if date_fin_obj and date_fin_obj <= date_debut_obj:
+            errors['date_fin_validite'] = ['La date de fin doit être supérieure à la date de début']
+
+        # Validation: les deux téléphones ne doivent pas être identiques
+        if telephone_secondaire and telephone_principal == telephone_secondaire:
+            errors['telephone_secondaire'] = ['Le téléphone secondaire doit être différent du téléphone principal']
+
+        # Validation: vérifier le format du téléphone principal
+        telephone_nettoye = ''.join(filter(str.isdigit, telephone_principal.replace('+', '')))
+        if len(telephone_nettoye) < 8:
+            errors['telephone_principal'] = ['Le numéro de téléphone doit contenir au moins 8 chiffres']
+
+        # Validation: vérifier le format du téléphone secondaire si fourni
+        if telephone_secondaire:
+            telephone_sec_nettoye = ''.join(filter(str.isdigit, telephone_secondaire.replace('+', '')))
+            if len(telephone_sec_nettoye) < 8:
+                errors['telephone_secondaire'] = ['Le numéro de téléphone doit contenir au moins 8 chiffres']
+
+        if errors:
+            return JsonResponse({'errors': errors}, status=400)
+
+        # Validation: pas de doublon de priorité actif (en excluant l'instance courante)
+        if not date_fin_obj:  # Contact actif
+            contacts_meme_priorite = ZYPP.objects.filter(
+                employe=personne.employe,
+                ordre_priorite=ordre_priorite,
+                date_fin_validite__isnull=True
+            ).exclude(id=id)
+
+            if contacts_meme_priorite.exists():
+                contact_existant = contacts_meme_priorite.first()
+                priorite_label = dict(ZYPP.ORDRE_PRIORITE_CHOICES).get(int(ordre_priorite), ordre_priorite)
+                erreur_msg = (
+                    f"Un autre contact avec la priorité '{priorite_label}' existe déjà "
+                    f"({contact_existant.prenom} {contact_existant.nom}). "
+                    f"Une seule personne peut avoir cette priorité à la fois."
+                )
+                return JsonResponse({
+                    'errors': {
+                        'ordre_priorite': [erreur_msg]
+                    }
+                }, status=400)
+
+        # Validation des chevauchements de dates (en excluant l'instance courante)
+        contacts_existants = ZYPP.objects.filter(
+            employe=personne.employe,
+            ordre_priorite=ordre_priorite
+        ).exclude(id=id)
+
+        for contact in contacts_existants:
+            chevauchement = (
+                    (date_debut_obj >= contact.date_debut_validite and
+                     (contact.date_fin_validite is None or date_debut_obj <= contact.date_fin_validite)) or
+
+                    (date_fin_obj and
+                     date_fin_obj >= contact.date_debut_validite and
+                     (contact.date_fin_validite is None or date_fin_obj <= contact.date_fin_validite)) or
+
+                    (date_debut_obj <= contact.date_debut_validite and
+                     (date_fin_obj is None or date_fin_obj >= contact.date_debut_validite))
+            )
+
+            if chevauchement:
+                priorite_label = dict(ZYPP.ORDRE_PRIORITE_CHOICES).get(int(ordre_priorite), ordre_priorite)
+                date_fin_contact = contact.date_fin_validite.strftime(
+                    "%d/%m/%Y") if contact.date_fin_validite else "aujourd'hui"
+                erreur_msg = (
+                    f"Chevauchement de dates détecté pour la priorité '{priorite_label}' "
+                    f"avec le contact existant du {contact.date_debut_validite.strftime('%d/%m/%Y')} "
+                    f"au {date_fin_contact}."
+                )
+                return JsonResponse({
+                    'errors': {
+                        '__all__': [erreur_msg]
+                    }
+                }, status=400)
+
+        # Mettre à jour la personne à prévenir
+        print("💾 TENTATIVE MISE À JOUR...")
+        with transaction.atomic():
+            personne.nom = nom
+            personne.prenom = prenom
+            personne.lien_parente = lien_parente
+            personne.telephone_principal = telephone_principal
+            personne.telephone_secondaire = telephone_secondaire if telephone_secondaire else None
+            personne.email = email if email else None
+            personne.adresse = adresse if adresse else None
+            personne.ordre_priorite = ordre_priorite
+            personne.remarques = remarques if remarques else None
+            personne.date_debut_validite = date_debut_obj
+            personne.date_fin_validite = date_fin_obj
+            personne.actif = request.POST.get('actif') == 'on'
+
+            # Valider le modèle
+            try:
+                personne.full_clean()
+            except ValidationError as e:
+                print(f"❌ ERREUR ValidationError: {e.message_dict}")
+                return JsonResponse({'errors': e.message_dict}, status=400)
+
+            personne.save()
+            print(f"✅ PERSONNE À PRÉVENIR MODIFIÉE AVEC SUCCÈS")
+
+        return JsonResponse({
+            'success': True,
+            'message': '✅ Personne à prévenir modifiée avec succès'
+        })
+
+    except Exception as e:
+        print(f"💥 ERREUR NON GÉRÉE: {str(e)}")
+        import traceback
+        print(traceback.format_exc())
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@require_http_methods(["POST"])
+def api_personne_prevenir_delete_modal(request, id):
+    """Supprimer une personne à prévenir via modal"""
+    try:
+        print(f"🗑️ Suppression de la personne à prévenir ID: {id}")
+        personne = get_object_or_404(ZYPP, id=id)
+        nom_complet = f"{personne.prenom} {personne.nom}"
+
+        with transaction.atomic():
+            personne.delete()
+
+        print(f"✅ Personne à prévenir supprimée: {nom_complet}")
+
+        return JsonResponse({
+            'success': True,
+            'message': f'✅ Personne à prévenir ({nom_complet}) supprimée avec succès'
+        })
+    except Exception as e:
+        print(f"❌ Erreur lors de la suppression: {str(e)}")
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+# ===== API IDENTITÉ BANCAIRE (ZYIB) =====
+@require_http_methods(["GET"])
+def api_identite_bancaire_detail(request, employe_uuid):
+    """Récupérer les détails de l'identité bancaire d'un employé"""
+    try:
+        employe = get_object_or_404(ZY00, uuid=employe_uuid)
+
+        try:
+            ib = employe.identite_bancaire
+            data = {
+                'id': ib.id,
+                'titulaire_compte': ib.titulaire_compte,
+                'nom_banque': ib.nom_banque,
+                'code_banque': ib.code_banque,
+                'code_guichet': ib.code_guichet,
+                'numero_compte': ib.numero_compte,
+                'cle_rib': ib.cle_rib,
+                'iban': ib.iban or '',
+                'bic': ib.bic or '',
+                'type_compte': ib.type_compte,
+                'domiciliation': ib.domiciliation or '',
+                'date_ouverture': ib.date_ouverture.strftime('%Y-%m-%d') if ib.date_ouverture else '',
+                'remarques': ib.remarques or '',
+                'actif': ib.actif,
+                'rib_complet': ib.get_rib(),
+                'iban_formate': ib.get_iban_formate(),
+            }
+            return JsonResponse(data)
+        except ZYIB.DoesNotExist:
+            return JsonResponse({'error': 'Aucune identité bancaire enregistrée'}, status=404)
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@require_http_methods(["POST"])
+def api_identite_bancaire_create_or_update(request, employe_uuid):
+    """Créer ou mettre à jour l'identité bancaire d'un employé"""
+    try:
+        print("=" * 50)
+        print("📝 DÉBUT api_identite_bancaire_create_or_update")
+        print("=" * 50)
+
+        employe = get_object_or_404(ZY00, uuid=employe_uuid)
+        print(f"✅ Employé trouvé: {employe.matricule}")
+
+        # Validation de base
+        errors = {}
+        required_fields = ['titulaire_compte', 'nom_banque', 'code_banque', 'code_guichet',
+                           'numero_compte', 'cle_rib']
+
+        for field in required_fields:
+            value = request.POST.get(field)
+            if not value:
+                errors[field] = ['Ce champ est requis']
+
+        if errors:
+            print(f"❌ ERREURS DE VALIDATION: {errors}")
+            return JsonResponse({'errors': errors}, status=400)
+
+        # Récupération des données
+        data = {
+            'titulaire_compte': request.POST.get('titulaire_compte'),
+            'nom_banque': request.POST.get('nom_banque'),
+            'code_banque': request.POST.get('code_banque'),
+            'code_guichet': request.POST.get('code_guichet'),
+            'numero_compte': request.POST.get('numero_compte'),
+            'cle_rib': request.POST.get('cle_rib'),
+            'iban': request.POST.get('iban', ''),
+            'bic': request.POST.get('bic', ''),
+            'type_compte': request.POST.get('type_compte', 'COURANT'),
+            'domiciliation': request.POST.get('domiciliation', ''),
+            'remarques': request.POST.get('remarques', ''),
+            'actif': request.POST.get('actif') == 'on',
+        }
+
+        # Date d'ouverture
+        date_ouverture = request.POST.get('date_ouverture')
+        if date_ouverture:
+            try:
+                data['date_ouverture'] = datetime.strptime(date_ouverture, '%Y-%m-%d').date()
+            except ValueError:
+                errors['date_ouverture'] = ['Format de date invalide']
+
+        if errors:
+            return JsonResponse({'errors': errors}, status=400)
+
+        # Créer ou mettre à jour
+        with transaction.atomic():
+            ib, created = ZYIB.objects.update_or_create(
+                employe=employe,
+                defaults=data
+            )
+
+            # Valider le modèle
+            try:
+                ib.full_clean()
+            except ValidationError as e:
+                return JsonResponse({'errors': e.message_dict}, status=400)
+
+            ib.save()
+            print(f"✅ IDENTITÉ BANCAIRE {'CRÉÉE' if created else 'MODIFIÉE'} AVEC SUCCÈS - ID: {ib.id}")
+
+        return JsonResponse({
+            'success': True,
+            'message': f'✅ Identité bancaire {"créée" if created else "modifiée"} avec succès',
+            'id': ib.id
+        })
+
+    except Exception as e:
+        print(f"💥 ERREUR NON GÉRÉE: {str(e)}")
+        import traceback
+        print(f"🔍 TRACEBACK COMPLET:")
+        print(traceback.format_exc())
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@require_http_methods(["POST"])
+def api_identite_bancaire_delete(request, employe_uuid):
+    """Supprimer l'identité bancaire d'un employé"""
+    try:
+        employe = get_object_or_404(ZY00, uuid=employe_uuid)
+
+        try:
+            ib = employe.identite_bancaire
+            with transaction.atomic():
+                ib.delete()
+
+            return JsonResponse({
+                'success': True,
+                'message': '✅ Identité bancaire supprimée avec succès'
+            })
+        except ZYIB.DoesNotExist:
+            return JsonResponse({'error': 'Aucune identité bancaire à supprimer'}, status=404)
+
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 

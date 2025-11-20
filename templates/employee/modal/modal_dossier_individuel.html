@@ -316,6 +316,62 @@
     </div>
 </div>
 
+ <!-- Modale Historique Noms/Prénoms (ZYNP) -->
+<div id="znpModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="znpModalTitle">Ajouter un historique nom/prénom</h2>
+            <button type="button" class="close">&times;</button>
+        </div>
+        <form id="znpForm">
+            {% csrf_token %}
+            <input type="hidden" name="employe_uuid" value="{{ employe.uuid }}">
+            <div class="modal-body">
+                <div class="modal-form-group">
+                    <label for="znp_nom" class="required">Nom</label>
+                    <input type="text" id="znp_nom" name="nom" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="znp_prenoms" class="required">Prénom(s)</label>
+                    <input type="text" id="znp_prenoms" name="prenoms" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="znp_date_debut_validite" class="required">Date de début de validité</label>
+                    <input type="date" id="znp_date_debut_validite" name="date_debut_validite" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="znp_date_fin_validite">Date de fin de validité</label>
+                    <input type="date" id="znp_date_fin_validite" name="date_fin_validite">
+                    <small class="form-text text-muted">
+                        Laisser vide si c'est l'historique actuel
+                    </small>
+                </div>
+                <div class="modal-form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="znp_actif" name="actif" checked>
+                        Historique actif
+                    </label>
+                </div>
+
+                <!-- 🆕 Section d'information sur les restrictions -->
+                <div id="znpRestrictions" class="alert alert-info" style="display: none;">
+                    <small>
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Règles de validation :</strong><br>
+                        • Un seul historique peut être actif à la fois<br>
+                        • Les périodes ne doivent pas se chevaucher<br>
+                        • L'historique actuel doit être clôturé avant d'en créer un nouveau
+                    </small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-cancel">Annuler</button>
+                <button type="submit" class="btn btn-primary" id="znpSubmitBtn">Ajouter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
  <!-- Modale Famille -->
 <div id="familleModal" class="modal">
     <div class="modal-content">
@@ -375,6 +431,298 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary btn-cancel">Annuler</button>
                 <button type="submit" class="btn btn-primary" id="familleSubmitBtn">Ajouter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+ <!-- Modale Personne à Prévenir -->
+<div id="personnePrevModal" class="modal">
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <h2 id="personnePrevModalTitle">
+                <i class="fas fa-ambulance"></i> Ajouter un contact d'urgence
+            </h2>
+            <button type="button" class="close">&times;</button>
+        </div>
+        <form id="personnePrevForm">
+            {% csrf_token %}
+            <input type="hidden" name="employe_uuid" value="{{ employe.uuid }}">
+            <div class="modal-body">
+                <!-- Section: Identité -->
+                <div class="modal-section">
+                    <h4><i class="fas fa-user"></i> Identité</h4>
+                    <div class="modal-form-row">
+                        <div class="modal-form-group">
+                            <label for="nom_prev" class="required">Nom</label>
+                            <input type="text" id="nom_prev" name="nom" required
+                                   placeholder="Nom de famille">
+                        </div>
+                        <div class="modal-form-group">
+                            <label for="prenom_prev" class="required">Prénom</label>
+                            <input type="text" id="prenom_prev" name="prenom" required
+                                   placeholder="Prénom">
+                        </div>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="lien_parente" class="required">Lien de parenté</label>
+                        <select id="lien_parente" name="lien_parente" required>
+                            <option value="">Sélectionner...</option>
+                            <option value="CONJOINT">💑 Conjoint(e)</option>
+                            <option value="PARENT">👨‍👩‍👦 Parent</option>
+                            <option value="ENFANT">👶 Enfant</option>
+                            <option value="FRERE_SOEUR">👫 Frère/Sœur</option>
+                            <option value="AMI">🤝 Ami(e)</option>
+                            <option value="COLLEGUE">💼 Collègue</option>
+                            <option value="VOISIN">🏠 Voisin(e)</option>
+                            <option value="AUTRE">👤 Autre</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Section: Coordonnées -->
+                <div class="modal-section">
+                    <h4><i class="fas fa-phone"></i> Coordonnées</h4>
+                    <div class="modal-form-row">
+                        <div class="modal-form-group">
+                            <label for="telephone_principal" class="required">
+                                <i class="fas fa-phone"></i> Téléphone principal
+                            </label>
+                            <input type="tel" id="telephone_principal" name="telephone_principal" required
+                                   placeholder="+33 6 12 34 56 78">
+                            <small>Format recommandé: +33 6 12 34 56 78</small>
+                        </div>
+                        <div class="modal-form-group">
+                            <label for="telephone_secondaire">
+                                <i class="fas fa-mobile-alt"></i> Téléphone secondaire
+                            </label>
+                            <input type="tel" id="telephone_secondaire" name="telephone_secondaire"
+                                   placeholder="+33 1 23 45 67 89">
+                            <small>Optionnel</small>
+                        </div>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="email_prev">
+                            <i class="fas fa-envelope"></i> Email
+                        </label>
+                        <input type="email" id="email_prev" name="email"
+                               placeholder="email@exemple.com">
+                        <small>Optionnel</small>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="adresse_prev">
+                            <i class="fas fa-map-marker-alt"></i> Adresse complète
+                        </label>
+                        <textarea id="adresse_prev" name="adresse" rows="3"
+                                  placeholder="Adresse complète (optionnel)"></textarea>
+                    </div>
+                </div>
+
+                <!-- Section: Urgence -->
+                <div class="modal-section">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Informations d'urgence</h4>
+                    <div class="modal-form-group">
+                        <label for="ordre_priorite" class="required">Ordre de priorité</label>
+                        <select id="ordre_priorite" name="ordre_priorite" required>
+                            <option value="">Sélectionner...</option>
+                            <option value="1">🔴 Contact principal (priorité 1)</option>
+                            <option value="2">🟠 Contact secondaire (priorité 2)</option>
+                            <option value="3">🟡 Contact tertiaire (priorité 3)</option>
+                        </select>
+                        <small>Définit l'ordre dans lequel contacter les personnes en cas d'urgence</small>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="remarques_prev">
+                            <i class="fas fa-comment"></i> Remarques
+                        </label>
+                        <textarea id="remarques_prev" name="remarques" rows="3"
+                                  placeholder="Informations complémentaires (disponibilités, instructions spéciales, etc.)"></textarea>
+                    </div>
+                </div>
+
+                <!-- Section: Validité -->
+                <div class="modal-section">
+                    <h4><i class="fas fa-calendar"></i> Période de validité</h4>
+                    <div class="modal-form-row">
+                        <div class="modal-form-group">
+                            <label for="date_debut_validite_prev" class="required">Date de début</label>
+                            <input type="date" id="date_debut_validite_prev" name="date_debut_validite" required>
+                        </div>
+                        <div class="modal-form-group">
+                            <label for="date_fin_validite_prev">Date de fin</label>
+                            <input type="date" id="date_fin_validite_prev" name="date_fin_validite">
+                            <small>Laisser vide si contact permanent</small>
+                        </div>
+                    </div>
+                    <div class="modal-form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="actif_prev" name="actif" checked>
+                            <span>Contact actif</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-cancel">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" id="personnePrevSubmitBtn">
+                    <i class="fas fa-save"></i> <span id="personnePrevSubmitText">Ajouter</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modale de visualisation des détails -->
+<div id="personnePrevViewModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><i class="fas fa-eye"></i> Détails du contact d'urgence</h2>
+            <button type="button" class="close">&times;</button>
+        </div>
+        <div class="modal-body" id="personnePrevViewContent">
+            <!-- Le contenu sera inséré dynamiquement -->
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-cancel">
+                <i class="fas fa-times"></i> Fermer
+            </button>
+        </div>
+    </div>
+</div>
+
+ <!-- Modale Identité Bancaire -->
+<div id="identiteBancaireModal" class="modal">
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <h2 id="identiteBancaireModalTitle">
+                <i class="fas fa-university"></i> <span id="identiteBancaireTitleText">Ajouter une identité bancaire</span>
+            </h2>
+            <button type="button" class="close">&times;</button>
+        </div>
+        <form id="identiteBancaireForm">
+            {% csrf_token %}
+            <input type="hidden" name="employe_uuid" value="{{ employe.uuid }}">
+            <div class="modal-body">
+                <!-- Section: Titulaire -->
+                <div class="modal-section">
+                    <h4><i class="fas fa-user-circle"></i> Titulaire du compte</h4>
+                    <div class="modal-form-group">
+                        <label for="titulaire_compte" class="required">Nom du titulaire</label>
+                        <input type="text" id="titulaire_compte" name="titulaire_compte" required
+                               placeholder="NOM Prénom">
+                        <small>Nom complet tel qu'il apparaît sur le RIB</small>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="type_compte">Type de compte</label>
+                        <select id="type_compte" name="type_compte">
+                            <option value="COURANT">Compte courant</option>
+                            <option value="EPARGNE">Compte épargne</option>
+                            <option value="JOINT">Compte joint</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Section: Banque -->
+                <div class="modal-section">
+                    <h4><i class="fas fa-building"></i> Informations bancaires</h4>
+                    <div class="modal-form-group">
+                        <label for="nom_banque" class="required">Nom de la banque</label>
+                        <input type="text" id="nom_banque" name="nom_banque" required
+                               placeholder="Ex: Crédit Agricole, BNP Paribas...">
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="domiciliation">Domiciliation</label>
+                        <input type="text" id="domiciliation" name="domiciliation"
+                               placeholder="Adresse de l'agence bancaire">
+                        <small>Optionnel</small>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="date_ouverture">Date d'ouverture du compte</label>
+                        <input type="date" id="date_ouverture" name="date_ouverture">
+                        <small>Optionnel</small>
+                    </div>
+                </div>
+
+                <!-- Section: RIB -->
+                <div class="modal-section rib-section-modal">
+                    <h4><i class="fas fa-credit-card"></i> Relevé d'Identité Bancaire (RIB)</h4>
+                    <div class="rib-input-grid">
+                        <div class="modal-form-group">
+                            <label for="code_banque" class="required">Code Banque</label>
+                            <input type="text" id="code_banque" name="code_banque" required
+                                   maxlength="5" pattern="[0-9]{5}"
+                                   placeholder="12345">
+                            <small>5 chiffres</small>
+                        </div>
+                        <div class="modal-form-group">
+                            <label for="code_guichet" class="required">Code Guichet</label>
+                            <input type="text" id="code_guichet" name="code_guichet" required
+                                   maxlength="5" pattern="[0-9]{5}"
+                                   placeholder="12345">
+                            <small>5 chiffres</small>
+                        </div>
+                        <div class="modal-form-group">
+                            <label for="numero_compte" class="required">Numéro de Compte</label>
+                            <input type="text" id="numero_compte" name="numero_compte" required
+                                   maxlength="11"
+                                   placeholder="12345678901">
+                            <small>11 caractères</small>
+                        </div>
+                        <div class="modal-form-group">
+                            <label for="cle_rib" class="required">Clé RIB</label>
+                            <input type="text" id="cle_rib" name="cle_rib" required
+                                   maxlength="2" pattern="[0-9]{2}"
+                                   placeholder="12">
+                            <small>2 chiffres</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: IBAN / BIC -->
+                <div class="modal-section">
+                    <h4><i class="fas fa-globe"></i> Identifiants internationaux</h4>
+                    <div class="modal-form-group">
+                        <label for="iban">IBAN</label>
+                        <input type="text" id="iban" name="iban"
+                               maxlength="34"
+                               placeholder="FR76 1234 5678 9012 3456 7890 123">
+                        <small>Optionnel - 27 caractères pour la France (FR + 25 caractères)</small>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="bic">BIC/SWIFT</label>
+                        <input type="text" id="bic" name="bic"
+                               maxlength="11"
+                               placeholder="BNPAFRPP ou BNPAFRPPXXX">
+                        <small>Optionnel - 8 ou 11 caractères</small>
+                    </div>
+                </div>
+
+                <!-- Section: Remarques -->
+                <div class="modal-section">
+                    <h4><i class="fas fa-comment"></i> Remarques</h4>
+                    <div class="modal-form-group">
+                        <label for="remarques">Remarques éventuelles</label>
+                        <textarea id="remarques" name="remarques" rows="3"
+                                  placeholder="Informations complémentaires..."></textarea>
+                    </div>
+                    <div class="modal-form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="actif_ib" name="actif" checked>
+                            <span>Identité bancaire active</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-cancel">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" id="identiteBancaireSubmitBtn">
+                    <i class="fas fa-save"></i> <span id="identiteBancaireSubmitText">Enregistrer</span>
+                </button>
             </div>
         </form>
     </div>

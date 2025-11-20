@@ -433,3 +433,882 @@
     font-weight: 500;
 }
 
+/* ========================================
+   STYLES RESPONSIVE COMMUNS
+   ======================================== */
+
+/* Vue Desktop/Mobile par défaut */
+.desktop-view {
+    display: block;
+}
+
+.mobile-view {
+    display: none;
+}
+
+/* Cartes Mobile */
+.mobile-card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.mobile-card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.mobile-card-type {
+    font-weight: 600;
+    font-size: 14px;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: 10px;
+}
+
+.mobile-card-body {
+    padding: 15px;
+    background: #fff;
+}
+
+.mobile-card-row {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+.mobile-card-row:last-child {
+    margin-bottom: 0;
+}
+
+.mobile-card-row i {
+    color: #1c5d5f;
+    margin-right: 10px;
+    margin-top: 2px;
+    min-width: 16px;
+    font-size: 14px;
+}
+
+.mobile-card-actions {
+    padding: 12px 15px;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    display: flex;
+    gap: 10px;
+}
+
+.mobile-card-actions .btn {
+    flex: 1;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+/* Badges */
+.badge {
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.badge-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+}
+
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+    opacity: 0.3;
+}
+
+/* Stats Grid - Responsive par défaut */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* Styles spécifiques pour les documents */
+.filename-cell {
+    max-width: 250px;
+}
+
+.filename {
+    display: inline-block;
+    word-break: break-all;
+}
+
+.filename-mobile {
+    word-break: break-word;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.description-cell {
+    max-width: 200px;
+}
+
+.description-cell small {
+    color: #666;
+    font-size: 12px;
+}
+
+/* Actions buttons pour documents */
+.action-buttons {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+}
+
+.action-buttons .btn {
+    padding: 5px 10px;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* ========================================
+   TABS RESPONSIVE
+   ======================================== */
+
+.tabs-wrapper {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.tabs {
+    display: flex;
+    background: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+}
+
+/* Scrollbar personnalisée pour webkit */
+.tabs::-webkit-scrollbar {
+    height: 4px;
+}
+
+.tabs::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.tabs::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 2px;
+}
+
+.tabs::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+.tab {
+    flex: 1;
+    min-width: fit-content;
+    padding: 15px 20px;
+    text-align: center;
+    text-decoration: none;
+    color: #6c757d;
+    font-weight: 500;
+    font-size: 14px;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: transparent;
+    position: relative;
+}
+
+.tab i {
+    font-size: 16px;
+}
+
+.tab:hover {
+    background: #e9ecef;
+    color: #495057;
+}
+
+.tab.active {
+    color: #1c5d5f;
+    border-bottom-color: #1c5d5f;
+    background: white;
+    font-weight: 600;
+}
+
+.tab.active i {
+    color: #1c5d5f;
+}
+
+/* Animation de l'onglet actif */
+.tab.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: scaleX(0);
+    }
+    to {
+        transform: scaleX(1);
+    }
+}
+
+/* Effet de focus pour l'accessibilité */
+.tab:focus {
+    outline: 2px solid #1c5d5f;
+    outline-offset: -2px;
+}
+
+.tab:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* ========================================
+   MEDIA QUERIES RESPONSIVE
+   ======================================== */
+
+/* Tablettes et mobiles */
+@media (max-width: 992px) {
+    .desktop-view {
+        display: none;
+    }
+
+    .mobile-view {
+        display: block;
+    }
+
+    .section-header {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 10px;
+    }
+
+    .section-header h3 {
+        margin-bottom: 0;
+    }
+
+    .section-header .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .form-section {
+        padding: 15px;
+    }
+
+    /* Form Grid Responsive */
+    .form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 15px;
+    }
+
+    /* Stats Grid Mobile */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .stat-card {
+        padding: 15px;
+    }
+
+    .stat-number {
+        font-size: 24px;
+    }
+
+    .stat-label {
+        font-size: 12px;
+    }
+
+    /* Tabs responsive */
+    .tabs {
+        justify-content: flex-start;
+    }
+
+    .tab {
+        flex: 0 0 auto;
+        min-width: 140px;
+        padding: 12px 15px;
+        font-size: 13px;
+    }
+
+    .tab i {
+        font-size: 14px;
+    }
+
+    .tab-text {
+        display: inline;
+    }
+
+    /* Mobile card pour documents */
+    .mobile-card-body .mobile-card-row {
+        align-items: flex-start;
+    }
+
+    .mobile-card-body .mobile-card-row span {
+        flex: 1;
+    }
+}
+
+/* Très petits écrans */
+@media (max-width: 576px) {
+    .mobile-card-actions {
+        flex-direction: column;
+    }
+
+    .mobile-card-actions .btn {
+        width: 100%;
+    }
+
+    .btn-text {
+        display: inline;
+    }
+
+    .mobile-card-type {
+        font-size: 13px;
+        max-width: 65%;
+    }
+
+    .mobile-card-header {
+        padding: 10px 12px;
+    }
+
+    .mobile-card-body {
+        padding: 12px;
+    }
+
+    .mobile-card-row {
+        font-size: 13px;
+    }
+
+    /* Stats en colonne sur très petit écran */
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Tabs très petits écrans */
+    .tab {
+        min-width: 70px;
+        padding: 8px 5px;
+        font-size: 10px;
+    }
+
+    .tab i {
+        font-size: 16px;
+    }
+
+    .tab-text {
+        font-size: 9px;
+        max-width: 60px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Documents mobile */
+    .filename-mobile {
+        font-size: 12px;
+    }
+
+    .empty-state {
+        padding: 40px 20px;
+    }
+
+    .empty-icon {
+        font-size: 48px;
+    }
+
+    .empty-state p {
+        font-size: 14px;
+    }
+}
+
+/* ========================================
+   RESPONSIVE MOBILE TABLETS
+   ======================================== */
+
+@media (max-width: 768px) {
+    .tabs-wrapper {
+        margin-bottom: 15px;
+        border-radius: 0;
+        margin-left: -15px;
+        margin-right: -15px;
+    }
+
+    .tabs {
+        border-radius: 0;
+    }
+
+    .tab {
+        flex-direction: column;
+        gap: 4px;
+        min-width: 80px;
+        padding: 10px 8px;
+        font-size: 11px;
+    }
+
+    .tab i {
+        font-size: 18px;
+    }
+
+    .tab-text {
+        display: block;
+        line-height: 1.2;
+    }
+}
+
+/* Version alternative : Icônes seules sur très petits écrans */
+@media (max-width: 480px) {
+    .tab {
+        min-width: 60px;
+    }
+
+    .tab-text {
+        display: none;
+    }
+
+    .tab i {
+        font-size: 20px;
+    }
+
+    /* Tooltip au hover pour afficher le texte */
+    .tab::after {
+        content: attr(data-title);
+        position: absolute;
+        bottom: -35px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.8);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 11px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+        z-index: 1000;
+    }
+
+    .tab:hover::after {
+        opacity: 1;
+    }
+}
+
+/* Écrans moyens - ajustements tableaux */
+@media (min-width: 993px) and (max-width: 1200px) {
+    .data-table {
+        font-size: 13px;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 8px;
+    }
+}
+
+
+/* Styles pour les contacts d'urgence */
+.urgent-contact-card {
+    border-left: 4px solid #dc3545;
+}
+
+.phone-link, .email-link {
+    color: #1c5d5f;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.phone-link:hover, .email-link:hover {
+    color: #0d3d3f;
+    text-decoration: underline;
+}
+
+.modal-large {
+    max-width: 800px;
+}
+
+.modal-section {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.modal-section h4 {
+    color: #1c5d5f;
+    margin-bottom: 15px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+@media (max-width: 768px) {
+    .modal-form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-large {
+        max-width: 95%;
+    }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+}
+
+.empty-state-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    font-size: 20px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    font-size: 14px;
+    color: #999;
+}
+
+/* Badges de priorité */
+.badge-danger {
+    background-color: #dc3545;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.badge-info {
+    background-color: #17a2b8;
+}
+
+/* Styles pour la vue détails */
+.detail-view {
+    padding: 10px 0;
+}
+
+.detail-section {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.detail-section:last-child {
+    border-bottom: none;
+}
+
+.detail-section h4 {
+    color: #1c5d5f;
+    margin-bottom: 15px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.detail-section p {
+    margin: 10px 0;
+    line-height: 1.6;
+}
+
+.detail-section strong {
+    color: #333;
+    font-weight: 600;
+}
+
+.detail-section a {
+    color: #1c5d5f;
+    text-decoration: none;
+}
+
+.detail-section a:hover {
+    text-decoration: underline;
+}
+
+
+/* ========================================
+   STYLES IDENTITÉ BANCAIRE
+   ======================================== */
+
+/* Carte d'affichage RIB */
+.rib-display-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.rib-section {
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.rib-section:last-child {
+    border-bottom: none;
+}
+
+.rib-section h4 {
+    color: #1c5d5f;
+    margin-bottom: 15px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.rib-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.rib-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.rib-label {
+    font-size: 12px;
+    color: #666;
+    font-weight: 500;
+}
+
+.rib-value {
+    font-size: 14px;
+    color: #333;
+    font-weight: 600;
+}
+
+/* Section RIB mise en évidence */
+.rib-highlight {
+    background-color: #f8f9fa;
+}
+
+.rib-numbers {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.rib-number-block {
+    text-align: center;
+    padding: 10px;
+    background: white;
+    border-radius: 5px;
+    border: 2px solid #1c5d5f;
+}
+
+.rib-number-label {
+    display: block;
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.rib-number-value {
+    display: block;
+    font-size: 18px;
+    font-weight: bold;
+    color: #1c5d5f;
+    font-family: 'Courier New', monospace;
+}
+
+.rib-complet {
+    text-align: center;
+    padding: 15px;
+    background: white;
+    border-radius: 5px;
+    font-size: 16px;
+    font-family: 'Courier New', monospace;
+}
+
+/* IBAN */
+.iban-item {
+    grid-column: 1 / -1;
+}
+
+.iban-value {
+    font-family: 'Courier New', monospace;
+    font-size: 15px;
+    letter-spacing: 1px;
+}
+
+/* Footer RIB */
+.rib-footer {
+    padding: 15px 20px;
+    background-color: #f8f9fa;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Vue mobile RIB */
+.rib-mobile-card {
+    border-left: 4px solid #1c5d5f;
+}
+
+.mobile-card-section {
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 5px;
+    margin: 10px 0;
+}
+
+.rib-mobile-numbers {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+    font-size: 13px;
+}
+
+/* Modal RIB */
+.rib-section-modal {
+    background: #f0f8ff;
+}
+
+.rib-input-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .rib-numbers {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .rib-input-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .rib-info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 767px) {
+    .rib-numbers {
+        grid-template-columns: 1fr;
+    }
+
+    .rib-input-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rib-number-value {
+        font-size: 16px;
+    }
+
+    .rib-complet {
+        font-size: 14px;
+    }
+}
+
+/* Styles pour les erreurs de formulaire */
+.form-error input,
+.form-error select,
+.form-error textarea {
+    border-color: #dc3545 !important;
+    background-color: #fff5f5;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+.modal-form-group.form-error label {
+    color: #dc3545;
+}

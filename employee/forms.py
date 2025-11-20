@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import inlineformset_factory
 from django.utils import timezone
-from .models import ZY00, ZYCO, ZYTE, ZYME, ZYAF, ZYAD, ZDPO, ZYDO, ZYFA
+from .models import ZY00, ZYCO, ZYTE, ZYME, ZYAF, ZYAD, ZDPO, ZYDO, ZYFA, ZYNP, ZYPP, ZYIB
 from .pays_choices import PAYS_CHOICES
 
 ######################
@@ -283,43 +283,6 @@ class ZYADForm(forms.ModelForm):
         return cleaned_data
 
 
-# Formsets pour gérer plusieurs instances en même temps
-ContratFormSet = inlineformset_factory(
-    ZY00, ZYCO,
-    form=ZYCOForm,
-    extra=1,
-    can_delete=True
-)
-
-TelephoneFormSet = inlineformset_factory(
-    ZY00, ZYTE,
-    form=ZYTEForm,
-    extra=1,
-    can_delete=True
-)
-
-EmailFormSet = inlineformset_factory(
-    ZY00, ZYME,
-    form=ZYMEForm,
-    extra=1,
-    can_delete=True
-)
-
-AffectationFormSet = inlineformset_factory(
-    ZY00, ZYAF,
-    form=ZYAFForm,
-    extra=1,
-    can_delete=True
-)
-
-AdresseFormSet = inlineformset_factory(
-    ZY00, ZYAD,
-    form=ZYADForm,
-    extra=1,
-    can_delete=True
-)
-
-
 ######################
 ### Documment ZYDO ###
 ######################
@@ -404,3 +367,301 @@ class ZYFAForm(forms.ModelForm):
             })
 
         return cleaned_data
+
+
+######################
+### Historique Nom Prénom ZYNP ###
+######################
+class ZYNPForm(forms.ModelForm):
+    """Formulaire pour l'historique des noms et prénoms"""
+
+    class Meta:
+        model = ZYNP
+        fields = ['employe', 'nom', 'prenoms', 'date_debut_validite', 'date_fin_validite', 'actif']
+        widgets = {
+            'employe': forms.Select(attrs={'class': 'form-control'}),
+            'nom': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom'}),
+            'prenoms': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Prénom(s)'}),
+            'date_debut_validite': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'date_fin_validite': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'actif': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+    def clean(self):
+        """Validation personnalisée"""
+        cleaned_data = super().clean()
+        date_debut = cleaned_data.get('date_debut_validite')
+        date_fin = cleaned_data.get('date_fin_validite')
+
+        # Validation: date fin > date début
+        if date_fin and date_debut and date_fin <= date_debut:
+            raise forms.ValidationError({
+                'date_fin_validite': 'La date de fin doit être supérieure à la date de début.'
+            })
+
+        return cleaned_data
+
+
+######################
+### Personne à Prévenir ZYPP ###
+######################
+class ZYPPForm(forms.ModelForm):
+    """Formulaire pour les personnes à prévenir en cas d'urgence"""
+
+    class Meta:
+        model = ZYPP
+        fields = [
+            'employe', 'nom', 'prenom', 'lien_parente',
+            'telephone_principal', 'telephone_secondaire', 'email',
+            'adresse', 'ordre_priorite', 'remarques',
+            'date_debut_validite', 'date_fin_validite', 'actif'
+        ]
+        widgets = {
+            'employe': forms.Select(attrs={'class': 'form-control'}),
+            'nom': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nom de la personne à prévenir'
+            }),
+            'prenom': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Prénom de la personne à prévenir'
+            }),
+            'lien_parente': forms.Select(attrs={'class': 'form-control'}),
+            'telephone_principal': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ex: +33 6 12 34 56 78'
+            }),
+            'telephone_secondaire': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Téléphone secondaire (optionnel)'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Email (optionnel)'
+            }),
+            'adresse': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Adresse complète (optionnelle)',
+                'rows': 3
+            }),
+            'ordre_priorite': forms.Select(attrs={'class': 'form-control'}),
+            'remarques': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Remarques ou informations complémentaires (optionnel)',
+                'rows': 3
+            }),
+            'date_debut_validite': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'date_fin_validite': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'actif': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+    def clean(self):
+        """Validation personnalisée"""
+        cleaned_data = super().clean()
+        date_debut = cleaned_data.get('date_debut_validite')
+        date_fin = cleaned_data.get('date_fin_validite')
+        telephone_principal = cleaned_data.get('telephone_principal')
+        telephone_secondaire = cleaned_data.get('telephone_secondaire')
+
+        # Validation: date fin > date début
+        if date_fin and date_debut and date_fin <= date_debut:
+            raise forms.ValidationError({
+                'date_fin_validite': 'La date de fin doit être supérieure à la date de début.'
+            })
+
+        # Validation: téléphone principal obligatoire
+        if not telephone_principal:
+            raise forms.ValidationError({
+                'telephone_principal': 'Le téléphone principal est obligatoire.'
+            })
+
+        # Validation: les deux téléphones ne doivent pas être identiques
+        if telephone_secondaire and telephone_principal == telephone_secondaire:
+            raise forms.ValidationError({
+                'telephone_secondaire': 'Le téléphone secondaire doit être différent du téléphone principal.'
+            })
+
+        return cleaned_data
+
+    def clean_telephone_principal(self):
+        """Validation du téléphone principal"""
+        telephone = self.cleaned_data.get('telephone_principal')
+
+        if telephone:
+            # Nettoyer le numéro (enlever espaces, tirets, etc.)
+            telephone_nettoye = ''.join(filter(str.isdigit, telephone.replace('+', '')))
+
+            # Vérifier longueur minimale (au moins 8 chiffres)
+            if len(telephone_nettoye) < 8:
+                raise forms.ValidationError(
+                    'Le numéro de téléphone doit contenir au moins 8 chiffres.'
+                )
+
+        return telephone
+
+    def clean_telephone_secondaire(self):
+        """Validation du téléphone secondaire"""
+        telephone = self.cleaned_data.get('telephone_secondaire')
+
+        if telephone:
+            # Nettoyer le numéro
+            telephone_nettoye = ''.join(filter(str.isdigit, telephone.replace('+', '')))
+
+            # Vérifier longueur minimale
+            if len(telephone_nettoye) < 8:
+                raise forms.ValidationError(
+                    'Le numéro de téléphone doit contenir au moins 8 chiffres.'
+                )
+
+        return telephone
+
+
+######################
+### Identité Bancaire ZYIB ###
+######################
+class ZYIBForm(forms.ModelForm):
+    """Formulaire pour les identités bancaires"""
+    class Meta:
+        model = ZYIB
+        fields = [
+            'titulaire_compte', 'nom_banque', 'code_banque', 'code_guichet',
+            'numero_compte', 'cle_rib', 'iban', 'bic', 'type_compte',
+            'domiciliation', 'date_ouverture', 'remarques', 'actif'
+        ]
+        widgets = {
+            'titulaire_compte': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nom du titulaire du compte'
+            }),
+            'nom_banque': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ex: Crédit Agricole, BNP Paribas...'
+            }),
+            'code_banque': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': '12345',
+                'maxlength': '5',
+                'pattern': '[0-9]{5}'
+            }),
+            'code_guichet': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': '12345',
+                'maxlength': '5',
+                'pattern': '[0-9]{5}'
+            }),
+            'numero_compte': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': '12345678901',
+                'maxlength': '11'
+            }),
+            'cle_rib': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': '12',
+                'maxlength': '2',
+                'pattern': '[0-9]{2}'
+            }),
+            'iban': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'FR76 1234 5678 9012 3456 7890 123',
+                'maxlength': '34'
+            }),
+            'bic': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'BNPAFRPP ou BNPAFRPPXXX',
+                'maxlength': '11'
+            }),
+            'type_compte': forms.Select(attrs={'class': 'form-control'}),
+            'domiciliation': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Adresse de l\'agence bancaire'
+            }),
+            'date_ouverture': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'remarques': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Remarques éventuelles...'
+            }),
+            'actif': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+    def clean(self):
+        """Validation personnalisée"""
+        cleaned_data = super().clean()
+
+        # Validation supplémentaire si nécessaire
+        code_banque = cleaned_data.get('code_banque')
+        code_guichet = cleaned_data.get('code_guichet')
+        numero_compte = cleaned_data.get('numero_compte')
+        cle_rib = cleaned_data.get('cle_rib')
+
+        # Vérifier que tous les champs RIB sont remplis ensemble
+        rib_fields = [code_banque, code_guichet, numero_compte, cle_rib]
+        if any(rib_fields) and not all(rib_fields):
+            raise forms.ValidationError(
+                "Tous les champs du RIB doivent être remplis (code banque, code guichet, numéro de compte et clé)."
+            )
+
+        return cleaned_data
+
+# Formset pour gérer plusieurs personnes à prévenir
+PersonnePrevenirFormSet = inlineformset_factory(
+    ZY00, ZYPP,
+    form=ZYPPForm,
+    extra=1,
+    can_delete=True
+)
+
+# Formsets pour gérer plusieurs instances en même temps
+ContratFormSet = inlineformset_factory(
+    ZY00, ZYCO,
+    form=ZYCOForm,
+    extra=1,
+    can_delete=True
+)
+
+TelephoneFormSet = inlineformset_factory(
+    ZY00, ZYTE,
+    form=ZYTEForm,
+    extra=1,
+    can_delete=True
+)
+
+EmailFormSet = inlineformset_factory(
+    ZY00, ZYME,
+    form=ZYMEForm,
+    extra=1,
+    can_delete=True
+)
+
+AffectationFormSet = inlineformset_factory(
+    ZY00, ZYAF,
+    form=ZYAFForm,
+    extra=1,
+    can_delete=True
+)
+
+AdresseFormSet = inlineformset_factory(
+    ZY00, ZYAD,
+    form=ZYADForm,
+    extra=1,
+    can_delete=True
+)
+
+# Formset pour gérer plusieurs personnes à prévenir
+IdentiteBancaireFormSet = inlineformset_factory(
+    ZY00, ZYIB,
+    form=ZYIBForm,
+    extra=1,
+    can_delete=True
+)
+
+
