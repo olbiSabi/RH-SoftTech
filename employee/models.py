@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
 from django.utils import timezone
 import uuid
 import os
@@ -107,7 +108,14 @@ class ZY00(models.Model):
     )
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     etat = models.CharField(max_length=20, choices=ETAT_CHOICES, default='actif')
-
+    user = models.OneToOneField(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='employe',
+        verbose_name="Compte utilisateur"
+    )
 
     class Meta:
         db_table = 'ZY00'

@@ -13,6 +13,6 @@ urlpatterns = [
     path('parametre-facturation/', parametreFacturation, name='parametreFacturation'),
     path('parametre-salariaux/', parametreSalariaux, name='parametreSalariaux'),
     path('change-password/', changePassword, name='changePassword'),
-    path('login/', loginUser, name='loginUser'),
+    #path('login/', loginUser, name='loginUser'),
     path('password-forget/', forgetPassword, name='forgetPassword'),
 ]

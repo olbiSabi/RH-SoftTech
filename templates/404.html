@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page non trouvée - EasyM</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1c5d5f 0%, #456162 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .error-container {
+            text-align: center;
+            color: white;
+        }
+        .error-code {
+            font-size: 120px;
+            font-weight: bold;
+            margin-bottom: 0;
+        }
+        .error-message {
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+        .btn-home {
+            background: white;
+            color: #1c5d5f;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: transform 0.2s;
+        }
+        .btn-home:hover {
+            transform: translateY(-2px);
+            color: #1c5d5f;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <h1 class="error-code">404</h1>
+        <p class="error-message">Page non trouvée</p>
+        <p class="mb-4">La page que vous recherchez n'existe pas ou vous n'avez pas les droits d'accès.</p>
+        <a href="{% url 'login' %}" class="btn-home">
+            <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+        </a>
+        <a href="/" class="btn-home ms-2">
+            <i class="fas fa-home me-2"></i>Page d'accueil
+        </a>
+    </div>
+</body>
+</html>

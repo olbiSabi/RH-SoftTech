@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 import os
 from pathlib import Path
+from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -47,6 +48,7 @@ INSTALLED_APPS = [
     'reports',
     'parametre',
     'core',
+    'absence',
 ]
 
 MIDDLEWARE = [
@@ -148,3 +150,32 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Taille maximale des fichiers uploadés (optionnel)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 Mo
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 Mo
+
+# URLs pour les pages d'erreur
+handler404 = 'employee.views.handler404'
+handler500 = 'employee.views.handler500'
+handler403 = 'employee.views.handler403'
+handler400 = 'employee.views.handler400'
+
+# Configuration d'authentification
+LOGIN_URL = reverse_lazy('login')  # Utilise le nom de l'URL
+#LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/dashboard/'  # ← CHANGEMENT ICI
+LOGOUT_REDIRECT_URL = '/login/'
+
+# Configuration pour forcer la redirection vers votre login
+
+
+
+# Durée de session (optionnel)
+SESSION_COOKIE_AGE = 3600  # 1 heure en secondes
+SESSION_SAVE_EVERY_REQUEST = True  # Renouveler la session à chaque requête
+
+
+# ============================================
+# CONFIGURATION EMAIL
+# ============================================
+
+# Backend pour le développement
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'ONIAN-EasyM <noreply@hronian.local>'

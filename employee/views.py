@@ -10,6 +10,7 @@ from django.http import FileResponse, Http404, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.views.decorators.http import require_POST, require_http_methods
+from django.contrib.auth.mixins import LoginRequiredMixin
 import os
 from .utils import get_redirect_url_with_tab, get_active_tab_for_ajax
 from departement.models import ZDPO, ZDDE
@@ -51,7 +52,7 @@ def validate_date_overlap(queryset, date_debut, date_fin, exclude_pk=None):
     overlapping = queryset.first()
     return (overlapping is not None, overlapping)
 
-
+@login_required
 def embauche_agent(request):
     """Vue pour l'embauche d'un nouvel agent (pré-embauche)"""
     if request.method == 'POST':
@@ -147,7 +148,7 @@ def embauche_agent(request):
 
     return render(request, 'employee/embauche-agent.html', {'form': form})
 
-
+@login_required
 def valider_embauche(request, uuid):
     """Valider une pré-embauche et passer le type de dossier à SAL"""
     employe = get_object_or_404(ZY00, uuid=uuid)
@@ -170,8 +171,10 @@ def valider_embauche(request, uuid):
 # VUES POUR LES EMPLOYÉS (ZY00)
 # ===============================
 
-class EmployeListView(ListView):
+class EmployeListView(LoginRequiredMixin, ListView):
     """Liste de tous les employés"""
+    login_url = 'login'  # Optionnel : spécifier l'URL de connexion
+    redirect_field_name = 'next'  # Optionnel : redirection après connexion
     model = ZY00
     template_name = 'employee/employees-list.html'
     context_object_name = 'employes'
@@ -179,7 +182,6 @@ class EmployeListView(ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-
         # Filtrer par type de dossier
         type_dossier = self.request.GET.get('type_dossier')
         if type_dossier:
@@ -196,9 +198,9 @@ class EmployeListView(ListView):
 
         return queryset.order_by('-matricule')
 
-
-class EmployeCreateView(CreateView):
+class EmployeCreateView(LoginRequiredMixin, CreateView):
     """Créer un employé"""
+    login_url = 'login'
     model = ZY00
     form_class = ZY00Form
     template_name = 'employes/employe_form.html'
@@ -208,9 +210,9 @@ class EmployeCreateView(CreateView):
         messages.success(self.request, "Employé créé avec succès!")
         return super().form_valid(form)
 
-
-class EmployeUpdateView(UpdateView):
+class EmployeUpdateView(LoginRequiredMixin, UpdateView):
     """Modifier un employé"""
+    login_url = 'login'
     model = ZY00
     form_class = ZY00Form
     template_name = 'employee/employe_form.html'
@@ -228,13 +230,12 @@ class EmployeUpdateView(UpdateView):
 
     def get_success_url(self):
         messages.success(self.request, "✅ Employé modifié avec succès!")
-        # ✅ MODIFICATION : Conservation de l'onglet actif
         base_url = reverse('dossier_detail', kwargs={'uuid': self.object.uuid})
         return get_redirect_url_with_tab(self.request, base_url)
 
-
-class EmployeDeleteView(DeleteView):
+class EmployeDeleteView(LoginRequiredMixin, DeleteView):
     """Supprimer un employé (suppression en cascade)"""
+    login_url = 'login'
     model = ZY00
     template_name = 'employee/employe_confirm_delete.html'
     success_url = reverse_lazy('liste_dossiers')
@@ -258,13 +259,8 @@ class EmployeDeleteView(DeleteView):
         messages.success(request, f"Employé {employe.nom} {employe.prenom} supprimé avec succès!")
         return super().delete(request, *args, **kwargs)
 
-    # Optionnel : pour personnaliser le contexte
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['employe'] = self.get_object()
-        return context
 
-
+@login_required
 def detail_employe(request, uuid):
     """Détails d'un employé avec toutes ses informations"""
     employe = get_object_or_404(ZY00, uuid=uuid)
@@ -281,8 +277,8 @@ def detail_employe(request, uuid):
 
     return render(request, 'employee/detail_employe.html', context)
 
-
-class DossierIndividuelView(ListView):
+class DossierIndividuelView(LoginRequiredMixin, ListView):
+    login_url = 'login'
     """Affiche la liste des employés + détail d'un employé sélectionné"""
     model = ZY00
     template_name = 'employee/dossier-individuel.html'
@@ -366,6 +362,7 @@ class DossierIndividuelView(ListView):
 # ===== API ADRESSES (pour modales) =====
 
 @require_http_methods(["GET"])
+@login_required
 def api_adresse_detail(request, id):
     """Récupérer les détails d'une adresse (pour édition)"""
     try:
@@ -388,6 +385,7 @@ def api_adresse_detail(request, id):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_adresse_create_modal(request):
     """Créer une adresse via modal (retourne JSON)"""
     try:
@@ -546,6 +544,7 @@ def api_adresse_update_modal(request, id):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_adresse_delete_modal(request, id):
     """Supprimer une adresse via modal"""
     try:
@@ -564,6 +563,7 @@ def api_adresse_delete_modal(request, id):
 # ===== API TÉLÉPHONES (pour modales) =====
 
 @require_http_methods(["GET"])
+@login_required
 def api_telephone_detail(request, id):
     """Récupérer les détails d'un téléphone"""
     try:
@@ -625,6 +625,7 @@ def api_telephone_create_modal(request):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_telephone_update_modal(request, id):
     """Mettre à jour un téléphone via modal"""
     try:
@@ -663,6 +664,7 @@ def api_telephone_update_modal(request, id):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_telephone_delete_modal(request, id):
     """Supprimer un téléphone via modal"""
     try:
@@ -681,6 +683,7 @@ def api_telephone_delete_modal(request, id):
 # ===== API EMAILS (pour modales) =====
 
 @require_http_methods(["GET"])
+@login_required
 def api_email_detail(request, id):
     """Récupérer les détails d'un email"""
     try:
@@ -698,6 +701,7 @@ def api_email_detail(request, id):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_email_create_modal(request):
     """Créer un email via modal"""
     try:
@@ -740,6 +744,7 @@ def api_email_create_modal(request):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_email_update_modal(request, id):
     """Mettre à jour un email via modal"""
     try:
@@ -778,6 +783,7 @@ def api_email_update_modal(request, id):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_email_delete_modal(request, id):
     """Supprimer un email via modal"""
     try:
@@ -796,6 +802,7 @@ def api_email_delete_modal(request, id):
 # ===== API DOCUMENTS (pour modales) =====
 
 @require_http_methods(["POST"])
+@login_required
 def api_document_create_modal(request):
     """Créer un document via modal"""
     try:
@@ -844,6 +851,7 @@ def api_document_create_modal(request):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_document_delete_modal(request, id):
     """Supprimer un document via modal"""
     try:
@@ -865,6 +873,7 @@ def api_document_delete_modal(request, id):
 # ===== API CONTRATS (pour modales) =====
 
 @require_http_methods(["GET"])
+@login_required
 def api_contrat_detail(request, id):
     """Récupérer les détails d'un contrat"""
     try:
@@ -882,6 +891,7 @@ def api_contrat_detail(request, id):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_contrat_create_modal(request):
     """Créer un contrat via modal"""
     try:
@@ -965,6 +975,7 @@ def api_contrat_create_modal(request):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_contrat_update_modal(request, id):
     """Mettre à jour un contrat via modal"""
     try:
@@ -1044,6 +1055,7 @@ def api_contrat_update_modal(request, id):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_contrat_delete_modal(request, id):
     """Supprimer un contrat via modal"""
     try:
@@ -1062,6 +1074,7 @@ def api_contrat_delete_modal(request, id):
 # ===== API AFFECTATIONS (pour modales) =====
 
 @require_http_methods(["GET"])
+@login_required
 def api_affectation_detail(request, id):
     """Récupérer les détails d'une affectation"""
     try:
@@ -1083,6 +1096,7 @@ def api_affectation_detail(request, id):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_affectation_create_modal(request):
     """Créer une affectation via modal"""
     try:
@@ -1166,6 +1180,7 @@ def api_affectation_create_modal(request):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_affectation_update_modal(request, id):
     """Mettre à jour une affectation via modal"""
     try:
@@ -1246,6 +1261,7 @@ def api_affectation_update_modal(request, id):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_affectation_delete_modal(request, id):
     """Supprimer une affectation via modal"""
     try:
@@ -1264,6 +1280,7 @@ def api_affectation_delete_modal(request, id):
 # ===== API HELPER =====
 
 @require_http_methods(["GET"])
+@login_required
 def api_postes_by_departement(request):
     """Récupérer la liste des postes d'un département"""
     try:
@@ -1391,6 +1408,7 @@ def supprimer_photo_ajax(request, uuid):
 # ===== API FAMILLE (ZYFA) =====
 
 @require_http_methods(["GET"])
+@login_required
 def api_famille_detail(request, id):
     """Récupérer les détails d'une personne à charge"""
     try:
@@ -1412,6 +1430,7 @@ def api_famille_detail(request, id):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_famille_create_modal(request):
     """Créer une personne à charge via modal"""
     try:
@@ -1468,6 +1487,7 @@ def api_famille_create_modal(request):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_famille_update_modal(request, id):
     """Mettre à jour une personne à charge via modal"""
     try:
@@ -1520,6 +1540,7 @@ def api_famille_update_modal(request, id):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_famille_delete_modal(request, id):
     """Supprimer une personne à charge via modal"""
     try:
@@ -1538,6 +1559,7 @@ def api_famille_delete_modal(request, id):
 # ===== API HISTORIQUE NOMS/PRENOMS (ZYNP) =====
 
 @require_http_methods(["GET"])
+@login_required
 def api_znp_detail(request, id):
     """Récupérer les détails d'un historique nom/prénom"""
     try:
@@ -1556,6 +1578,7 @@ def api_znp_detail(request, id):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_znp_create_modal(request):
     """Créer un historique nom/prénom via modal avec validation des chevauchements"""
     try:
@@ -1674,6 +1697,7 @@ def api_znp_create_modal(request):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_znp_update_modal(request, id):
     """Mettre à jour un historique nom/prénom via modal avec validation des chevauchements"""
     try:
@@ -1749,6 +1773,7 @@ def api_znp_update_modal(request, id):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_znp_delete_modal(request, id):
     """Supprimer un historique nom/prénom via modal"""
     try:
@@ -1763,7 +1788,7 @@ def api_znp_delete_modal(request, id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 
-
+@login_required
 def get_historique_actif(employe):
     """Récupérer l'historique nom/prénom actif (sans date de fin)"""
     return ZYNP.objects.filter(
@@ -1771,7 +1796,7 @@ def get_historique_actif(employe):
         date_fin_validite__isnull=True
     ).first()
 
-
+@login_required
 def peut_creer_nouvel_historique(employe, nouvelle_date_debut):
     """Vérifier si on peut créer un nouvel historique"""
     historique_actif = get_historique_actif(employe)
@@ -1794,6 +1819,7 @@ def peut_creer_nouvel_historique(employe, nouvelle_date_debut):
 # ===== API PERSONNES À PRÉVENIR (ZYPP) =====
 
 @require_http_methods(["GET"])
+@login_required
 def api_personne_prevenir_detail(request, id):
     """Récupérer les détails d'une personne à prévenir"""
     try:
@@ -1820,6 +1846,7 @@ def api_personne_prevenir_detail(request, id):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_personne_prevenir_create_modal(request):
     """Créer une personne à prévenir via modal"""
     try:
@@ -2017,6 +2044,7 @@ def api_personne_prevenir_create_modal(request):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_personne_prevenir_update_modal(request, id):
     """Mettre à jour une personne à prévenir via modal"""
     try:
@@ -2183,6 +2211,7 @@ def api_personne_prevenir_update_modal(request, id):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_personne_prevenir_delete_modal(request, id):
     """Supprimer une personne à prévenir via modal"""
     try:
@@ -2206,6 +2235,7 @@ def api_personne_prevenir_delete_modal(request, id):
 
 # ===== API IDENTITÉ BANCAIRE (ZYIB) =====
 @require_http_methods(["GET"])
+@login_required
 def api_identite_bancaire_detail(request, employe_uuid):
     """Récupérer les détails de l'identité bancaire d'un employé"""
     try:
@@ -2240,6 +2270,7 @@ def api_identite_bancaire_detail(request, employe_uuid):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_identite_bancaire_create_or_update(request, employe_uuid):
     """Créer ou mettre à jour l'identité bancaire d'un employé"""
     try:
@@ -2322,6 +2353,7 @@ def api_identite_bancaire_create_or_update(request, employe_uuid):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_identite_bancaire_delete(request, employe_uuid):
     """Supprimer l'identité bancaire d'un employé"""
     try:
@@ -2343,11 +2375,25 @@ def api_identite_bancaire_delete(request, employe_uuid):
         return JsonResponse({'error': str(e)}, status=400)
 
 
+def handler404(request, exception):
+    """Vue personnalisée pour les erreurs 404"""
+    return render(request, '404.html', status=404)
+
+def handler500(request):
+    """Vue personnalisée pour les erreurs 500"""
+    return render(request, '500.html', status=500)
+
+def handler403(request, exception):
+    """Vue personnalisée pour les erreurs 403"""
+    return render(request, '403.html', status=403)
+
+def handler400(request, exception):
+    """Vue personnalisée pour les erreurs 400"""
+    return render(request, '400.html', status=400)
+
+
 def profilEmployee(request):
     return render(request, "employee/profil-employee.html")
 
-
-def validerConges(request):
-    return render(request, "employee/valider-conges.html")
 
 # Create your views here.

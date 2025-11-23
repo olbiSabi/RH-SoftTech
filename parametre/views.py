@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required  # ← AJOUT IMPORT
 from .models import ZDAB
 from .forms import ZDABForm
 
 # ==========================================
 # VUES code Absence(ZDAB)
 # ==========================================
+@login_required
 def absence_list(request):
     """Vue principale pour afficher et gérer les absence"""
     absences = ZDAB.objects.all().order_by('CODE')
@@ -29,7 +31,7 @@ def absence_list(request):
         'editing': False
     })
 
-
+@login_required
 def absence_edit(request, pk):
     """Éditer un absence existant"""
     absence = get_object_or_404(ZDAB, pk=pk )
@@ -54,6 +56,7 @@ def absence_edit(request, pk):
         'absence_id': pk
     })
 
+@login_required
 def absence_delete(request, pk):
     """Supprimer un absence"""
     if request.method == 'POST':
@@ -68,29 +71,31 @@ def absence_delete(request, pk):
 # ==========================================
 # VUES POSTE (ZDPO)
 # ==========================================
-
+@login_required
 def parametreHome(request):
     return render(request, "parametre/parametre-home.html")
 
-
+@login_required
 def parametreTheme(request):
     return render(request, "parametre/parametre-theme.html")
 
-
+@login_required
 def parametreFacturation(request):
     return render(request, "parametre/parametre-factuation.html")
 
-
+@login_required
 def parametreSalariaux(request):
     return render(request, "parametre/parametre-salariaux.html")
 
-
+@login_required
 def changePassword(request):
     return render(request, "parametre/change-password.html")
 
+@login_required
 def loginUser(request):
     return render(request, "parametre/login.html")
 
+@login_required
 def forgetPassword(request):
     return render(request, "parametre/password-forget.html")
 # Create your views here.

@@ -1,0 +1,19 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<!-- Chart CSS -->
+<link rel="stylesheet" href="{% static 'assets/plugins/morris/morris.css' %}">
+{% endblock %}
+
+
+<!-- Content Body (Page Body) -->
+
+{% block pageContent %}
+{% include 'base/adminDashboard.html' %}
+{% endblock %}
+
+{% block extrascript %}
+
+
+{% endblock %}

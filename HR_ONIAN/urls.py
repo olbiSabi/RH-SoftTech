@@ -15,14 +15,35 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from .views import home, homeUser
+from django.views.generic import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
+from employee.auth_views import (
+    login_view,
+    logout_view,
+    dashboard_view,
+    password_reset_request,
+    CustomPasswordResetConfirmView,
+    change_password_view
+)
+
 
 urlpatterns = [
     path('hronian/', admin.site.urls),
-    path('', home, name='home'),
-    path('home-user/', homeUser, name='homeUser'),
+
+    path('login/', login_view, name='login'),
+    path('logout/', logout_view, name='logout'),
+    path('dashboard/', dashboard_view, name='dashboard'),
+    path('change-password/', change_password_view, name='change_password'),
+    path('password-reset-request/', password_reset_request, name='password_reset_request'),
+    path('password-reset-confirm/<uidb64>/<token>/',
+         CustomPasswordResetConfirmView.as_view(),
+         name='password_reset_confirm'),
+
+    # Redirection de la racine vers la page de login
+    path('', RedirectView.as_view(pattern_name='login', permanent=False), name='home'),
+
+    # URLs des applications
     path('employe/', include('employee.urls')),
     path('projet/', include('projet.urls')),
     path('client/', include('client.urls')),

@@ -1,8 +1,24 @@
 from django.urls import path
 from .views import *
 from . import views
+from .auth_views import login_view, logout_view, dashboard_view, change_password_view, password_reset_request, \
+    CustomPasswordResetConfirmView
+from . import auth_views
 
 urlpatterns = [
+
+    # ===== AUTHENTIFICATION =====
+    path('login/', login_view, name='login'),
+    path('logout/', logout_view, name='logout'),
+    path('dashboard/', dashboard_view, name='dashboard'),
+
+    # URLs pour la gestion des mots de passe
+    path('change-password/', change_password_view, name='change_password'),
+    path('password-reset-request/', password_reset_request, name='password_reset_request'),  # ← CORRIGÉ
+    path('password-reset-confirm/<uidb64>/<token>/',
+         CustomPasswordResetConfirmView.as_view(),
+         name='password_reset_confirm'),
+
 
     path('embauche-agent/', views.embauche_agent, name='embauche_agent'),
     path('employe/<uuid:uuid>/valider/', views.valider_embauche, name='valider_embauche'),
@@ -91,5 +107,4 @@ urlpatterns = [
 
 
     path('profil-employee/', profilEmployee, name='profile-employee'),
-    path('validerConges/', validerConges, name='valider-conges'),
 ]

@@ -8,8 +8,9 @@ from employee.models import ZYAF, ZY00
 from .models import ZDDE, ZDPO, ZYMA
 from .forms import ZDDEForm, ZDPOForm
 from django.core.exceptions import ValidationError
+from django.contrib.auth.decorators import login_required  # ← AJOUT IMPORT
 
-
+@login_required
 def department_list(request):
     """Vue principale pour afficher et gérer les départements"""
     departments = ZDDE.objects.all().order_by('CODE')
@@ -33,7 +34,7 @@ def department_list(request):
         'editing': False
     })
 
-
+@login_required
 def department_edit(request, pk):
     """Éditer un département existant"""
     department = get_object_or_404(ZDDE, pk=pk)
@@ -58,7 +59,7 @@ def department_edit(request, pk):
         'department_id': pk
     })
 
-
+@login_required
 def department_delete(request, pk):
     """Supprimer un département"""
     if request.method == 'POST':
@@ -73,7 +74,7 @@ def department_delete(request, pk):
 # ==========================================
 # VUES POSTE (ZDPO)
 # ==========================================
-
+@login_required
 def poste_list(request):
     """Vue principale pour afficher et gérer les postes"""
     postes = ZDPO.objects.select_related('DEPARTEMENT').all().order_by('CODE')
@@ -96,7 +97,7 @@ def poste_list(request):
         'editing': False
     })
 
-
+@login_required
 def poste_edit(request, pk):
     """Éditer un poste existant"""
     poste = get_object_or_404(ZDPO, pk=pk)
@@ -121,7 +122,7 @@ def poste_edit(request, pk):
         'poste_id': pk
     })
 
-
+@login_required
 def poste_delete(request, pk):
     """Supprimer un poste"""
     if request.method == 'POST':
@@ -135,7 +136,7 @@ def poste_delete(request, pk):
 # ==========================================
 # VUES managers (ZYMA)
 # ==========================================
-# Dans views.py
+@login_required
 def liste_managers(request):
     """Page principale de gestion des managers"""
     managers = ZYMA.objects.all().select_related('departement', 'employe').order_by('-date_debut')
@@ -151,6 +152,7 @@ def liste_managers(request):
 
 
 @require_http_methods(["GET"])
+@login_required
 def api_manager_detail(request, id):
     """Récupérer les détails d'un manager"""
     try:
@@ -172,6 +174,7 @@ def api_manager_detail(request, id):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_manager_create_modal(request):
     """Créer un manager via modal"""
     try:
@@ -223,6 +226,7 @@ def api_manager_create_modal(request):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_manager_update_modal(request, id):
     """Mettre à jour un manager via modal"""
     try:
@@ -273,6 +277,7 @@ def api_manager_update_modal(request, id):
 
 
 @require_http_methods(["POST"])
+@login_required
 def api_manager_delete_modal(request, id):
     """Supprimer un manager via modal"""
     try:
@@ -289,6 +294,7 @@ def api_manager_delete_modal(request, id):
 
 
 @require_http_methods(["GET"])
+@login_required
 def api_managers_by_departement(request, departement_id):
     """Récupérer les managers d'un département"""
     try:
@@ -312,7 +318,7 @@ def api_managers_by_departement(request, departement_id):
         return JsonResponse({'error': str(e)}, status=400)
 
 
-# Méthode utilitaire pour récupérer le manager d'un employé
+@login_required
 def get_manager_employe(employe):
     """Retourne le manager d'un employé basé sur son département d'affectation"""
     try:
