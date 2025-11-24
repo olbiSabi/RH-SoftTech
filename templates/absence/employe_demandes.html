@@ -1,0 +1,718 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EasyM - Mes Demandes de Congés{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/logo/Onian-EasyM.png' %}">
+    <!-- Chargez les CSS un par un pour debug -->
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/absence.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/dossier_individuel_base.css' %}">
+</head>
+<body data-employe-uuid="{% if employe %}{{ employe.uuid }}{% endif %}">
+<!-- Header -->
+{% include 'base/header.html' %}
+<!-- Content principal -->
+<div class="content">
+    <div class="content-header">
+        <!-- Photo cliquable -->
+        <div class="photo-container">
+            <img src="{{ employe.get_photo_url }}"
+                 alt="{{ employe.nom }}"
+                 class="employee-photo photo-clickable"
+                 id="employeePhoto"
+                 data-employe-uuid="{{ employe.uuid }}">
+            <input type="file"
+                   id="photoInput"
+                   accept=".jpg,.jpeg,.png,.gif"
+                   style="display: none;">
+        </div>
+        <div class="employee-info">
+            <h1 class="employee-title">{{ employe.username }} {{ employe.prenomuser }}</h1>
+            <p class="employee-subtitle">
+                Matricule: {{ employe.matricule }} |
+                {% if employe.etat == 'actif' %}
+                <span class="badge badge-success">Actif</span>
+                {% else %}
+                <span class="badge badge-danger">Inactif</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="container-abs">
+    <!-- Messages de succès/erreur -->
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <div class="solde-conges">
+        <div class="solde-card disponible">
+            <i class="fas fa-check-circle"></i>
+            <h3>Jours Disponibles</h3>
+            <div class="number" id="joursDisponibles">{{ solde.jours_disponibles|floatformat:1 }}</div>
+        </div>
+        <div class="solde-card pris">
+            <i class="fas fa-plane-departure"></i>
+            <h3>Jours Pris</h3>
+            <div class="number" id="joursPris">{{ solde.jours_pris|floatformat:1 }}</div>
+        </div>
+        <div class="solde-card en-attente">
+            <i class="fas fa-clock"></i>
+            <h3>En Attente</h3>
+            <div class="number" id="joursEnAttente">{{ solde.jours_en_attente|floatformat:1 }}</div>
+        </div>
+        <div class="solde-card total">
+            <i class="fas fa-calendar-alt"></i>
+            <h3>Total Annuel</h3>
+            <div class="number" id="joursTotal">{{ solde.jours_acquis|floatformat:1 }}</div>
+        </div>
+    </div>
+
+    <div class="main-content-abs">
+        <div>
+            <div class="form-section">
+                <h2>
+                    <i class="fas {% if modification_mode %}fa-edit{% else %}fa-plus-circle{% endif %}"></i>
+                    {% if modification_mode %}
+                    Modifier la demande {{ demande_en_cours.numero_demande }}
+                    {% else %}
+                    Nouvelle Demande
+                    {% endif %}
+                </h2>
+                <form id="demandeForm" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="{{ form.type_absence.id_for_label }}">Type de demande *</label>
+                        {{ form.type_absence }}
+                        {{ form.type_absence.errors }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.date_debut.id_for_label }}">Date de début *</label>
+                        {{ form.date_debut }}
+                        {{ form.date_debut.errors }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.date_fin.id_for_label }}">Date de fin *</label>
+                        {{ form.date_fin }}
+                        {{ form.date_fin.errors }}
+                    </div>
+
+                    <div class="form-group">
+                        <label>Durée</label>
+                        <div class="radio-group">
+                            {% for radio in form.duree %}
+                            <div class="radio-option">
+                                {{ radio.tag }}
+                                <label for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {{ form.duree.errors }}
+                    </div>
+
+                    <div class="form-group" id="periodeDemiJournee" style="display: none;">
+                        <label for="{{ form.periode.id_for_label }}">Période de la demi-journée</label>
+                        {{ form.periode }}
+                        {{ form.periode.errors }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.motif.id_for_label }}">Motif / Commentaire (optionnel)</label>
+                        {{ form.motif }}
+                        {{ form.motif.errors }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.justificatif.id_for_label }}">Justificatif (optionnel)</label>
+                        {{ form.justificatif }}
+                        {{ form.justificatif.errors }}
+                    </div>
+
+                    <!-- Champ caché pour nombre_jours (NE PAS AFFICHER) -->
+                    <div style="display: none;">
+                        {{ form.nombre_jours }}
+                    </div>
+
+                    <!-- Affichage du résultat du calcul (VISIBLE) -->
+                    <div class="form-group"
+                         style="background: #f0f9ff; padding: 15px; border-radius: 8px; border: 2px solid #3b82f6;">
+                        <i class="fas fa-calculator" style="color: #3b82f6;"></i>
+                        <strong style="color: #1e40af;">Nombre de jours calculé : <span id="nbJours"
+                                                                                        style="font-size: 20px; color: #2563eb;">0</span></strong>
+                    </div>
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                    {% endif %}
+
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas {% if modification_mode %}fa-save{% else %}fa-paper-plane{% endif %}"></i>
+                            {% if modification_mode %}
+                            Enregistrer les modifications
+                            {% else %}
+                            Soumettre la demande
+                            {% endif %}
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="btnReset">
+                            <i class="fas fa-redo"></i>
+                            {% if modification_mode %}
+                            Annuler
+                            {% else %}
+                            Réinitialiser
+                            {% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="liste-section" style="margin-top: 30px;">
+                <h2><i class="fas fa-list"></i> Mes Demandes</h2>
+                <div class="demande-liste" id="listeDemandes">
+                    {% if demandes %}
+                    {% for demande in demandes %}
+                    <div class="demande-item">
+                        <div class="demande-header">
+                            <div class="demande-type">{{ demande.type_absence.LIBELLE }}</div>
+                            <span class="status-badge {{ demande.statut }}">
+                                    {% if demande.statut == 'EN_ATTENTE' %}En attente
+                                    {% elif demande.statut == 'VALIDEE_MANAGER' %}Validée Manager
+                                    {% elif demande.statut == 'VALIDEE_RH' %}Validée RH
+                                    {% elif demande.statut == 'REFUSEE_MANAGER' %}Refusée Manager
+                                    {% elif demande.statut == 'REFUSEE_RH' %}Refusée RH
+                                    {% elif demande.statut == 'ANNULEE' %}Annulée
+                                    {% endif %}
+                                </span>
+                        </div>
+                        <div class="demande-dates">
+                            <i class="fas fa-calendar"></i>
+                            {{ demande.date_debut|date:"d/m/Y" }} - {{ demande.date_fin|date:"d/m/Y" }}
+                        </div>
+                        <div class="demande-duree">
+                            <i class="fas fa-clock"></i>
+                            {{ demande.nombre_jours|floatformat:1 }} jour{% if demande.nombre_jours > 1 %}s{% endif %}
+                            {% if demande.duree == 'DEMI' %}
+                            ({% if demande.periode == 'MATIN' %}matin{% else %}après-midi{% endif %})
+                            {% endif %}
+                        </div>
+                        {% if demande.motif %}
+                        <div style="margin-top: 10px; font-size: 13px; color: #6b7280;">
+                            <i class="fas fa-comment"></i> {{ demande.motif|truncatewords:20 }}
+                        </div>
+                        {% endif %}
+
+                        <!-- Boutons d'action pour les demandes EN_ATTENTE -->
+                        {% if demande.statut == 'EN_ATTENTE' %}
+                        <div style="margin-top: 15px; display: flex; gap: 10px; border-top: 1px solid #e5e7eb; padding-top: 15px;">
+                            <a href="{% url 'absence:employe_modifier_demande' demande.id %}"
+                               class="btn-action btn-modifier"
+                               title="Modifier la demande">
+                                <i class="fas fa-edit"></i> Modifier
+                            </a>
+                            <button type="button"
+                                    class="btn-action btn-supprimer"
+                                    onclick="confirmerSuppression('{{ demande.id }}', '{{ demande.numero_demande }}')"
+                                    title="Supprimer la demande">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p style="text-align: center; color: #9ca3af; padding: 20px;">Aucune demande pour le moment</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="calendar-section">
+            <h2><i class="fas fa-calendar"></i> Calendrier</h2>
+            <div class="calendar">
+                <div class="calendar-header">
+                    <button type="button" id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+                    <h3 id="currentMonth"></h3>
+                    <button type="button" id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div class="calendar-days">
+                    <div class="calendar-day-name">Lun</div>
+                    <div class="calendar-day-name">Mar</div>
+                    <div class="calendar-day-name">Mer</div>
+                    <div class="calendar-day-name">Jeu</div>
+                    <div class="calendar-day-name">Ven</div>
+                    <div class="calendar-day-name">Sam</div>
+                    <div class="calendar-day-name">Dim</div>
+                </div>
+                <div class="calendar-dates" id="calendarDates"></div>
+            </div>
+
+            <div class="legende">
+                <h4>Légende</h4>
+                <div class="legende-item">
+                    <div class="legende-color" style="background: #dcfce7;"></div>
+                    <span>Congé validé</span>
+                </div>
+                <div class="legende-item">
+                    <div class="legende-color" style="background: #fef3c7;"></div>
+                    <span>En attente de validation</span>
+                </div>
+                <div class="legende-item">
+                    <div class="legende-color" style="background: #fee2e2;"></div>
+                    <span>Absence maladie</span>
+                </div>
+                <div class="legende-item">
+                    <div class="legende-color"
+                         style="background: linear-gradient(135deg, #dcfce7 50%, white 50%);"></div>
+                    <span>Demi-journée</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Empêcher la double soumission et avertir avant de quitter avec des modifications non sauvegardées
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('embauche-form');
+            const submitButton = document.getElementById('submit-btn');
+            let formModified = false;
+
+            // Détecter les modifications du formulaire
+            const formInputs = form.querySelectorAll('input, select, textarea');
+            formInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    formModified = true;
+                });
+                input.addEventListener('input', function() {
+                    formModified = true;
+                });
+            });
+
+            // Empêcher la double soumission
+            form.addEventListener('submit', function(e) {
+                // Marquer que le formulaire est en cours de soumission
+                formModified = false;
+
+                // Désactiver le bouton et afficher un spinner
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Enregistrement en cours...';
+
+                // Si la validation HTML5 échoue, réactiver le bouton après un court délai
+                setTimeout(function() {
+                    if (!form.checkValidity()) {
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = '<i class="bi bi-check-circle"></i> Valider la pré-embauche';
+                    }
+                }, 100);
+            });
+
+            // Avertir avant de quitter si des modifications non sauvegardées
+            window.addEventListener('beforeunload', function(e) {
+                if (formModified) {
+                    e.preventDefault();
+                    e.returnValue = 'Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter cette page ?';
+                    return e.returnValue;
+                }
+            });
+
+            // Auto-hide success messages after 5 seconds
+            setTimeout(function() {
+                var alerts = document.querySelectorAll('.alert-success');
+                alerts.forEach(function(alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+
+
+        // Empêcher la re-soumission du formulaire lors de l'actualisation
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
+
+
+    // Données Django converties en JavaScript
+    const demandesCalendrier = {{ demandes_calendrier|safe }};
+    let currentDate = new Date();
+
+    // Fonction pour trouver un élément avec plusieurs IDs possibles
+    function trouverElement(possibleIds) {
+        for (let id of possibleIds) {
+            const element = document.getElementById(id);
+            if (element) {
+                console.log(`✅ Élément trouvé avec ID: ${id}`);
+                return element;
+            }
+        }
+        console.error(`❌ Aucun élément trouvé parmi les IDs: ${possibleIds.join(', ')}`);
+        return null;
+    }
+
+    // Initialisation
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("=== INITIALISATION DU FORMULAIRE ===");
+
+        // Trouver les champs de date avec plusieurs IDs possibles
+        const dateDebutInput = trouverElement(['id_date_debut', 'date_debut', 'dateDebut']);
+        const dateFinInput = trouverElement(['id_date_fin', 'date_fin', 'dateFin']);
+        const nombreJoursInput = trouverElement(['id_nombre_jours', 'nombre_jours', 'nombreJours']);
+
+        if (!dateDebutInput || !dateFinInput) {
+            console.error("❌ ERREUR : Champs de date non trouvés !");
+            console.log("Astuce : Ouvrez la console (F12) et regardez le diagnostic ci-dessus");
+            return;
+        }
+
+        console.log("✅ Champs trouvés avec succès");
+
+        genererCalendrier();
+        calculerNombreJours();
+
+        // Bouton réinitialiser/annuler
+        const btnReset = document.getElementById('btnReset');
+        if (btnReset) {
+            btnReset.addEventListener('click', function() {
+                {% if modification_mode %}
+                // En mode modification, retour à la liste
+                if (confirm('Voulez-vous annuler les modifications ?')) {
+                    window.location.href = '{% url "absence:employe_demandes" %}';
+                }
+                {% else %}
+                // En mode création, réinitialiser le formulaire
+                console.log("🔄 Réinitialisation du formulaire");
+                document.getElementById('demandeForm').reset();
+                document.getElementById('nbJours').textContent = '0';
+                if (nombreJoursInput) {
+                    nombreJoursInput.value = '';
+                }
+                const periodeDemiJournee = document.getElementById('periodeDemiJournee');
+                if (periodeDemiJournee) {
+                    periodeDemiJournee.style.display = 'none';
+                }
+                {% endif %}
+            });
+        }
+
+        // Gestion de la durée (afficher/masquer période)
+        document.querySelectorAll('input[name="duree"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                console.log(`📝 Durée changée : ${this.value}`);
+                const periodeDemiJournee = document.getElementById('periodeDemiJournee');
+                if (periodeDemiJournee) {
+                    periodeDemiJournee.style.display = this.value === 'DEMI' ? 'block' : 'none';
+                }
+                calculerNombreJours();
+            });
+        });
+
+        // Calcul automatique du nombre de jours
+        if (dateDebutInput) {
+            dateDebutInput.addEventListener('change', function() {
+                console.log(`📅 Date début changée : ${this.value}`);
+                calculerNombreJours();
+            });
+        }
+
+        if (dateFinInput) {
+            dateFinInput.addEventListener('change', function() {
+                console.log(`📅 Date fin changée : ${this.value}`);
+                calculerNombreJours();
+            });
+        }
+
+        // Navigation du calendrier
+        const prevMonth = document.getElementById('prevMonth');
+        const nextMonth = document.getElementById('nextMonth');
+
+        if (prevMonth) {
+            prevMonth.addEventListener('click', function() {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                genererCalendrier();
+            });
+        }
+
+        if (nextMonth) {
+            nextMonth.addEventListener('click', function() {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                genererCalendrier();
+            });
+        }
+
+        // DIAGNOSTIC : Afficher les IDs trouvés
+        console.log("\n=== IDS UTILISÉS ===");
+        console.log(`Date début : ${dateDebutInput ? dateDebutInput.id : 'NON TROUVÉ'}`);
+        console.log(`Date fin : ${dateFinInput ? dateFinInput.id : 'NON TROUVÉ'}`);
+        console.log(`Nombre jours : ${nombreJoursInput ? nombreJoursInput.id : 'NON TROUVÉ'}`);
+    });
+
+    function calculerNombreJours() {
+        console.log("\n=== CALCUL DU NOMBRE DE JOURS ===");
+
+        // Trouver les éléments
+        const dateDebutInput = trouverElement(['id_date_debut', 'date_debut', 'dateDebut']);
+        const dateFinInput = trouverElement(['id_date_fin', 'date_fin', 'dateFin']);
+        const nombreJoursInput = trouverElement(['id_nombre_jours', 'nombre_jours', 'nombreJours']);
+
+        if (!dateDebutInput || !dateFinInput) {
+            console.error("❌ Impossible de calculer : champs non trouvés");
+            return;
+        }
+
+        const dateDebut = dateDebutInput.value;
+        const dateFin = dateFinInput.value;
+
+        console.log(`Date début : ${dateDebut}`);
+        console.log(`Date fin : ${dateFin}`);
+
+        const dureeRadios = document.querySelectorAll('input[name="duree"]');
+        let duree = 'COMPLETE';
+
+        dureeRadios.forEach(radio => {
+            if (radio.checked) {
+                duree = radio.value;
+            }
+        });
+
+        console.log(`Durée : ${duree}`);
+
+        if (dateDebut && dateFin) {
+            console.log("🔄 Appel de l'API pour calculer les jours ouvrés...");
+
+            // Appel AJAX pour calculer les jours ouvrés
+            const url = `{% url 'absence:api_calculer_jours' %}?date_debut=${dateDebut}&date_fin=${dateFin}&duree=${duree}`;
+            console.log(`URL : ${url}`);
+
+            fetch(url)
+                .then(response => {
+                    console.log(`Réponse HTTP : ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Réponse API :", data);
+
+                    if (data.success) {
+                        const nbJours = data.nb_jours;
+                        console.log(`✅ Nombre de jours calculé : ${nbJours}`);
+
+                        // Mettre à jour l'affichage
+                        const spanNbJours = document.getElementById('nbJours');
+                        if (spanNbJours) {
+                            spanNbJours.textContent = nbJours;
+                            console.log("✅ Affichage mis à jour");
+                        } else {
+                            console.error("❌ Élément #nbJours non trouvé !");
+                        }
+
+                        // Mettre à jour le champ caché
+                        if (nombreJoursInput) {
+                            nombreJoursInput.value = nbJours;
+                            console.log("✅ Champ caché mis à jour");
+                        } else {
+                            console.warn("⚠️ Champ caché nombre_jours non trouvé");
+                        }
+                    } else {
+                        console.error("❌ Erreur API :", data.error || "Erreur inconnue");
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Erreur lors de l\'appel API:', error);
+                    console.log("🔄 Calcul basique de secours...");
+                    // Calcul basique en cas d'erreur
+                    calculerJoursBasique(dateDebut, dateFin, duree);
+                });
+        } else {
+            console.warn("⚠️ Dates incomplètes - calcul impossible");
+            if (!dateDebut) console.warn("  - Date début manquante");
+            if (!dateFin) console.warn("  - Date fin manquante");
+        }
+    }
+
+    function calculerJoursBasique(dateDebut, dateFin, duree) {
+        console.log("=== CALCUL BASIQUE (sans API) ===");
+
+        const debut = new Date(dateDebut);
+        const fin = new Date(dateFin);
+        let jours = 0;
+
+        if (duree === 'DEMI') {
+            jours = 0.5;
+        } else {
+            for (let d = new Date(debut); d <= fin; d.setDate(d.getDate() + 1)) {
+                const jour = d.getDay();
+                if (jour !== 0 && jour !== 6) { // Exclure samedi et dimanche
+                    jours++;
+                }
+            }
+        }
+
+        console.log(`✅ Nombre de jours calculé (basique) : ${jours}`);
+
+        // Mettre à jour l'affichage
+        const spanNbJours = document.getElementById('nbJours');
+        if (spanNbJours) {
+            spanNbJours.textContent = jours;
+        }
+
+        // Mettre à jour le champ caché
+        const nombreJoursInput = trouverElement(['id_nombre_jours', 'nombre_jours', 'nombreJours']);
+        if (nombreJoursInput) {
+            nombreJoursInput.value = jours;
+        }
+    }
+
+    function genererCalendrier() {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+
+        const currentMonthElement = document.getElementById('currentMonth');
+        if (currentMonthElement) {
+            currentMonthElement.textContent =
+                currentDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+        }
+
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const startDay = firstDay.getDay() || 7;
+        const daysInMonth = lastDay.getDate();
+
+        const calendarDates = document.getElementById('calendarDates');
+        if (!calendarDates) return;
+
+        calendarDates.innerHTML = '';
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Jours du mois précédent
+        for (let i = 1; i < startDay; i++) {
+            const prevMonthDay = new Date(year, month, 1 - (startDay - i));
+            const div = document.createElement('div');
+            div.className = 'calendar-date other-month';
+            div.textContent = prevMonthDay.getDate();
+            calendarDates.appendChild(div);
+        }
+
+        // Jours du mois actuel
+        for (let day = 1; day <= daysInMonth; day++) {
+            const date = new Date(year, month, day);
+            const dateStr = date.toISOString().split('T')[0];
+            const div = document.createElement('div');
+            div.className = 'calendar-date';
+            div.textContent = day;
+
+            if (date.getTime() === today.getTime()) {
+                div.classList.add('today');
+            }
+
+            // Vérifier si la date correspond à une demande
+            if (demandesCalendrier && demandesCalendrier.length > 0) {
+                demandesCalendrier.forEach(demande => {
+                    // CORRECTION : Créer les dates sans problème de timezone
+                    // Utiliser les parties de la date ISO pour créer une date locale
+                    const debutParts = demande.date_debut.split('-');
+                    const finParts = demande.date_fin.split('-');
+
+                    const debut = new Date(parseInt(debutParts[0]), parseInt(debutParts[1]) - 1, parseInt(debutParts[2]));
+                    const fin = new Date(parseInt(finParts[0]), parseInt(finParts[1]) - 1, parseInt(finParts[2]));
+
+                    // Normaliser les dates pour comparaison (mettre à minuit)
+                    debut.setHours(0, 0, 0, 0);
+                    fin.setHours(0, 0, 0, 0);
+                    const dateNormalized = new Date(year, month, day);
+                    dateNormalized.setHours(0, 0, 0, 0);
+
+                    if (dateNormalized >= debut && dateNormalized <= fin) {
+                        if (demande.statut === 'VALIDEE_RH') {
+                            div.classList.add('conge');
+                        } else if (demande.statut === 'EN_ATTENTE' || demande.statut === 'VALIDEE_MANAGER') {
+                            div.classList.add('en-attente');
+                        }
+
+                        if (demande.duree === 'DEMI') {
+                            div.classList.add('demi-journee');
+                        }
+                    }
+                });
+            }
+
+            calendarDates.appendChild(div);
+        }
+
+        // Jours du mois suivant
+        const remainingDays = 42 - (startDay - 1 + daysInMonth);
+        for (let day = 1; day <= remainingDays; day++) {
+            const div = document.createElement('div');
+            div.className = 'calendar-date other-month';
+            div.textContent = day;
+            calendarDates.appendChild(div);
+        }
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Fonction pour confirmer et supprimer une demande
+    function confirmerSuppression(demandeId, numeroDemande) {
+        if (confirm(`Êtes-vous sûr de vouloir supprimer la demande ${numeroDemande} ?\n\nCette action est irréversible.`)) {
+            supprimerDemande(demandeId, numeroDemande);
+        }
+    }
+
+    // Fonction pour supprimer une demande
+    function supprimerDemande(demandeId, numeroDemande) {
+        const csrftoken = getCookie('csrftoken');
+        const url = `{% url 'absence:employe_supprimer_demande' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', demandeId);
+
+        console.log(`🗑️ Suppression de la demande ${numeroDemande}...`);
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ ' + data.message);
+                location.reload();
+            } else {
+                alert('❌ Erreur : ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('❌ Une erreur est survenue lors de la suppression.');
+        });
+    }
+</script>
+</body>
+</html>

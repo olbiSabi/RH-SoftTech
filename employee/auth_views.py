@@ -37,8 +37,6 @@ def login_view(request):
 
                 # Connexion réussie
                 login(request, user)
-                messages.success(request, f"✅ Bienvenue {employe.nom} {employe.prenoms} !")  # ← CORRECTION ICI
-
                 # Rediriger vers la page demandée ou le dashboard
                 next_url = request.GET.get('next', 'dashboard')  # ← CHANGEMENT ICI
                 return redirect(next_url)

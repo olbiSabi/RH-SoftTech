@@ -18,10 +18,11 @@ def absence_list(request):
 
         if form.is_valid():
             absence = form.save()
-            messages.success(request, f'✓ Absence {absence.CODE} créé avec succès!')
+            #messages.success(request, f'✓ Absence {absence.CODE} créé avec succès!')
             return redirect('absence_list')
         else:
-            messages.error(request, '✗ Erreur de validation. Veuillez corriger les erreurs ci-dessous.')
+            #messages.error(request, '✗ Erreur de validation. Veuillez corriger les erreurs ci-dessous.')
+            print("Erreur de validation. Veuillez corriger les erreurs ci-dessous.")
     else:
         form = ZDABForm()
 
@@ -42,10 +43,11 @@ def absence_edit(request, pk):
 
         if form.is_valid():
             absence = form.save()
-            messages.success(request, f'✓ Absence {absence.CODE} modifié avec succès!')
+            #messages.success(request, f'✓ Absence {absence.CODE} modifié avec succès!')
             return redirect('absence_list')
         else:
-            messages.error(request, '✗ Erreur de validation. Veuillez corriger les erreurs ci-dessous.')
+            #messages.error(request, '✗ Erreur de validation. Veuillez corriger les erreurs ci-dessous.')
+            print("Erreur de validation. Veuillez corriger les erreurs ci-dessous.")
     else:
         form = ZDABForm(instance=absence)
 
@@ -63,7 +65,7 @@ def absence_delete(request, pk):
         absence = get_object_or_404(ZDAB, pk=pk)
         code = absence.CODE
         absence.delete()
-        messages.success(request, f'✓ Absence {code} supprimé avec succès!')
+        #messages.success(request, f'✓ Absence {code} supprimé avec succès!')
 
     return redirect('absence_list')
 

@@ -45,6 +45,7 @@ urlpatterns = [
 
     # URLs des applications
     path('employe/', include('employee.urls')),
+    path('absence/', include('absence.urls')),
     path('projet/', include('projet.urls')),
     path('client/', include('client.urls')),
     path('departement/', include('departement.urls')),

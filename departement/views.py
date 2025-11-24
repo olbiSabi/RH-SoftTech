@@ -21,10 +21,11 @@ def department_list(request):
 
         if form.is_valid():
             department = form.save()
-            messages.success(request, f'✓ Département {department.CODE} créé avec succès!')
+            #messages.success(request, f'✓ Département {department.CODE} créé avec succès!')
             return redirect('list')
         else:
-            messages.error(request, '✗ Erreur de validation. Veuillez corriger les erreurs ci-dessous.')
+            #messages.error(request, '✗ Erreur de validation. Veuillez corriger les erreurs ci-dessous.')
+            print("Erreur de validation. Veuillez corriger les erreurs ci-dessous.")
     else:
         form = ZDDEForm()
 
@@ -45,10 +46,11 @@ def department_edit(request, pk):
 
         if form.is_valid():
             department = form.save()
-            messages.success(request, f'✓ Département {department.CODE} modifié avec succès!')
+            #messages.success(request, f'✓ Département {department.CODE} modifié avec succès!')
             return redirect('list')
         else:
-            messages.error(request, '✗ Erreur de validation. Veuillez corriger les erreurs ci-dessous.')
+            #messages.error(request, '✗ Erreur de validation. Veuillez corriger les erreurs ci-dessous.')
+            print("Erreur de validation. Veuillez corriger les erreurs ci-dessous.")
     else:
         form = ZDDEForm(instance=department)
 
@@ -66,7 +68,7 @@ def department_delete(request, pk):
         department = get_object_or_404(ZDDE, pk=pk)
         code = department.CODE
         department.delete()
-        messages.success(request, f'✓ Département {code} supprimé avec succès!')
+        #messages.success(request, f'✓ Département {code} supprimé avec succès!')
 
     return redirect('list')
 
@@ -84,10 +86,11 @@ def poste_list(request):
 
         if form.is_valid():
             poste = form.save()
-            messages.success(request, f'✓ Poste {poste.CODE} créé avec succès!')
+            #messages.success(request, f'✓ Poste {poste.CODE} créé avec succès!')
             return redirect('poste_list')
         else:
-            messages.error(request, '✗ Erreur de validation. Veuillez corriger les erreurs ci-dessous.')
+            #messages.error(request, '✗ Erreur de validation. Veuillez corriger les erreurs ci-dessous.')
+            print("Erreur de validation. Veuillez corriger les erreurs ci-dessous.")
     else:
         form = ZDPOForm()
 
@@ -108,10 +111,11 @@ def poste_edit(request, pk):
 
         if form.is_valid():
             poste = form.save()
-            messages.success(request, f'✓ Poste {poste.CODE} modifié avec succès!')
+            #messages.success(request, f'✓ Poste {poste.CODE} modifié avec succès!')
             return redirect('poste_list')
         else:
-            messages.error(request, '✗ Erreur de validation. Veuillez corriger les erreurs ci-dessous.')
+            #messages.error(request, '✗ Erreur de validation. Veuillez corriger les erreurs ci-dessous.')
+            print("Erreur de validation. Veuillez corriger les erreurs ci-dessous.")
     else:
         form = ZDPOForm(instance=poste)
 
@@ -129,7 +133,7 @@ def poste_delete(request, pk):
         poste = get_object_or_404(ZDPO, pk=pk)
         code = poste.CODE
         poste.delete()
-        messages.success(request, f'✓ Poste {code} supprimé avec succès!')
+        #messages.success(request, f'✓ Poste {code} supprimé avec succès!')
 
     return redirect('poste_list')
 

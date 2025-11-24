@@ -148,7 +148,7 @@
                                             <form method="post" action="{% url 'poste_delete' poste.id %}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer le poste {{ poste.CODE }} ?');">
                                                 {% csrf_token %}
                                                 <button type="submit" class="icon-btn delete-btn" title="Supprimer">
-                                                     <i class="fa fa-trash-o m-r-5"></i>
+                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
                                         </div>
