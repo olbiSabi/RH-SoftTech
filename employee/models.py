@@ -242,6 +242,14 @@ class ZY00(models.Model):
         except Exception:
             return None
 
+    def is_manager(self):
+        """Vérifie si l'employé est un manager"""
+        from departement.models import ZYMA
+        return ZYMA.objects.filter(
+            manager=self,
+            statut='actif',
+            date_fin__isnull=True
+        ).exists()
 
 ######################
 ### Historique Nom Prénom ZYNP ###

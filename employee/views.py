@@ -19,7 +19,8 @@ from .forms import (
     ZY00Form, EmbaucheAgentForm, ZYCOForm, ZYTEForm,
     ZYMEForm, ZYAFForm, ZYADForm, ZYFAForm
 )
-
+from django.contrib.auth.models import User
+from django.db import transaction
 
 # ===============================
 # VUES POUR L'EMBAUCHE
@@ -52,6 +53,7 @@ def validate_date_overlap(queryset, date_debut, date_fin, exclude_pk=None):
     overlapping = queryset.first()
     return (overlapping is not None, overlapping)
 
+
 @login_required
 def embauche_agent(request):
     """Vue pour l'embauche d'un nouvel agent (pré-embauche)"""
@@ -64,19 +66,24 @@ def embauche_agent(request):
                     # Créer l'employé
                     employe = form.save(commit=False)
                     employe.type_dossier = 'PRE'  # Pré-embauche par défaut
+
                     # INITIALISER username ET prenomuser
                     employe.username = employe.nom
                     employe.prenomuser = employe.prenoms
                     employe.save()
 
+                    # ✅ CRÉATION AUTOMATIQUE DU COMPTE USER AVEC MOT DE PASSE FIXE
+                    username, password = create_user_account(employe)
+
                     # CRÉATION AUTOMATIQUE DANS ZYNP
-                    znp=ZYNP.objects.create(
+                    znp = ZYNP.objects.create(
                         employe=employe,
                         nom=employe.nom,
                         prenoms=employe.prenoms,
-                        date_debut_validite=timezone.now().date(),  # Date d'embauche
+                        date_debut_validite=timezone.now().date(),
                         actif=True
                     )
+
                     # Date du jour pour les dates de début
                     date_jour = timezone.now().date()
 
@@ -121,13 +128,6 @@ def embauche_agent(request):
                         date_debut=form.cleaned_data['date_debut_adresse']
                     )
 
-                    messages.success(
-                        request,
-                        f"✅ Pré-embauche réussie ! L'agent {employe.nom} {employe.prenoms} "
-                        f"a été enregistré avec le matricule {employe.matricule}. "
-                        f"Vous pouvez maintenant valider son embauche."
-                    )
-                    # IMPORTANT: Utiliser redirect pour éviter la résoumission
                     return redirect('liste_employes')
 
             except Exception as e:
@@ -135,14 +135,12 @@ def embauche_agent(request):
                     request,
                     f"❌ Erreur lors de la création de la pré-embauche : {str(e)}"
                 )
-                # Redirection après erreur pour éviter la résoumission
                 return redirect('embauche_agent')
         else:
             messages.error(
                 request,
                 "❌ Le formulaire contient des erreurs. Veuillez corriger les champs indiqués ci-dessous."
             )
-            # On réaffiche le formulaire avec les erreurs - pas de redirect
     else:
         form = EmbaucheAgentForm()
 
@@ -166,7 +164,38 @@ def valider_embauche(request, uuid):
     redirect_url = get_redirect_url_with_tab(request, base_url)
     return redirect(redirect_url)
 
+def create_user_account(employe):
+    """
+    Crée un compte utilisateur pour un employé
+    Retourne (username, password)
+    """
+    # Générer un username unique basé sur le nom et prénom
+    base_username = f"{employe.nom.lower()}.{employe.prenoms.split()[0].lower()}"
+    username = base_username
 
+    # Vérifier si le username existe déjà et ajouter un suffixe si nécessaire
+    counter = 1
+    while User.objects.filter(username=username).exists():
+        username = f"{base_username}{counter}"
+        counter += 1
+
+    # ✅ MOT DE PASSE FIXE
+    password = "Hronian2024!"
+
+    # Créer l'utilisateur
+    user = User.objects.create_user(
+        username=username,
+        password=password,  # ← Mot de passe fixe
+        first_name=employe.prenomuser or employe.prenoms.split()[0],
+        last_name=employe.username or employe.nom,
+        email=getattr(employe, 'email', f"{username}@onian-easym.com")
+    )
+
+    # Lier l'utilisateur à l'employé
+    employe.user = user
+    employe.save()
+
+    return username, password
 # ===============================
 # VUES POUR LES EMPLOYÉS (ZY00)
 # ===============================
@@ -230,7 +259,7 @@ class EmployeUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         messages.success(self.request, "✅ Employé modifié avec succès!")
-        base_url = reverse('dossier_detail', kwargs={'uuid': self.object.uuid})
+        base_url = reverse('detail_employe', kwargs={'uuid': self.object.uuid})
         return get_redirect_url_with_tab(self.request, base_url)
 
 class EmployeDeleteView(LoginRequiredMixin, DeleteView):
@@ -238,7 +267,7 @@ class EmployeDeleteView(LoginRequiredMixin, DeleteView):
     login_url = 'login'
     model = ZY00
     template_name = 'employee/employe_confirm_delete.html'
-    success_url = reverse_lazy('liste_dossiers')
+    success_url = reverse_lazy('liste_employes')
     slug_field = 'uuid'
     slug_url_kwarg = 'uuid'
 

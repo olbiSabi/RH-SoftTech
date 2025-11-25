@@ -1,0 +1,281 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EasyM - Mes Demandes de Congés{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/logo/Onian-EasyM.png' %}">
+    <!-- Chargez les CSS un par un pour debug -->
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/absence.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/dossier_individuel_base.css' %}">
+</head>
+<body data-employe-uuid="{% if employe %}{{ employe.uuid }}{% endif %}">
+<!-- Header -->
+{% include 'base/header.html' %}
+
+<div class="content">
+    <div class="content-header">
+        <!-- Photo cliquable -->
+        <div class="employee-info">
+            <div><h1><i class="fas fa-user-check"></i> Validation Manager - Congés et Absences</h1></div>
+            <br>
+            <p class="employee-subtitle">
+                Manager {{departement.LIBELLE }} |
+                {% if departement.STATUT %}
+                <span class="badge badge-success">Actif</span>
+                {% else %}
+                <span class="badge badge-danger">Inactif</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <div class="stats-cards">
+        <div class="stat-card en-attente">
+            <i class="fas fa-clock"></i>
+            <h3>En Attente</h3>
+            <div class="number">{{ stats.en_attente }}</div>
+        </div>
+        <div class="stat-card validees">
+            <i class="fas fa-check-circle"></i>
+            <h3>Validées ce mois</h3>
+            <div class="number">{{ stats.validees }}</div>
+        </div>
+        <div class="stat-card refusees">
+            <i class="fas fa-times-circle"></i>
+            <h3>Refusées ce mois</h3>
+            <div class="number">{{ stats.refusees }}</div>
+        </div>
+        <div class="stat-card equipe">
+            <i class="fas fa-users"></i>
+            <h3>Équipe</h3>
+            <div class="number">{{ stats.equipe_total }}</div>
+        </div>
+    </div>
+
+    <div class="main-content-abs">
+        <div>
+            <div class="demandes-section">
+                <h2><i class="fas fa-list-check"></i> Demandes à Valider</h2>
+                <div id="listeDemandesManager">
+                    {% if demandes_en_attente %}
+                    {% for demande in demandes_en_attente %}
+                    <div class="demande-card {% if demande.est_urgent %}urgente{% endif %}">
+                        {% if demande.est_urgent %}
+                        <div style="color: #ef4444; font-weight: 600; margin-bottom: 10px;">
+                            <i class="fas fa-exclamation-triangle"></i> Demande urgente
+                        </div>
+                        {% endif %}
+
+                        <div class="demande-header">
+                            <div class="demande-employe">
+                                <div class="avatar-small">{{ demande.employe.nom.0 }}{{ demande.employe.prenoms.0 }}
+                                </div>
+                                <div class="employe-info">
+                                    <h4>{{ demande.employe.nom }} {{ demande.employe.prenoms }}</h4>
+                                    <p>{{ demande.employe.affectations.first.poste.LIBELLE|default:"Employé" }}</p>
+                                </div>
+                            </div>
+                            <span class="demande-type-badge {{ demande.type_absence.CODE|lower }}">
+                                    {{ demande.type_absence.LIBELLE }}
+                                </span>
+                        </div>
+
+                        <div class="demande-details">
+                            <div class="detail-row">
+                                <span class="detail-label"><i class="fas fa-calendar"></i> Période</span>
+                                <span class="detail-value">{{ demande.date_debut|date:"d/m/Y" }} - {{ demande.date_fin|date:"d/m/Y" }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label"><i class="fas fa-clock"></i> Durée</span>
+                                <span class="detail-value">
+                                        {{ demande.nombre_jours|floatformat:1 }} jour{{ demande.nombre_jours|floatformat:1|pluralize }}
+                                        {% if demande.duree == 'DEMI' %}
+                                            ({% if demande.periode == 'MATIN' %}matin{% else %}après-midi{% endif %})
+                                        {% endif %}
+                                    </span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label"><i class="fas fa-paper-plane"></i> Demandé le</span>
+                                <span class="detail-value">{{ demande.created_at|date:"d/m/Y" }}</span>
+                            </div>
+                        </div>
+
+                        {% if demande.motif %}
+                        <div class="demande-motif">
+                            <i class="fas fa-comment"></i> {{ demande.motif }}
+                        </div>
+                        {% endif %}
+
+                        <div class="demande-actions">
+                            <button class="btn btn-success"
+                                    onclick="validerDemande('{{ demande.id }}', '{{ demande.numero_demande }}')">
+                                <i class="fas fa-check"></i> Valider
+                            </button>
+                            <button class="btn btn-danger"
+                                    onclick="ouvrirModalRefus('{{ demande.id }}', '{{ demande.numero_demande }}')">
+                                <i class="fas fa-times"></i> Refuser
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p style="text-align: center; color: #9ca3af; padding: 40px;">Aucune demande à traiter</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="equipe-section">
+                <h2><i class="fas fa-users"></i> Mon Équipe</h2>
+                <div id="listeEquipe">
+                    {% for membre in equipe_avec_statut %}
+                    <div class="equipe-membre">
+                        <div class="equipe-membre-info">
+                            <div class="avatar-tiny">{{ membre.employe.nom.0 }}{{ membre.employe.prenoms.0 }}</div>
+                            <div class="equipe-membre-name">{{ membre.employe.nom }} {{ membre.employe.prenoms }}
+                            </div>
+                        </div>
+                        <span class="equipe-membre-status {{ membre.statut }}">
+                            {% if membre.statut == 'present' %}Présent
+                            {% elif membre.statut == 'absent' %}Absent
+                            {% elif membre.statut == 'conge' %}En congé
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal de refus -->
+<div id="modalRefus" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><i class="fas fa-times-circle" style="color: #ef4444;"></i> Refuser la demande</h2>
+            <span class="close" onclick="fermerModalRefus()">&times;</span>
+        </div>
+        <div class="form-group">
+            <label>Motif du refus *</label>
+            <textarea id="motifRefus" placeholder="Veuillez expliquer la raison du refus..."></textarea>
+        </div>
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button class="btn btn-secondary" onclick="fermerModalRefus()">Annuler</button>
+            <button class="btn btn-danger" onclick="confirmerRefus()">
+                <i class="fas fa-times"></i> Confirmer le refus
+            </button>
+        </div>
+    </div>
+</div>
+<script>
+    let demandeEnCoursRefus = null;
+    let numeroDemandeEnCours = null;
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function validerDemande(demandeId, numeroDemande) {
+        if (!confirm(`Voulez-vous valider la demande ?`)) {
+            return;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
+        fetch(`{% url 'absence:manager_valider_demande' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', demandeId), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'commentaire='
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Erreur: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Une erreur est survenue lors de la validation');
+        });
+    }
+
+    function ouvrirModalRefus(demandeId, numeroDemande) {
+        demandeEnCoursRefus = demandeId;
+        numeroDemandeEnCours = numeroDemande;
+        document.getElementById('motifRefus').value = '';
+        document.getElementById('modalRefus').style.display = 'block';
+    }
+
+    function fermerModalRefus() {
+        document.getElementById('modalRefus').style.display = 'none';
+        demandeEnCoursRefus = null;
+        numeroDemandeEnCours = null;
+    }
+
+    function confirmerRefus() {
+        const motif = document.getElementById('motifRefus').value.trim();
+
+        if (!motif) {
+            alert('Veuillez saisir un motif de refus');
+            return;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
+        fetch(`{% url 'absence:manager_refuser_demande' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', demandeEnCoursRefus), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `motif_refus=${encodeURIComponent(motif)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                fermerModalRefus();
+                location.reload();
+            } else {
+                alert('Erreur: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Une erreur est survenue lors du refus');
+        });
+    }
+
+    // Fermer le modal en cliquant en dehors
+    window.onclick = function(event) {
+        const modal = document.getElementById('modalRefus');
+        if (event.target === modal) {
+            fermerModalRefus();
+        }
+    }
+
+</script>
+</body>
+</html>

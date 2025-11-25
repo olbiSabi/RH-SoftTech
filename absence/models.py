@@ -1,16 +1,3 @@
-"""
-Modèles Django pour la gestion des congés et absences
-Application: absence
-Système HR_ONIAN
-
-Intégration avec les modèles existants:
-- ZY00 (Employés) depuis employee
-- ZDDE (Départements) depuis departement
-- ZDPO (Postes) depuis departement
-- ZYMA (Managers) depuis departement
-- ZYAF (Affectations) depuis employee
-"""
-
 from django.db import models
 from django.core.validators import MinValueValidator, RegexValidator
 from django.core.exceptions import ValidationError
@@ -18,8 +5,7 @@ from django.utils import timezone
 from decimal import Decimal
 import uuid
 
-from employee.models import ZY00, ZYAF
-from departement.models import ZDDE, ZDPO, ZYMA
+from employee.models import ZY00
 from parametre.models import ZDAB
 
 

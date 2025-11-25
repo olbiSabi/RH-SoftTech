@@ -128,7 +128,7 @@ def employe_demandes(request):
             if demande.type_absence.CODE in ['CPN', 'RTT']:
                 mettre_a_jour_solde_conges(employe, annee_courante)
 
-            messages.success(request, f'✅ Votre demande {demande.numero_demande} a été soumise avec succès!')
+            messages.success(request, f'✅ Votre demande a été soumise avec succès!')
             return redirect('absence:employe_demandes')
         else:
             #messages.error(request, '❌ Erreur lors de la soumission. Veuillez corriger les erreurs.')
@@ -372,7 +372,7 @@ def manager_valider_demande(request, demande_id):
 
         return JsonResponse({
             'success': True,
-            'message': f'✅ Demande {demande.numero_demande} validée avec succès.'
+            'message': f'✅ Demande validée avec succès.'
         })
 
     except Exception as e:
@@ -448,7 +448,7 @@ def manager_refuser_demande(request, demande_id):
 
         return JsonResponse({
             'success': True,
-            'message': f'❌ Demande {demande.numero_demande} refusée.'
+            'message': f'❌ Demande refusée.'
         })
 
     except Exception as e:
@@ -587,7 +587,7 @@ def rh_valider_demande(request, demande_id):
 
         return JsonResponse({
             'success': True,
-            'message': f'✅ Demande {demande.numero_demande} validée définitivement.'
+            'message': f'✅ Demande validée définitivement.'
         })
 
     except Exception as e:
@@ -654,7 +654,7 @@ def rh_refuser_demande(request, demande_id):
 
         return JsonResponse({
             'success': True,
-            'message': f'❌ Demande {demande.numero_demande} refusée par RH.'
+            'message': f'❌ Demande refusée par RH.'
         })
 
     except Exception as e:

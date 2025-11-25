@@ -680,7 +680,7 @@
 
     // Fonction pour confirmer et supprimer une demande
     function confirmerSuppression(demandeId, numeroDemande) {
-        if (confirm(`Êtes-vous sûr de vouloir supprimer la demande ${numeroDemande} ?\n\nCette action est irréversible.`)) {
+        if (confirm(`Êtes-vous sûr de vouloir supprimer la demande?\n\nCette action est irréversible.`)) {
             supprimerDemande(demandeId, numeroDemande);
         }
     }
@@ -713,6 +713,7 @@
             alert('❌ Une erreur est survenue lors de la suppression.');
         });
     }
+
 </script>
 </body>
 </html>
