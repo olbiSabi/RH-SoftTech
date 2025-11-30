@@ -2,8 +2,7 @@ from django.urls import path
 from .views import *
 from . import views
 from .auth_views import login_view, logout_view, dashboard_view, change_password_view, password_reset_request, \
-    CustomPasswordResetConfirmView
-from . import auth_views
+    CustomPasswordResetConfirmView,  test_reset_account
 
 urlpatterns = [
 
@@ -18,6 +17,7 @@ urlpatterns = [
     path('password-reset-confirm/<uidb64>/<token>/',
          CustomPasswordResetConfirmView.as_view(),
          name='password_reset_confirm'),
+    #path('test-reset/<str:username>/', test_reset_account, name='test_reset'),
 
 
     path('embauche-agent/', views.embauche_agent, name='embauche_agent'),
@@ -104,6 +104,15 @@ urlpatterns = [
     path('ajax/identite-bancaire/<uuid:employe_uuid>/detail/', api_identite_bancaire_detail, name='api_identite_bancaire_detail'),
     path('ajax/identite-bancaire/<uuid:employe_uuid>/save/', api_identite_bancaire_create_or_update, name='api_identite_bancaire_save'),
     path('ajax/identite-bancaire/<uuid:employe_uuid>/delete/', api_identite_bancaire_delete, name='api_identite_bancaire_delete'),
+
+
+# Gestion des rôles
+    path('roles/', views.gestion_roles_employes, name='gestion_roles'),
+    path('roles/attribuer/', views.attribuer_role, name='attribuer_role'),
+    path('roles/retirer/<int:attribution_id>/', views.retirer_role, name='retirer_role'),
+    path('roles/reactiver/<int:attribution_id>/', views.reactiver_role, name='reactiver_role'),
+    path('roles/modifier/<int:attribution_id>/', views.modifier_role, name='modifier_role'),
+    path('roles/employe/<uuid:employe_uuid>/', views.roles_employe, name='roles_employe'),
 
 
     path('profil-employee/', profilEmployee, name='profile-employee'),

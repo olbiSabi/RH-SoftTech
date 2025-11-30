@@ -29,6 +29,7 @@
                             <li><a href="{% url 'dossier_individuel' %}"><i class="fas fa-check-circle"></i>dossier individuel</a></li>
                             <li><a href="{% url 'absence:employe_demandes' %}"><i class="fas fa-umbrella-beach"></i>Demande de congé</a></li>
                             <li><a href="{% url 'absence:manager_validation' %}"><i class="fas fa-clipboard-check"></i>Validation de congé</a></li>
+                            <li><a href="{% url 'absence:rh_validation' %}"><i class="fas fa-clipboard-check"></i>Validation RH</a></li>
                         </ul>
                     </li>
 
@@ -56,6 +57,7 @@
                             <li><a href="{% url 'poste_list' %}"><i class="fas fa-id-card"></i>Poste</a></li>
                             <li><a href="{% url 'absence_list' %}"><i class="fas fa-plane"></i>Type d'absence</a></li>
                             <li><a href="{% url 'liste_managers' %}"><i class="fas fa-user-tie"></i> managers</a></li>
+                            <li><a href="{% url 'gestion_roles' %}"><i class="fas fa-crown"></i>Gestion de rôles</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -63,100 +65,84 @@
         </div>
 
         <div class="header-right">
-            <!-- NOTIFICATION BELL - NOUVEAU -->
+            <!-- 🆕 SYSTÈME DE NOTIFICATIONS AMÉLIORÉ -->
             {% if user.is_authenticated %}
-                {% if demandes_en_attente_count > 0 or demandes_rh_count > 0 %}
-                <div class="notification-wrapper" style="margin-right: 20px;">
-                    <button class="notification-bell" id="notificationBell">
-                        <i class="fas fa-bell"></i>
-                        {% if demandes_en_attente_count > 0 %}
-                        <span class="notification-badge">{{ demandes_en_attente_count }}</span>
-                        {% elif demandes_rh_count > 0 %}
-                        <span class="notification-badge">{{ demandes_rh_count }}</span>
+            <div class="notifications-container">
+                <button class="notification-bell" id="notificationBell">
+                    <i class="fas fa-bell"></i>
+                    {% if nb_notifications_non_lues > 0 %}
+                    <span class="notification-badge">{{ nb_notifications_non_lues }}</span>
+                    {% endif %}
+                </button>
+
+                <div class="notification-dropdown" id="notificationDropdown">
+                    <div class="notification-header">
+                        <h3><i class="fas fa-bell"></i> Notifications</h3>
+                        {% if nb_notifications_non_lues > 0 %}
+                        <button class="mark-all-read" id="markAllRead">
+                            <i class="fas fa-check-double"></i> Tout marquer comme lu
+                        </button>
                         {% endif %}
-                    </button>
-
-                    <!-- Dropdown des notifications -->
-                    <div class="notification-dropdown" id="notificationDropdown">
-                        <div class="notification-header">
-                            <h4>
-                                <i class="fas fa-bell"></i> Notifications
-                                <span class="notification-count">({{ demandes_en_attente_count|add:demandes_rh_count }})</span>
-                            </h4>
-                        </div>
-
-                        <div class="notification-body">
-                            {% if demandes_en_attente_count > 0 %}
-                            <div class="notification-section">
-                                <div class="notification-section-title">
-                                    <i class="fas fa-user-tie"></i> En attente de validation Manager
-                                </div>
-                                {% for demande in demandes_en_attente %}
-                                <a href="{% url 'absence:manager_validation' %}" class="notification-item">
-                                    <div class="notification-icon" style="background: #fef3c7;">
-                                        <i class="fas fa-umbrella-beach" style="color: #f59e0b;"></i>
-                                    </div>
-                                    <div class="notification-content">
-                                        <div class="notification-title">
-                                            {{ demande.employe.nom }} {{ demande.employe.prenoms }}
-                                        </div>
-                                        <div class="notification-text">
-                                            {{ demande.type_absence.LIBELLE }} - {{ demande.nombre_jours }} jour{{ demande.nombre_jours|floatformat:0|pluralize }}
-                                        </div>
-                                        <div class="notification-date">
-                                            <i class="fas fa-calendar"></i> {{ demande.date_debut|date:"d/m/Y" }} au {{ demande.date_fin|date:"d/m/Y" }}
-                                        </div>
-                                        <div class="notification-time">
-                                            <i class="fas fa-clock"></i> {{ demande.created_at|timesince }}
-                                        </div>
-                                    </div>
-                                </a>
-                                {% endfor %}
-
-                                <a href="{% url 'absence:manager_validation' %}" class="notification-view-all">
-                                    <i class="fas fa-arrow-right"></i> Voir toutes les demandes ({{ demandes_en_attente_count }})
-                                </a>
-                            </div>
-                            {% endif %}
-
-                            {% if demandes_rh_count > 0 %}
-                            <div class="notification-section">
-                                <div class="notification-section-title">
-                                    <i class="fas fa-user-shield"></i> En attente de validation RH
-                                </div>
-                                {% for demande in demandes_rh %}
-                                <a href="{% url 'absence:rh_validation' %}" class="notification-item">
-                                    <div class="notification-icon" style="background: #dbeafe;">
-                                        <i class="fas fa-umbrella-beach" style="color: #3b82f6;"></i>
-                                    </div>
-                                    <div class="notification-content">
-                                        <div class="notification-title">
-                                            {{ demande.employe.nom }} {{ demande.employe.prenoms }}
-                                        </div>
-                                        <div class="notification-text">
-                                            {{ demande.type_absence.LIBELLE }} - {{ demande.nombre_jours }} jour{{ demande.nombre_jours|floatformat:0|pluralize }}
-                                        </div>
-                                        <div class="notification-date">
-                                            <i class="fas fa-calendar"></i> {{ demande.date_debut|date:"d/m/Y" }} au {{ demande.date_fin|date:"d/m/Y" }}
-                                        </div>
-                                        <div class="notification-time">
-                                            <i class="fas fa-clock"></i> {{ demande.created_at|timesince }}
-                                        </div>
-                                    </div>
-                                </a>
-                                {% endfor %}
-
-                                <a href="{% url 'absence:rh_validation' %}" class="notification-view-all">
-                                    <i class="fas fa-arrow-right"></i> Voir toutes les demandes ({{ demandes_rh_count }})
-                                </a>
-                            </div>
-                            {% endif %}
-                        </div>
                     </div>
+
+                    <div class="notification-list">
+                        {% if notifications_non_lues %}
+                            {% for notif in notifications_non_lues %}
+                            <div class="notification-item {% if not notif.lue %}unread{% endif %}"
+                                 data-notification-id="{{ notif.id }}"
+                                 data-notification-link="{% if notif.lien %}{{ notif.lien }}{% else %}#{% endif %}">
+                                <div class="notification-icon">
+                                    {% if notif.type_notification == 'ABSENCE_NOUVELLE' %}
+                                        <i class="fas fa-calendar-plus" style="color: #f59e0b;"></i>
+                                    {% elif 'VALIDEE' in notif.type_notification %}
+                                        <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                                    {% elif 'REJETEE' in notif.type_notification %}
+                                        <i class="fas fa-times-circle" style="color: #ef4444;"></i>
+                                    {% else %}
+                                        <i class="fas fa-info-circle" style="color: #3b82f6;"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="notification-content">
+                                    <div class="notification-title">{{ notif.titre }}</div>
+                                    <div class="notification-message">{{ notif.message|truncatewords:15 }}</div>
+                                    {% if notif.demande_absence %}
+                                    <div class="notification-details">
+                                        <i class="fas fa-calendar"></i>
+                                        {{ notif.demande_absence.date_debut|date:"d/m/Y" }} - {{ notif.demande_absence.date_fin|date:"d/m/Y" }}
+                                        <span class="notification-days">
+                                            ({{ notif.demande_absence.nombre_jours|floatformat:0 }} jour{{ notif.demande_absence.nombre_jours|floatformat:0|pluralize }})
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                    <div class="notification-time">
+                                        <i class="fas fa-clock"></i> {{ notif.date_creation|timesince }}
+                                    </div>
+                                </div>
+                                {% if not notif.lue %}
+                                <div class="notification-unread-dot"></div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="notification-empty">
+                                <i class="fas fa-bell-slash"></i>
+                                <p>Aucune nouvelle notification</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {% if notifications_non_lues %}
+                    <div class="notification-footer">
+                        <a href="{% url 'absence:liste_notifications' %}" class="view-all-notifications">
+                            <i class="fas fa-list"></i> Voir toutes les notifications
+                        </a>
+                    </div>
+                    {% endif %}
                 </div>
-                {% endif %}
+            </div>
             {% endif %}
 
+            <!-- User Info -->
             <div class="user-info">
                 {% if user.is_authenticated %}
                 <ul class="menu-list">
@@ -171,12 +157,12 @@
                             <i class="fas fa-user-circle"></i>
                             {% endif %}
                             <span>
-                    {% if user.employe %}
-                        {{ user.employe.username }} {{ user.employe.prenomuser }}
-                    {% else %}
-                        {{ user.get_full_name|default:user.username }}
-                    {% endif %}
-                </span>
+                                {% if user.employe %}
+                                    {{ user.employe.username }} {{ user.employe.prenomuser }}
+                                {% else %}
+                                    {{ user.get_full_name|default:user.username }}
+                                {% endif %}
+                            </span>
                             <i class="fas fa-chevron-down menu-arrow"></i>
                         </a>
                         <ul class="submenu">
@@ -207,275 +193,6 @@
         </div>
     </div>
 </header>
-
-<!-- STYLES CSS POUR LES NOTIFICATIONS -->
-<style>
-/* Wrapper de notification */
-.notification-wrapper {
-    position: relative;
-    display: inline-block;
-}
-
-/* Bouton cloche */
-.notification-bell {
-    position: relative;
-    background: none;
-    border: none;
-    font-size: 20px;
-    color: #6b7280;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-}
-
-.notification-bell:hover {
-    background: #f3f4f6;
-    color: #f59e0b;
-}
-
-/* Badge de notification */
-.notification-badge {
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    background: #ef4444;
-    color: white;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 2px 6px;
-    border-radius: 10px;
-    min-width: 18px;
-    text-align: center;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-}
-
-/* Dropdown */
-.notification-dropdown {
-    position: absolute;
-    top: calc(100% + 10px);
-    right: 0;
-    width: 400px;
-    max-height: 600px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-    display: none;
-    z-index: 1000;
-    overflow: hidden;
-}
-
-.notification-dropdown.show {
-    display: block;
-    animation: slideDown 0.3s ease;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Header des notifications */
-.notification-header {
-    padding: 16px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.notification-header h4 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.notification-count {
-    font-size: 14px;
-    opacity: 0.9;
-}
-
-/* Body des notifications */
-.notification-body {
-    max-height: 500px;
-    overflow-y: auto;
-}
-
-.notification-body::-webkit-scrollbar {
-    width: 6px;
-}
-
-.notification-body::-webkit-scrollbar-track {
-    background: #f3f4f6;
-}
-
-.notification-body::-webkit-scrollbar-thumb {
-    background: #d1d5db;
-    border-radius: 3px;
-}
-
-/* Section */
-.notification-section {
-    padding: 12px 0;
-    border-bottom: 1px solid #f3f4f6;
-}
-
-.notification-section:last-child {
-    border-bottom: none;
-}
-
-.notification-section-title {
-    padding: 8px 20px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #6b7280;
-    background: #f9fafb;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-/* Item de notification */
-.notification-item {
-    display: flex;
-    padding: 12px 20px;
-    gap: 12px;
-    text-decoration: none;
-    color: inherit;
-    transition: background 0.2s ease;
-    border-left: 3px solid transparent;
-}
-
-.notification-item:hover {
-    background: #f9fafb;
-    border-left-color: #f59e0b;
-}
-
-.notification-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: 18px;
-}
-
-.notification-content {
-    flex: 1;
-    min-width: 0;
-}
-
-.notification-title {
-    font-weight: 600;
-    font-size: 14px;
-    color: #111827;
-    margin-bottom: 4px;
-}
-
-.notification-text {
-    font-size: 13px;
-    color: #6b7280;
-    margin-bottom: 6px;
-}
-
-.notification-date {
-    font-size: 12px;
-    color: #9ca3af;
-    margin-bottom: 2px;
-}
-
-.notification-date i,
-.notification-time i {
-    font-size: 10px;
-    margin-right: 4px;
-}
-
-.notification-time {
-    font-size: 11px;
-    color: #d1d5db;
-}
-
-/* Bouton voir tout */
-.notification-view-all {
-    display: block;
-    padding: 12px 20px;
-    text-align: center;
-    font-size: 13px;
-    font-weight: 600;
-    color: #667eea;
-    text-decoration: none;
-    transition: all 0.2s ease;
-}
-
-.notification-view-all:hover {
-    background: #f3f4f6;
-    color: #764ba2;
-}
-
-/* Message vide */
-.notification-empty {
-    padding: 40px 20px;
-    text-align: center;
-    color: #9ca3af;
-}
-
-.notification-empty i {
-    font-size: 48px;
-    margin-bottom: 12px;
-    opacity: 0.3;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .notification-dropdown {
-        width: 320px;
-        right: -20px;
-    }
-}
-</style>
-
-<!-- JAVASCRIPT POUR LES NOTIFICATIONS -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const notificationBell = document.getElementById('notificationBell');
-    const notificationDropdown = document.getElementById('notificationDropdown');
-
-    if (notificationBell && notificationDropdown) {
-        // Toggle dropdown
-        notificationBell.addEventListener('click', function(e) {
-            e.stopPropagation();
-            notificationDropdown.classList.toggle('show');
-        });
-
-        // Fermer en cliquant ailleurs
-        document.addEventListener('click', function(e) {
-            if (!notificationDropdown.contains(e.target) && e.target !== notificationBell) {
-                notificationDropdown.classList.remove('show');
-            }
-        });
-
-        // Empêcher la fermeture en cliquant dans le dropdown
-        notificationDropdown.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-    }
-});
-</script>
 
 <!-- Overlay pour fermer le sidebar sur mobile -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>

@@ -1,12 +1,8 @@
 from datetime import datetime
-from django.db import transaction
 from django.db.models import Q
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
-from django.utils import timezone
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse, reverse_lazy
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from django.http import FileResponse, Http404, JsonResponse
+from django.http import  Http404, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.views.decorators.http import require_POST, require_http_methods
@@ -14,14 +10,17 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 import os
 from .utils import get_redirect_url_with_tab, get_active_tab_for_ajax
 from departement.models import ZDPO, ZDDE
-from .models import ZY00, ZYCO, ZYTE, ZYME, ZYAF, ZYAD, ZYDO, ZYFA, ZYNP, ZYPP, ZYIB
+from .models import ZY00, ZYCO, ZYTE, ZYME, ZYAF, ZYAD, ZYDO, ZYFA, ZYNP, ZYPP, ZYIB, ZYRO, ZYRE
 from .forms import (
     ZY00Form, EmbaucheAgentForm, ZYCOForm, ZYTEForm,
     ZYMEForm, ZYAFForm, ZYADForm, ZYFAForm
 )
 from django.contrib.auth.models import User
 from django.db import transaction
-
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from django.utils import timezone
+from datetime import date
 # ===============================
 # VUES POUR L'EMBAUCHE
 # ===============================
@@ -272,7 +271,6 @@ class EmployeDeleteView(LoginRequiredMixin, DeleteView):
     slug_url_kwarg = 'uuid'
 
     def get_object(self, queryset=None):
-        """Surcharge pour mieux gérer la récupération par UUID"""
         if queryset is None:
             queryset = self.get_queryset()
 
@@ -280,13 +278,52 @@ class EmployeDeleteView(LoginRequiredMixin, DeleteView):
         if uuid is not None:
             queryset = queryset.filter(uuid=uuid)
 
-        obj = get_object_or_404(queryset)
-        return obj
+        return get_object_or_404(queryset)
 
-    def delete(self, request, *args, **kwargs):
-        employe = self.get_object()
-        messages.success(request, f"Employé {employe.nom} {employe.prenom} supprimé avec succès!")
-        return super().delete(request, *args, **kwargs)
+    def form_valid(self, form):
+        """Surcharge de form_valid pour gérer la suppression du user"""
+        employe = self.object
+        print(f"🚀 DEBUG - Début suppression dans form_valid")
+        print(f"   Employé: {employe.matricule} - {employe.nom} {employe.prenoms}")
+        print(f"   User ID: {employe.user_id}")
+
+        try:
+            # Sauvegarder les infos pour les messages
+            employe_nom = f"{employe.nom} {employe.prenoms}"
+            employe_matricule = employe.matricule
+
+            # Gestion de la suppression du user
+            if employe.user:
+                user = employe.user
+                username = user.username
+
+                print(f"🔍 DEBUG - Suppression du user {username}")
+
+                # Dissocier d'abord
+                employe.user = None
+                employe.save(update_fields=['user'])
+
+                # Supprimer le user
+                user.delete()
+                print(f"✅ DEBUG - User {username} supprimé")
+                messages.info(self.request, f"Compte utilisateur '{username}' supprimé.")
+
+            # Maintenant supprimer l'employé via la méthode parent
+            print(f"🗑️ DEBUG - Suppression de l'employé {employe_matricule}")
+            response = super().form_valid(form)
+
+            print(f"✅ DEBUG - Suppression terminée avec succès")
+            messages.success(self.request, f"Employé {employe_nom} supprimé avec succès!")
+
+            return response
+
+        except Exception as e:
+            print(f"❌ DEBUG - Erreur: {str(e)}")
+            import traceback
+            traceback.print_exc()
+
+            messages.error(self.request, f"Erreur lors de la suppression : {str(e)}")
+            return redirect('detail_employe', uuid=employe.uuid)
 
 
 @login_required
@@ -2419,6 +2456,297 @@ def handler403(request, exception):
 def handler400(request, exception):
     """Vue personnalisée pour les erreurs 400"""
     return render(request, '400.html', status=400)
+
+
+
+# ===== API GESTION DE ROLE EMPLOYE (ZYRE) =====
+"""
+Vues pour la gestion des rôles employés
+"""
+@login_required
+def gestion_roles_employes(request):
+    """
+    Page principale de gestion des rôles employés
+    """
+    # Filtres
+    filtre_employe = request.GET.get('employe', '')
+    filtre_role = request.GET.get('role', '')
+    filtre_statut = request.GET.get('statut', 'actif')  # actif, inactif, tous
+
+    # Base query
+    attributions_base = ZYRE.objects.select_related(
+        'employe', 'role', 'created_by'
+    )
+
+    # Appliquer les filtres
+    attributions = attributions_base
+
+    if filtre_employe:
+        attributions = attributions.filter(
+            Q(employe__matricule__icontains=filtre_employe) |
+            Q(employe__nom__icontains=filtre_employe) |
+            Q(employe__prenoms__icontains=filtre_employe)
+        )
+
+    if filtre_role:
+        attributions = attributions.filter(role_id=filtre_role)
+
+    if filtre_statut == 'actif':
+        attributions = attributions.filter(actif=True, date_fin__isnull=True)
+    elif filtre_statut == 'inactif':
+        attributions = attributions.filter(
+            Q(actif=False) | Q(date_fin__isnull=False)
+        )
+
+    attributions = attributions.order_by('-created_at')
+
+    # Statistiques
+    stats = {
+        'total': ZYRE.objects.count(),
+        'actifs': ZYRE.objects.filter(actif=True, date_fin__isnull=True).count(),
+        'inactifs': ZYRE.objects.filter(
+            Q(actif=False) | Q(date_fin__isnull=False)
+        ).count(),
+        'roles_distincts': ZYRO.objects.filter(
+            attributions__actif=True
+        ).distinct().count(),
+    }
+
+    # Données pour les filtres
+    roles = ZYRO.objects.filter(actif=True).order_by('LIBELLE')
+    employes = ZY00.objects.filter(
+        type_dossier='SAL',
+        etat='actif'
+    ).order_by('nom', 'prenoms')
+
+    context = {
+        'attributions': attributions,
+        'stats': stats,
+        'roles': roles,
+        'employes': employes,
+        'filtre_employe': filtre_employe,
+        'filtre_role': filtre_role,
+        'filtre_statut': filtre_statut,
+    }
+
+    return render(request, 'employee/gestion_roles.html', context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def attribuer_role(request):
+    """
+    Attribuer un rôle à un employé (AJAX)
+    """
+    try:
+        employe_id = request.POST.get('employe_id')
+        role_id = request.POST.get('role_id')
+        date_debut = request.POST.get('date_debut')
+        commentaire = request.POST.get('commentaire', '').strip()
+
+        # Validation
+        if not all([employe_id, role_id, date_debut]):
+            return JsonResponse({
+                'success': False,
+                'error': 'Tous les champs obligatoires doivent être remplis'
+            }, status=400)
+
+        employe = get_object_or_404(ZY00, uuid=employe_id)
+        role = get_object_or_404(ZYRO, pk=role_id)
+
+        # Vérifier si le rôle est déjà attribué et actif
+        existing = ZYRE.objects.filter(
+            employe=employe,
+            role=role,
+            actif=True,
+            date_fin__isnull=True
+        ).exists()
+
+        if existing:
+            return JsonResponse({
+                'success': False,
+                'error': f'Le rôle "{role.LIBELLE}" est déjà attribué à {employe.nom}'
+            }, status=400)
+
+        with transaction.atomic():
+            # Créer l'attribution
+            attribution = ZYRE.objects.create(
+                employe=employe,
+                role=role,
+                date_debut=date_debut,
+                actif=True,
+                commentaire=commentaire,
+                created_by=request.user.employe if hasattr(request.user, 'employe') else None
+            )
+
+            return JsonResponse({
+                'success': True,
+                'message': f'✅ Rôle "{role.LIBELLE}" attribué à {employe.nom} avec succès',
+                'attribution_id': str(attribution.pk)
+            })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def retirer_role(request, attribution_id):
+    """
+    Retirer un rôle (désactiver l'attribution)
+    """
+    try:
+        attribution = get_object_or_404(ZYRE, pk=attribution_id)
+
+        if not attribution.actif or attribution.date_fin:
+            return JsonResponse({
+                'success': False,
+                'error': 'Cette attribution est déjà inactive'
+            }, status=400)
+
+        with transaction.atomic():
+            attribution.actif = False
+            attribution.date_fin = date.today()
+            attribution.save()
+
+            return JsonResponse({
+                'success': True,
+                'message': f'✅ Rôle "{attribution.role.LIBELLE}" retiré de {attribution.employe.nom}'
+            })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def reactiver_role(request, attribution_id):
+    """
+    Réactiver un rôle
+    """
+    try:
+        attribution = get_object_or_404(ZYRE, pk=attribution_id)
+
+        if attribution.actif and not attribution.date_fin:
+            return JsonResponse({
+                'success': False,
+                'error': 'Cette attribution est déjà active'
+            }, status=400)
+
+        # Vérifier qu'il n'y a pas déjà une attribution active pour ce rôle
+        existing = ZYRE.objects.filter(
+            employe=attribution.employe,
+            role=attribution.role,
+            actif=True,
+            date_fin__isnull=True
+        ).exclude(pk=attribution.pk).exists()
+
+        if existing:
+            return JsonResponse({
+                'success': False,
+                'error': f'Le rôle "{attribution.role.LIBELLE}" est déjà actif pour cet employé'
+            }, status=400)
+
+        with transaction.atomic():
+            attribution.actif = True
+            attribution.date_fin = None
+            attribution.save()
+
+            return JsonResponse({
+                'success': True,
+                'message': f'✅ Rôle "{attribution.role.LIBELLE}" réactivé pour {attribution.employe.nom}'
+            })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def modifier_role(request, attribution_id):
+    """
+    Modifier une attribution de rôle
+    """
+    try:
+        attribution = get_object_or_404(ZYRE, pk=attribution_id)
+
+        date_debut = request.POST.get('date_debut')
+        date_fin = request.POST.get('date_fin', '').strip()
+        commentaire = request.POST.get('commentaire', '').strip()
+
+        with transaction.atomic():
+            if date_debut:
+                attribution.date_debut = date_debut
+
+            if date_fin:
+                attribution.date_fin = date_fin
+                attribution.actif = False
+            else:
+                attribution.date_fin = None
+                attribution.actif = True
+
+            attribution.commentaire = commentaire
+            attribution.save()
+
+            return JsonResponse({
+                'success': True,
+                'message': f'✅ Attribution modifiée avec succès'
+            })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+@login_required
+@require_http_methods(["GET"])
+def roles_employe(request, employe_uuid):
+    """
+    API pour récupérer tous les rôles d'un employé
+    """
+    try:
+        employe = get_object_or_404(ZY00, uuid=employe_uuid)
+
+        attributions = ZYRE.objects.filter(
+            employe=employe
+        ).select_related('role').order_by('-date_debut')
+
+        roles_data = []
+        for attr in attributions:
+            roles_data.append({
+                'id': attr.pk,
+                'role_code': attr.role.CODE,
+                'role_libelle': attr.role.LIBELLE,
+                'date_debut': attr.date_debut.strftime('%d/%m/%Y'),
+                'date_fin': attr.date_fin.strftime('%d/%m/%Y') if attr.date_fin else None,
+                'actif': attr.actif,
+                'commentaire': attr.commentaire or '',
+            })
+
+        return JsonResponse({
+            'success': True,
+            'roles': roles_data
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+
 
 
 def profilEmployee(request):

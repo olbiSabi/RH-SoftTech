@@ -612,6 +612,7 @@ class ZYIBForm(forms.ModelForm):
 
         return cleaned_data
 
+
 # Formset pour gérer plusieurs personnes à prévenir
 PersonnePrevenirFormSet = inlineformset_factory(
     ZY00, ZYPP,

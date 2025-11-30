@@ -7,10 +7,10 @@
     <title>{% block title %}EasyM - Mes Demandes de Congés{% endblock %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/logo/Onian-EasyM.png' %}">
-    <!-- Chargez les CSS un par un pour debug -->
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/absence.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/dossier_individuel_base.css' %}">
+
 </head>
 <body data-employe-uuid="{% if employe %}{{ employe.uuid }}{% endif %}">
 <!-- Header -->
@@ -18,7 +18,6 @@
 
 <div class="content">
     <div class="content-header">
-        <!-- Photo cliquable -->
         <div class="employee-info">
             <div><h1><i class="fas fa-user-check"></i> Validation Manager - Congés et Absences</h1></div>
             <br>
@@ -56,77 +55,327 @@
         </div>
     </div>
 
+    <div class="filtres-section">
+        <div class="filtres-header">
+            <h3>
+                <i class="fas fa-filter"></i>
+                Filtres
+                {% if filtre_employe or filtre_type %}
+                <span class="badge-filtre-actif">
+                    <i class="fas fa-check-circle"></i>
+                    Actifs
+                </span>
+                {% endif %}
+            </h3>
+        </div>
+
+    <form method="GET" id="formFiltres">
+        <div class="filtres-grid">
+            <!-- Filtre Employé -->
+            <div class="filtre-group">
+                <label for="filtre_employe">
+                    <i class="fas fa-user"></i> Employé
+                </label>
+                <input type="text"
+                       id="filtre_employe"
+                       name="employe"
+                       value="{{ filtre_employe }}"
+                       placeholder="Matricule, nom ou prénom..."
+                       autocomplete="off">
+            </div>
+
+            <!-- Filtre Type d'absence -->
+            <div class="filtre-group">
+                <label for="filtre_type">
+                    <i class="fas fa-tags"></i> Type d'absence
+                </label>
+                <select id="filtre_type" name="type">
+                    <option value="">Tous les types</option>
+                    {% for type in types_absence %}
+                        <option value="{{ type.pk }}" {% if filtre_type == type.pk|stringformat:"s" %}selected{% endif %}>
+                            {{ type.LIBELLE }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="filtres-actions">
+            <button type="submit" class="btn-filtrer">
+                <i class="fas fa-search"></i>
+                Appliquer les filtres
+            </button>
+            <button type="button" class="btn-reinitialiser" onclick="reinitialiserFiltres()">
+                <i class="fas fa-redo"></i>
+                Réinitialiser
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Message si filtres actifs -->
+{% if filtre_employe or filtre_type %}
+<div class="message-filtres-actifs">
+    <div class="content">
+        <i class="fas fa-info-circle"></i>
+        <strong>Filtres actifs :</strong>
+        {% if filtre_employe %}
+            <span class="filtre-tag">
+                Employé: "{{ filtre_employe }}"
+            </span>
+        {% endif %}
+        {% if filtre_type %}
+            {% for type in types_absence %}
+                {% if type.pk|stringformat:"s" == filtre_type %}
+                    <span class="filtre-tag">
+                        Type: "{{ type.LIBELLE }}"
+                    </span>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
     <div class="main-content-abs">
         <div>
-            <div class="demandes-section">
-                <h2><i class="fas fa-list-check"></i> Demandes à Valider</h2>
-                <div id="listeDemandesManager">
-                    {% if demandes_en_attente %}
-                    {% for demande in demandes_en_attente %}
-                    <div class="demande-card {% if demande.est_urgent %}urgente{% endif %}">
-                        {% if demande.est_urgent %}
-                        <div style="color: #ef4444; font-weight: 600; margin-bottom: 10px;">
-                            <i class="fas fa-exclamation-triangle"></i> Demande urgente
-                        </div>
-                        {% endif %}
+            <div class="tabs-container-manager">
+    <div class="tabs-header-manager">
+        <button class="tab-button-manager {% if onglet_actif == 'a_valider' %}active{% endif %}"
+                onclick="changeTabManager('a_valider')"
+                data-tab="a_valider">
+            <i class="fas fa-clock"></i>
+            À valider
+            <span class="tab-badge-manager">{{ count_a_valider }}</span>
+        </button>
 
-                        <div class="demande-header">
-                            <div class="demande-employe">
-                                <div class="avatar-small">{{ demande.employe.nom.0 }}{{ demande.employe.prenoms.0 }}
-                                </div>
-                                <div class="employe-info">
-                                    <h4>{{ demande.employe.nom }} {{ demande.employe.prenoms }}</h4>
-                                    <p>{{ demande.employe.affectations.first.poste.LIBELLE|default:"Employé" }}</p>
-                                </div>
-                            </div>
-                            <span class="demande-type-badge {{ demande.type_absence.CODE|lower }}">
-                                    {{ demande.type_absence.LIBELLE }}
-                                </span>
-                        </div>
+        <button class="tab-button-manager {% if onglet_actif == 'validees' %}active{% endif %}"
+                onclick="changeTabManager('validees')"
+                data-tab="validees">
+            <i class="fas fa-check-circle"></i>
+            Validées
+            <span class="tab-badge-manager">{{ count_validees }}</span>
+        </button>
 
-                        <div class="demande-details">
-                            <div class="detail-row">
-                                <span class="detail-label"><i class="fas fa-calendar"></i> Période</span>
-                                <span class="detail-value">{{ demande.date_debut|date:"d/m/Y" }} - {{ demande.date_fin|date:"d/m/Y" }}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label"><i class="fas fa-clock"></i> Durée</span>
-                                <span class="detail-value">
-                                        {{ demande.nombre_jours|floatformat:1 }} jour{{ demande.nombre_jours|floatformat:1|pluralize }}
-                                        {% if demande.duree == 'DEMI' %}
-                                            ({% if demande.periode == 'MATIN' %}matin{% else %}après-midi{% endif %})
-                                        {% endif %}
-                                    </span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label"><i class="fas fa-paper-plane"></i> Demandé le</span>
-                                <span class="detail-value">{{ demande.created_at|date:"d/m/Y" }}</span>
-                            </div>
-                        </div>
+        <button class="tab-button-manager {% if onglet_actif == 'refusees' %}active{% endif %}"
+                onclick="changeTabManager('refusees')"
+                data-tab="refusees">
+            <i class="fas fa-times-circle"></i>
+            Refusées
+            <span class="tab-badge-manager">{{ count_refusees }}</span>
+        </button>
+    </div>
 
-                        {% if demande.motif %}
-                        <div class="demande-motif">
-                            <i class="fas fa-comment"></i> {{ demande.motif }}
-                        </div>
-                        {% endif %}
+    <!-- ONGLET 1 : À VALIDER -->
+    <div class="tab-content-manager {% if onglet_actif == 'a_valider' %}active{% endif %}"
+         id="tab-a-valider"
+         data-tab-content="a_valider">
+        {% if demandes_a_valider %}
+            {% for demande in demandes_a_valider %}
+            <div class="demande-card {% if demande.est_urgent %}urgente{% endif %}">
+                {% if demande.est_urgent %}
+                <div style="color: #ef4444; font-weight: 600; margin-bottom: 10px;">
+                    <i class="fas fa-exclamation-triangle"></i> Demande urgente
+                </div>
+                {% endif %}
 
-                        <div class="demande-actions">
-                            <button class="btn btn-success"
-                                    onclick="validerDemande('{{ demande.id }}', '{{ demande.numero_demande }}')">
-                                <i class="fas fa-check"></i> Valider
-                            </button>
-                            <button class="btn btn-danger"
-                                    onclick="ouvrirModalRefus('{{ demande.id }}', '{{ demande.numero_demande }}')">
-                                <i class="fas fa-times"></i> Refuser
-                            </button>
+                <div class="demande-header">
+                    <div class="demande-employe">
+                        <div class="avatar-small">{{ demande.employe.nom.0 }}{{ demande.employe.prenoms.0 }}</div>
+                        <div class="employe-info">
+                            <h4>{{ demande.employe.nom }} {{ demande.employe.prenoms }}</h4>
+                            <p>{{ demande.employe.affectations.first.poste.LIBELLE|default:"Employé" }}</p>
                         </div>
                     </div>
-                    {% endfor %}
-                    {% else %}
-                    <p style="text-align: center; color: #9ca3af; padding: 40px;">Aucune demande à traiter</p>
+                    <span class="demande-type-badge {{ demande.type_absence.CODE|lower }}">
+                        {{ demande.type_absence.LIBELLE }}
+                    </span>
+                </div>
+
+                <div class="demande-details">
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-calendar"></i> Période</span>
+                        <span class="detail-value">{{ demande.date_debut|date:"d/m/Y" }} - {{ demande.date_fin|date:"d/m/Y" }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-clock"></i> Durée</span>
+                        <span class="detail-value">
+                            {{ demande.nombre_jours|floatformat:1 }} jour{{ demande.nombre_jours|floatformat:1|pluralize }}
+                            {% if demande.duree == 'DEMI' %}
+                                ({% if demande.periode == 'MATIN' %}matin{% else %}après-midi{% endif %})
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-paper-plane"></i> Demandé le</span>
+                        <span class="detail-value">{{ demande.created_at|date:"d/m/Y" }}</span>
+                    </div>
+
+                    {% if demande.justificatif %}
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-paperclip"></i> Justificatif</span>
+                        <span class="detail-value">
+                            <a href="{{ demande.justificatif.url }}" target="_blank" class="btn-download">
+                                <i class="fas fa-download"></i> Télécharger
+                            </a>
+                        </span>
+                    </div>
                     {% endif %}
                 </div>
+
+                {% if demande.motif %}
+                <div class="demande-motif">
+                    <i class="fas fa-comment"></i> {{ demande.motif }}
+                </div>
+                {% endif %}
+
+                <div class="demande-actions">
+                    <button class="btn btn-success"
+                            onclick="validerDemande('{{ demande.id }}', '{{ demande.numero_demande }}')">
+                        <i class="fas fa-check"></i> Valider
+                    </button>
+                    <button class="btn btn-danger"
+                            onclick="ouvrirModalRefus('{{ demande.id }}', '{{ demande.numero_demande }}')">
+                        <i class="fas fa-times"></i> Refuser
+                    </button>
+                </div>
             </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state-manager">
+                <i class="fas fa-check-circle"></i>
+                <h3>Aucune demande à valider</h3>
+                <p>Toutes les demandes ont été traitées</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- ONGLET 2 : VALIDÉES -->
+    <div class="tab-content-manager {% if onglet_actif == 'validees' %}active{% endif %}"
+         id="tab-validees"
+         data-tab-content="validees">
+        {% if demandes_validees %}
+            {% for demande in demandes_validees %}
+            <div class="demande-card">
+                <div class="demande-header">
+                    <div class="demande-employe">
+                        <div class="avatar-small">{{ demande.employe.nom.0 }}{{ demande.employe.prenoms.0 }}</div>
+                        <div class="employe-info">
+                            <h4>{{ demande.employe.nom }} {{ demande.employe.prenoms }}</h4>
+                            <p>{{ demande.employe.affectations.first.poste.LIBELLE|default:"Employé" }}</p>
+                        </div>
+                    </div>
+                    <span class="demande-type-badge {{ demande.type_absence.CODE|lower }}">
+                        {{ demande.type_absence.LIBELLE }}
+                    </span>
+                </div>
+
+                <div class="demande-details">
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-calendar"></i> Période</span>
+                        <span class="detail-value">{{ demande.date_debut|date:"d/m/Y" }} - {{ demande.date_fin|date:"d/m/Y" }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-clock"></i> Durée</span>
+                        <span class="detail-value">{{ demande.nombre_jours|floatformat:1 }} jour(s)</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-check-circle"></i> Validée le</span>
+                        <span class="detail-value">{{ demande.date_validation_manager|date:"d/m/Y" }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-info-circle"></i> Statut actuel</span>
+                        <span class="detail-value">
+                            {% if demande.statut == 'VALIDEE_MANAGER' %}
+                                <span style="color: #f59e0b;">En attente validation RH</span>
+                            {% elif demande.statut == 'VALIDEE_RH' %}
+                                <span style="color: #10b981;">✓ Validée RH</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                {% if demande.motif %}
+                <div class="demande-motif">
+                    <i class="fas fa-comment"></i> {{ demande.motif }}
+                </div>
+                {% endif %}
+
+                {% if demande.commentaire_manager %}
+                <div style="margin-top: 10px; padding: 10px; background: #d1fae5; border-radius: 6px; font-size: 13px;">
+                    <strong style="color: #065f46;"><i class="fas fa-comment-dots"></i> Votre commentaire :</strong>
+                    <p style="color: #065f46; margin: 5px 0 0 0;">{{ demande.commentaire_manager }}</p>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state-manager">
+                <i class="fas fa-check-circle"></i>
+                <h3>Aucune demande validée</h3>
+                <p>Vos demandes validées apparaîtront ici</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- ONGLET 3 : REFUSÉES -->
+    <div class="tab-content-manager {% if onglet_actif == 'refusees' %}active{% endif %}"
+         id="tab-refusees"
+         data-tab-content="refusees">
+        {% if demandes_refusees %}
+            {% for demande in demandes_refusees %}
+            <div class="demande-card">
+                <div class="demande-header">
+                    <div class="demande-employe">
+                        <div class="avatar-small">{{ demande.employe.nom.0 }}{{ demande.employe.prenoms.0 }}</div>
+                        <div class="employe-info">
+                            <h4>{{ demande.employe.nom }} {{ demande.employe.prenoms }}</h4>
+                            <p>{{ demande.employe.affectations.first.poste.LIBELLE|default:"Employé" }}</p>
+                        </div>
+                    </div>
+                    <span class="demande-type-badge {{ demande.type_absence.CODE|lower }}">
+                        {{ demande.type_absence.LIBELLE }}
+                    </span>
+                </div>
+
+                <div class="demande-details">
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-calendar"></i> Période</span>
+                        <span class="detail-value">{{ demande.date_debut|date:"d/m/Y" }} - {{ demande.date_fin|date:"d/m/Y" }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-clock"></i> Durée</span>
+                        <span class="detail-value">{{ demande.nombre_jours|floatformat:1 }} jour(s)</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-times-circle"></i> Refusée le</span>
+                        <span class="detail-value">{{ demande.date_validation_manager|date:"d/m/Y" }}</span>
+                    </div>
+                </div>
+
+                {% if demande.motif %}
+                <div class="demande-motif">
+                    <i class="fas fa-comment"></i> <strong>Motif de l'employé :</strong> {{ demande.motif }}
+                </div>
+                {% endif %}
+
+                {% if demande.motif_refus_manager %}
+                <div style="margin-top: 10px; padding: 10px; background: #fee2e2; border-radius: 6px; border-left: 4px solid #ef4444; font-size: 13px;">
+                    <strong style="color: #991b1b;"><i class="fas fa-times-circle"></i> Motif du refus :</strong>
+                    <p style="color: #991b1b; margin: 5px 0 0 0;">{{ demande.motif_refus_manager }}</p>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state-manager">
+                <i class="fas fa-times-circle"></i>
+                <h3>Aucune demande refusée</h3>
+                <p>Vos demandes refusées apparaîtront ici</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
         </div>
 
         <div>
@@ -137,8 +386,7 @@
                     <div class="equipe-membre">
                         <div class="equipe-membre-info">
                             <div class="avatar-tiny">{{ membre.employe.nom.0 }}{{ membre.employe.prenoms.0 }}</div>
-                            <div class="equipe-membre-name">{{ membre.employe.nom }} {{ membre.employe.prenoms }}
-                            </div>
+                            <div class="equipe-membre-name">{{ membre.employe.nom }} {{ membre.employe.prenoms }}</div>
                         </div>
                         <span class="equipe-membre-status {{ membre.statut }}">
                             {% if membre.statut == 'present' %}Présent
@@ -152,7 +400,9 @@
             </div>
         </div>
     </div>
+
 </div>
+
 <!-- Modal de refus -->
 <div id="modalRefus" class="modal">
     <div class="modal-content">
@@ -172,6 +422,7 @@
         </div>
     </div>
 </div>
+<script src="{% static 'assets/js/main.js' %}"></script>
 <script>
     let demandeEnCoursRefus = null;
     let numeroDemandeEnCours = null;
@@ -276,6 +527,53 @@
         }
     }
 
+/**
+ * Changer d'onglet SANS rechargement (Solution 2)
+ */
+function changeTabManager(tabName) {
+    // Retirer 'active' de tous les éléments
+    document.querySelectorAll('.tab-button-manager').forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    document.querySelectorAll('.tab-content-manager').forEach(content => {
+        content.classList.remove('active');
+    });
+
+    // Ajouter 'active' aux éléments sélectionnés
+    const selectedButton = document.querySelector(`.tab-button-manager[data-tab="${tabName}"]`);
+    const selectedContent = document.querySelector(`.tab-content-manager[data-tab-content="${tabName}"]`);
+
+    if (selectedButton) selectedButton.classList.add('active');
+    if (selectedContent) selectedContent.classList.add('active');
+
+    // Mettre à jour l'URL (optionnel)
+    const newUrl = new URL(window.location);
+    newUrl.searchParams.set('onglet', tabName);
+    window.history.pushState({}, '', newUrl);
+}
+
+// Initialisation au chargement
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const ongletActif = urlParams.get('onglet') || 'a_valider';
+    changeTabManager(ongletActif);
+});
+
+// Gérer le bouton précédent/suivant
+window.addEventListener('popstate', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const ongletActif = urlParams.get('onglet') || 'a_valider';
+    changeTabManager(ongletActif);
+});
+
+    /**
+     * Réinitialiser les filtres
+     */
+    function reinitialiserFiltres() {
+        // Rediriger vers la page sans paramètres
+        window.location.href = window.location.pathname;
+    }
 </script>
 </body>
 </html>

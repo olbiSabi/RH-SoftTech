@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'parametre',
     'core',
     'absence',
+    #'absence.apps.AbsenceConfig',
 ]
 
 MIDDLEWARE = [
@@ -76,7 +77,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                #'absence.context_processors.notifications_absence',
+                'absence.context_processors.notifications',
             ],
         },
     },
@@ -176,7 +177,23 @@ SESSION_SAVE_EVERY_REQUEST = True  # Renouveler la session à chaque requête
 # ============================================
 # CONFIGURATION EMAIL
 # ============================================
+# Sécurité des connexions
+LOGIN_ATTEMPTS_LIMIT = 3
+ACCOUNT_LOCKOUT_DURATION = 24  # heures
 
-# Backend pour le développement
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 DEFAULT_FROM_EMAIL = 'ONIAN-EasyM <noreply@hronian.local>'
+
+# URL du site pour les emails
+SITE_URL = 'http://127.0.0.1:8000'  # Pour le développement
+# SITE_URL = 'https://votre-domaine.com'  # Pour la production
+# Configuration email (assurez-vous d'avoir ces settings)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Pour le développement
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Pour la production
+# Si vous utilisez SMTP, configurez ces paramètres :
+# EMAIL_HOST = 'votre-smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'votre-email@gmail.com'
+# EMAIL_HOST_PASSWORD = 'votre-mot-de-passe'
+# DEFAULT_FROM_EMAIL = 'ONIAN-EasyM <noreply@onian-easym.com>'

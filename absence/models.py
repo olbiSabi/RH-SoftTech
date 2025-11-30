@@ -535,6 +535,235 @@ class ZDJF(models.Model):
         return cls.objects.filter(date=date, actif=True).exists()
 
 
+
+######################
+### Notifications ZANO ###
+######################
+class ZANO(models.Model):
+    """Table des notifications"""
+
+    TYPE_NOTIFICATION_CHOICES = [
+        ('ABSENCE_NOUVELLE', 'Nouvelle demande d\'absence'),
+        ('ABSENCE_VALIDEE_MANAGER', 'Absence validée par le manager'),
+        ('ABSENCE_REJETEE_MANAGER', 'Absence rejetée par le manager'),
+        ('ABSENCE_VALIDEE_RH', 'Absence validée par les RH'),
+        ('ABSENCE_REJETEE_RH', 'Absence rejetée par les RH'),
+        ('ABSENCE_ANNULEE', 'Absence annulée'),
+    ]
+
+    destinataire = models.ForeignKey(
+        'employee.ZY00',
+        on_delete=models.CASCADE,
+        related_name='notifications',
+        verbose_name="Destinataire"
+    )
+    type_notification = models.CharField(
+        max_length=30,
+        choices=TYPE_NOTIFICATION_CHOICES,
+        verbose_name="Type de notification"
+    )
+    titre = models.CharField(
+        max_length=200,
+        verbose_name="Titre"
+    )
+    message = models.TextField(
+        verbose_name="Message"
+    )
+    lien = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name="Lien associé",
+        help_text="URL vers l'élément concerné"
+    )
+    demande_absence = models.ForeignKey(
+        ZDDA,  # ✅ Utiliser ZDDA directement (pas de guillemets car la classe est déjà définie)
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='notifications',
+        verbose_name="Demande d'absence"
+    )
+    lue = models.BooleanField(
+        default=False,
+        verbose_name="Lue"
+    )
+    date_creation = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Date de création"
+    )
+    date_lecture = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Date de lecture"
+    )
+
+    class Meta:
+        db_table = 'ZANO'
+        verbose_name = "Notification"
+        verbose_name_plural = "Notifications"
+        ordering = ['-date_creation']
+        indexes = [
+            models.Index(fields=['destinataire', 'lue']),
+            models.Index(fields=['date_creation']),
+        ]
+
+    def __str__(self):
+        return f"{self.destinataire.matricule} - {self.titre}"
+
+    def marquer_comme_lue(self):
+        """Marquer la notification comme lue"""
+        if not self.lue:
+            self.lue = True
+            self.date_lecture = timezone.now()
+            self.save()
+
+    @staticmethod
+    def creer_notification_absence(demande_absence, type_notification, destinataire):
+        """Créer une notification pour une demande d'absence"""
+        from django.urls import reverse
+
+        # Définir le titre et le message selon le type
+        messages_config = {
+            'ABSENCE_NOUVELLE': {
+                'titre': f"Nouvelle demande d'absence - {demande_absence.employe.nom} {demande_absence.employe.prenoms}",
+                'message': f"{demande_absence.employe.nom} {demande_absence.employe.prenoms} a fait une demande d'absence du {demande_absence.date_debut.strftime('%d/%m/%Y')} au {demande_absence.date_fin.strftime('%d/%m/%Y')} ({demande_absence.type_absence.LIBELLE})."
+            },
+            'ABSENCE_VALIDEE_MANAGER': {
+                'titre': "Votre demande d'absence a été validée par votre manager",
+                'message': f"Votre demande d'absence du {demande_absence.date_debut.strftime('%d/%m/%Y')} au {demande_absence.date_fin.strftime('%d/%m/%Y')} a été validée par votre manager et est en attente de validation RH."
+            },
+            'ABSENCE_REJETEE_MANAGER': {
+                'titre': "Votre demande d'absence a été rejetée",
+                'message': f"Votre demande d'absence du {demande_absence.date_debut.strftime('%d/%m/%Y')} au {demande_absence.date_fin.strftime('%d/%m/%Y')} a été rejetée par votre manager."
+            },
+            'ABSENCE_VALIDEE_RH': {
+                'titre': "Votre demande d'absence a été validée",
+                'message': f"Votre demande d'absence du {demande_absence.date_debut.strftime('%d/%m/%Y')} au {demande_absence.date_fin.strftime('%d/%m/%Y')} a été validée par les RH. Votre absence est confirmée."
+            },
+            'ABSENCE_REJETEE_RH': {
+                'titre': "Votre demande d'absence a été rejetée par les RH",
+                'message': f"Votre demande d'absence du {demande_absence.date_debut.strftime('%d/%m/%Y')} au {demande_absence.date_fin.strftime('%d/%m/%Y')} a été rejetée par les RH."
+            },
+            'ABSENCE_ANNULEE': {
+                'titre': "Une demande d'absence a été annulée",
+                'message': f"La demande d'absence du {demande_absence.date_debut.strftime('%d/%m/%Y')} au {demande_absence.date_fin.strftime('%d/%m/%Y')} a été annulée."
+            },
+        }
+
+        config = messages_config.get(type_notification, {
+            'titre': 'Notification',
+            'message': 'Vous avez une nouvelle notification.'
+        })
+
+        # 🆕 CRÉER LE LIEN SELON LE TYPE DE NOTIFICATION ET LE DESTINATAIRE
+        lien = '#'
+        try:
+            # Si c'est une nouvelle demande, vérifier si le destinataire est RH ou Manager
+            if type_notification == 'ABSENCE_NOUVELLE':
+                # Vérifier si le destinataire a le rôle DRH
+                if destinataire.has_role('DRH'):
+                    lien = reverse('absence:rh_validation')
+                else:
+                    # Sinon c'est un manager
+                    lien = reverse('absence:manager_validation')
+
+            # Si c'est une validation/rejet, rediriger vers la liste des demandes de l'employé
+            elif type_notification in ['ABSENCE_VALIDEE_MANAGER', 'ABSENCE_REJETEE_MANAGER',
+                                       'ABSENCE_VALIDEE_RH', 'ABSENCE_REJETEE_RH']:
+                lien = reverse('absence:employe_demandes')
+
+            # Si c'est une annulation
+            elif type_notification == 'ABSENCE_ANNULEE':
+                if destinataire.has_role('DRH'):
+                    lien = reverse('absence:rh_validation')
+                else:
+                    lien = reverse('absence:manager_validation')
+        except Exception as e:
+            print(f"Erreur création lien notification: {e}")
+            lien = '#'
+
+        # Créer la notification
+        notification = ZANO.objects.create(
+            destinataire=destinataire,
+            type_notification=type_notification,
+            titre=config['titre'],
+            message=config['message'],
+            lien=lien,
+            demande_absence=demande_absence
+        )
+
+        return notification
+
+    @staticmethod
+    def notifier_nouvelle_demande(demande_absence):
+        """Notifier le manager lors d'une nouvelle demande"""
+        manager = demande_absence.get_manager()
+        if manager and manager.employe:
+            ZANO.creer_notification_absence(
+                demande_absence,
+                'ABSENCE_NOUVELLE',
+                manager.employe
+            )
+
+    @staticmethod
+    def notifier_validation_manager(demande_absence):
+        """Notifier l'employé et les RH après validation manager"""
+        # Notifier l'employé
+        ZANO.creer_notification_absence(
+            demande_absence,
+            'ABSENCE_VALIDEE_MANAGER',
+            demande_absence.employe
+        )
+
+        # Notifier les utilisateurs RH
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+
+        # Trouver les utilisateurs ayant le rôle RH
+        try:
+            from employee.models import ZY00
+            employes_rh = ZY00.objects.filter(
+                user__groups__name='RH'
+            ).distinct()
+
+            for employe_rh in employes_rh:
+                ZANO.creer_notification_absence(
+                    demande_absence,
+                    'ABSENCE_NOUVELLE',
+                    employe_rh
+                )
+        except Exception as e:
+            print(f"Erreur notification RH: {e}")
+
+    @staticmethod
+    def notifier_rejet_manager(demande_absence):
+        """Notifier l'employé après rejet manager"""
+        ZANO.creer_notification_absence(
+            demande_absence,
+            'ABSENCE_REJETEE_MANAGER',
+            demande_absence.employe
+        )
+
+    @staticmethod
+    def notifier_validation_rh(demande_absence):
+        """Notifier l'employé après validation RH"""
+        ZANO.creer_notification_absence(
+            demande_absence,
+            'ABSENCE_VALIDEE_RH',
+            demande_absence.employe
+        )
+
+    @staticmethod
+    def notifier_rejet_rh(demande_absence):
+        """Notifier l'employé après rejet RH"""
+        ZANO.creer_notification_absence(
+            demande_absence,
+            'ABSENCE_REJETEE_RH',
+            demande_absence.employe
+        )
+
+
 # ==========================================
 # PÉRIODES DE FERMETURE (ZDPF)
 # ==========================================

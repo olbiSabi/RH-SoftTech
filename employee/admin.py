@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ZY00, ZYCO, ZYTE, ZYME, ZYAF, ZYAD, ZYDO, ZYFA, ZYNP, ZYPP, ZYIB
+from .models import ZY00, ZYCO, ZYTE, ZYME, ZYAF, ZYAD, ZYDO, ZYFA, ZYNP, ZYPP, ZYIB, ZYRO, ZYRE
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils import timezone
@@ -1275,6 +1275,186 @@ class ZYIBAdmin(admin.ModelAdmin):
         """Optimise les requêtes avec select_related"""
         qs = super().get_queryset(request)
         return qs.select_related('employe')
+
+
+"""
+Admin pour les rôles
+À ajouter dans employee/admin.py
+"""
+@admin.register(ZYRO)
+class ZYROAdmin(admin.ModelAdmin):
+    """Admin pour les rôles"""
+
+    list_display = [
+        'CODE',
+        'LIBELLE',
+        'actif_badge',
+        'nb_attributions',
+        'permissions_display',
+        'created_at'
+    ]
+    list_filter = ['actif', 'created_at']
+    search_fields = ['CODE', 'LIBELLE', 'DESCRIPTION']
+    readonly_fields = ['created_at', 'updated_at']
+
+    fieldsets = (
+        ('Informations principales', {
+            'fields': ('CODE', 'LIBELLE', 'DESCRIPTION', 'actif')
+        }),
+        ('Permissions', {
+            'fields': ('PERMISSIONS',),
+            'description': 'Format JSON: {"can_validate_rh": true, "can_validate_manager": true}'
+        }),
+        ('Audit', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def actif_badge(self, obj):
+        if obj.actif:
+            return format_html(
+                '<span style="color: #10b981; font-weight: bold;">✓ Actif</span>'
+            )
+        return format_html(
+            '<span style="color: #ef4444; font-weight: bold;">✗ Inactif</span>'
+        )
+
+    actif_badge.short_description = 'Statut'
+
+    def nb_attributions(self, obj):
+        count = obj.attributions.filter(actif=True, date_fin__isnull=True).count()
+        return format_html(
+            '<span style="background: #dbeafe; padding: 4px 8px; border-radius: 4px;">{}</span>',
+            count
+        )
+
+    nb_attributions.short_description = 'Employés'
+
+    def permissions_display(self, obj):
+        if not obj.PERMISSIONS:
+            return '-'
+
+        perms = []
+        for key, value in obj.PERMISSIONS.items():
+            if value:
+                perms.append(f'✓ {key}')
+
+        if perms:
+            return format_html('<br>'.join(perms))
+        return '-'
+
+    permissions_display.short_description = 'Permissions'
+
+
+@admin.register(ZYRE)
+class ZYREAdmin(admin.ModelAdmin):
+    """Admin pour les attributions de rôles"""
+
+    list_display = [
+        'employe_display',
+        'role_display',
+        'date_debut',
+        'date_fin',
+        'actif_badge',
+        'created_by_display'
+    ]
+    list_filter = [
+        'actif',
+        'role',
+        'date_debut',
+        'created_at'
+    ]
+    search_fields = [
+        'employe__nom',
+        'employe__prenoms',
+        'employe__matricule',
+        'role__CODE',
+        'role__LIBELLE'
+    ]
+    readonly_fields = ['created_at', 'updated_at']
+    autocomplete_fields = ['employe', 'created_by']
+    date_hierarchy = 'date_debut'
+
+    fieldsets = (
+        ('Attribution', {
+            'fields': ('employe', 'role')
+        }),
+        ('Période', {
+            'fields': ('date_debut', 'date_fin', 'actif')
+        }),
+        ('Informations complémentaires', {
+            'fields': ('commentaire', 'created_by')
+        }),
+        ('Audit', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def employe_display(self, obj):
+        return format_html(
+            '<a href="/admin/employee/zy00/{}/change/" target="_blank">{} {}</a>',
+            obj.employe.pk,
+            obj.employe.nom,
+            obj.employe.prenoms
+        )
+
+    employe_display.short_description = 'Employé'
+    employe_display.admin_order_field = 'employe__nom'
+
+    def role_display(self, obj):
+        color = '#10b981' if obj.role.actif else '#6b7280'
+        return format_html(
+            '<span style="color: {}; font-weight: bold;">{} - {}</span>',
+            color,
+            obj.role.CODE,
+            obj.role.LIBELLE
+        )
+
+    role_display.short_description = 'Rôle'
+    role_display.admin_order_field = 'role__CODE'
+
+    def actif_badge(self, obj):
+        if obj.actif and not obj.date_fin:
+            return format_html(
+                '<span style="background: #d1fae5; color: #065f46; padding: 4px 8px; '
+                'border-radius: 4px; font-weight: bold;">✓ Actif</span>'
+            )
+        elif obj.date_fin:
+            return format_html(
+                '<span style="background: #fee2e2; color: #991b1b; padding: 4px 8px; '
+                'border-radius: 4px;">Terminé le {}</span>',
+                obj.date_fin.strftime('%d/%m/%Y')
+            )
+        return format_html(
+            '<span style="background: #e5e7eb; color: #374151; padding: 4px 8px; '
+            'border-radius: 4px;">Inactif</span>'
+        )
+
+    actif_badge.short_description = 'Statut'
+
+    def created_by_display(self, obj):
+        if obj.created_by:
+            return f"{obj.created_by.nom} {obj.created_by.prenoms}"
+        return '-'
+
+    created_by_display.short_description = 'Créé par'
+
+    actions = ['activer_attributions', 'desactiver_attributions']
+
+    def activer_attributions(self, request, queryset):
+        count = queryset.update(actif=True)
+        self.message_user(request, f'{count} attribution(s) activée(s).')
+
+    activer_attributions.short_description = "Activer les attributions sélectionnées"
+
+    def desactiver_attributions(self, request, queryset):
+        from datetime import date
+        count = queryset.update(actif=False, date_fin=date.today())
+        self.message_user(request, f'{count} attribution(s) désactivée(s).')
+
+    desactiver_attributions.short_description = "Désactiver les attributions sélectionnées"
 
 # ===============================
 # CUSTOMIZATION DE L'ADMIN

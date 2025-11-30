@@ -1,0 +1,111 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/logo/Onian-EasyM.png' %}">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+            border: 2px solid #dc3545;
+        }
+        .alert-icon {
+            font-size: 48px;
+            color: #dc3545;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #1c5d5f 0%, #456162 100%);
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .warning-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 12px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔒 ONIAN-EasyM</h1>
+        <p>Alerte de sécurité - Compte bloqué</p>
+    </div>
+
+    <div class="content">
+        <div class="alert-icon">⚠️</div>
+
+        <h2>Votre compte a été temporairement bloqué</h2>
+
+        <p>Bonjour {% if employe %}{{ employe.prenoms }} {{ employe.nom }}{% else %}{{ user.username }}{% endif %},</p>
+
+        <div class="warning-box">
+            <strong>🚨 Alerte de sécurité :</strong><br>
+            Votre compte ONIAN-EasyM a été temporairement bloqué suite à 3 tentatives de connexion infructueuses.
+        </div>
+
+        <p><strong>Pour débloquer votre compte :</strong></p>
+        <ol>
+            <li>Cliquez sur le bouton ci-dessous pour réinitialiser votre mot de passe</li>
+            <li>Créez un nouveau mot de passe sécurisé</li>
+            <li>Votre compte sera automatiquement débloqué après la réinitialisation</li>
+        </ol>
+
+        <div style="text-align: center;">
+            <a href="{{ reset_url }}" class="button">🔓 Débloquer mon compte</a>
+        </div>
+
+        <p>Si le bouton ne fonctionne pas, copiez-collez ce lien dans votre navigateur :</p>
+        <p style="word-break: break-all; background: white; padding: 10px; border-radius: 5px; font-size: 12px;">
+            {{ reset_url }}
+        </p>
+
+        <div class="warning-box">
+            <strong>⚠️ Important :</strong>
+            <ul>
+                <li>Ce lien expirera dans 24 heures</li>
+                <li>Si vous n'êtes pas à l'origine des tentatives de connexion, contactez immédiatement votre administrateur</li>
+                <li>Vérifiez que votre mot de passe n'a pas été compromis</li>
+            </ul>
+        </div>
+
+        <p>Cordialement,<br>L'équipe de sécurité ONIAN-EasyM</p>
+    </div>
+
+    <div class="footer">
+        <p>© 2024 ONIAN-EasyM - Tous droits réservés</p>
+        <p>Cet email a été envoyé automatiquement pour des raisons de sécurité.</p>
+    </div>
+</body>
+</html>

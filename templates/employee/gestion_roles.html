@@ -1,0 +1,520 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EasyM - Mes Demandes de Congés{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/logo/Onian-EasyM.png' %}">
+    <!-- Chargez les CSS un par un pour debug -->
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/dossier_individuel_base.css' %}">
+</head>
+<body data-employe-uuid="{% if employe %}{{ employe.uuid }}{% endif %}">
+<!-- Header -->
+{% include 'base/header.html' %}
+<!-- Content principal -->
+<div class="container-roles">
+    <div class="header-roles">
+        <h1><i class="fas fa-user-shield"></i> Gestion des Rôles Employés</h1>
+        <p style="margin: 0; opacity: 0.9;">Attribuer et gérer les rôles des employés</p>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="stats-cards">
+        <div class="stat-card total">
+            <i class="fas fa-list"></i>
+            <div class="content">
+                <h3>Total Attributions</h3>
+                <div class="number">{{ stats.total }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card actifs">
+            <i class="fas fa-check-circle"></i>
+            <div class="content">
+                <h3>Actifs</h3>
+                <div class="number">{{ stats.actifs }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card inactifs">
+            <i class="fas fa-times-circle"></i>
+            <div class="content">
+                <h3>Inactifs</h3>
+                <div class="number">{{ stats.inactifs }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card roles">
+            <i class="fas fa-shield-alt"></i>
+            <div class="content">
+                <h3>Rôles Distincts</h3>
+                <div class="number">{{ stats.roles_distincts }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="filtres-section">
+        <form method="GET">
+            <div class="filtres-grid">
+                <div class="filtre-group">
+                    <label><i class="fas fa-user"></i> Employé</label>
+                    <input type="text"
+                           name="employe"
+                           value="{{ filtre_employe }}"
+                           placeholder="Matricule, nom ou prénom...">
+                </div>
+
+                <div class="filtre-group">
+                    <label><i class="fas fa-shield-alt"></i> Rôle</label>
+                    <select name="role">
+                        <option value="">Tous les rôles</option>
+                        {% for role in roles %}
+                            <option value="{{ role.pk }}" {% if filtre_role == role.pk|stringformat:"s" %}selected{% endif %}>
+                                {{ role.LIBELLE }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filtre-group">
+                    <label><i class="fas fa-filter"></i> Statut</label>
+                    <select name="statut">
+                        <option value="actif" {% if filtre_statut == 'actif' %}selected{% endif %}>Actifs</option>
+                        <option value="inactif" {% if filtre_statut == 'inactif' %}selected{% endif %}>Inactifs</option>
+                        <option value="tous" {% if filtre_statut == 'tous' %}selected{% endif %}>Tous</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="actions-buttons">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Filtrer
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='?'">
+                    <i class="fas fa-redo"></i> Réinitialiser
+                </button>
+                <button type="button" class="btn btn-primary" onclick="ouvrirModalAttribution()">
+                    <i class="fas fa-plus"></i> Attribuer un Rôle
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Table des attributions -->
+    <div class="table-roles">
+        {% if attributions %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Employé</th>
+                    <th>Rôle</th>
+                    <th>Date Début</th>
+                    <th>Date Fin</th>
+                    <th>Statut</th>
+                    <th>Commentaire</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for attribution in attributions %}
+                <tr>
+                    <td>
+                        <strong>{{ attribution.employe.nom }} {{ attribution.employe.prenoms }}</strong><br>
+                        <small style="color: #6b7280;">{{ attribution.employe.matricule }}</small>
+                    </td>
+                    <td>
+                        <span style="font-weight: 500;">{{ attribution.role.LIBELLE }}</span><br>
+                        <small style="color: #6b7280;">{{ attribution.role.CODE }}</small>
+                    </td>
+                    <td>{{ attribution.date_debut|date:"d/m/Y" }}</td>
+                    <td>
+                        {% if attribution.date_fin %}
+                            {{ attribution.date_fin|date:"d/m/Y" }}
+                        {% else %}
+                            <span style="color: #9ca3af;">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if attribution.actif and not attribution.date_fin %}
+                            <span class="badge badge-actif">
+                                <i class="fas fa-check-circle"></i> Actif
+                            </span>
+                        {% else %}
+                            <span class="badge badge-inactif">
+                                <i class="fas fa-times-circle"></i> Inactif
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if attribution.commentaire %}
+                            {{ attribution.commentaire|truncatewords:10 }}
+                        {% else %}
+                            <span style="color: #9ca3af;">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 5px;">
+                            {% if attribution.actif and not attribution.date_fin %}
+                                <button class="btn-action btn-retirer"
+                                        onclick="retirerRole('{{ attribution.pk }}', '{{ attribution.employe.nom }}', '{{ attribution.role.LIBELLE }}')"
+                                        title="Retirer le rôle">
+                                    <i class="fas fa-user-minus"></i>
+                                </button>
+                            {% else %}
+                                <button class="btn-action btn-reactiver"
+                                        onclick="reactiverRole('{{ attribution.pk }}', '{{ attribution.employe.nom }}', '{{ attribution.role.LIBELLE }}')"
+                                        title="Réactiver le rôle">
+                                    <i class="fas fa-user-check"></i>
+                                </button>
+                            {% endif %}
+
+                            <button class="btn-action btn-modifier"
+                                    onclick="ouvrirModalModification('{{ attribution.pk }}')"
+                                    title="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-user-shield"></i>
+            <h3>Aucune attribution trouvée</h3>
+            <p>Modifiez vos filtres ou attribuez un nouveau rôle</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal Attribution -->
+<div id="modalAttribution" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><i class="fas fa-plus-circle"></i> Attribuer un Rôle</h2>
+            <span class="close" onclick="fermerModalAttribution()">&times;</span>
+        </div>
+
+        <form id="formAttribution" onsubmit="return soumettreAttribution(event)">
+            <div class="form-group">
+                <label>Employé *</label>
+                <select id="employe_id" required>
+                    <option value="">Sélectionner un employé</option>
+                    {% for emp in employes %}
+                        <option value="{{ emp.uuid }}">
+                            {{ emp.nom }} {{ emp.prenoms }} ({{ emp.matricule }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Rôle *</label>
+                <select id="role_id" required>
+                    <option value="">Sélectionner un rôle</option>
+                    {% for role in roles %}
+                        <option value="{{ role.pk }}">{{ role.LIBELLE }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Date de début *</label>
+                <input type="date" id="date_debut" required>
+            </div>
+
+            <div class="form-group">
+                <label>Commentaire (optionnel)</label>
+                <textarea id="commentaire" placeholder="Raison de l'attribution..."></textarea>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="fermerModalAttribution()">
+                    Annuler
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-check"></i> Attribuer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Modification -->
+<div id="modalModification" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><i class="fas fa-edit"></i> Modifier l'Attribution</h2>
+            <span class="close" onclick="fermerModalModification()">&times;</span>
+        </div>
+
+        <form id="formModification" onsubmit="return soumettreModification(event)">
+            <input type="hidden" id="modification_attribution_id">
+
+            <div class="form-group">
+                <label>Employé</label>
+                <input type="text" id="modification_employe" disabled style="background: #f3f4f6;">
+            </div>
+
+            <div class="form-group">
+                <label>Rôle</label>
+                <input type="text" id="modification_role" disabled style="background: #f3f4f6;">
+            </div>
+
+            <div class="form-group">
+                <label>Date de début *</label>
+                <input type="date" id="modification_date_debut" required>
+            </div>
+
+            <div class="form-group">
+                <label>Date de fin (optionnel)</label>
+                <input type="date" id="modification_date_fin">
+                <small style="color: #6b7280; font-size: 12px;">
+                    Si une date de fin est saisie, le rôle sera désactivé
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label>Commentaire</label>
+                <textarea id="modification_commentaire" placeholder="Commentaire..."></textarea>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="fermerModalModification()">
+                    Annuler
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function ouvrirModalAttribution() {
+    document.getElementById('modalAttribution').classList.add('show');
+    // Définir la date d'aujourd'hui par défaut
+    document.getElementById('date_debut').valueAsDate = new Date();
+}
+
+function fermerModalAttribution() {
+    document.getElementById('modalAttribution').classList.remove('show');
+    document.getElementById('formAttribution').reset();
+}
+
+function soumettreAttribution(event) {
+    event.preventDefault();
+
+    const formData = new FormData();
+    formData.append('employe_id', document.getElementById('employe_id').value);
+    formData.append('role_id', document.getElementById('role_id').value);
+    formData.append('date_debut', document.getElementById('date_debut').value);
+    formData.append('commentaire', document.getElementById('commentaire').value);
+
+    fetch('/employee/roles/attribuer/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Erreur: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Une erreur est survenue');
+    });
+
+    return false;
+}
+
+function retirerRole(attributionId, employeNom, roleLibelle) {
+    if (!confirm(`Voulez-vous vraiment retirer le rôle "${roleLibelle}" de ${employeNom} ?`)) {
+        return;
+    }
+
+    fetch(`/employee/roles/retirer/${attributionId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Erreur: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Une erreur est survenue');
+    });
+}
+
+function reactiverRole(attributionId, employeNom, roleLibelle) {
+    if (!confirm(`Voulez-vous vraiment réactiver le rôle "${roleLibelle}" pour ${employeNom} ?`)) {
+        return;
+    }
+
+    fetch(`/employee/roles/reactiver/${attributionId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Erreur: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Une erreur est survenue');
+    });
+}
+
+// Fermer modal en cliquant en dehors
+window.onclick = function(event) {
+    const modal = document.getElementById('modalAttribution');
+    if (event.target === modal) {
+        fermerModalAttribution();
+    }
+}
+
+// Variable globale pour stocker les données de l'attribution en cours de modification
+let attributionEnModification = null;
+
+/**
+ * Ouvrir le modal de modification
+ */
+function ouvrirModalModification(attributionId) {
+    // Récupérer les données de l'attribution depuis la ligne du tableau
+    const row = event.target.closest('tr');
+
+    // Extraire les informations de la ligne
+    const employeCell = row.cells[0].querySelector('strong').textContent;
+    const roleCell = row.cells[1].querySelector('span').textContent;
+    const dateDebut = row.cells[2].textContent.trim();
+    const dateFin = row.cells[3].textContent.trim();
+    const commentaireCell = row.cells[5].textContent.trim();
+
+    // Convertir la date FR vers format ISO (YYYY-MM-DD)
+    function convertirDateFRversISO(dateFR) {
+        if (!dateFR || dateFR === '-') return '';
+        const parts = dateFR.split('/');
+        if (parts.length === 3) {
+            return `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+        return '';
+    }
+
+    // Remplir le formulaire
+    document.getElementById('modification_attribution_id').value = attributionId;
+    document.getElementById('modification_employe').value = employeCell;
+    document.getElementById('modification_role').value = roleCell;
+    document.getElementById('modification_date_debut').value = convertirDateFRversISO(dateDebut);
+    document.getElementById('modification_date_fin').value = convertirDateFRversISO(dateFin);
+    document.getElementById('modification_commentaire').value = commentaireCell !== '-' ? commentaireCell : '';
+
+    // Afficher le modal
+    document.getElementById('modalModification').classList.add('show');
+}
+
+/**
+ * Fermer le modal de modification
+ */
+function fermerModalModification() {
+    document.getElementById('modalModification').classList.remove('show');
+    document.getElementById('formModification').reset();
+    attributionEnModification = null;
+}
+
+/**
+ * Soumettre le formulaire de modification
+ */
+function soumettreModification(event) {
+    event.preventDefault();
+
+    const attributionId = document.getElementById('modification_attribution_id').value;
+    const formData = new FormData();
+    formData.append('date_debut', document.getElementById('modification_date_debut').value);
+    formData.append('date_fin', document.getElementById('modification_date_fin').value);
+    formData.append('commentaire', document.getElementById('modification_commentaire').value);
+
+    fetch(`/employee/roles/modifier/${attributionId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            fermerModalModification();
+            location.reload();
+        } else {
+            alert('Erreur: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Une erreur est survenue lors de la modification');
+    });
+
+    return false;
+}
+
+// Mettre à jour la fonction window.onclick pour gérer les 2 modals
+window.onclick = function(event) {
+    const modalAttribution = document.getElementById('modalAttribution');
+    const modalModification = document.getElementById('modalModification');
+
+    if (event.target === modalAttribution) {
+        fermerModalAttribution();
+    }
+
+    if (event.target === modalModification) {
+        fermerModalModification();
+    }
+}
+</script>
+</body>
+</html>

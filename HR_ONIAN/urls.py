@@ -26,7 +26,7 @@ from employee.auth_views import (
     CustomPasswordResetConfirmView,
     change_password_view
 )
-
+app_name = 'employee'
 
 urlpatterns = [
     path('hronian/', admin.site.urls),

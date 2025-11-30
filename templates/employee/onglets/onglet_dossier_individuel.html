@@ -9,8 +9,7 @@
                 <label>Nom</label>
                 {% if historique_actif %}
                 <input type="text" value="{{ historique_actif.nom }}" readonly>
-                <small class="text-muted">(Historique actif depuis {{ historique_actif.date_debut_validite|date:'d/m/Y'
-                    }})</small>
+                <small class="text-muted">(Historique actif depuis {{ historique_actif.date_debut_validite|date:'d/m/Y' }})</small>
                 {% else %}
                 <input type="text" value="{{ employe.nom }}" readonly>
                 {% endif %}
@@ -19,8 +18,7 @@
                 <label>Prénom(s)</label>
                 {% if historique_actif %}
                 <input type="text" value="{{ historique_actif.prenoms }}" readonly>
-                <small class="text-muted">(Historique actif depuis {{ historique_actif.date_debut_validite|date:'d/m/Y'
-                    }})</small>
+                <small class="text-muted">(Historique actif depuis {{ historique_actif.date_debut_validite|date:'d/m/Y' }})</small>
                 {% else %}
                 <input type="text" value="{{ employe.prenoms }}" readonly>
                 {% endif %}

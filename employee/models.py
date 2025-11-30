@@ -251,6 +251,210 @@ class ZY00(models.Model):
             date_fin__isnull=True
         ).exists()
 
+    """
+    Méthodes à ajouter au modèle ZY00 dans employee/models.py
+    """
+
+    def has_role(self, role_code):
+        """
+        Vérifie si l'employé a un rôle spécifique actif
+
+        Args:
+            role_code (str): Code du rôle (ex: 'DRH', 'MANAGER', 'COMPTABLE')
+
+        Returns:
+            bool: True si l'employé a ce rôle actif
+
+        Exemple:
+            if employe.has_role('DRH'):
+                # L'employé a le rôle DRH
+        """
+        from employee.models import ZYRE
+
+        return ZYRE.objects.filter(
+            employe=self,
+            role__CODE=role_code,
+            actif=True,
+            date_fin__isnull=True
+        ).exists()
+
+    def get_roles(self):
+        """
+        Récupère tous les rôles actifs de l'employé
+
+        Returns:
+            QuerySet: Liste des rôles actifs
+
+        Exemple:
+            roles = employe.get_roles()
+            for role in roles:
+                print(role.CODE, role.LIBELLE)
+        """
+        from employee.models import ZYRE
+
+        return ZYRE.objects.filter(
+            employe=self,
+            actif=True,
+            date_fin__isnull=True
+        ).select_related('role')
+
+    def has_permission(self, permission_name):
+        """
+        Vérifie si l'employé a une permission spécifique via ses rôles
+
+        Args:
+            permission_name (str): Nom de la permission (ex: 'can_validate_rh')
+
+        Returns:
+            bool: True si au moins un des rôles actifs a cette permission
+
+        Exemple:
+            if employe.has_permission('can_validate_rh'):
+                # Peut valider en tant que RH
+        """
+        from employee.models import ZYRE
+
+        roles_actifs = ZYRE.objects.filter(
+            employe=self,
+            actif=True,
+            date_fin__isnull=True
+        ).select_related('role')
+
+        for attribution in roles_actifs:
+            if attribution.role.has_permission(permission_name):
+                return True
+
+        return False
+
+    def add_role(self, role_code, date_debut=None, created_by=None):
+        """
+        Ajoute un rôle à l'employé
+
+        Args:
+            role_code (str): Code du rôle à ajouter
+            date_debut (date): Date de début (défaut: aujourd'hui)
+            created_by (ZY00): Employé qui crée l'attribution
+
+        Returns:
+            ZYRE: L'attribution créée
+
+        Exemple:
+            employe.add_role('DRH', created_by=admin_employe)
+        """
+        from employee.models import ZYRO, ZYRE
+        from datetime import date
+
+        role = ZYRO.objects.get(CODE=role_code, actif=True)
+
+        if not date_debut:
+            date_debut = date.today()
+
+        attribution = ZYRE.objects.create(
+            employe=self,
+            role=role,
+            date_debut=date_debut,
+            actif=True,
+            created_by=created_by
+        )
+
+        return attribution
+
+    def remove_role(self, role_code):
+        """
+        Retire un rôle à l'employé (désactive l'attribution)
+
+        Args:
+            role_code (str): Code du rôle à retirer
+
+        Exemple:
+            employe.remove_role('DRH')
+        """
+        from employee.models import ZYRE
+        from datetime import date
+
+        ZYRE.objects.filter(
+            employe=self,
+            role__CODE=role_code,
+            actif=True,
+            date_fin__isnull=True
+        ).update(
+            actif=False,
+            date_fin=date.today()
+        )
+
+    # Ajouter ces méthodes à la classe ZY00 dans employee/models.py
+
+######################
+###  Security  ###
+######################
+class UserSecurity(models.Model):
+    """Modèle pour gérer la sécurité des utilisateurs"""
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='security'
+    )
+    login_attempts = models.IntegerField(default=0)
+    last_login_attempt = models.DateTimeField(null=True, blank=True)
+    is_locked = models.BooleanField(default=False)
+    locked_until = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'user_security'
+        verbose_name = "Sécurité utilisateur"
+        verbose_name_plural = "Sécurités utilisateurs"
+
+    def __str__(self):
+        return f"Sécurité de {self.user.username}"
+
+    def increment_attempts(self):
+        """Incrémenter les tentatives et vérifier le blocage"""
+        self.login_attempts += 1
+        self.last_login_attempt = timezone.now()
+
+        if self.login_attempts >= 3:
+            self.is_locked = True
+            self.locked_until = timezone.now() + timezone.timedelta(hours=24)
+            print(f"🔒 COMPTE BLOQUÉ: {self.user.username}")
+
+        self.save()
+        return self.is_locked
+
+    def is_account_locked(self):
+        """Vérifier si le compte est actuellement bloqué"""
+        # Si pas bloqué, retourner False
+        if not self.is_locked:
+            return False
+
+        # Si bloqué sans date de fin, retourner True
+        if self.is_locked and not self.locked_until:
+            return True
+
+        # Si bloqué avec date de fin expirée, débloquer
+        if self.is_locked and self.locked_until and timezone.now() > self.locked_until:
+            print(f"🔓 DÉBLOCAGE AUTOMATIQUE: période expirée pour {self.user.username}")
+            self.reset_attempts()
+            return False
+
+        # Si bloqué avec date de fin valide, retourner True
+        return True
+
+    def reset_attempts(self):
+        """Réinitialiser complètement les tentatives - VERSION CORRIGÉE"""
+        print(f"🔄 RÉINITIALISATION pour {self.user.username}")
+        print(f"AVANT: attempts={self.login_attempts}, locked={self.is_locked}")
+
+        self.login_attempts = 0
+        self.last_login_attempt = None
+        self.is_locked = False  # ← CE CHAMP DOIT DEVENIR FALSE
+        self.locked_until = None
+
+        self.save()
+
+        print(f"APRÈS: attempts={self.login_attempts}, locked={self.is_locked}")
+        print(f"✅ COMPTE {self.user.username} DÉBLOQUÉ")
+
+
 ######################
 ### Historique Nom Prénom ZYNP ###
 ######################
@@ -1203,4 +1407,131 @@ class ZYIB(models.Model):
             return (valeur % 97) == 0
         except ValueError:
             return False
+
+
+"""
+Modèle de rôles pour les employés
+À ajouter dans employee/models.py
+"""
+######################
+### Role ###
+######################
+class ZYRO(models.Model):
+    """
+    Table des rôles des employés
+    Permet de définir des rôles spécifiques (DRH, Manager, etc.)
+    """
+    CODE = models.CharField(
+        max_length=20,
+        unique=True,
+        verbose_name="Code du rôle"
+    )
+    LIBELLE = models.CharField(
+        max_length=100,
+        verbose_name="Libellé du rôle"
+    )
+    DESCRIPTION = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Description du rôle"
+    )
+    PERMISSIONS = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name="Permissions associées",
+        help_text="Ex: {'can_validate_rh': True, 'can_validate_manager': True}"
+    )
+    actif = models.BooleanField(
+        default=True,
+        verbose_name="Rôle actif"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'ZYRO'
+        verbose_name = "Rôle"
+        verbose_name_plural = "Rôles"
+        ordering = ['CODE']
+
+    def __str__(self):
+        return f"{self.CODE} - {self.LIBELLE}"
+
+    def has_permission(self, permission_name):
+        """Vérifie si le rôle a une permission spécifique"""
+        return self.PERMISSIONS.get(permission_name, False)
+
+
+class ZYRE(models.Model):
+    """
+    Table d'attribution des rôles aux employés
+    Un employé peut avoir plusieurs rôles
+    """
+    employe = models.ForeignKey(
+        'ZY00',
+        on_delete=models.CASCADE,
+        related_name='roles_attribues',
+        verbose_name="Employé"
+    )
+    role = models.ForeignKey(
+        ZYRO,
+        on_delete=models.CASCADE,
+        related_name='attributions',
+        verbose_name="Rôle"
+    )
+    date_debut = models.DateField(
+        verbose_name="Date de début"
+    )
+    date_fin = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name="Date de fin"
+    )
+    actif = models.BooleanField(
+        default=True,
+        verbose_name="Attribution active"
+    )
+    commentaire = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Commentaire"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        'ZY00',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='roles_crees',
+        verbose_name="Créé par"
+    )
+
+    class Meta:
+        db_table = 'ZYRE'
+        verbose_name = "Attribution de rôle"
+        verbose_name_plural = "Attributions de rôles"
+        ordering = ['-date_debut']
+        unique_together = [['employe', 'role', 'actif']]
+
+    def __str__(self):
+        return f"{self.employe.nom} - {self.role.CODE}"
+
+    def clean(self):
+        """Validation: une seule attribution active par rôle et employé"""
+        from django.core.exceptions import ValidationError
+
+        if self.actif and not self.date_fin:
+            # Vérifier qu'il n'y a pas déjà une attribution active
+            existing = ZYRE.objects.filter(
+                employe=self.employe,
+                role=self.role,
+                actif=True,
+                date_fin__isnull=True
+            ).exclude(pk=self.pk)
+
+            if existing.exists():
+                raise ValidationError(
+                    f"L'employé a déjà le rôle {self.role.CODE} actif."
+                )
 

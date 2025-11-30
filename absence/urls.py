@@ -52,6 +52,9 @@ urlpatterns = [
     # Recherche d'employé
     path('rh/recherche-employe/', views.rh_recherche_employe, name='rh_recherche_employe'),
 
+    # API pour l'autocomplete de recherche employé
+    path('api/recherche-employe/', views.rh_recherche_employe_ajax, name='rh_recherche_employe_ajax'),
+
 
     # ==========================================
     # API ENDPOINTS (AJAX)
@@ -65,4 +68,12 @@ urlpatterns = [
 
     # Solde d'un employé
     path('api/solde-employe/', views.api_solde_employe, name='api_solde_employe'),
+
+
+    # 🆕 URLs NOTIFICATIONS
+    path('notifications/', views.liste_notifications, name='liste_notifications'),
+    path('notifications/json/', views.get_notifications_json, name='notifications_json'),
+    path('notifications/<int:notification_id>/marquer-lue/', views.marquer_notification_lue,
+         name='marquer_notification_lue'),  # ✅ <int:notification_id>
+    path('notifications/marquer-toutes-lues/', views.marquer_toutes_lues, name='marquer_toutes_lues'),
 ]

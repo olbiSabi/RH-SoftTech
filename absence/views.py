@@ -3,25 +3,29 @@ Vues Django pour la gestion des congés et absences
 Application: absence
 Système HR_ONIAN
 """
-
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.http import JsonResponse
-from django.views.decorators.http import require_http_methods
 from django.db import transaction
-from django.utils import timezone
-from django.db.models import Q, Sum, Count
-from datetime import datetime, timedelta
+from datetime import datetime
 import json
-
-from .models import ZDDA, ZDSO, ZDHA, ZDJF, ZDPF, ZDAB, calculer_jours_ouvres, mettre_a_jour_solde_conges
+from django.shortcuts import  redirect
+from django.contrib import messages
+from django.utils import timezone
+from django.db.models import Q, Count
+from .decorators import drh_required
+from .models import ZDDA, ZDSO, ZDHA, calculer_jours_ouvres, mettre_a_jour_solde_conges
 from .forms import (
-    DemandeAbsenceForm, ValidationManagerForm, ValidationRHForm,
-    AnnulationDemandeForm, RechercheDemandeForm
+    DemandeAbsenceForm, ValidationRHForm,
 )
-from employee.models import ZY00, ZYAF
-from departement.models import ZYMA, ZDDE, ZDPO
+from employee.models import ZY00, ZYAF, ZYRE
+from departement.models import ZYMA
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST, require_http_methods
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404
+from django.core.paginator import Paginator
+from .models import ZANO
+
+
+
 
 
 # ==========================================
@@ -87,12 +91,11 @@ def est_rh(employe):
 # ==========================================
 # VUES EMPLOYÉ
 # ==========================================
-
 @login_required
 def employe_demandes(request):
     """
-    Page principale de l'employé pour gérer ses demandes
-    Template: employe_demandes.html
+    Page principale de l'employé pour gérer ses demandes avec système d'onglets
+    3 onglets : En cours, Validées, Refusées
     """
     employe = get_employe_from_user(request.user)
 
@@ -100,12 +103,36 @@ def employe_demandes(request):
         messages.error(request, "Vous n'êtes pas associé à un employé.")
         return redirect('dashboard')
 
+    # Récupérer le paramètre d'onglet actif
+    onglet_actif = request.GET.get('onglet', 'en_cours')
+
     # Récupérer le solde de l'année en cours
     annee_courante = timezone.now().year
     solde = ZDSO.get_or_create_solde(employe, annee_courante)
 
     # Récupérer toutes les demandes de l'employé
-    demandes = ZDDA.objects.filter(employe=employe).order_by('-created_at')
+    toutes_demandes = ZDDA.objects.filter(employe=employe)
+
+    # Séparer les demandes par onglet
+    # Onglet 1 : En cours (EN_ATTENTE + VALIDEE_MANAGER)
+    demandes_en_cours = toutes_demandes.filter(
+        statut__in=['EN_ATTENTE', 'VALIDEE_MANAGER']
+    ).order_by('-created_at')
+
+    # Onglet 2 : Validées définitivement (VALIDEE_RH)
+    demandes_validees = toutes_demandes.filter(
+        statut='VALIDEE_RH'
+    ).order_by('-date_validation_rh')
+
+    # Onglet 3 : Refusées (REFUSEE_MANAGER + REFUSEE_RH + ANNULEE)
+    demandes_refusees = toutes_demandes.filter(
+        statut__in=['REFUSEE_MANAGER', 'REFUSEE_RH', 'ANNULEE']
+    ).order_by('-created_at')
+
+    # Compteurs pour les badges
+    count_en_cours = demandes_en_cours.count()
+    count_validees = demandes_validees.count()
+    count_refusees = demandes_refusees.count()
 
     # Traitement du formulaire de création
     if request.method == 'POST':
@@ -131,17 +158,16 @@ def employe_demandes(request):
             messages.success(request, f'✅ Votre demande a été soumise avec succès!')
             return redirect('absence:employe_demandes')
         else:
-            #messages.error(request, '❌ Erreur lors de la soumission. Veuillez corriger les erreurs.')
             print("Erreur lors de la soumission. Veuillez corriger les erreurs.")
     else:
         form = DemandeAbsenceForm(employe=employe)
 
     # Préparer les données pour le calendrier (JSON sérialisable)
     demandes_pour_calendrier = []
-    for demande in demandes.filter(statut__in=['VALIDEE_MANAGER', 'VALIDEE_RH', 'EN_ATTENTE']):
+    for demande in toutes_demandes.filter(statut__in=['VALIDEE_MANAGER', 'VALIDEE_RH', 'EN_ATTENTE']):
         demandes_pour_calendrier.append({
-            'id': str(demande.id),  # Convertir UUID en string
-            'date_debut': demande.date_debut.isoformat(),  # Convertir date en ISO format
+            'id': str(demande.id),
+            'date_debut': demande.date_debut.isoformat(),
             'date_fin': demande.date_fin.isoformat(),
             'statut': demande.statut,
             'duree': demande.duree,
@@ -151,10 +177,22 @@ def employe_demandes(request):
     context = {
         'employe': employe,
         'form': form,
-        'demandes': demandes,
+
+        # Demandes par onglet
+        'demandes_en_cours': demandes_en_cours,
+        'demandes_validees': demandes_validees,
+        'demandes_refusees': demandes_refusees,
+
+        # Compteurs
+        'count_en_cours': count_en_cours,
+        'count_validees': count_validees,
+        'count_refusees': count_refusees,
+
+        # Solde et autres
         'solde': solde,
-        'demandes_calendrier': json.dumps(demandes_pour_calendrier),  # Convertir en JSON
+        'demandes_calendrier': json.dumps(demandes_pour_calendrier),
         'annee_courante': annee_courante,
+        'onglet_actif': onglet_actif,
     }
 
     return render(request, 'absence/employe_demandes.html', context)
@@ -222,12 +260,11 @@ def employe_annuler_demande(request, demande_id):
 # ==========================================
 # VUES MANAGER
 # ==========================================
-
 @login_required
 def manager_validation(request):
     """
-    Page de validation pour les managers
-    Template: manager_validation.html
+    Page de validation pour les managers avec système d'onglets
+    3 onglets : À valider, Validées, Refusées
     """
     employe = get_employe_from_user(request.user)
 
@@ -244,6 +281,11 @@ def manager_validation(request):
 
     departement = management.departement
 
+    # ✅ FILTRES + ONGLET ACTIF
+    filtre_employe = request.GET.get('employe', '')
+    filtre_type = request.GET.get('type', '')
+    onglet_actif = request.GET.get('onglet', 'a_valider')  # Par défaut : À valider
+
     # Récupérer tous les employés du département
     postes_dept = departement.postes.all()
     employes_dept = ZY00.objects.filter(
@@ -253,18 +295,48 @@ def manager_validation(request):
         etat='actif'
     ).distinct()
 
-    # Récupérer les demandes en attente de validation
-    demandes_en_attente = ZDDA.objects.filter(
-        employe__in=employes_dept,
-        statut='EN_ATTENTE'
-    ).select_related('employe', 'type_absence').order_by('-est_urgent', 'created_at')
+    # Base des demandes du département
+    demandes_base = ZDDA.objects.filter(
+        employe__in=employes_dept
+    ).select_related('employe', 'type_absence', 'validateur_manager')
 
-    # Récupérer toutes les demandes du département pour statistiques
+    # ✅ FONCTION POUR APPLIQUER LES FILTRES
+    def appliquer_filtres(queryset):
+        qs = queryset
+        if filtre_employe:
+            qs = qs.filter(
+                Q(employe__matricule__icontains=filtre_employe) |
+                Q(employe__nom__icontains=filtre_employe) |
+                Q(employe__prenoms__icontains=filtre_employe)
+            )
+        if filtre_type:
+            qs = qs.filter(type_absence_id=filtre_type)
+        return qs
+
+    # ✅ ONGLET 1 : À VALIDER (EN_ATTENTE)
+    demandes_a_valider = appliquer_filtres(
+        demandes_base.filter(statut='EN_ATTENTE')
+    ).order_by('-est_urgent', '-created_at')
+
+    # ✅ ONGLET 2 : VALIDÉES (VALIDEE_MANAGER + VALIDEE_RH)
+    demandes_validees = appliquer_filtres(
+        demandes_base.filter(statut__in=['VALIDEE_MANAGER', 'VALIDEE_RH'])
+    ).order_by('-date_validation_manager')
+
+    # ✅ ONGLET 3 : REFUSÉES (REFUSEE_MANAGER)
+    demandes_refusees = appliquer_filtres(
+        demandes_base.filter(statut='REFUSEE_MANAGER')
+    ).order_by('-date_validation_manager')
+
+    # Compteurs pour les badges
+    count_a_valider = demandes_a_valider.count()
+    count_validees = demandes_validees.count()
+    count_refusees = demandes_refusees.count()
+
+    # Statistiques globales (sans filtre)
     toutes_demandes = ZDDA.objects.filter(employe__in=employes_dept)
-
-    # Statistiques
     stats = {
-        'en_attente': demandes_en_attente.count(),
+        'en_attente': toutes_demandes.filter(statut='EN_ATTENTE').count(),
         'validees': toutes_demandes.filter(statut='VALIDEE_MANAGER').count(),
         'refusees': toutes_demandes.filter(statut='REFUSEE_MANAGER').count(),
         'equipe_total': employes_dept.count(),
@@ -275,7 +347,6 @@ def manager_validation(request):
     today = timezone.now().date()
 
     for emp in employes_dept:
-        # Vérifier si l'employé est absent aujourd'hui
         absence_today = ZDDA.objects.filter(
             employe=emp,
             statut='VALIDEE_RH',
@@ -296,20 +367,42 @@ def manager_validation(request):
             'statut': statut
         })
 
-    # Préparer les données pour le calendrier (absences de l'équipe)
+    # Préparer les données pour le calendrier
     absences_equipe = ZDDA.objects.filter(
         employe__in=employes_dept,
         statut__in=['VALIDEE_MANAGER', 'VALIDEE_RH']
     ).values('date_debut', 'date_fin', 'employe__nom', 'employe__prenoms')
 
+    # ✅ DONNÉES POUR LES FILTRES
+    from parametre.models import ZDAB
+    types_absence = ZDAB.objects.filter(STATUT=True).order_by('LIBELLE')
+
     context = {
         'employe': employe,
         'management': management,
         'departement': departement,
-        'demandes_en_attente': demandes_en_attente,
+
+        # ✅ DEMANDES PAR ONGLET
+        'demandes_a_valider': demandes_a_valider,
+        'demandes_validees': demandes_validees,
+        'demandes_refusees': demandes_refusees,
+
+        # ✅ COMPTEURS
+        'count_a_valider': count_a_valider,
+        'count_validees': count_validees,
+        'count_refusees': count_refusees,
+
         'equipe_avec_statut': equipe_avec_statut,
         'stats': stats,
         'absences_equipe': list(absences_equipe),
+
+        # ✅ FILTRES
+        'types_absence': types_absence,
+        'filtre_employe': filtre_employe,
+        'filtre_type': filtre_type,
+
+        # ✅ ONGLET ACTIF
+        'onglet_actif': onglet_actif,
     }
 
     return render(request, 'absence/manager_validation.html', context)
@@ -461,111 +554,202 @@ def manager_refuser_demande(request, demande_id):
 # ==========================================
 # VUES RH
 # ==========================================
+"""
+Vue RH corrigée avec les bons noms de variables pour correspondre au template
+À remplacer dans absence/views.py
+"""
 
 @login_required
+@drh_required
 def rh_validation(request):
     """
-    Page de validation finale pour le service RH
-    Template: rh_validation.html
+    Page de validation RH avec 5 onglets
     """
-    employe = get_employe_from_user(request.user)
-
-    if not employe:
-        messages.error(request, "Vous n'êtes pas associé à un employé.")
-        return redirect('dashboard')
-
-    # Vérifier si l'employé fait partie du service RH
-    if not est_rh(employe):
-        messages.error(request, "Vous n'avez pas les droits RH.")
-        return redirect('absence:employe_demandes')
-
-    # Récupérer toutes les demandes validées par les managers
-    demandes_a_valider = ZDDA.objects.filter(
-        statut='VALIDEE_MANAGER'
-    ).select_related(
-        'employe',
-        'type_absence',
-        'validateur_manager'
-    ).order_by('-est_urgent', 'date_validation_manager')
-
-    # Statistiques globales
-    stats = {
-        'validation_rh': demandes_a_valider.count(),
-        'validees': ZDDA.objects.filter(statut='VALIDEE_RH').count(),
-        'refusees': ZDDA.objects.filter(statut__in=['REFUSEE_MANAGER', 'REFUSEE_RH']).count(),
-        'total': ZDDA.objects.count(),
-        'absents_today': ZDDA.objects.filter(
-            statut='VALIDEE_RH',
-            date_debut__lte=timezone.now().date(),
-            date_fin__gte=timezone.now().date()
-        ).count(),
-    }
-
     # Filtres
     filtre_departement = request.GET.get('departement', '')
     filtre_type = request.GET.get('type', '')
+    filtre_employe = request.GET.get('employe', '')
+    onglet_actif = request.GET.get('onglet', 'a_valider_rh')
 
-    if filtre_departement:
-        postes_dept = ZDPO.objects.filter(DEPARTEMENT__id=filtre_departement)
-        employes_dept = ZY00.objects.filter(
-            affectations__poste__in=postes_dept,
-            affectations__date_fin__isnull=True
-        ).distinct()
-        demandes_a_valider = demandes_a_valider.filter(employe__in=employes_dept)
+    # Base query
+    demandes_base = ZDDA.objects.select_related(
+        'employe', 'type_absence', 'validateur_manager', 'validateur_rh'
+    ).prefetch_related('employe__affectations__poste__DEPARTEMENT')
 
-    if filtre_type:
-        demandes_a_valider = demandes_a_valider.filter(type_absence__id=filtre_type)
+    # Fonction filtres
+    def appliquer_filtres(queryset):
+        qs = queryset
+        if filtre_departement:
+            qs = qs.filter(
+                employe__affectations__poste__DEPARTEMENT_id=filtre_departement,
+                employe__affectations__actif=True
+            )
+        if filtre_type:
+            qs = qs.filter(type_absence_id=filtre_type)
+        if filtre_employe:
+            qs = qs.filter(
+                Q(employe__matricule__icontains=filtre_employe) |
+                Q(employe__nom__icontains=filtre_employe) |
+                Q(employe__prenoms__icontains=filtre_employe)
+            )
+        return qs
 
-    # Départements pour le filtre
-    departements = ZDDE.objects.filter(STATUT=True).order_by('LIBELLE')
+    # Demandes par onglet
+    demandes_a_valider_rh = appliquer_filtres(
+        demandes_base.filter(statut='VALIDEE_MANAGER')
+    ).order_by('-est_urgent', '-created_at')
 
-    # Types d'absence pour le filtre
-    types_absence = ZDAB.objects.filter(STATUT=True).order_by('CODE')
+    demandes_en_attente = appliquer_filtres(
+        demandes_base.filter(statut='EN_ATTENTE')
+    ).order_by('-est_urgent', '-created_at')
+
+    demandes_validees_rh = appliquer_filtres(
+        demandes_base.filter(statut='VALIDEE_RH')
+    ).order_by('-date_validation_rh')
+
+    demandes_refusees_manager = appliquer_filtres(
+        demandes_base.filter(statut='REFUSEE_MANAGER')
+    ).order_by('-date_validation_manager')
+
+    demandes_refusees_rh = appliquer_filtres(
+        demandes_base.filter(statut='REFUSEE_RH')
+    ).order_by('-date_validation_rh')
+
+    # Calculer soldes
+    from datetime import date
+    annee_courante = date.today().year
+
+    def ajouter_soldes(demandes_qs):
+        soldes_employes = {}
+        result = []
+        for demande in demandes_qs:
+            emp_id = demande.employe.pk
+            if emp_id not in soldes_employes:
+                solde = ZDSO.get_or_create_solde(demande.employe, annee_courante)
+                soldes_employes[emp_id] = {
+                    'jours_disponibles': solde.jours_disponibles,
+                    'rtt_disponibles': solde.rtt_disponibles,
+                    'jours_pris': solde.jours_pris,
+                    'jours_en_attente': solde.jours_en_attente,
+                }
+            result.append({'demande': demande, 'solde': soldes_employes[emp_id]})
+        return result
+
+    demandes_a_valider_rh_avec_solde = ajouter_soldes(demandes_a_valider_rh)
+    demandes_en_attente_avec_solde = ajouter_soldes(demandes_en_attente)
+
+    # Données filtres
+    from departement.models import ZDDE
+    from parametre.models import ZDAB
+
+    departements = ZDDE.objects.all().order_by('LIBELLE')
+    types_absence = ZDAB.objects.filter(STATUT=True).order_by('LIBELLE')
+
+    # Stats
+    today = date.today()
+    toutes = ZDDA.objects.all()
+
+    stats = {
+        'validation_rh': demandes_a_valider_rh.count(),
+        'en_attente_manager': demandes_en_attente.count(),
+        'validees': demandes_validees_rh.count(),
+        'refusees_manager': demandes_refusees_manager.count(),
+        'refusees_rh': demandes_refusees_rh.count(),
+        'refusees': demandes_refusees_manager.count() + demandes_refusees_rh.count(),
+        'total': toutes.count(),
+        'absents_today': toutes.filter(
+            statut='VALIDEE_RH', date_debut__lte=today, date_fin__gte=today
+        ).count(),
+    }
 
     context = {
-        'employe': employe,
-        'demandes_a_valider': demandes_a_valider,
-        'stats': stats,
+        # ✅ CORRECTION : Utiliser les bons noms pour le template
+        'demandes_a_valider_rh': demandes_a_valider_rh_avec_solde,
+        'demandes_en_attente': demandes_en_attente_avec_solde,
+        'demandes_validees_rh': demandes_validees_rh,  # ✅ BON NOM
+        'demandes_refusees_manager': demandes_refusees_manager,  # ✅ BON NOM
+        'demandes_refusees_rh': demandes_refusees_rh,  # ✅ BON NOM
+
+        # Compteurs
+        'count_a_valider_rh': demandes_a_valider_rh.count(),
+        'count_en_attente': demandes_en_attente.count(),
+        'count_validees_rh': demandes_validees_rh.count(),
+        'count_refusees_manager': demandes_refusees_manager.count(),
+        'count_refusees_rh': demandes_refusees_rh.count(),
+
+        # Filtres
         'departements': departements,
         'types_absence': types_absence,
         'filtre_departement': filtre_departement,
         'filtre_type': filtre_type,
+        'filtre_employe': filtre_employe,
+        'onglet_actif': onglet_actif,
+        'stats': stats,
+        'annee_courante': annee_courante,
     }
 
     return render(request, 'absence/rh_validation.html', context)
 
+@login_required
+@drh_required
+@require_http_methods(["GET"])
+def rh_recherche_employe_ajax(request):
+    """
+    API AJAX pour l'autocomplete de recherche d'employés
+    Recherche par matricule, nom ou prénom
+    """
+    query = request.GET.get('q', '').strip()
+
+    if len(query) < 2:
+        return JsonResponse({'results': []})
+
+    # Rechercher dans matricule, nom et prénom
+    employes = ZY00.objects.filter(
+        Q(matricule__icontains=query) |
+        Q(nom__icontains=query) |
+        Q(prenoms__icontains=query),
+        type_dossier='SAL',
+        etat='actif'
+    ).values(
+        'pk',
+        'matricule',
+        'nom',
+        'prenoms'
+    )[:10]  # Limiter à 10 résultats
+
+    results = [
+        {
+            'id': emp['pk'],
+            'text': f"{emp['nom']} {emp['prenoms']} ({emp['matricule']})",
+            'matricule': emp['matricule'],
+            'nom': emp['nom'],
+            'prenoms': emp['prenoms']
+        }
+        for emp in employes
+    ]
+
+    return JsonResponse({'results': results})
+
 
 @login_required
+@drh_required
 @require_http_methods(["POST"])
 def rh_valider_demande(request, demande_id):
-    """Validation finale RH d'une demande"""
-    employe = get_employe_from_user(request.user)
-
-    # Vérifier les droits RH
-    if not est_rh(employe):
-        return JsonResponse({
-            'success': False,
-            'error': 'Droits insuffisants'
-        }, status=403)
-
-    demande = get_object_or_404(ZDDA, id=demande_id)
-
-    if demande.statut != 'VALIDEE_MANAGER':
-        return JsonResponse({
-            'success': False,
-            'error': 'Cette demande ne peut plus être validée'
-        }, status=400)
+    """
+    Valider une demande d'absence (RH) - Version AJAX
+    """
+    employe = request.user.employe
+    demande = get_object_or_404(ZDDA, id=demande_id, statut='VALIDEE_MANAGER')
 
     commentaire_rh = request.POST.get('commentaire_rh', '').strip()
 
     try:
         with transaction.atomic():
-            ancien_statut = demande.statut
-
+            # Valider la demande
             demande.statut = 'VALIDEE_RH'
             demande.validee_rh = True
-            demande.validateur_rh = employe
             demande.date_validation_rh = timezone.now()
+            demande.validateur_rh = employe
             demande.commentaire_rh = commentaire_rh
             demande.updated_by = employe
             demande.save()
@@ -575,20 +759,26 @@ def rh_valider_demande(request, demande_id):
                 demande=demande,
                 action='VALIDATION_RH',
                 utilisateur=employe,
-                ancien_statut=ancien_statut,
+                ancien_statut='VALIDEE_MANAGER',
                 nouveau_statut='VALIDEE_RH',
                 commentaire=commentaire_rh,
                 request=request
             )
 
-            # Mettre à jour le solde
+            # Mettre à jour le solde si nécessaire
             if demande.type_absence.CODE in ['CPN', 'RTT']:
-                mettre_a_jour_solde_conges(demande.employe, demande.date_debut.year)
+                annee = demande.date_debut.year
+                solde = ZDSO.get_or_create_solde(demande.employe, annee)
 
-        return JsonResponse({
-            'success': True,
-            'message': f'✅ Demande validée définitivement.'
-        })
+                # Déduire du solde
+                solde.jours_pris += demande.nombre_jours
+                solde.jours_en_attente -= demande.nombre_jours
+                solde.calculer_soldes()
+
+            return JsonResponse({
+                'success': True,
+                'message': f'✅ La demande {demande.numero_demande} a été validée par RH.'
+            })
 
     except Exception as e:
         return JsonResponse({
@@ -596,27 +786,15 @@ def rh_valider_demande(request, demande_id):
             'error': str(e)
         }, status=500)
 
-
 @login_required
+@drh_required
 @require_http_methods(["POST"])
 def rh_refuser_demande(request, demande_id):
-    """Refus RH d'une demande"""
-    employe = get_employe_from_user(request.user)
-
-    # Vérifier les droits RH
-    if not est_rh(employe):
-        return JsonResponse({
-            'success': False,
-            'error': 'Droits insuffisants'
-        }, status=403)
-
-    demande = get_object_or_404(ZDDA, id=demande_id)
-
-    if demande.statut != 'VALIDEE_MANAGER':
-        return JsonResponse({
-            'success': False,
-            'error': 'Cette demande ne peut plus être refusée'
-        }, status=400)
+    """
+    Refuser une demande d'absence (RH) - Version AJAX
+    """
+    employe = request.user.employe
+    demande = get_object_or_404(ZDDA, id=demande_id, statut='VALIDEE_MANAGER')
 
     motif_refus_rh = request.POST.get('motif_refus_rh', '').strip()
 
@@ -628,11 +806,10 @@ def rh_refuser_demande(request, demande_id):
 
     try:
         with transaction.atomic():
-            ancien_statut = demande.statut
-
+            # Refuser la demande
             demande.statut = 'REFUSEE_RH'
-            demande.validateur_rh = employe
             demande.date_validation_rh = timezone.now()
+            demande.validateur_rh = employe
             demande.motif_refus_rh = motif_refus_rh
             demande.updated_by = employe
             demande.save()
@@ -642,20 +819,25 @@ def rh_refuser_demande(request, demande_id):
                 demande=demande,
                 action='REFUS_RH',
                 utilisateur=employe,
-                ancien_statut=ancien_statut,
+                ancien_statut='VALIDEE_MANAGER',
                 nouveau_statut='REFUSEE_RH',
                 commentaire=motif_refus_rh,
                 request=request
             )
 
-            # Mettre à jour le solde (restitution des jours)
+            # Restituer le solde si nécessaire
             if demande.type_absence.CODE in ['CPN', 'RTT']:
-                mettre_a_jour_solde_conges(demande.employe, demande.date_debut.year)
+                annee = demande.date_debut.year
+                solde = ZDSO.get_or_create_solde(demande.employe, annee)
 
-        return JsonResponse({
-            'success': True,
-            'message': f'❌ Demande refusée par RH.'
-        })
+                # Restituer le solde
+                solde.jours_en_attente -= demande.nombre_jours
+                solde.calculer_soldes()
+
+            return JsonResponse({
+                'success': True,
+                'message': f'❌ La demande {demande.numero_demande} a été refusée par RH.'
+            })
 
     except Exception as e:
         return JsonResponse({
@@ -663,16 +845,48 @@ def rh_refuser_demande(request, demande_id):
             'error': str(e)
         }, status=500)
 
+@login_required
+@drh_required
+def rh_liste_complete(request):
+    """
+    Liste complète de toutes les demandes (pour RH)
+    """
+    # Filtres
+    statut = request.GET.get('statut', '')
+    type_absence = request.GET.get('type_absence', '')
+
+    demandes = ZDDA.objects.all().select_related('employe', 'type_absence')
+
+    if statut:
+        demandes = demandes.filter(statut=statut)
+
+    if type_absence:
+        demandes = demandes.filter(type_absence__CODE=type_absence)
+
+    demandes = demandes.order_by('-created_at')
+
+    # Statistiques
+    stats = {
+        'total': demandes.count(),
+        'en_attente': demandes.filter(statut='EN_ATTENTE').count(),
+        'validees_manager': demandes.filter(statut='VALIDEE_MANAGER').count(),
+        'validees_rh': demandes.filter(statut='VALIDEE_RH').count(),
+        'refusees': demandes.filter(statut__in=['REFUSEE_MANAGER', 'REFUSEE_RH']).count(),
+    }
+
+    context = {
+        'demandes': demandes,
+        'stats': stats,
+        'statut_filter': statut,
+        'type_filter': type_absence,
+    }
+
+    return render(request, 'absence/rh_liste_complete.html', context)
 
 @login_required
+@drh_required
 def rh_recherche_employe(request):
     """Recherche d'un employé et affichage de son historique"""
-    employe = get_employe_from_user(request.user)
-
-    if not est_rh(employe):
-        messages.error(request, "Droits insuffisants.")
-        return redirect('absence:employe_demandes')
-
     employe_recherche = None
     demandes = []
     solde = None
@@ -691,7 +905,6 @@ def rh_recherche_employe(request):
     ).order_by('nom', 'prenoms')
 
     context = {
-        'employe': employe,
         'employe_recherche': employe_recherche,
         'demandes': demandes,
         'solde': solde,
@@ -699,6 +912,46 @@ def rh_recherche_employe(request):
     }
 
     return render(request, 'absence/rh_recherche_employe.html', context)
+
+@drh_required
+@login_required
+def rh_liste_complete(request):
+    """
+    Liste complète de toutes les demandes (pour RH)
+    """
+    # Filtres
+    statut = request.GET.get('statut', '')
+    type_absence = request.GET.get('type_absence', '')
+
+    demandes = ZDDA.objects.all().select_related('employe', 'type_absence')
+
+    if statut:
+        demandes = demandes.filter(statut=statut)
+
+    if type_absence:
+        demandes = demandes.filter(type_absence__CODE=type_absence)
+
+    demandes = demandes.order_by('-created_at')
+
+    # Statistiques
+    from django.db.models import Count, Sum
+    stats = {
+        'total': demandes.count(),
+        'en_attente': demandes.filter(statut='EN_ATTENTE').count(),
+        'validees_manager': demandes.filter(statut='VALIDEE_MANAGER').count(),
+        'validees_rh': demandes.filter(statut='VALIDEE_RH').count(),
+        'refusees': demandes.filter(statut__in=['REFUSEE_MANAGER', 'REFUSEE_RH']).count(),
+    }
+
+    context = {
+        'demandes': demandes,
+        'stats': stats,
+        'statut_filter': statut,
+        'type_filter': type_absence,
+    }
+
+    return render(request, 'absence/rh_liste_complete.html', context)
+
 
 
 # ==========================================
@@ -927,3 +1180,146 @@ def employe_supprimer_demande(request, demande_id):
             'success': False,
             'error': str(e)
         }, status=500)
+
+
+
+# ==========================================
+# VUES NOTIFICATIONS
+# ==========================================
+
+@login_required
+@require_POST
+@login_required
+@require_POST
+def marquer_notification_lue(request, notification_id):
+    """Marquer une notification comme lue"""
+    try:
+        print(f"🔍 Notification ID reçu: {notification_id} (type: {type(notification_id)})")
+
+        notification = get_object_or_404(
+            ZANO,
+            id=notification_id,  # ✅ Directement l'entier, pas de conversion UUID
+            destinataire=request.user.employe
+        )
+
+        print(f"✅ Notification trouvée: {notification.titre}")
+
+        notification.marquer_comme_lue()
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Notification marquée comme lue'
+        })
+    except Exception as e:
+        print(f"❌ Erreur: {e}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=400)
+
+
+@login_required
+@require_POST
+def marquer_toutes_lues(request):
+    """Marquer toutes les notifications comme lues"""
+    try:
+        from django.utils import timezone
+
+        notifications = ZANO.objects.filter(
+            destinataire=request.user.employe,
+            lue=False
+        )
+
+        count = notifications.update(
+            lue=True,
+            date_lecture=timezone.now()
+        )
+
+        return JsonResponse({
+            'success': True,
+            'message': f'{count} notification(s) marquée(s) comme lue(s)',
+            'count': count
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=400)
+
+
+@login_required
+def liste_notifications(request):
+    """Page listant toutes les notifications"""
+    try:
+        notifications = ZANO.objects.filter(
+            destinataire=request.user.employe
+        ).select_related('demande_absence', 'demande_absence__type_absence').order_by('-date_creation')
+
+        # Pagination
+        paginator = Paginator(notifications, 20)
+        page_number = request.GET.get('page', 1)
+        page_obj = paginator.get_page(page_number)
+
+        # Statistiques
+        nb_non_lues = ZANO.objects.filter(
+            destinataire=request.user.employe,
+            lue=False
+        ).count()
+
+        context = {
+            'notifications': page_obj,
+            'nb_non_lues': nb_non_lues,
+            'page_obj': page_obj,
+        }
+
+        return render(request, 'absence/liste_notifications.html', context)
+    except Exception as e:
+        print(f"Erreur liste notifications: {e}")
+        return render(request, 'absence/liste_notifications.html', {
+            'notifications': [],
+            'nb_non_lues': 0,
+        })
+
+
+@login_required
+def get_notifications_json(request):
+    """API pour récupérer les notifications en JSON"""
+    try:
+        limit = int(request.GET.get('limit', 10))
+
+        notifications = ZANO.objects.filter(
+            destinataire=request.user.employe,
+            lue=False
+        ).select_related('demande_absence', 'demande_absence__type_absence')[:limit]
+
+        data = []
+        for notif in notifications:
+            data.append({
+                'id': str(notif.id),
+                'titre': notif.titre,
+                'message': notif.message,
+                'type': notif.type_notification,
+                'lien': notif.lien or '#',
+                'date_creation': notif.date_creation.strftime('%d/%m/%Y %H:%M'),
+                'lue': notif.lue,
+                'demande': {
+                    'numero': notif.demande_absence.numero_demande if notif.demande_absence else '',
+                    'date_debut': notif.demande_absence.date_debut.strftime(
+                        '%d/%m/%Y') if notif.demande_absence else '',
+                    'date_fin': notif.demande_absence.date_fin.strftime('%d/%m/%Y') if notif.demande_absence else '',
+                    'nombre_jours': float(notif.demande_absence.nombre_jours) if notif.demande_absence else 0,
+                } if notif.demande_absence else None
+            })
+
+        return JsonResponse({
+            'success': True,
+            'notifications': data,
+            'count': len(data)
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=400)

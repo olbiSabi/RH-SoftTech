@@ -419,3 +419,336 @@
 }
 
 
+/* ################################ */
+/* ####### GESTION DES ROLE ####### */
+/* ################################ */
+        .container-roles {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header-roles {
+            background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .header-roles h1 {
+            margin: 0 0 10px 0;
+            font-size: 28px;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .stat-card i {
+            font-size: 36px;
+        }
+
+        .stat-card.total { border-left: 4px solid #3b82f6; }
+        .stat-card.total i { color: #3b82f6; }
+
+        .stat-card.actifs { border-left: 4px solid #10b981; }
+        .stat-card.actifs i { color: #10b981; }
+
+        .stat-card.inactifs { border-left: 4px solid #ef4444; }
+        .stat-card.inactifs i { color: #ef4444; }
+
+        .stat-card.roles { border-left: 4px solid #8b5cf6; }
+        .stat-card.roles i { color: #8b5cf6; }
+
+        .stat-card .content h3 {
+            margin: 0;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .stat-card .content .number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #111827;
+        }
+
+        .filtres-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .filtres-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .filtre-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .filtre-group input,
+        .filtre-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .filtre-group input:focus,
+        .filtre-group select:focus {
+            outline: none;
+            border-color: #1c5d5f;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .actions-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #6b7280;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+        }
+
+        .table-roles {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f9fafb;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-actif {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-inactif {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn-action {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-retirer {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn-retirer:hover {
+            background: #fecaca;
+        }
+
+        .btn-reactiver {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .btn-reactiver:hover {
+            background: #a7f3d0;
+        }
+
+        .btn-modifier {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .btn-modifier:hover {
+            background: #bfdbfe;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #111827;
+        }
+
+        .close {
+            font-size: 28px;
+            cursor: pointer;
+            color: #9ca3af;
+        }
+
+        .close:hover {
+            color: #374151;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9ca3af;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            color: #d1d5db;
+        }
+
+        @media (max-width: 768px) {
+            .table-roles {
+                overflow-x: auto;
+            }
+
+            .filtres-grid {
+                grid-template-columns: 1fr;
+            }
+        }
