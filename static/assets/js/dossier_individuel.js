@@ -29,24 +29,20 @@ class ModalManager {
     }
 
     init() {
-        // Fermeture par le bouton X
         if (this.closeBtn) {
             this.closeBtn.addEventListener('click', () => this.close());
         }
 
-        // Fermeture par le bouton Annuler
         if (this.cancelBtn) {
             this.cancelBtn.addEventListener('click', () => this.close());
         }
 
-        // Fermeture en cliquant en dehors de la modale
         window.addEventListener('click', (event) => {
             if (event.target === this.modal) {
                 this.close();
             }
         });
 
-        // Fermeture avec la touche Échap
         document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape' && this.modal.classList.contains('show')) {
                 this.close();
@@ -69,10 +65,8 @@ class ModalManager {
         const form = this.modal.querySelector('form');
         if (form) {
             form.reset();
-            // Nettoyer les messages d'erreur
             const errorMessages = form.querySelectorAll('.error-message');
             errorMessages.forEach(msg => msg.remove());
-            // Retirer les classes d'erreur
             const errorInputs = form.querySelectorAll('.form-error');
             errorInputs.forEach(input => input.classList.remove('form-error'));
         }
@@ -131,18 +125,15 @@ class AdresseManager {
     }
 
     init() {
-        // Bouton ajouter
         const addBtn = document.getElementById('addAdresseBtn');
         if (addBtn) {
             addBtn.addEventListener('click', () => this.openAddModal());
         }
 
-        // Soumission du formulaire
         if (this.form) {
             this.form.addEventListener('submit', (e) => this.handleSubmit(e));
         }
 
-        // Boutons éditer et supprimer
         document.querySelectorAll('.edit-adresse-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const id = e.currentTarget.dataset.id;
@@ -175,7 +166,6 @@ class AdresseManager {
             const response = await fetch(`/employe/api/adresse/${id}/`);
             const data = await response.json();
 
-            // Remplir le formulaire
             document.getElementById('type_adresse').value = data.type_adresse;
             document.getElementById('rue').value = data.rue;
             document.getElementById('complement').value = data.complement || '';
@@ -194,50 +184,48 @@ class AdresseManager {
         }
     }
 
-
     async handleSubmit(e) {
-    e.preventDefault();
+        e.preventDefault();
 
-    const formData = new FormData(this.form);
-    const url = this.currentId
-        ? `/employe/api/adresse/${this.currentId}/update/`
-        : `/employe/api/adresse/create/`;
+        const formData = new FormData(this.form);
+        const url = this.currentId
+            ? `/employe/api/adresse/${this.currentId}/update/`
+            : `/employe/api/adresse/create/`;
 
-    showLoading();
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrftoken,
-            },
-            body: formData
-        });
+        showLoading();
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                },
+                body: formData
+            });
 
-        const data = await response.json();
+            const data = await response.json();
 
-        if (response.ok) {
-            showAlert(
-                this.currentId ? 'Adresse modifiée avec succès' : 'Adresse ajoutée avec succès',
-                'success'
-            );
-            this.modal.close();
-            this.reloadTab();
-        } else {
-            // Gérer les différentes erreurs
-            if (data.errors && data.errors.__all__) {
-                showAlert('❌ ' + data.errors.__all__[0], 'warning', 6000);
-            } else if (data.errors) {
-                this.displayErrors(data.errors);
+            if (response.ok) {
+                showAlert(
+                    this.currentId ? 'Adresse modifiée avec succès' : 'Adresse ajoutée avec succès',
+                    'success'
+                );
+                this.modal.close();
+                this.reloadTab();
             } else {
-                showAlert('Une erreur est survenue', 'danger');
+                if (data.errors && data.errors.__all__) {
+                    showAlert('❌ ' + data.errors.__all__[0], 'warning', 6000);
+                } else if (data.errors) {
+                    this.displayErrors(data.errors);
+                } else {
+                    showAlert('Une erreur est survenue', 'danger');
+                }
             }
+        } catch (error) {
+            showAlert('Une erreur est survenue: ' + error.message, 'danger');
+        } finally {
+            hideLoading();
         }
-    } catch (error) {
-        showAlert('Une erreur est survenue: ' + error.message, 'danger');
-    } finally {
-        hideLoading();
     }
-}
 
     confirmDelete(id) {
         const deleteModal = new ModalManager('deleteModal');
@@ -271,11 +259,9 @@ class AdresseManager {
     }
 
     displayErrors(errors) {
-        // Nettoyer les anciennes erreurs
         document.querySelectorAll('.error-message').forEach(el => el.remove());
         document.querySelectorAll('.form-error').forEach(el => el.classList.remove('form-error'));
 
-        // Afficher les nouvelles erreurs
         for (const [field, messages] of Object.entries(errors)) {
             const input = document.getElementById(field);
             if (input) {
@@ -294,7 +280,6 @@ class AdresseManager {
         window.location.href = window.location.href;
     }
 }
-
 
 //##############################################
 //########### Gestion des téléphones ###########
@@ -365,43 +350,41 @@ class TelephoneManager {
     }
 
     async handleSubmit(e) {
-    e.preventDefault();
+        e.preventDefault();
 
-    const formData = new FormData(this.form);
+        const formData = new FormData(this.form);
+        const url = this.currentId
+            ? `/employe/api/telephone/${this.currentId}/update/`
+            : `/employe/api/telephone/create/`;
 
-    // Ajoutez le préfixe /employe/ devant les URLs API
-    const url = this.currentId
-        ? `/employe/api/telephone/${this.currentId}/update/`
-        : `/employe/api/telephone/create/`;
+        showLoading();
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                },
+                body: formData
+            });
 
-    showLoading();
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrftoken,
-            },
-            body: formData
-        });
+            const data = await response.json();
 
-        const data = await response.json();
-
-        if (response.ok) {
-            showAlert(
-                this.currentId ? 'Téléphone modifié avec succès' : 'Téléphone ajouté avec succès',
-                'success'
-            );
-            this.modal.close();
-            window.location.reload();
-        } else {
-            this.displayErrors(data.errors);
+            if (response.ok) {
+                showAlert(
+                    this.currentId ? 'Téléphone modifié avec succès' : 'Téléphone ajouté avec succès',
+                    'success'
+                );
+                this.modal.close();
+                window.location.reload();
+            } else {
+                this.displayErrors(data.errors);
+            }
+        } catch (error) {
+            showAlert('Une erreur est survenue: ' + error.message, 'danger');
+        } finally {
+            hideLoading();
         }
-    } catch (error) {
-        showAlert('Une erreur est survenue: ' + error.message, 'danger');
-    } finally {
-        hideLoading();
     }
-}
 
     confirmDelete(id) {
         const deleteModal = new ModalManager('deleteModal');
@@ -454,7 +437,7 @@ class TelephoneManager {
 }
 
 //##############################################
-// Gestion des emails (similaire aux téléphones)
+// Gestion des emails
 //##############################################
 class EmailManager {
     constructor(employeUuid) {
@@ -796,53 +779,50 @@ class ContratManager {
     }
 
     async handleSubmit(e) {
-    e.preventDefault();
+        e.preventDefault();
 
-    const formData = new FormData(this.form);
-    const url = this.currentId
-        ? `/employe/api/contrat/${this.currentId}/update/`
-        : `/employe/api/contrat/create/`;
+        const formData = new FormData(this.form);
+        const url = this.currentId
+            ? `/employe/api/contrat/${this.currentId}/update/`
+            : `/employe/api/contrat/create/`;
 
-    showLoading();
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrftoken,
-            },
-            body: formData
-        });
+        showLoading();
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                },
+                body: formData
+            });
 
-        const data = await response.json();
+            const data = await response.json();
 
-        if (response.ok) {
-            showAlert(
-                this.currentId ? 'Contrat modifié avec succès' : 'Contrat ajouté avec succès',
-                'success'
-            );
-            this.modal.close();
-            window.location.reload();
-        } else {
-            // GESTION AMÉLIORÉE DES ERREURS
-            if (data.errors && data.errors.__all__) {
-                // Afficher les erreurs générales (contrat actif, chevauchement)
-                showAlert('❌ ' + data.errors.__all__[0], 'warning', 6000);
-            } else if (data.errors) {
-                // Afficher les erreurs de champ spécifiques
-                this.displayErrors(data.errors);
-            } else if (data.error) {
-                // Erreur générale
-                showAlert('❌ Erreur: ' + data.error, 'danger');
+            if (response.ok) {
+                showAlert(
+                    this.currentId ? 'Contrat modifié avec succès' : 'Contrat ajouté avec succès',
+                    'success'
+                );
+                this.modal.close();
+                window.location.reload();
             } else {
-                showAlert('Une erreur est survenue', 'danger');
+                if (data.errors && data.errors.__all__) {
+                    showAlert('❌ ' + data.errors.__all__[0], 'warning', 6000);
+                } else if (data.errors) {
+                    this.displayErrors(data.errors);
+                } else if (data.error) {
+                    showAlert('❌ Erreur: ' + data.error, 'danger');
+                } else {
+                    showAlert('Une erreur est survenue', 'danger');
+                }
             }
+        } catch (error) {
+            showAlert('Une erreur est survenue: ' + error.message, 'danger');
+        } finally {
+            hideLoading();
         }
-    } catch (error) {
-        showAlert('Une erreur est survenue: ' + error.message, 'danger');
-    } finally {
-        hideLoading();
     }
-}
+
     confirmDelete(id) {
         const deleteModal = new ModalManager('deleteModal');
         document.getElementById('confirmDeleteBtn').onclick = () => this.delete(id);
@@ -930,7 +910,6 @@ class AffectationManager {
             });
         });
 
-        // Charger les postes lorsque le département change
         const departementSelect = document.getElementById('departement');
         if (departementSelect) {
             departementSelect.addEventListener('change', (e) => this.loadPostes(e.target.value));
@@ -954,7 +933,6 @@ class AffectationManager {
             const response = await fetch(`/employe/api/affectation/${id}/`);
             const data = await response.json();
 
-            // Charger d'abord les postes du département
             await this.loadPostes(data.poste.departement_id);
 
             document.getElementById('poste').value = data.poste.id;
@@ -995,53 +973,49 @@ class AffectationManager {
     }
 
     async handleSubmit(e) {
-    e.preventDefault();
+        e.preventDefault();
 
-    const formData = new FormData(this.form);
-    const url = this.currentId
-        ? `/employe/api/affectation/${this.currentId}/update/`
-        : `/employe/api/affectation/create/`;
+        const formData = new FormData(this.form);
+        const url = this.currentId
+            ? `/employe/api/affectation/${this.currentId}/update/`
+            : `/employe/api/affectation/create/`;
 
-    showLoading();
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrftoken,
-            },
-            body: formData
-        });
+        showLoading();
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                },
+                body: formData
+            });
 
-        const data = await response.json();
+            const data = await response.json();
 
-        if (response.ok) {
-            showAlert(
-                this.currentId ? 'Affectation modifiée avec succès' : 'Affectation ajoutée avec succès',
-                'success'
-            );
-            this.modal.close();
-            window.location.reload();
-        } else {
-            // GESTION AMÉLIORÉE DES ERREURS
-            if (data.errors && data.errors.__all__) {
-                // Afficher les erreurs générales (affectation active, chevauchement)
-                showAlert('❌ ' + data.errors.__all__[0], 'warning', 6000);
-            } else if (data.errors) {
-                // Afficher les erreurs de champ spécifiques
-                this.displayErrors(data.errors);
-            } else if (data.error) {
-                // Erreur générale
-                showAlert('❌ Erreur: ' + data.error, 'danger');
+            if (response.ok) {
+                showAlert(
+                    this.currentId ? 'Affectation modifiée avec succès' : 'Affectation ajoutée avec succès',
+                    'success'
+                );
+                this.modal.close();
+                window.location.reload();
             } else {
-                showAlert('Une erreur est survenue', 'danger');
+                if (data.errors && data.errors.__all__) {
+                    showAlert('❌ ' + data.errors.__all__[0], 'warning', 6000);
+                } else if (data.errors) {
+                    this.displayErrors(data.errors);
+                } else if (data.error) {
+                    showAlert('❌ Erreur: ' + data.error, 'danger');
+                } else {
+                    showAlert('Une erreur est survenue', 'danger');
+                }
             }
+        } catch (error) {
+            showAlert('Une erreur est survenue: ' + error.message, 'danger');
+        } finally {
+            hideLoading();
         }
-    } catch (error) {
-        showAlert('Une erreur est survenue: ' + error.message, 'danger');
-    } finally {
-        hideLoading();
     }
-}
 
     confirmDelete(id) {
         const deleteModal = new ModalManager('deleteModal');
@@ -1107,18 +1081,15 @@ class FamilleManager {
     }
 
     init() {
-        // Bouton ajouter
         const addBtn = document.getElementById('addFamilleBtn');
         if (addBtn) {
             addBtn.addEventListener('click', () => this.openAddModal());
         }
 
-        // Soumission du formulaire
         if (this.form) {
             this.form.addEventListener('submit', (e) => this.handleSubmit(e));
         }
 
-        // Boutons éditer et supprimer
         document.querySelectorAll('.edit-famille-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const id = e.currentTarget.dataset.id;
@@ -1133,7 +1104,6 @@ class FamilleManager {
             });
         });
 
-        // Auto-remplir la date de début si enfant
         const personneChargeSelect = document.getElementById('personne_charge');
         const dateDebutInput = document.getElementById('date_debut_prise_charge');
         const dateNaissanceInput = document.getElementById('date_naissance');
@@ -1159,7 +1129,6 @@ class FamilleManager {
         document.getElementById('familleModalTitle').textContent = 'Ajouter une personne à charge';
         document.getElementById('familleSubmitBtn').textContent = 'Ajouter';
 
-        // Réinitialiser le formulaire
         if (this.form) {
             this.form.reset();
         }
@@ -1177,7 +1146,6 @@ class FamilleManager {
             const response = await fetch(`/employe/api/famille/${id}/`);
             const data = await response.json();
 
-            // Remplir le formulaire
             document.getElementById('personne_charge').value = data.personne_charge;
             document.getElementById('nom').value = data.nom;
             document.getElementById('prenom').value = data.prenom;
@@ -1270,11 +1238,9 @@ class FamilleManager {
     }
 
     displayErrors(errors) {
-        // Nettoyer les anciennes erreurs
         document.querySelectorAll('.error-message').forEach(el => el.remove());
         document.querySelectorAll('.form-error').forEach(el => el.classList.remove('form-error'));
 
-        // Afficher les nouvelles erreurs
         for (const [field, messages] of Object.entries(errors)) {
             const input = document.getElementById(field);
             if (input) {
@@ -1290,7 +1256,6 @@ class FamilleManager {
     }
 }
 
-
 //##############################################
 //####### Gestion Historique Noms/Prénoms ######
 //##############################################
@@ -1305,28 +1270,18 @@ class ZNPManager {
     }
 
     init() {
-        console.log('🔧 Initialisation ZNPManager pour employé:', this.employeUuid);
-
-        // Bouton ajouter
         const addBtn = document.getElementById('addZNPBtn');
         if (addBtn) {
             addBtn.addEventListener('click', () => this.openAddModal());
-        } else {
-            console.warn('❌ Bouton addZNPBtn non trouvé');
         }
 
-        // Soumission du formulaire
         if (this.form) {
             this.form.addEventListener('submit', (e) => this.handleSubmit(e));
-        } else {
-            console.warn('❌ Formulaire znpForm non trouvé');
         }
 
-        // Boutons éditer et supprimer
         document.querySelectorAll('.edit-znp-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const id = e.currentTarget.dataset.id;
-                console.log('🗑️ Bouton suppression cliqué, ID:', id);
                 this.openEditModal(id);
             });
         });
@@ -1338,7 +1293,6 @@ class ZNPManager {
             });
         });
 
-        // Afficher les restrictions
         const restrictionsDiv = document.getElementById('znpRestrictions');
         if (restrictionsDiv) {
             restrictionsDiv.style.display = 'block';
@@ -1350,7 +1304,6 @@ class ZNPManager {
         document.getElementById('znpModalTitle').textContent = 'Ajouter un historique nom/prénom';
         document.getElementById('znpSubmitBtn').textContent = 'Ajouter';
 
-        // Réinitialiser le formulaire
         if (this.form) {
             this.form.reset();
         }
@@ -1371,7 +1324,6 @@ class ZNPManager {
             }
             const data = await response.json();
 
-            // Remplir le formulaire
             document.getElementById('znp_nom').value = data.nom || '';
             document.getElementById('znp_prenoms').value = data.prenoms || '';
             document.getElementById('znp_date_debut_validite').value = data.date_debut_validite || '';
@@ -1380,7 +1332,6 @@ class ZNPManager {
 
             this.modal.open();
         } catch (error) {
-            console.error('Erreur chargement ZNP:', error);
             showAlert('❌ Erreur lors du chargement des données: ' + error.message, 'danger');
         } finally {
             hideLoading();
@@ -1395,12 +1346,6 @@ class ZNPManager {
             ? `/employe/api/znp/${this.currentId}/update/`
             : `/employe/api/znp/create/`;
 
-        console.log('📤 Envoi données ZNP:', {
-            url: url,
-            currentId: this.currentId,
-            formData: Object.fromEntries(formData)
-        });
-
         showLoading();
         try {
             const response = await fetch(url, {
@@ -1412,7 +1357,6 @@ class ZNPManager {
             });
 
             const data = await response.json();
-            console.log('📥 Réponse ZNP:', data);
 
             if (response.ok && data.success) {
                 showAlert(
@@ -1420,7 +1364,6 @@ class ZNPManager {
                     'success'
                 );
                 this.modal.close();
-                // Recharger la page pour voir les changements
                 setTimeout(() => {
                     window.location.reload();
                 }, 1500);
@@ -1436,7 +1379,6 @@ class ZNPManager {
                 }
             }
         } catch (error) {
-            console.error('Erreur soumission ZNP:', error);
             showAlert('❌ Erreur réseau: ' + error.message, 'danger');
         } finally {
             hideLoading();
@@ -1444,35 +1386,23 @@ class ZNPManager {
     }
 
     confirmDelete(id) {
-        console.log('🗑️ Confirmation suppression pour ID:', id);
-
-        // Stocker l'ID à supprimer
         this.pendingDeleteId = id;
 
-        // Afficher la modale de suppression
         const deleteModal = new ModalManager('deleteModal');
-
-        // Configurer le bouton de confirmation
         const confirmBtn = document.getElementById('confirmDeleteBtn');
         if (confirmBtn) {
-            // Supprimer les anciens event listeners
             const newConfirmBtn = confirmBtn.cloneNode(true);
             confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
 
-            // Nouvelle référence
             const currentConfirmBtn = document.getElementById('confirmDeleteBtn');
-
             currentConfirmBtn.addEventListener('click', () => {
-                console.log('✅ Confirmation suppression cliquée');
                 this.delete(this.pendingDeleteId);
             });
         }
 
-        // Configurer le bouton Annuler
         const cancelBtn = document.querySelector('#deleteModal .btn-cancel');
         if (cancelBtn) {
             cancelBtn.addEventListener('click', () => {
-                console.log('❌ Annulation suppression');
                 deleteModal.close();
                 this.pendingDeleteId = null;
             });
@@ -1483,11 +1413,8 @@ class ZNPManager {
 
     async delete(id) {
         if (!id) {
-            console.error('❌ ID de suppression manquant');
             return;
         }
-
-        console.log('🗑️ Début suppression ID:', id);
 
         showLoading();
 
@@ -1500,16 +1427,13 @@ class ZNPManager {
             });
 
             const data = await response.json();
-            console.log('📥 Réponse suppression:', data);
 
             if (response.ok && data.success) {
                 showAlert('✅ Historique supprimé avec succès', 'success');
 
-                // Fermer la modale de suppression
                 const deleteModal = new ModalManager('deleteModal');
                 deleteModal.close();
 
-                // Recharger après un délai
                 setTimeout(() => {
                     window.location.reload();
                 }, 1500);
@@ -1517,16 +1441,13 @@ class ZNPManager {
             } else {
                 showAlert('❌ Erreur lors de la suppression: ' + (data.error || ''), 'danger');
 
-                // Fermer la modale en cas d'erreur
                 const deleteModal = new ModalManager('deleteModal');
                 deleteModal.close();
             }
 
         } catch (error) {
-            console.error('💥 Erreur suppression:', error);
             showAlert('❌ Erreur réseau lors de la suppression', 'danger');
 
-            // Fermer la modale en cas d'erreur
             const deleteModal = new ModalManager('deleteModal');
             deleteModal.close();
 
@@ -1537,11 +1458,9 @@ class ZNPManager {
     }
 
     displayErrors(errors) {
-        // Nettoyer les anciennes erreurs
         document.querySelectorAll('.error-message').forEach(el => el.remove());
         document.querySelectorAll('.form-error').forEach(el => el.classList.remove('form-error'));
 
-        // Afficher les nouvelles erreurs
         for (const [field, messages] of Object.entries(errors)) {
             let inputId;
             switch(field) {
@@ -1570,13 +1489,10 @@ class ZNPManager {
                 errorDiv.className = 'error-message';
                 errorDiv.textContent = messages.join(', ');
                 formGroup.appendChild(errorDiv);
-            } else {
-                console.warn('Champ non trouvé pour erreur:', field, inputId);
             }
         }
     }
 }
-
 
 //##############################################
 //### Gestion des Personnes à Prévenir (ZYPP) ###
@@ -1593,24 +1509,15 @@ class PersonnePrevManager {
     }
 
     init() {
-        console.log('🔧 Initialisation PersonnePrevManager pour employé:', this.employeUuid);
-
-        // Bouton ajouter
         const addBtn = document.getElementById('addPersonnePrevBtn');
         if (addBtn) {
             addBtn.addEventListener('click', () => this.openAddModal());
-        } else {
-            console.warn('❌ Bouton addPersonnePrevBtn non trouvé');
         }
 
-        // Soumission du formulaire
         if (this.form) {
             this.form.addEventListener('submit', (e) => this.handleSubmit(e));
-        } else {
-            console.warn('❌ Formulaire personnePrevForm non trouvé');
         }
 
-        // Boutons visualiser
         document.querySelectorAll('.view-personne-prev-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const id = e.currentTarget.dataset.id;
@@ -1618,7 +1525,6 @@ class PersonnePrevManager {
             });
         });
 
-        // Boutons éditer
         document.querySelectorAll('.edit-personne-prev-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const id = e.currentTarget.dataset.id;
@@ -1626,7 +1532,6 @@ class PersonnePrevManager {
             });
         });
 
-        // Boutons supprimer
         document.querySelectorAll('.delete-personne-prev-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const id = e.currentTarget.dataset.id;
@@ -1640,12 +1545,10 @@ class PersonnePrevManager {
         document.getElementById('personnePrevModalTitle').innerHTML = '<i class="fas fa-ambulance"></i> Ajouter un contact d\'urgence';
         document.getElementById('personnePrevSubmitText').textContent = 'Ajouter';
 
-        // Réinitialiser le formulaire
         if (this.form) {
             this.form.reset();
         }
 
-        // Définir la date du jour par défaut
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('date_debut_validite_prev').value = today;
 
@@ -1653,7 +1556,6 @@ class PersonnePrevManager {
     }
 
     async openViewModal(id) {
-        console.log('👁️ Ouverture vue détails pour ID:', id);
         showLoading();
 
         try {
@@ -1700,7 +1602,6 @@ class PersonnePrevManager {
             this.viewModal.open();
 
         } catch (error) {
-            console.error('Erreur chargement détails personne à prévenir:', error);
             showAlert('❌ Erreur lors du chargement des détails: ' + error.message, 'danger');
         } finally {
             hideLoading();
@@ -1720,7 +1621,6 @@ class PersonnePrevManager {
             }
             const data = await response.json();
 
-            // Remplir le formulaire
             document.getElementById('nom_prev').value = data.nom || '';
             document.getElementById('prenom_prev').value = data.prenom || '';
             document.getElementById('lien_parente').value = data.lien_parente || '';
@@ -1736,7 +1636,6 @@ class PersonnePrevManager {
 
             this.modal.open();
         } catch (error) {
-            console.error('Erreur chargement personne à prévenir:', error);
             showAlert('❌ Erreur lors du chargement des données: ' + error.message, 'danger');
         } finally {
             hideLoading();
@@ -1744,111 +1643,78 @@ class PersonnePrevManager {
     }
 
     async handleSubmit(e) {
-    e.preventDefault();
+        e.preventDefault();
 
-    const formData = new FormData(this.form);
-    const url = this.currentId
-        ? `/employe/ajax/personne-prevenir/${this.currentId}/update/`
-        : '/employe/ajax/personne-prevenir/create/';
+        const formData = new FormData(this.form);
+        const url = this.currentId
+            ? `/employe/ajax/personne-prevenir/${this.currentId}/update/`
+            : '/employe/ajax/personne-prevenir/create/';
 
-    console.log('📤 URL complète:', window.location.origin + url);
-    console.log('📤 Méthode:', this.currentId ? 'UPDATE' : 'CREATE');
-    console.log('📤 Données du formulaire:');
-    for (let [key, value] of formData.entries()) {
-        console.log(`   ${key}: ${value}`);
-    }
+        showLoading();
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                },
+                body: formData
+            });
 
-    showLoading();
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrftoken,
-            },
-            body: formData
-        });
+            const contentType = response.headers.get('content-type');
 
-        console.log('📥 Response status:', response.status);
-        console.log('📥 Response headers:', response.headers);
-        console.log('📥 Response URL:', response.url);
-
-        // Vérifier si c'est bien du JSON
-        const contentType = response.headers.get('content-type');
-        console.log('📥 Content-Type:', contentType);
-
-        if (!contentType || !contentType.includes('application/json')) {
-            // Ce n'est pas du JSON, lire comme texte pour voir ce que c'est
-            const text = await response.text();
-            console.error('❌ Réponse non-JSON reçue:');
-            console.error(text.substring(0, 500)); // Afficher les 500 premiers caractères
-            showAlert('❌ Erreur: Le serveur n\'a pas retourné une réponse JSON valide (Status: ' + response.status + ')', 'danger');
-            return;
-        }
-
-        const data = await response.json();
-        console.log('📥 Réponse JSON:', data);
-
-        if (response.ok && data.success) {
-            showAlert(
-                this.currentId ? '✅ Contact d\'urgence modifié avec succès' : '✅ Contact d\'urgence ajouté avec succès',
-                'success'
-            );
-            this.modal.close();
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        } else {
-            if (data.errors && data.errors.__all__) {
-                showAlert('❌ ' + data.errors.__all__[0], 'warning', 8000);
-            } else if (data.errors) {
-                this.displayErrors(data.errors);
-            } else if (data.error) {
-                showAlert('❌ ' + data.error, 'danger');
-            } else {
-                showAlert('❌ Une erreur est survenue lors de l\'opération', 'danger');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                showAlert('❌ Erreur: Le serveur n\'a pas retourné une réponse JSON valide (Status: ' + response.status + ')', 'danger');
+                return;
             }
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                showAlert(
+                    this.currentId ? '✅ Contact d\'urgence modifié avec succès' : '✅ Contact d\'urgence ajouté avec succès',
+                    'success'
+                );
+                this.modal.close();
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                if (data.errors && data.errors.__all__) {
+                    showAlert('❌ ' + data.errors.__all__[0], 'warning', 8000);
+                } else if (data.errors) {
+                    this.displayErrors(data.errors);
+                } else if (data.error) {
+                    showAlert('❌ ' + data.error, 'danger');
+                } else {
+                    showAlert('❌ Une erreur est survenue lors de l\'opération', 'danger');
+                }
+            }
+        } catch (error) {
+            showAlert('❌ Erreur: ' + error.message, 'danger');
+        } finally {
+            hideLoading();
         }
-    } catch (error) {
-        console.error('💥 Erreur complète:', error);
-        console.error('💥 Type d\'erreur:', error.name);
-        console.error('💥 Message:', error.message);
-        console.error('💥 Stack:', error.stack);
-        showAlert('❌ Erreur: ' + error.message, 'danger');
-    } finally {
-        hideLoading();
     }
-}
 
     confirmDelete(id) {
-        console.log('🗑️ Confirmation suppression pour ID:', id);
-
-        // Stocker l'ID à supprimer
         this.pendingDeleteId = id;
 
-        // Afficher la modale de suppression
         const deleteModal = new ModalManager('deleteModal');
-
-        // Configurer le bouton de confirmation
         const confirmBtn = document.getElementById('confirmDeleteBtn');
         if (confirmBtn) {
-            // Supprimer les anciens event listeners
             const newConfirmBtn = confirmBtn.cloneNode(true);
             confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
 
-            // Nouvelle référence
             const currentConfirmBtn = document.getElementById('confirmDeleteBtn');
-
             currentConfirmBtn.addEventListener('click', () => {
-                console.log('✅ Confirmation suppression cliquée');
                 this.delete(this.pendingDeleteId);
             });
         }
 
-        // Configurer le bouton Annuler
         const cancelBtn = document.querySelector('#deleteModal .btn-cancel');
         if (cancelBtn) {
             cancelBtn.addEventListener('click', () => {
-                console.log('❌ Annulation suppression');
                 deleteModal.close();
                 this.pendingDeleteId = null;
             });
@@ -1859,11 +1725,8 @@ class PersonnePrevManager {
 
     async delete(id) {
         if (!id) {
-            console.error('❌ ID de suppression manquant');
             return;
         }
-
-        console.log('🗑️ Début suppression ID:', id);
 
         showLoading();
 
@@ -1876,16 +1739,13 @@ class PersonnePrevManager {
             });
 
             const data = await response.json();
-            console.log('📥 Réponse suppression:', data);
 
             if (response.ok && data.success) {
                 showAlert('✅ Contact d\'urgence supprimé avec succès', 'success');
 
-                // Fermer la modale de suppression
                 const deleteModal = new ModalManager('deleteModal');
                 deleteModal.close();
 
-                // Recharger après un délai
                 setTimeout(() => {
                     window.location.reload();
                 }, 1500);
@@ -1893,16 +1753,13 @@ class PersonnePrevManager {
             } else {
                 showAlert('❌ Erreur lors de la suppression: ' + (data.error || ''), 'danger');
 
-                // Fermer la modale en cas d'erreur
                 const deleteModal = new ModalManager('deleteModal');
                 deleteModal.close();
             }
 
         } catch (error) {
-            console.error('💥 Erreur suppression:', error);
             showAlert('❌ Erreur réseau lors de la suppression', 'danger');
 
-            // Fermer la modale en cas d'erreur
             const deleteModal = new ModalManager('deleteModal');
             deleteModal.close();
 
@@ -1913,11 +1770,9 @@ class PersonnePrevManager {
     }
 
     displayErrors(errors) {
-        // Nettoyer les anciennes erreurs
         document.querySelectorAll('.error-message').forEach(el => el.remove());
         document.querySelectorAll('.form-error').forEach(el => el.classList.remove('form-error'));
 
-        // Afficher les nouvelles erreurs
         for (const [field, messages] of Object.entries(errors)) {
             let inputId;
             switch(field) {
@@ -1955,13 +1810,10 @@ class PersonnePrevManager {
                 errorDiv.className = 'error-message';
                 errorDiv.textContent = messages.join(', ');
                 formGroup.appendChild(errorDiv);
-            } else {
-                console.warn('Champ non trouvé pour erreur:', field, inputId);
             }
         }
     }
 
-    // Fonctions utilitaires
     getLienParenteLabel(lien) {
         const liens = {
             'CONJOINT': '💑 Conjoint(e)',
@@ -1992,7 +1844,6 @@ class PersonnePrevManager {
     }
 }
 
-
 //##############################################
 //### Gestion de l'Identité Bancaire (ZYIB) ###
 //##############################################
@@ -2007,15 +1858,11 @@ class IdentiteBancaireManager {
     }
 
     init() {
-        console.log('🔧 Initialisation IdentiteBancaireManager pour employé:', this.employeUuid);
-
-        // Boutons ajouter
         const addBtn = document.getElementById('addIdentiteBancaireBtn');
         if (addBtn) {
             addBtn.addEventListener('click', () => this.openAddModal());
         }
 
-        // Boutons éditer (desktop et mobile)
         const editBtns = [
             document.getElementById('editIdentiteBancaireBtn'),
             document.getElementById('editIdentiteBancaireMobileBtn')
@@ -2027,7 +1874,6 @@ class IdentiteBancaireManager {
             }
         });
 
-        // Boutons supprimer (desktop et mobile)
         const deleteBtns = [
             document.getElementById('deleteIdentiteBancaireBtn'),
             document.getElementById('deleteIdentiteBancaireMobileBtn')
@@ -2039,19 +1885,14 @@ class IdentiteBancaireManager {
             }
         });
 
-        // Soumission du formulaire
         if (this.form) {
             this.form.addEventListener('submit', (e) => this.handleSubmit(e));
-        } else {
-            console.warn('❌ Formulaire identiteBancaireForm non trouvé');
         }
 
-        // Auto-formatage des champs
         this.setupAutoFormatting();
     }
 
     setupAutoFormatting() {
-        // Auto-formatage du code banque (5 chiffres)
         const codeBanqueInput = document.getElementById('code_banque');
         if (codeBanqueInput) {
             codeBanqueInput.addEventListener('input', (e) => {
@@ -2059,7 +1900,6 @@ class IdentiteBancaireManager {
             });
         }
 
-        // Auto-formatage du code guichet (5 chiffres)
         const codeGuichetInput = document.getElementById('code_guichet');
         if (codeGuichetInput) {
             codeGuichetInput.addEventListener('input', (e) => {
@@ -2067,7 +1907,6 @@ class IdentiteBancaireManager {
             });
         }
 
-        // Auto-formatage du numéro de compte (11 caractères)
         const numeroCompteInput = document.getElementById('numero_compte');
         if (numeroCompteInput) {
             numeroCompteInput.addEventListener('input', (e) => {
@@ -2075,7 +1914,6 @@ class IdentiteBancaireManager {
             });
         }
 
-        // Auto-formatage de la clé RIB (2 chiffres)
         const cleRibInput = document.getElementById('cle_rib');
         if (cleRibInput) {
             cleRibInput.addEventListener('input', (e) => {
@@ -2083,28 +1921,22 @@ class IdentiteBancaireManager {
             });
         }
 
-        // Auto-formatage IBAN
         const ibanInput = document.getElementById('iban');
         if (ibanInput) {
             ibanInput.addEventListener('input', (e) => {
-                // Enlever les espaces, mettre en majuscules
                 let value = e.target.value.replace(/\s/g, '').toUpperCase();
-                // Limiter à 34 caractères
                 value = value.substring(0, 34);
                 e.target.value = value;
             });
 
-            // Formater avec des espaces à la sortie du champ
             ibanInput.addEventListener('blur', (e) => {
                 let value = e.target.value.replace(/\s/g, '');
                 if (value.length > 0) {
-                    // Formater par groupes de 4
                     e.target.value = value.match(/.{1,4}/g).join(' ');
                 }
             });
         }
 
-        // Auto-formatage BIC
         const bicInput = document.getElementById('bic');
         if (bicInput) {
             bicInput.addEventListener('input', (e) => {
@@ -2114,12 +1946,9 @@ class IdentiteBancaireManager {
     }
 
     openAddModal() {
-        console.log('➕ Ouverture modal ajout identité bancaire');
-
         document.getElementById('identiteBancaireTitleText').textContent = 'Ajouter une identité bancaire';
         document.getElementById('identiteBancaireSubmitText').textContent = 'Enregistrer';
 
-        // Réinitialiser le formulaire
         if (this.form) {
             this.form.reset();
         }
@@ -2128,8 +1957,6 @@ class IdentiteBancaireManager {
     }
 
     async openEditModal() {
-        console.log('✏️ Ouverture modal édition identité bancaire');
-
         document.getElementById('identiteBancaireTitleText').textContent = 'Modifier l\'identité bancaire';
         document.getElementById('identiteBancaireSubmitText').textContent = 'Mettre à jour';
 
@@ -2142,9 +1969,7 @@ class IdentiteBancaireManager {
             }
 
             const data = await response.json();
-            console.log('📥 Données chargées:', data);
 
-            // Remplir le formulaire
             document.getElementById('titulaire_compte').value = data.titulaire_compte || '';
             document.getElementById('nom_banque').value = data.nom_banque || '';
             document.getElementById('type_compte').value = data.type_compte || 'COURANT';
@@ -2164,7 +1989,6 @@ class IdentiteBancaireManager {
 
             this.modal.open();
         } catch (error) {
-            console.error('Erreur chargement identité bancaire:', error);
             showAlert('❌ Erreur lors du chargement des données: ' + error.message, 'danger');
         } finally {
             hideLoading();
@@ -2177,11 +2001,6 @@ class IdentiteBancaireManager {
         const formData = new FormData(this.form);
         const url = `/employe/ajax/identite-bancaire/${this.employeUuid}/save/`;
 
-        console.log('📤 Envoi données identité bancaire:', {
-            url: url,
-            formData: Object.fromEntries(formData)
-        });
-
         showLoading();
         try {
             const response = await fetch(url, {
@@ -2193,12 +2012,10 @@ class IdentiteBancaireManager {
             });
 
             const data = await response.json();
-            console.log('📥 Réponse identité bancaire:', data);
 
             if (response.ok && data.success) {
                 showAlert(data.message, 'success');
                 this.modal.close();
-                // Recharger la page pour voir les changements
                 setTimeout(() => {
                     window.location.reload();
                 }, 1500);
@@ -2214,7 +2031,6 @@ class IdentiteBancaireManager {
                 }
             }
         } catch (error) {
-            console.error('Erreur soumission identité bancaire:', error);
             showAlert('❌ Erreur réseau: ' + error.message, 'danger');
         } finally {
             hideLoading();
@@ -2222,42 +2038,30 @@ class IdentiteBancaireManager {
     }
 
     confirmDelete() {
-        console.log('🗑️ Confirmation suppression identité bancaire');
-
-        // Ouvrir le modal de confirmation
         const deleteModal = new ModalManager('deleteModal');
-
-        // Configurer le bouton de confirmation
         const confirmBtn = document.getElementById('confirmDeleteBtn');
         if (confirmBtn) {
-            // Supprimer les anciens event listeners en clonant le bouton
             const newConfirmBtn = confirmBtn.cloneNode(true);
             confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
 
-            // Ajouter le nouvel event listener
             const currentConfirmBtn = document.getElementById('confirmDeleteBtn');
             currentConfirmBtn.addEventListener('click', () => {
-                console.log('✅ Confirmation suppression cliquée');
                 deleteModal.close();
                 this.delete();
             });
         }
 
-        // Configurer le bouton Annuler
         const cancelBtn = document.querySelector('#deleteModal .btn-cancel');
         if (cancelBtn) {
-            // Cloner pour supprimer les anciens listeners
             const newCancelBtn = cancelBtn.cloneNode(true);
             cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
 
             const currentCancelBtn = document.querySelector('#deleteModal .btn-cancel');
             currentCancelBtn.addEventListener('click', () => {
-                console.log('❌ Annulation suppression');
                 deleteModal.close();
             });
         }
 
-        // Personnaliser le message du modal
         const modalBody = document.querySelector('#deleteModal .modal-body p');
         if (modalBody) {
             modalBody.textContent = 'Êtes-vous sûr de vouloir supprimer cette identité bancaire ? Cette action est irréversible.';
@@ -2267,8 +2071,6 @@ class IdentiteBancaireManager {
     }
 
     async delete() {
-        console.log('🗑️ Début suppression identité bancaire');
-
         showLoading();
 
         try {
@@ -2280,12 +2082,10 @@ class IdentiteBancaireManager {
             });
 
             const data = await response.json();
-            console.log('📥 Réponse suppression:', data);
 
             if (response.ok && data.success) {
                 showAlert('✅ Identité bancaire supprimée avec succès', 'success');
 
-                // Recharger après un délai
                 setTimeout(() => {
                     window.location.reload();
                 }, 1500);
@@ -2295,7 +2095,6 @@ class IdentiteBancaireManager {
             }
 
         } catch (error) {
-            console.error('💥 Erreur suppression:', error);
             showAlert('❌ Erreur réseau lors de la suppression', 'danger');
         } finally {
             hideLoading();
@@ -2303,11 +2102,9 @@ class IdentiteBancaireManager {
     }
 
     displayErrors(errors) {
-        // Nettoyer les anciennes erreurs
         document.querySelectorAll('.error-message').forEach(el => el.remove());
         document.querySelectorAll('.form-error').forEach(el => el.classList.remove('form-error'));
 
-        // Afficher les nouvelles erreurs
         for (const [field, messages] of Object.entries(errors)) {
             const input = document.getElementById(field);
             if (input) {
@@ -2320,16 +2117,12 @@ class IdentiteBancaireManager {
                     errorDiv.textContent = messages.join(', ');
                     formGroup.appendChild(errorDiv);
                 }
-            } else {
-                console.warn('Champ non trouvé pour erreur:', field);
             }
         }
 
-        // Afficher une alerte générale si des erreurs existent
         showAlert('❌ Veuillez corriger les erreurs dans le formulaire', 'warning');
     }
 
-    // Méthodes utilitaires
     formatRib(codeBanque, codeGuichet, numeroCompte, cleRib) {
         return `${codeBanque} ${codeGuichet} ${numeroCompte} ${cleRib}`;
     }
@@ -2341,15 +2134,12 @@ class IdentiteBancaireManager {
     }
 }
 
-
-// Initialisation principale (REMPLACER LA SECTION EXISTANTE)
+// Initialisation principale
 document.addEventListener('DOMContentLoaded', function() {
     const employeUuid = document.body.dataset.employeUuid;
 
     if (employeUuid) {
         const activeTab = new URLSearchParams(window.location.search).get('tab') || 'donnees';
-
-        console.log('🔧 Initialisation onglet:', activeTab, 'pour employé:', employeUuid);
 
         if (activeTab === 'coordonnees') {
             new AdresseManager(employeUuid);
@@ -2367,9 +2157,6 @@ document.addEventListener('DOMContentLoaded', function() {
             new PersonnePrevManager(employeUuid);
         }
 
-        console.log('✅ Managers initialisés pour onglet:', activeTab);
-
-        // Gestion des clics sur les employés dans le sidebar
         document.querySelectorAll('.employee-item').forEach(item => {
             item.addEventListener('click', function() {
                 const uuid = this.dataset.uuid;
@@ -2378,7 +2165,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        // Fonction de recherche
         const searchBox = document.getElementById('searchBox');
         if (searchBox) {
             searchBox.addEventListener('input', function() {
@@ -2397,40 +2183,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
         }
-
-    } else {
-        console.warn('⚠️ Aucun UUID employé trouvé');
     }
 });
 
+document.querySelectorAll('.employee-item').forEach(item => {
+    item.addEventListener('click', function() {
+        const uuid = this.dataset.uuid;
+        const currentTab = new URLSearchParams(window.location.search).get('tab') || 'donnees';
+        window.location.href = `/employe/dossier/${uuid}/?tab=${currentTab}`;
+    });
+});
 
-    // Gestion des clics sur les employés dans le sidebar
-    document.querySelectorAll('.employee-item').forEach(item => {
-        item.addEventListener('click', function() {
-            const uuid = this.dataset.uuid;
-            const currentTab = new URLSearchParams(window.location.search).get('tab') || 'donnees';
-            window.location.href = `/employe/dossier/${uuid}/?tab=${currentTab}`;
+const searchBox = document.getElementById('searchBox');
+if (searchBox) {
+    searchBox.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const employeeItems = document.querySelectorAll('.employee-item');
+
+        employeeItems.forEach(item => {
+            const name = item.querySelector('.employee-name').textContent.toLowerCase();
+            const matricule = item.querySelector('.employee-matricule').textContent.toLowerCase();
+
+            if (name.includes(searchTerm) || matricule.includes(searchTerm)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
         });
     });
-
-    // Fonction de recherche
-    const searchBox = document.getElementById('searchBox');
-    if (searchBox) {
-        searchBox.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            const employeeItems = document.querySelectorAll('.employee-item');
-
-            employeeItems.forEach(item => {
-                const name = item.querySelector('.employee-name').textContent.toLowerCase();
-                const matricule = item.querySelector('.employee-matricule').textContent.toLowerCase();
-
-                if (name.includes(searchTerm) || matricule.includes(searchTerm)) {
-                    item.style.display = 'block';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        });
-    }
-
-
+}

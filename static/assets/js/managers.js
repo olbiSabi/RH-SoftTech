@@ -22,7 +22,6 @@ function getCookie(name) {
 
 // Fonction pour afficher le chargement
 function showLoading() {
-    // Créer un overlay de chargement simple
     let loadingOverlay = document.getElementById('loadingOverlay');
     if (!loadingOverlay) {
         loadingOverlay = document.createElement('div');
@@ -59,11 +58,9 @@ function hideLoading() {
 
 // Fonction pour afficher les alertes
 function showAlert(message, type = 'success', duration = 3000) {
-    // Supprimer les alertes existantes
     const existingAlerts = document.querySelectorAll('.custom-alert');
     existingAlerts.forEach(alert => alert.remove());
 
-    // Créer une nouvelle alerte
     const alertDiv = document.createElement('div');
     alertDiv.className = `custom-alert alert alert-${type} alert-dismissible fade show`;
     alertDiv.innerHTML = `
@@ -81,7 +78,6 @@ function showAlert(message, type = 'success', duration = 3000) {
 
     document.body.appendChild(alertDiv);
 
-    // Auto-fermer après la durée spécifiée
     setTimeout(() => {
         if (alertDiv.parentNode) {
             alertDiv.remove();
@@ -104,9 +100,6 @@ class ManagerManager {
     }
 
     init() {
-        console.log('✅ ManagerManager initialisé');
-
-        // Boutons d'ajout
         const addBtn = document.getElementById('addManagerBtn');
         const addBtnEmpty = document.getElementById('addManagerBtnEmpty');
 
@@ -118,7 +111,6 @@ class ManagerManager {
             addBtnEmpty.addEventListener('click', () => this.openAddModal());
         }
 
-        // Boutons d'ajout par département
         document.querySelectorAll('.add-manager-departement-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const departementId = e.currentTarget.dataset.departementId;
@@ -127,12 +119,10 @@ class ManagerManager {
             });
         });
 
-        // Soumission du formulaire
         if (this.form) {
             this.form.addEventListener('submit', (e) => this.handleSubmit(e));
         }
 
-        // Boutons d'édition et suppression
         document.querySelectorAll('.edit-manager-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const id = e.currentTarget.dataset.id;
@@ -149,12 +139,10 @@ class ManagerManager {
     }
 
     openAddModal() {
-        console.log('📝 Ouverture modal ajout');
         this.currentId = null;
         document.getElementById('managerModalTitle').textContent = 'Ajouter un Manager';
         document.getElementById('managerSubmitBtn').textContent = 'Ajouter';
 
-        // Réinitialiser le formulaire
         if (this.form) {
             this.form.reset();
             this.clearErrors();
@@ -172,7 +160,6 @@ class ManagerManager {
     }
 
     async openEditModal(id) {
-        console.log('✏️ Ouverture modal édition pour ID:', id);
         this.currentId = id;
 
         showLoading();
@@ -183,12 +170,10 @@ class ManagerManager {
             }
 
             const data = await response.json();
-            console.log('📦 Données reçues:', data);
 
             document.getElementById('managerModalTitle').textContent = 'Modifier le Manager';
             document.getElementById('managerSubmitBtn').textContent = 'Modifier';
 
-            // Remplir le formulaire
             document.getElementById('departement').value = data.departement;
             document.getElementById('employe').value = data.employe;
             document.getElementById('date_debut').value = data.date_debut;
@@ -196,7 +181,6 @@ class ManagerManager {
 
             this.modal.show();
         } catch (error) {
-            console.error('❌ Erreur:', error);
             showAlert('Erreur lors du chargement des données: ' + error.message, 'danger');
         } finally {
             hideLoading();
@@ -205,9 +189,7 @@ class ManagerManager {
 
     async handleSubmit(e) {
         e.preventDefault();
-        console.log('🚀 Soumission du formulaire...');
 
-        // Valider les champs requis
         const departement = document.getElementById('departement').value;
         const employe = document.getElementById('employe').value;
         const dateDebut = document.getElementById('date_debut').value;
@@ -222,9 +204,6 @@ class ManagerManager {
             ? `/departement/api/manager/${this.currentId}/update/`
             : `/departement/api/manager/create/`;
 
-        console.log('📤 Envoi vers:', url);
-        console.log('📋 Données:', Object.fromEntries(formData));
-
         showLoading();
         try {
             const response = await fetch(url, {
@@ -237,7 +216,6 @@ class ManagerManager {
             });
 
             const data = await response.json();
-            console.log('📥 Réponse:', data);
 
             if (response.ok) {
                 showAlert(
@@ -246,13 +224,11 @@ class ManagerManager {
                 );
                 this.modal.hide();
 
-                // Recharger la page après un court délai
                 setTimeout(() => {
                     window.location.reload();
                 }, 1500);
 
             } else {
-                console.error('❌ Erreur serveur:', data);
                 if (data.errors && data.errors.__all__) {
                     showAlert('❌ ' + data.errors.__all__[0], 'warning', 6000);
                 } else if (data.errors) {
@@ -265,7 +241,6 @@ class ManagerManager {
                 }
             }
         } catch (error) {
-            console.error('❌ Erreur réseau:', error);
             showAlert('❌ Erreur réseau: ' + error.message, 'danger');
         } finally {
             hideLoading();
@@ -302,7 +277,6 @@ class ManagerManager {
                 showAlert('❌ Erreur lors de la suppression: ' + (data.error || 'Erreur inconnue'), 'danger');
             }
         } catch (error) {
-            console.error('❌ Erreur:', error);
             showAlert('❌ Erreur réseau: ' + error.message, 'danger');
         } finally {
             hideLoading();
@@ -310,10 +284,8 @@ class ManagerManager {
     }
 
     displayErrors(errors) {
-        // Nettoyer les anciennes erreurs
         this.clearErrors();
 
-        // Afficher les nouvelles erreurs
         for (const [field, messages] of Object.entries(errors)) {
             const input = document.getElementById(field);
             if (input) {
@@ -323,14 +295,11 @@ class ManagerManager {
                 errorDiv.className = 'invalid-feedback';
                 errorDiv.textContent = Array.isArray(messages) ? messages.join(', ') : messages;
                 input.parentNode.appendChild(errorDiv);
-            } else {
-                console.warn(`Champ "${field}" non trouvé pour afficher l'erreur:`, messages);
             }
         }
     }
 
     clearErrors() {
-        // Nettoyer toutes les erreurs
         document.querySelectorAll('.is-invalid').forEach(el => {
             el.classList.remove('is-invalid');
         });
@@ -345,21 +314,14 @@ class ManagerManager {
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('📄 DOM chargé - initialisation ManagerManager');
-
-    // Vérifier que Bootstrap est disponible
     if (typeof bootstrap === 'undefined') {
-        console.error('❌ Bootstrap non chargé!');
         return;
     }
 
-    // Vérifier que le modal existe
     const modal = document.getElementById('managerModal');
     if (!modal) {
-        console.error('❌ Modal managerModal non trouvé!');
         return;
     }
 
     new ManagerManager();
-    console.log('✅ ManagerManager initialisé avec succès');
 });

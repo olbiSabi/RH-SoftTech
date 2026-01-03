@@ -15,8 +15,6 @@ let photoModal;
 // INITIALISATION AU CHARGEMENT DU DOM
 // ========================================
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🎨 Initialisation des modals et photo de profil...');
-
     // Initialiser tous les modals
     try {
         contratModal = new bootstrap.Modal(document.getElementById('contratModal'));
@@ -31,17 +29,14 @@ document.addEventListener('DOMContentLoaded', function() {
         deleteAdresseModal = new bootstrap.Modal(document.getElementById('deleteAdresseModal'));
         documentModal = new bootstrap.Modal(document.getElementById('documentModal'));
         deleteDocumentModal = new bootstrap.Modal(document.getElementById('deleteDocumentModal'));
-
-        console.log('✅ Tous les modals initialisés avec succès');
     } catch(e) {
-        console.error('❌ Erreur lors de l\'initialisation des modals:', e);
+        console.error('Erreur lors de l\'initialisation des modals:', e);
     }
 
     // Initialiser le modal photo
     const photoModalElement = document.getElementById('photoModal');
     if (photoModalElement) {
         photoModal = new bootstrap.Modal(photoModalElement);
-        console.log('✅ Modal photo initialisé');
     }
 
     // Soumettre les formulaires
@@ -52,12 +47,12 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('adresseForm').addEventListener('submit', e => { e.preventDefault(); saveAdresse(); });
     document.getElementById('documentForm').addEventListener('submit', e => { e.preventDefault(); saveDocument(); });
 
-    // 🆕 GESTION FORMULAIRE PHOTO - EMPÊCHER LA SOUMISSION PAR DÉFAUT
+    // Gestion formulaire photo
     const photoForm = document.getElementById('photoForm');
     if (photoForm) {
         photoForm.addEventListener('submit', function(e) {
-            e.preventDefault(); // 🔴 TOUJOURS empêcher la soumission par défaut
-            e.stopPropagation(); // 🔴 Empêcher la propagation de l'événement
+            e.preventDefault();
+            e.stopPropagation();
             savePhoto();
         });
     }
@@ -129,8 +124,6 @@ function handlePhotoPreview(e) {
  * Ouvre le modal pour modifier la photo
  */
 function openPhotoModal() {
-    console.log('📸 Ouverture du modal photo');
-
     const photoForm = document.getElementById('photoForm');
     const photoPreview = document.getElementById('photoPreview');
     const photoError = document.getElementById('photoError');
@@ -151,8 +144,6 @@ function openPhotoModal() {
     // Afficher le modal
     if (photoModal) {
         photoModal.show();
-    } else {
-        console.error('❌ Modal photo non initialisé');
     }
 }
 
@@ -160,29 +151,23 @@ function openPhotoModal() {
  * Sauvegarde la photo via AJAX
  */
 function savePhoto() {
-    console.log('💾 Tentative d\'envoi de la photo...');
-
     const form = document.getElementById('photoForm');
     const photoFileInput = document.getElementById('photoFile');
     const submitButton = form.querySelector('button[type="submit"]');
 
-    // 🔴 VÉRIFICATION CRITIQUE #1 : Fichier sélectionné ?
+    // Vérification : Fichier sélectionné ?
     if (!photoFileInput.files || photoFileInput.files.length === 0) {
-        console.warn('⚠️ Aucun fichier sélectionné');
         showPhotoError('Veuillez sélectionner une photo avant d\'enregistrer');
-        return false; // 🔴 ARRÊT TOTAL - Pas d'envoi, pas de rafraîchissement
+        return false;
     }
 
     const photoFile = photoFileInput.files[0];
 
-    // 🔴 VÉRIFICATION CRITIQUE #2 : Fichier valide ?
+    // Vérification : Fichier valide ?
     if (!photoFile) {
-        console.warn('⚠️ Fichier invalide');
         showPhotoError('Le fichier sélectionné est invalide');
-        return false; // 🔴 ARRÊT TOTAL
+        return false;
     }
-
-    console.log('✅ Fichier valide détecté:', photoFile.name);
 
     // Créer le FormData
     const formData = new FormData(form);
@@ -209,30 +194,25 @@ function savePhoto() {
             submitButton.innerHTML = originalText;
 
             if (data.success) {
-                console.log('✅ Photo mise à jour avec succès');
                 photoModal.hide();
-
-                // Afficher un message de succès
                 showSuccessMessage('Photo de profil mise à jour avec succès');
 
-                // Recharger la page après un court délai
                 setTimeout(() => {
                     window.location.reload();
                 }, 1000);
             } else {
-                console.error('❌ Erreur serveur:', data.error);
                 showPhotoError(data.error || 'Une erreur est survenue lors de l\'upload');
             }
         })
         .catch(error => {
             submitButton.disabled = false;
             submitButton.innerHTML = originalText;
-            console.error('❌ Erreur réseau:', error);
+            console.error('Erreur réseau:', error);
             showPhotoError('Erreur de connexion au serveur. Veuillez réessayer.');
         });
     }
 
-    return false; // 🔴 Important : retourner false pour empêcher toute soumission
+    return false;
 }
 
 /**
@@ -245,7 +225,6 @@ function showPhotoError(message) {
         photoError.classList.remove('d-none');
         photoError.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
-    console.error('🚫 Erreur photo:', message);
 }
 
 /**
@@ -272,7 +251,6 @@ function showSuccessMessage(message) {
 // FONCTIONS CONTRAT
 // ========================================
 function openContratModal(id = null, type = '', dateDebut = '', dateFin = '') {
-    console.log('openContratModal appelé', id);
     const form = document.getElementById('contratForm');
     const modalTitle = document.getElementById('modalTitle');
     const errorMessage = document.getElementById('errorMessage');
@@ -295,7 +273,6 @@ function openContratModal(id = null, type = '', dateDebut = '', dateFin = '') {
 }
 
 function confirmDeleteContrat(id, type, dateDebut) {
-    console.log('confirmDeleteContrat appelé', id);
     document.getElementById('deleteContratId').value = id;
     document.getElementById('deleteMessage').textContent = `Voulez-vous vraiment supprimer le contrat ${type} du ${dateDebut} ?`;
     deleteModal.show();
@@ -359,7 +336,6 @@ function saveContrat() {
 // FONCTIONS AFFECTATION
 // ========================================
 function openAffectationModal(id = null, posteId = '', dateDebut = '', dateFin = '') {
-    console.log('openAffectationModal appelé', id);
     document.getElementById('affectationForm').reset();
     document.getElementById('affectationError').classList.add('d-none');
     document.getElementById('affectationModalTitle').textContent = id ? 'Modifier l\'affectation' : 'Ajouter une affectation';
@@ -401,7 +377,6 @@ function saveAffectation() {
 }
 
 function confirmDeleteAffectation(id, poste) {
-    console.log('confirmDeleteAffectation appelé', id);
     document.getElementById('deleteAffectationId').value = id;
     document.getElementById('deleteAffectationMessage').textContent = `Supprimer l'affectation "${poste}" ?`;
     deleteAffectationModal.show();
@@ -431,7 +406,6 @@ function deleteAffectation() {
 // FONCTIONS TÉLÉPHONE
 // ========================================
 function openTelephoneModal(id = null, numero = '', dateDebut = '', dateFin = '') {
-    console.log('openTelephoneModal appelé', id);
     document.getElementById('telephoneForm').reset();
     document.getElementById('telephoneError').classList.add('d-none');
     document.getElementById('telephoneModalTitle').textContent = id ? 'Modifier le téléphone' : 'Ajouter un téléphone';
@@ -473,7 +447,6 @@ function saveTelephone() {
 }
 
 function confirmDeleteTelephone(id, numero) {
-    console.log('confirmDeleteTelephone appelé', id);
     document.getElementById('deleteTelephoneId').value = id;
     document.getElementById('deleteTelephoneMessage').textContent = `Supprimer le numéro "${numero}" ?`;
     deleteTelephoneModal.show();
@@ -503,7 +476,6 @@ function deleteTelephone() {
 // FONCTIONS EMAIL
 // ========================================
 function openEmailModal(id = null, email = '', dateDebut = '', dateFin = '') {
-    console.log('openEmailModal appelé', id);
     document.getElementById('emailForm').reset();
     document.getElementById('emailError').classList.add('d-none');
     document.getElementById('emailModalTitle').textContent = id ? 'Modifier l\'email' : 'Ajouter un email';
@@ -545,7 +517,6 @@ function saveEmail() {
 }
 
 function confirmDeleteEmail(id, email) {
-    console.log('confirmDeleteEmail appelé', id);
     document.getElementById('deleteEmailId').value = id;
     document.getElementById('deleteEmailMessage').textContent = `Supprimer l'email "${email}" ?`;
     deleteEmailModal.show();
@@ -575,7 +546,6 @@ function deleteEmail() {
 // FONCTIONS ADRESSE
 // ========================================
 function openAdresseModal(id = null, rue = '', ville = '', pays = '', codePostal = '', type = '', dateDebut = '', dateFin = '') {
-    console.log('openAdresseModal appelé', id);
     document.getElementById('adresseForm').reset();
     document.getElementById('adresseError').classList.add('d-none');
     document.getElementById('adresseModalTitle').textContent = id ? 'Modifier l\'adresse' : 'Ajouter une adresse';
@@ -621,7 +591,6 @@ function saveAdresse() {
 }
 
 function confirmDeleteAdresse(id, ville, type) {
-    console.log('confirmDeleteAdresse appelé', id);
     document.getElementById('deleteAdresseId').value = id;
     document.getElementById('deleteAdresseMessage').textContent = `Supprimer l'adresse de ${ville} (${type}) ?`;
     deleteAdresseModal.show();
@@ -651,7 +620,6 @@ function deleteAdresse() {
 // FONCTIONS DOCUMENT
 // ========================================
 function openDocumentModal() {
-    console.log('openDocumentModal appelé');
     document.getElementById('documentForm').reset();
     document.getElementById('documentError').classList.add('d-none');
     document.getElementById('documentModalTitle').textContent = 'Joindre un document';
@@ -684,7 +652,6 @@ function saveDocument() {
 }
 
 function confirmDeleteDocument(id, typeDocument) {
-    console.log('confirmDeleteDocument appelé', id);
     document.getElementById('deleteDocumentId').value = id;
     document.getElementById('deleteDocumentMessage').textContent = `Supprimer le document "${typeDocument}" ?`;
     deleteDocumentModal.show();
@@ -709,5 +676,3 @@ function deleteDocument() {
         }
     });
 }
-
-console.log('✅ Script complet chargé (modals + photo) - Version corrigée anti-rafraîchissement');

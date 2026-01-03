@@ -1,10 +1,9 @@
-// assets/js/absence/conventions.js - VERSION DÉFINITIVE
+// assets/js/absence/conventions.js
 
 /**
  * Gestion des conventions collectives
  */
 
-// ✅ BLOQUER showSuccessMessage
 window.showSuccessMessage = function() { return; };
 
 // ===== VARIABLES GLOBALES =====
@@ -23,11 +22,9 @@ function initEventHandlers() {
         saveConvention();
     });
 
-    // ✅ CORRECTION : Réinitialiser UNIQUEMENT en mode création
     const modalElement = document.getElementById('conventionModal');
     if (modalElement) {
         modalElement.addEventListener('hidden.bs.modal', function () {
-            // Réinitialiser seulement si on était en mode création
             if (!isEditMode) {
                 resetForm();
             }
@@ -41,7 +38,6 @@ function openCreateModal() {
     isEditMode = false;
     currentConventionId = null;
 
-    // Réinitialiser le formulaire pour la création
     resetForm();
 
     $('#conventionModalTitle').html('<i class="fas fa-plus"></i> Nouvelle Convention');
@@ -55,14 +51,11 @@ function openEditModal(conventionId) {
     isEditMode = true;
     currentConventionId = conventionId;
 
-    // ✅ ABSOLUMENT AUCUN APPEL À resetForm() ici
-    // Juste effacer les erreurs
     clearFormErrors();
 
     $('#conventionModalTitle').html('<i class="fas fa-edit"></i> Modifier la Convention');
     $('#submitBtn').html('<i class="fas fa-save"></i> Modifier');
 
-    // Charger les données (va appeler populateForm)
     loadConventionData(conventionId);
 
     const modal = new bootstrap.Modal(document.getElementById('conventionModal'));
@@ -85,7 +78,6 @@ function loadConventionData(conventionId) {
 }
 
 function populateForm(data) {
-    // Remplir tous les champs SAUF type_convention
     $('#convention_id').val(data.id);
     $('#nom').val(data.nom);
     $('#code').val(data.code);
@@ -97,7 +89,6 @@ function populateForm(data) {
     $('#duree_conges_principale').val(data.duree_conges_principale);
     $('#methode_calcul').val(data.methode_calcul);
 
-    // Période de prise
     const anneeReference = parseInt(data.annee_reference);
 
     if (data.periode_prise_debut) {
@@ -128,15 +119,11 @@ function populateForm(data) {
         }
     }
 
-    // ✅ DÉFINIR LE TYPE EN TOUT DERNIER avec délai
-    // Utiliser setTimeout pour être ABSOLUMENT SÛR que tous les autres événements sont terminés
     setTimeout(() => {
         const typeConvention = data.type_convention;
 
-        // Méthode 1 : val()
         $('#type_convention').val(typeConvention);
 
-        // Méthode 2 : Sélectionner manuellement l'option
         $('#type_convention option').each(function() {
             if ($(this).val() === typeConvention) {
                 $(this).prop('selected', true);
@@ -145,17 +132,8 @@ function populateForm(data) {
             }
         });
 
-        // Méthode 3 : Trigger change event
         $('#type_convention').trigger('change');
-
-        // Vérification finale
-        const valeurApres = $('#type_convention').val();
-        console.log('✅ Type défini:', typeConvention, '| Valeur finale:', valeurApres);
-
-        if (valeurApres !== typeConvention) {
-            console.error('❌ ERREUR: Le type n\'a pas été défini correctement!');
-        }
-    }, 200); // Délai de 200ms pour être sûr
+    }, 200);
 }
 
 // ===== SAUVEGARDE =====
@@ -287,8 +265,6 @@ function clearFormErrors() {
 // ===== RÉINITIALISATION =====
 
 function resetForm() {
-    console.log('🔄 Réinitialisation du formulaire');
-
     $('#conventionForm')[0].reset();
     $('#convention_id').val('');
     $('#actif').prop('checked', true);

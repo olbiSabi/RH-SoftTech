@@ -12,16 +12,10 @@
  * Ouvre le modal de création
  */
 function openCreateModal() {
-    // Réinitialiser le formulaire
     resetForm();
-
-    // Modifier le titre
     document.getElementById('modalTitle').textContent = 'Nouveau Jour Férié';
-
-    // Vider l'ID (mode création)
     document.getElementById('jourFerieId').value = '';
 
-    // Afficher le modal
     const modal = new bootstrap.Modal(document.getElementById('jourFerieModal'));
     modal.show();
 }
@@ -30,16 +24,10 @@ function openCreateModal() {
  * Ouvre le modal d'édition
  */
 function openEditModal(id) {
-    // Réinitialiser le formulaire
     resetForm();
-
-    // Modifier le titre
     document.getElementById('modalTitle').textContent = 'Modifier le Jour Férié';
-
-    // Charger les données
     loadJourFerieData(id);
 
-    // Afficher le modal
     const modal = new bootstrap.Modal(document.getElementById('jourFerieModal'));
     modal.show();
 }
@@ -48,10 +36,8 @@ function openEditModal(id) {
  * Ouvre le modal de duplication d'année
  */
 function openDuplicateModal() {
-    // Réinitialiser le formulaire de duplication
     document.getElementById('duplicateForm').reset();
 
-    // Afficher le modal
     const modal = new bootstrap.Modal(document.getElementById('duplicateModal'));
     modal.show();
 }
@@ -74,7 +60,6 @@ function loadJourFerieData(id) {
             }
         })
         .catch(error => {
-            console.error('Erreur:', error);
             showErrorMessage('Erreur lors du chargement des données');
         });
 }
@@ -100,19 +85,15 @@ function populateForm(data) {
  * Sauvegarde un jour férié (création ou modification)
  */
 function saveJourFerie() {
-    // Effacer les erreurs précédentes
     clearFormErrors();
 
-    // Récupérer l'ID
     const id = document.getElementById('jourFerieId').value;
     const isEdit = id !== '';
 
-    // Construire l'URL
     const url = isEdit
         ? `/absence/api/jour-ferie/${id}/update/`
         : '/absence/api/jour-ferie/create/';
 
-    // Récupérer les données du formulaire
     const formData = new FormData();
     formData.append('nom', document.getElementById('nom').value.trim());
     formData.append('date', document.getElementById('date').value);
@@ -120,11 +101,8 @@ function saveJourFerie() {
     formData.append('recurrent', document.getElementById('recurrent').checked);
     formData.append('actif', document.getElementById('actif').checked);
     formData.append('description', document.getElementById('description').value.trim());
-
-    // Ajouter le token CSRF
     formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
 
-    // Envoyer la requête
     fetch(url, {
         method: 'POST',
         body: formData,
@@ -135,20 +113,16 @@ function saveJourFerie() {
     .then(response => response.json())
     .then(result => {
         if (result.success) {
-            // Fermer le modal
             const modalElement = document.getElementById('jourFerieModal');
             const modal = bootstrap.Modal.getInstance(modalElement);
             modal.hide();
 
-            // Afficher un message de succès
             showSuccessMessage(result.message);
 
-            // Recharger la page après un court délai
             setTimeout(() => {
                 window.location.reload();
             }, 800);
         } else {
-            // Afficher les erreurs
             if (result.errors) {
                 displayFormErrors(result.errors);
             } else {
@@ -157,7 +131,6 @@ function saveJourFerie() {
         }
     })
     .catch(error => {
-        console.error('Erreur:', error);
         showErrorMessage('Erreur lors de la sauvegarde');
     });
 }
@@ -170,7 +143,6 @@ function saveJourFerie() {
  * Supprime un jour férié
  */
 function deleteJourFerie(id, nom) {
-    // Utiliser SweetAlert2 si disponible, sinon confirm natif
     if (typeof Swal !== 'undefined') {
         Swal.fire({
             title: 'Confirmer la suppression',
@@ -217,7 +189,6 @@ function executeDelete(id) {
         }
     })
     .catch(error => {
-        console.error('Erreur:', error);
         showErrorMessage('Erreur lors de la suppression');
     });
 }
@@ -249,7 +220,6 @@ function toggleJourFerie(id) {
         }
     })
     .catch(error => {
-        console.error('Erreur:', error);
         showErrorMessage('Erreur lors de la modification');
     });
 }
@@ -275,7 +245,6 @@ function duplicateJoursFeries() {
         return;
     }
 
-    // Utiliser SweetAlert2 si disponible
     if (typeof Swal !== 'undefined') {
         Swal.fire({
             title: 'Confirmer la duplication',
@@ -317,7 +286,6 @@ function executeDuplicate(anneeSource, anneeCible) {
     .then(response => response.json())
     .then(result => {
         if (result.success) {
-            // Fermer le modal
             const modalElement = document.getElementById('duplicateModal');
             const modal = bootstrap.Modal.getInstance(modalElement);
             modal.hide();
@@ -331,7 +299,6 @@ function executeDuplicate(anneeSource, anneeCible) {
         }
     })
     .catch(error => {
-        console.error('Erreur:', error);
         showErrorMessage('Erreur lors de la duplication');
     });
 }
@@ -344,13 +311,11 @@ function executeDuplicate(anneeSource, anneeCible) {
  * Affiche les erreurs du formulaire
  */
 function displayFormErrors(errors) {
-    // Erreurs globales
     if (errors.__all__) {
         showErrorMessage(errors.__all__);
         return;
     }
 
-    // Erreurs par champ
     for (const [field, message] of Object.entries(errors)) {
         const input = document.getElementById(field);
         if (input) {
@@ -383,7 +348,6 @@ function resetForm() {
     clearFormErrors();
     document.getElementById('jourFerieId').value = '';
 
-    // Réinitialiser les valeurs par défaut
     document.getElementById('type_ferie').value = 'LEGAL';
     document.getElementById('recurrent').checked = true;
     document.getElementById('actif').checked = true;
@@ -398,7 +362,6 @@ function resetForm() {
  */
 function showSuccessMessage(message) {
     if (typeof toastr !== 'undefined') {
-        // Configuration Toastr
         toastr.options = {
             closeButton: true,
             progressBar: true,
@@ -415,7 +378,6 @@ function showSuccessMessage(message) {
             showConfirmButton: false
         });
     } else {
-        // Fallback : créer une alerte Bootstrap
         showBootstrapAlert(message, 'success');
     }
 }
@@ -425,7 +387,6 @@ function showSuccessMessage(message) {
  */
 function showErrorMessage(message) {
     if (typeof toastr !== 'undefined') {
-        // Configuration Toastr
         toastr.options = {
             closeButton: true,
             progressBar: true,
@@ -441,7 +402,6 @@ function showErrorMessage(message) {
             confirmButtonText: 'OK'
         });
     } else {
-        // Fallback : créer une alerte Bootstrap
         showBootstrapAlert(message, 'danger');
     }
 }
@@ -461,7 +421,6 @@ function showBootstrapAlert(message, type) {
 
     document.body.appendChild(alertDiv);
 
-    // Supprimer automatiquement après 5 secondes
     setTimeout(() => {
         alertDiv.remove();
     }, 5000);
@@ -494,7 +453,6 @@ function getCookie(name) {
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Gérer la fermeture du modal
     const modalElement = document.getElementById('jourFerieModal');
     if (modalElement) {
         modalElement.addEventListener('hidden.bs.modal', function() {
@@ -502,7 +460,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Soumettre le formulaire avec Entrée
     const form = document.getElementById('jourFerieForm');
     if (form) {
         form.addEventListener('keypress', function(e) {

@@ -1,4 +1,3 @@
-// static/assets/js/absence/absence_form.js
 
 /**
  * Gestion du formulaire d'absence avec support des demi-journées

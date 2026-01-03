@@ -12,13 +12,9 @@
  * Ouvre le modal de création
  */
 function openCreateModal() {
-    // Modifier le titre
     document.getElementById('modalTitle').textContent = "Nouveau Type d'Absence";
-
-    // Vider l'ID (mode création)
     document.getElementById('typeAbsenceId').value = '';
 
-    // Réinitialiser TOUS les champs manuellement
     document.getElementById('code').value = '';
     document.getElementById('libelle').value = '';
     document.getElementById('categorie').value = 'CONGES_PAYES';
@@ -29,10 +25,8 @@ function openCreateModal() {
     document.getElementById('justificatif_obligatoire').checked = false;
     document.getElementById('actif').checked = true;
 
-    // Nettoyer les erreurs
     clearFormErrors();
 
-    // Afficher le modal
     const modal = new bootstrap.Modal(document.getElementById('typeAbsenceModal'));
     modal.show();
 }
@@ -41,16 +35,10 @@ function openCreateModal() {
  * Ouvre le modal d'édition
  */
 function openEditModal(id) {
-    // Modifier le titre
     document.getElementById('modalTitle').textContent = "Modifier le Type d'Absence";
-
-    // Nettoyer les erreurs
     clearFormErrors();
-
-    // Charger les données (populateForm va remplir le select correctement)
     loadTypeAbsenceData(id);
 
-    // Afficher le modal
     const modal = new bootstrap.Modal(document.getElementById('typeAbsenceModal'));
     modal.show();
 }
@@ -73,7 +61,6 @@ function loadTypeAbsenceData(id) {
             }
         })
         .catch(error => {
-            console.error('Erreur:', error);
             showErrorMessage('Erreur lors du chargement des données');
         });
 }
@@ -157,8 +144,6 @@ function saveTypeAbsence() {
     .then(result => {
         if (result.success) {
             const modalElement = document.getElementById('typeAbsenceModal');
-
-            // Retirer le focus de tous les éléments du modal
             document.activeElement.blur();
 
             const modal = bootstrap.Modal.getInstance(modalElement);
@@ -178,7 +163,6 @@ function saveTypeAbsence() {
         }
     })
     .catch(error => {
-        console.error('Erreur:', error);
         showErrorMessage('Erreur lors de la sauvegarde');
     });
 }
@@ -228,7 +212,6 @@ function executeDelete(id) {
     .then(response => response.json())
     .then(result => {
         if (result.success) {
-            // Retirer le focus
             document.activeElement.blur();
 
             showSuccessMessage(result.message);
@@ -240,7 +223,6 @@ function executeDelete(id) {
         }
     })
     .catch(error => {
-        console.error('Erreur:', error);
         showErrorMessage('Erreur lors de la suppression');
     });
 }
@@ -263,7 +245,6 @@ function toggleTypeAbsence(id) {
     .then(response => response.json())
     .then(result => {
         if (result.success) {
-            // Retirer le focus
             document.activeElement.blur();
 
             showSuccessMessage(result.message);
@@ -275,7 +256,6 @@ function toggleTypeAbsence(id) {
         }
     })
     .catch(error => {
-        console.error('Erreur:', error);
         showErrorMessage('Erreur lors de la modification');
     });
 }

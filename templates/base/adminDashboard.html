@@ -186,7 +186,7 @@
                     {% if embauches_attente %}
                         <div class="list-group">
                             {% for employe in embauches_attente %}
-                                <a href="{% url 'employee:profil' employe.matricule %}" class="list-group-item list-group-item-action">
+                                <a href="{% url 'employee:dossier_individuel_detail' employe.uuid %}" class="list-group-item list-group-item-action">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <h6 class="mb-1">
@@ -224,7 +224,7 @@
                     {% if dernieres_embauches %}
                         <div class="list-group">
                             {% for employe in dernieres_embauches %}
-                                <a href="{% url 'employee:profil' employe.matricule %}" class="list-group-item list-group-item-action">
+                                <a href="{% url 'employee:dossier_individuel_detail' employe.uuid %}" class="list-group-item list-group-item-action">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <h6 class="mb-1">
@@ -262,7 +262,7 @@
                     {% if contrats_echeance %}
                         <div class="list-group">
                             {% for contrat in contrats_echeance %}
-                                <a href="{% url 'employee:profil' contrat.employe.matricule %}" class="list-group-item list-group-item-action">
+                                <a href="{% url 'employee:dossier_individuel_detail' contrat.employe.uuid %}" class="list-group-item list-group-item-action">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <h6 class="mb-1">
@@ -302,7 +302,7 @@
                     {% if soldes_faibles %}
                         <div class="list-group">
                             {% for acquisition in soldes_faibles %}
-                                <a href="{% url 'employee:profil' acquisition.employe.matricule %}" class="list-group-item list-group-item-action">
+                                <a href="{% url 'employee:dossier_individuel_detail' acquisition.employe.uuid %}" class="list-group-item list-group-item-action">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <h6 class="mb-1">
@@ -342,7 +342,7 @@
                     {% if anniversaires %}
                         <div class="list-group">
                             {% for employe in anniversaires %}
-                                <a href="{% url 'employee:profil' employe.matricule %}" class="list-group-item list-group-item-action">
+                                <a href="{% url 'employee:dossier_individuel_detail' employe.uuid %}" class="list-group-item list-group-item-action">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <h6 class="mb-1">
