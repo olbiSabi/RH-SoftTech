@@ -1,0 +1,327 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'assets/css/notifications.css' %}">
+<style>
+    .notification-page {
+        background: #f4f6f9;
+        min-height: calc(100vh - 100px);
+        padding: 20px 0;
+    }
+
+    .notification-list-full {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .notification-item-full {
+        display: flex;
+        padding: 20px;
+        border-bottom: 1px solid #e0e0e0;
+        transition: background-color 0.2s;
+    }
+
+    .notification-item-full:hover {
+        background-color: #f8f9fa;
+    }
+
+    .notification-item-full:last-child {
+        border-bottom: none;
+    }
+
+    .notification-item-full.unread {
+        background-color: #e3f2fd;
+        border-left: 4px solid #1c5d5f;
+    }
+
+    .notification-icon-full {
+        flex-shrink: 0;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        font-size: 1.5rem;
+    }
+
+    .notification-icon-full.icon-info {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .notification-icon-full.icon-success {
+        background: #e8f5e9;
+        color: #388e3c;
+    }
+
+    .notification-icon-full.icon-danger {
+        background: #ffebee;
+        color: #d32f2f;
+    }
+
+    .notification-icon-full.icon-warning {
+        background: #fff3e0;
+        color: #f57c00;
+    }
+
+    .notification-content-full {
+        flex: 1;
+    }
+
+    .notification-message-full {
+        font-size: 1rem;
+        line-height: 1.5;
+        margin-bottom: 8px;
+        color: #333;
+    }
+
+    .notification-meta {
+        display: flex;
+        gap: 15px;
+        font-size: 0.85rem;
+        color: #999;
+    }
+
+    .notification-badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .badge-new {
+        background: #1c5d5f;
+        color: white;
+    }
+
+    .badge-read {
+        background: #e0e0e0;
+        color: #666;
+    }
+
+    .notification-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+        color: white;
+        padding: 30px 0;
+        margin-bottom: 30px;
+        border-radius: 10px;
+    }
+
+    .pagination {
+        margin-top: 20px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+    }
+
+    .empty-state i {
+        font-size: 5rem;
+        margin-bottom: 20px;
+        opacity: 0.3;
+    }
+
+    /* Filtres */
+    .filters-bar {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="notification-page">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="page-header">
+            <div class="container">
+                <h1 class="m-0">
+                    <i class="fas fa-bell"></i> Mes Notifications
+                </h1>
+                <p class="mb-0 mt-2">Historique complet de vos notifications</p>
+            </div>
+        </div>
+
+        <!-- Filtres -->
+        <div class="filters-bar">
+            <form method="GET" class="row align-items-end">
+                <div class="col-md-3">
+                    <label>Statut</label>
+                    <select name="statut" class="form-control">
+                        <option value="">Toutes</option>
+                        <option value="non_lues" {% if request.GET.statut == 'non_lues' %}selected{% endif %}>
+                            Non lues
+                        </option>
+                        <option value="lues" {% if request.GET.statut == 'lues' %}selected{% endif %}>
+                            Lues
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label>Type</label>
+                    <select name="type" class="form-control">
+                        <option value="">Tous les types</option>
+                        <option value="DEMANDE_CREEE" {% if request.GET.type == 'DEMANDE_CREEE' %}selected{% endif %}>
+                            Nouvelles demandes
+                        </option>
+                        <option value="VALIDATION_MANAGER" {% if request.GET.type == 'VALIDATION_MANAGER' %}selected{% endif %}>
+                            Validations manager
+                        </option>
+                        <option value="VALIDATION_RH" {% if request.GET.type == 'VALIDATION_RH' %}selected{% endif %}>
+                            Validations RH
+                        </option>
+                        <option value="REJET_MANAGER" {% if request.GET.type == 'REJET_MANAGER' %}selected{% endif %}>
+                            Rejets manager
+                        </option>
+                        <option value="REJET_RH" {% if request.GET.type == 'REJET_RH' %}selected{% endif %}>
+                            Rejets RH
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter"></i> Filtrer
+                    </button>
+                    <a href="{% url 'absence:toutes_notifications' %}" class="btn btn-secondary">
+                        <i class="fas fa-redo"></i> Réinitialiser
+                    </a>
+                </div>
+                <div class="col-md-3 text-right">
+                    {% if notifications_count > 0 %}
+                    <a href="{% url 'absence:marquer_toutes_lues' %}" class="btn btn-success">
+                        <i class="fas fa-check-double"></i> Tout marquer comme lu
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+
+        <!-- Liste des notifications -->
+        {% if page_obj %}
+        <div class="notification-list-full">
+            {% for notif in page_obj %}
+<a href="{% url 'absence:notification_detail' notif.id %}"
+   class="notification-item-full {% if not notif.lue %}unread{% endif %}"
+   style="text-decoration: none; color: inherit;">
+    <div class="notification-icon-full
+        {% if notif.contexte == 'MANAGER' %}icon-warning
+        {% elif notif.contexte == 'RH' %}icon-success
+        {% elif notif.type_notification == 'DEMANDE_CREEE' or notif.type_notification == 'DEMANDE_VALIDEE_MANAGER' %}icon-info
+        {% elif 'VALIDATION' in notif.type_notification %}icon-success
+        {% elif 'REJET' in notif.type_notification %}icon-danger
+        {% else %}icon-warning{% endif %}">
+        {% if notif.contexte == 'MANAGER' %}
+            <i class="fas fa-user-tie"></i>
+        {% elif notif.contexte == 'RH' %}
+            <i class="fas fa-user-shield"></i>
+        {% elif notif.type_notification == 'DEMANDE_CREEE' or notif.type_notification == 'DEMANDE_VALIDEE_MANAGER' %}
+            <i class="fas fa-plus-circle"></i>
+        {% elif notif.type_notification == 'VALIDATION_MANAGER' %}
+            <i class="fas fa-check-circle"></i>
+        {% elif notif.type_notification == 'VALIDATION_RH' %}
+            <i class="fas fa-check-double"></i>
+        {% elif 'REJET' in notif.type_notification %}
+            <i class="fas fa-times-circle"></i>
+        {% elif notif.type_notification == 'ABSENCE_ANNULEE' %}
+            <i class="fas fa-ban"></i>
+        {% endif %}
+    </div>
+    <div class="notification-content-full">
+        <div class="notification-message-full">
+            <!-- ✅ Badge de contexte -->
+            <span class="context-badge context-{{ notif.contexte|lower }}">
+                {{ notif.get_contexte_display }}
+            </span>
+            {{ notif.message }}
+        </div>
+        <div class="notification-meta">
+            <span>
+                <i class="fas fa-clock"></i>
+                {{ notif.date_creation|timesince }}
+            </span>
+            <span>
+                <i class="fas fa-tag"></i>
+                {{ notif.get_type_notification_display }}
+            </span>
+            {% if not notif.lue %}
+            <span class="notification-badge badge-new">
+                Nouvelle
+            </span>
+            {% else %}
+            <span class="notification-badge badge-read">
+                Lue le {{ notif.date_lecture|date:"d/m/Y à H:i" }}
+            </span>
+            {% endif %}
+        </div>
+    </div>
+</a>
+{% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">
+                        Précédent
+                    </a>
+                </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">
+                            {{ num }}
+                        </a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">
+                        Suivant
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <!-- État vide -->
+        <div class="notification-list-full">
+            <div class="empty-state">
+                <i class="fas fa-bell-slash"></i>
+                <h3>Aucune notification</h3>
+                <p>Vous n'avez pas encore de notifications.</p>
+                <a href="{% url 'absence:liste_absences' %}" class="btn btn-primary mt-3">
+                    <i class="fas fa-arrow-left"></i> Retour aux absences
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

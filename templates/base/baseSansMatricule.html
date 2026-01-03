@@ -8,21 +8,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>EasyM</title>
     {% block title %} {% endblock %}
-    {% block extrastylet %} {% endblock %}
-    <!-- Lien pour les icônes (Font Awesome) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/logo/Onian-EasyM.png' %}">
-    <link rel="stylesheet" href="{% static 'assets/bootstrap/css/bootstrap.min.css' %}">
+
+    <!-- Bootstrap LOCAL (priorité au local) -->
+    <!--<link rel="stylesheet" href="{% static 'assets/bootstrap/css/bootstrap.min.css' %}">-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+    <!-- Font Awesome (une seule version) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- CSS de base de l'application -->
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/table.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/absence/notifications.css' %}">
+
+    <!-- Block pour CSS supplémentaire (chargé EN DERNIER pour avoir la priorité) -->
+    {% block extrastylet %}
+    {% endblock %}
 </head>
 
 <body class="no-sidebar-toggle">
 <!-- Main Wrapper -->
     {% include 'base/header.html' %}
-
 
 <div class="main-wrapper">
 
@@ -37,13 +44,56 @@
 
     {% endblock %}
 </div>
+
+<!-- Modal pour les messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="modal fade" id="messageModal{{ forloop.counter }}" tabindex="-1" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header {% if message.tags == 'error' %}bg-danger text-white{% elif message.tags == 'success' %}bg-success text-white{% elif message.tags == 'warning' %}bg-warning{% else %}bg-info text-white{% endif %}">
+                            <h5 class="modal-title">
+                                {% if message.tags == 'error' %}
+                                    <i class="fas fa-ban"></i> Accès Refusé
+                                {% elif message.tags == 'success' %}
+                                    <i class="fas fa-check-circle"></i> Succès
+                                {% elif message.tags == 'warning' %}
+                                    <i class="fas fa-exclamation-triangle"></i> Attention
+                                {% else %}
+                                    <i class="fas fa-info-circle"></i> Information
+                                {% endif %}
+                            </h5>
+                            <button type="button" class="btn-close {% if message.tags == 'error' or message.tags == 'success' or message.tags == 'info' %}btn-close-white{% endif %}" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="mb-0">{{ message }}</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                {% for message in messages %}
+                    var modal{{ forloop.counter }} = new bootstrap.Modal(document.getElementById('messageModal{{ forloop.counter }}'));
+                    modal{{ forloop.counter }}.show();
+                {% endfor %}
+            });
+        </script>
+    {% endif %}
+
 <!-- Custom JS -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{% static 'assets/js/app.js' %}"></script>
-<script src="{% static 'assets/js/main.js' %}"></script>
-{% block extrascript %}
+<script src="{% static 'assets/js/absence/notifications.js' %}"></script>
 
+<!-- Block pour JS supplémentaire -->
+{% block extrascript %}
 {% endblock %}
 
 </body>

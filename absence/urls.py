@@ -1,79 +1,75 @@
-"""
-URLs pour l'application absence
-Système HR_ONIAN
-"""
-
+# absence/urls.py
 from django.urls import path
 from . import views
 
 app_name = 'absence'
 
 urlpatterns = [
-    # ==========================================
-    # ROUTES EMPLOYÉ
-    # ==========================================
-
-    # Page principale employé
-    path('mes-demandes/', views.employe_demandes, name='employe_demandes'),
-
-    # Modification de demande
-    path('demande/<uuid:demande_id>/modifier/', views.employe_modifier_demande, name='employe_modifier_demande'),
-
-    # Suppression de demande
-    path('demande/<uuid:demande_id>/supprimer/', views.employe_supprimer_demande, name='employe_supprimer_demande'),
-
-    # Annulation de demande
-    path('demande/<uuid:demande_id>/annuler/', views.employe_annuler_demande, name='employe_annuler_demande'),
+    # ===== PAGES PRINCIPALES - ABSENCES =====
+    path('', views.liste_absences, name='liste_absences'),
+    path('nouvelle/', views.creer_absence, name='creer_absence'),
+    path('<int:id>/modifier/', views.modifier_absence, name='modifier_absence'),
+    path('validation-manager/', views.validation_manager, name='validation_manager'),
+    path('validation-rh/', views.validation_rh, name='validation_rh'),
+    path('consultation/', views.consultation_absences, name='consultation_absences'),
 
 
-    # ==========================================
-    # ROUTES MANAGER
-    # ==========================================
+    # ===== API ABSENCES =====
+    path('api/mes-absences-calendrier/', views.api_mes_absences_calendrier, name='api_mes_absences_calendrier'),
+    path('api/absence/<int:id>/', views.api_absence_detail, name='api_absence_detail'),
+    path('api/absence/<int:id>/delete/', views.api_absence_delete, name='api_absence_delete'),
+    path('api/absence/<int:id>/annuler/', views.api_absence_annuler, name='api_absence_annuler'),
+    path('api/absence/<int:id>/valider/', views.api_valider_absence, name='api_valider_absence'),
+    path('api/absence/<int:id>/historique/', views.api_historique_validation, name='api_historique_validation'),
+    path('api/verifier-solde/', views.api_verifier_solde, name='api_verifier_solde'),
+    path('api/acquisition-employe/<str:employe_id>/<int:annee>/', views.api_acquisition_employe_annee,
+         name='api_acquisition_employe_annee'),
 
-    # Page de validation manager
-    path('manager/validation/', views.manager_validation, name='manager_validation'),
+    # ===== ACQUISITIONS DE CONGÉS =====
+    path('acquisitions/', views.liste_acquisitions, name='liste_acquisitions'),
+    path('api/acquisition/<int:id>/', views.api_acquisition_detail, name='api_acquisition_detail'),
+    path('api/acquisition/<int:id>/update/', views.api_acquisition_update, name='api_acquisition_update'),
+    path('api/acquisition/<int:id>/delete/', views.api_acquisition_delete, name='api_acquisition_delete'),
+    path('api/acquisition/<int:id>/recalculer/', views.api_recalculer_acquisition, name='api_recalculer_acquisition'),
+    path('api/acquisitions/calculer/', views.api_calculer_acquisitions, name='api_calculer_acquisitions'),
 
-    # Validation/Refus par le manager
-    path('manager/demande/<uuid:demande_id>/valider/', views.manager_valider_demande, name='manager_valider_demande'),
-    path('manager/demande/<uuid:demande_id>/refuser/', views.manager_refuser_demande, name='manager_refuser_demande'),
+    # ===== CONFIGURATION CONVENTIONNELLE =====
+    path('conventions/', views.liste_conventions, name='liste_conventions'),
+    path('api/convention/<int:id>/', views.api_convention_detail, name='api_convention_detail'),
+    path('api/convention/create/', views.api_convention_create, name='api_convention_create'),
+    path('api/convention/<int:id>/update/', views.api_convention_update, name='api_convention_update'),
+    path('api/convention/<int:id>/delete/', views.api_convention_delete, name='api_convention_delete'),
+    path('api/convention/<int:id>/toggle/', views.api_convention_toggle_actif, name='api_convention_toggle'),
 
+    # ===== JOURS FÉRIÉS =====
+    path('jours-feries/', views.liste_jours_feries, name='liste_jours_feries'),
+    path('api/jour-ferie/<int:id>/', views.api_jour_ferie_detail, name='api_jour_ferie_detail'),
+    path('api/jour-ferie/create/', views.api_jour_ferie_create, name='api_jour_ferie_create'),
+    path('api/jour-ferie/<int:id>/update/', views.api_jour_ferie_update, name='api_jour_ferie_update'),
+    path('api/jour-ferie/<int:id>/delete/', views.api_jour_ferie_delete, name='api_jour_ferie_delete'),
+    path('api/jour-ferie/<int:id>/toggle/', views.api_jour_ferie_toggle, name='api_jour_ferie_toggle'),
+    path('api/jour-ferie/dupliquer/', views.api_dupliquer_jours_feries, name='api_dupliquer_jours_feries'),
 
-    # ==========================================
-    # ROUTES RH
-    # ==========================================
+    # ===== TYPES D'ABSENCE =====
+    path('types-absence/', views.liste_types_absence, name='liste_types_absence'),
+    path('api/type-absence/<int:id>/', views.api_type_absence_detail, name='api_type_absence_detail'),
+    path('api/type-absence/create/', views.api_type_absence_create, name='api_type_absence_create'),
+    path('api/type-absence/<int:id>/update/', views.api_type_absence_update, name='api_type_absence_update'),
+    path('api/type-absence/<int:id>/delete/', views.api_type_absence_delete, name='api_type_absence_delete'),
+    path('api/type-absence/<int:id>/toggle/', views.api_type_absence_toggle, name='api_type_absence_toggle'),
 
-    # Page de validation RH
-    path('rh/validation/', views.rh_validation, name='rh_validation'),
+    # ===== PARAMÈTRES CALCUL CONGÉS =====
+    path('parametres-calcul/', views.liste_parametres_calcul, name='liste_parametres_calcul'),
+    path('api/parametre-calcul/<int:id>/', views.api_parametre_calcul_detail, name='api_parametre_calcul_detail'),
+    path('api/parametre-calcul/create/', views.api_parametre_calcul_create, name='api_parametre_calcul_create'),
+    path('api/parametre-calcul/<int:id>/update/', views.api_parametre_calcul_update,
+         name='api_parametre_calcul_update'),
+    path('api/parametre-calcul/<int:id>/delete/', views.api_parametre_calcul_delete,
+         name='api_parametre_calcul_delete'),
+    path('api/jours-feries/', views.api_jours_feries, name='api_jours_feries'),
 
-    # Validation/Refus par RH
-    path('rh/demande/<uuid:demande_id>/valider/', views.rh_valider_demande, name='rh_valider_demande'),
-    path('rh/demande/<uuid:demande_id>/refuser/', views.rh_refuser_demande, name='rh_refuser_demande'),
-
-    # Recherche d'employé
-    path('rh/recherche-employe/', views.rh_recherche_employe, name='rh_recherche_employe'),
-
-    # API pour l'autocomplete de recherche employé
-    path('api/recherche-employe/', views.rh_recherche_employe_ajax, name='rh_recherche_employe_ajax'),
-
-
-    # ==========================================
-    # API ENDPOINTS (AJAX)
-    # ==========================================
-
-    # Calcul du nombre de jours
-    path('api/calculer-jours/', views.api_calculer_jours, name='api_calculer_jours'),
-
-    # Détails d'une demande
-    path('api/demande/<uuid:demande_id>/', views.api_demande_detail, name='api_demande_detail'),
-
-    # Solde d'un employé
-    path('api/solde-employe/', views.api_solde_employe, name='api_solde_employe'),
-
-
-    # 🆕 URLs NOTIFICATIONS
-    path('notifications/', views.liste_notifications, name='liste_notifications'),
-    path('notifications/json/', views.get_notifications_json, name='notifications_json'),
-    path('notifications/<int:notification_id>/marquer-lue/', views.marquer_notification_lue,
-         name='marquer_notification_lue'),  # ✅ <int:notification_id>
+    # Notifications
+    path('notification/<int:id>/', views.notification_detail, name='notification_detail'),
     path('notifications/marquer-toutes-lues/', views.marquer_toutes_lues, name='marquer_toutes_lues'),
+    path('notifications/toutes/', views.toutes_notifications, name='toutes_notifications'),
 ]

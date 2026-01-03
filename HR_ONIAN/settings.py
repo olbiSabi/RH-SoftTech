@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'parametre',
     'core',
     'absence',
-    #'absence.apps.AbsenceConfig',
+    'entreprise',
 ]
 
 MIDDLEWARE = [
@@ -60,7 +60,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'core.middleware.CurrentRequestMiddleware',  # ← NOUVEAU
+    'core.middleware.CurrentRequestMiddleware',
+    'core.middleware.PermissionDeniedMiddleware',
+    #'employee.middleware.LoginRequiredMiddleware',
+    'employee.middleware.ContratExpirationMiddleware',
 ]
 
 ROOT_URLCONF = 'HR_ONIAN.urls'
@@ -77,7 +80,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'absence.context_processors.notifications',
+                'absence.context_processors.notifications_absences',
             ],
         },
     },

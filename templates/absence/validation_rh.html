@@ -1,0 +1,594 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'assets/css/absence/absences.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/absence/validation.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <!-- Header -->
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-user-shield"></i> Validation RH des absences
+                    </h1>
+                    <p class="text-muted">
+                        <i class="fas fa-briefcase"></i> Responsable RH : {{ user_employe.nom }} {{ user_employe.prenoms }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Statistiques -->
+        <div class="stats-card">
+            <div class="row">
+                <div class="col-md-4 stat-item">
+                    <div class="stat-number">{{ stats.total }}</div>
+                    <div class="stat-label">Demandes en attente RH</div>
+                </div>
+                <div class="col-md-4 stat-item">
+                    <div class="stat-number">{{ stats.employes_count }}</div>
+                    <div class="stat-label">Employés concernés</div>
+                </div>
+                <div class="col-md-4 stat-item">
+                    <div class="stat-number">{{ stats.jours_total }}</div>
+                    <div class="stat-label">Jours demandés</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info -->
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            <strong>Validation RH :</strong> Vous validez les absences qui ont déjà été approuvées par le manager de l'employé.
+        </div>
+
+        <!-- Filtres -->
+        <div class="card mb-3">
+            <div class="card-header bg-light">
+                <h3 class="card-title"><i class="fas fa-filter"></i> Filtres</h3>
+            </div>
+            <div class="card-body">
+                <form method="GET" id="filterForm">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label>Type d'absence</label>
+                            <select name="type_absence" class="form-control">
+                                <option value="">Tous les types</option>
+                                {% for type in types_absence %}
+                                    <option value="{{ type.id }}" {% if type_filter == type.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ type.libelle }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Rechercher un employé</label>
+                            <input type="text" name="search" class="form-control"
+                                   placeholder="Nom, prénom, matricule..."
+                                   value="{{ search }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label>&nbsp;</label>
+                            <div>
+                                <button type="submit" class="btn btn-primary btn-block">
+                                    <i class="fas fa-search"></i> Filtrer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Liste des absences à valider -->
+        {% if absences_a_valider %}
+        <div class="card">
+            <div class="card-header bg-gradient-info text-white">
+                <h3 class="card-title">
+                    <i class="fas fa-clipboard-check"></i> Demandes en attente de validation RH
+                    <span class="badge badge-light ml-2">{{ absences_a_valider|length }}</span>
+                </h3>
+            </div>
+            <div class="card-body p-0">
+                {% for absence in absences_a_valider %}
+                <div class="validation-card border-bottom p-3" data-absence-id="{{ absence.id }}">
+                    <div class="row align-items-center">
+                        <!-- Informations employé -->
+                        <div class="col-md-3">
+                            <div class="employee-info">
+                                <img src="{{ absence.employe.get_photo_url }}"
+                                     alt="{{ absence.employe.nom }}"
+                                     class="employee-avatar">
+                                <div>
+                                    <strong>{{ absence.employe.nom }} {{ absence.employe.prenoms }}</strong><br>
+                                    <small class="text-muted">{{ absence.employe.matricule }}</small><br>
+                                    {% if absence.manager_validateur %}
+                                        <span class="manager-badge">
+                                            <i class="fas fa-check"></i> Validé par {{ absence.manager_validateur.nom }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Type et période -->
+                        <div class="col-md-3">
+                            <div>
+                                <i class="fas fa-circle" style="color: {{ absence.type_absence.couleur }}"></i>
+                                <strong>{{ absence.type_absence.libelle }}</strong>
+                            </div>
+                            <div class="absence-period mt-2">
+                                <i class="fas fa-calendar"></i>
+                                Du {{ absence.date_debut|date:"d/m/Y" }}
+                                au {{ absence.date_fin|date:"d/m/Y" }}
+                            </div>
+                            <div class="mt-1">
+                                <span class="badge badge-info">
+                                    <i class="fas fa-clock"></i> {{ absence.jours_ouvrables }} jour{{ absence.jours_ouvrables|floatformat:0|pluralize }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Motif -->
+                        <div class="col-md-3">
+                            {% if absence.motif %}
+                                <small class="text-muted">
+                                    <i class="fas fa-comment"></i> <strong>Motif :</strong><br>
+                                    {{ absence.motif|truncatewords:15 }}
+                                </small>
+                            {% else %}
+                                <small class="text-muted"><i>Aucun motif fourni</i></small>
+                            {% endif %}
+
+                            {% if absence.justificatif %}
+                                <div class="mt-2">
+                                    <a href="{{ absence.justificatif.url }}" target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-paperclip"></i> Justificatif
+                                    </a>
+                                </div>
+                            {% endif %}
+
+                            {% if absence.commentaire_manager %}
+                                <div class="mt-2">
+                                    <small class="text-success">
+                                        <i class="fas fa-user-tie"></i> <strong>Manager :</strong><br>
+                                        {{ absence.commentaire_manager|truncatewords:10 }}
+                                    </small>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="col-md-3">
+                            <div class="validation-buttons">
+                                <button class="btn btn-sm btn-info"
+                                        data-toggle="modal"
+                                        data-target="#detailModal"
+                                        onclick="loadAbsenceDetails('{{ absence.id }}')">
+                                    <i class="fas fa-eye"></i> Détails
+                                </button>
+                                <button class="btn btn-sm btn-success"
+                                        data-action="approve"
+                                        data-absence-id="{{ absence.id }}">
+                                    <i class="fas fa-check"></i> Approuver
+                                </button>
+                                <button class="btn btn-sm btn-danger"
+                                        data-action="reject"
+                                        data-absence-id="{{ absence.id }}">
+                                    <i class="fas fa-times"></i> Rejeter
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <!-- Aucune demande en attente -->
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                <h4>Aucune demande en attente de validation RH</h4>
+                <p class="text-muted">Toutes les demandes ont été traitées.</p>
+                <a href="{% url 'absence:liste_absences' %}" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i> Retour à mes absences
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Modal Détails -->
+<div class="modal fade" id="detailModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-info-circle"></i> Détails de la demande
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="detailContent">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary"></div>
+                    <p class="mt-2">Chargement...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times"></i> Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+// Configuration Toastr
+toastr.options = {
+    closeButton: true,
+    progressBar: true,
+    positionClass: "toast-top-right",
+    timeOut: 5000
+};
+
+// Variables globales
+let currentAbsenceId = null;
+let currentDecision = null;
+
+// ✅ ÉCOUTEURS D'ÉVÉNEMENTS AU CHARGEMENT
+$(document).ready(function() {
+    // Écouteur pour les boutons Approuver
+    $(document).on('click', '[data-action="approve"]', function(e) {
+        e.preventDefault();
+        const absenceId = $(this).data('absence-id');
+        validerAbsence(absenceId, 'APPROUVE');
+    });
+
+    // Écouteur pour les boutons Rejeter
+    $(document).on('click', '[data-action="reject"]', function(e) {
+        e.preventDefault();
+        const absenceId = $(this).data('absence-id');
+        validerAbsence(absenceId, 'REJETE');
+    });
+});
+
+// ✅ CHARGER LES DÉTAILS D'UNE ABSENCE
+function loadAbsenceDetails(absenceId) {
+    $('#detailContent').html(`
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary"></div>
+            <p class="mt-2">Chargement...</p>
+        </div>
+    `);
+
+    $.ajax({
+        url: `/absence/api/absence/${absenceId}/`,
+        type: 'GET',
+        success: function(response) {
+            if (response.success) {
+                displayAbsenceDetails(response.data);
+            } else {
+                $('#detailContent').html(`
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> ${response.error}
+                    </div>
+                `);
+            }
+        },
+        error: function(xhr) {
+            $('#detailContent').html(`
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i> Erreur de chargement
+                </div>
+            `);
+        }
+    });
+}
+
+// ✅ AFFICHER LES DÉTAILS
+function displayAbsenceDetails(absence) {
+    const html = `
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <h6><i class="fas fa-user"></i> Employé</h6>
+                <p><strong>${absence.employe}</strong><br>
+                <small class="text-muted">${absence.employe_matricule}</small></p>
+            </div>
+            <div class="col-md-6">
+                <h6><i class="fas fa-tag"></i> Type d'absence</h6>
+                <p>${absence.type_absence}</p>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <h6><i class="fas fa-calendar"></i> Date de début</h6>
+                <p>${formatDate(absence.date_debut)}</p>
+            </div>
+            <div class="col-md-4">
+                <h6><i class="fas fa-calendar"></i> Date de fin</h6>
+                <p>${formatDate(absence.date_fin)}</p>
+            </div>
+            <div class="col-md-4">
+                <h6><i class="fas fa-clock"></i> Durée</h6>
+                <p><span class="badge badge-info">${absence.jours_ouvrables} jours</span></p>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <h6><i class="fas fa-sun"></i> Période</h6>
+                <p>${absence.periode}</p>
+            </div>
+            <div class="col-md-6">
+                <h6><i class="fas fa-traffic-light"></i> Statut</h6>
+                <p><span class="badge badge-info">${absence.statut_display}</span></p>
+            </div>
+        </div>
+
+        ${absence.motif ? `
+        <div class="row mb-3">
+            <div class="col-12">
+                <h6><i class="fas fa-comment"></i> Motif</h6>
+                <p class="border p-2 bg-light">${absence.motif}</p>
+            </div>
+        </div>
+        ` : ''}
+
+        ${absence.commentaire_manager ? `
+        <div class="row mb-3">
+            <div class="col-12">
+                <h6><i class="fas fa-user-tie text-success"></i> Commentaire du manager</h6>
+                <p class="border p-2 bg-light">${absence.commentaire_manager}</p>
+            </div>
+        </div>
+        ` : ''}
+
+        ${absence.justificatif_url ? `
+        <div class="row mb-3">
+            <div class="col-12">
+                <h6><i class="fas fa-paperclip"></i> Justificatif</h6>
+                <a href="${absence.justificatif_url}" target="_blank" class="btn btn-sm btn-primary">
+                    <i class="fas fa-download"></i> Télécharger le justificatif
+                </a>
+            </div>
+        </div>
+        ` : ''}
+
+        <div class="row">
+            <div class="col-md-6">
+                <h6><i class="fas fa-wallet"></i> Solde disponible</h6>
+                <p><strong>${absence.solde_disponible}</strong> jours (année ${absence.annee_acquisition_utilisee})</p>
+            </div>
+            <div class="col-md-6">
+                <h6><i class="fas fa-calendar-plus"></i> Date de création</h6>
+                <p>${formatDateTime(absence.created_at)}</p>
+            </div>
+        </div>
+    `;
+
+    $('#detailContent').html(html);
+}
+
+// ✅ OUVRIR LE MODAL DE VALIDATION
+function validerAbsence(absenceId, decision) {
+    currentAbsenceId = absenceId;
+    currentDecision = decision;
+
+    // Déterminer le style
+    const isApprove = decision === 'APPROUVE';
+    const headerClass = isApprove ? 'bg-success' : 'bg-danger';
+    const icon = isApprove ? 'fa-check-circle' : 'fa-times-circle';
+    const title = isApprove ? 'Approuver la demande' : 'Rejeter la demande';
+
+    // Créer le modal dynamique
+    const modalHTML = `
+        <div class="modal fade" id="validationModalDynamic" tabindex="-1" role="dialog" aria-hidden="false">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header ${headerClass} text-white">
+                        <h5 class="modal-title">
+                            <i class="fas ${icon}"></i> ${title}
+                        </h5>
+                        <button type="button" class="close text-white" onclick="fermerModalValidation()">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="commentaire_rh_dynamic">Commentaire RH (optionnel)</label>
+                            <textarea class="form-control"
+                                      id="commentaire_rh_dynamic"
+                                      rows="4"
+                                      placeholder="Ajoutez un commentaire RH pour justifier votre décision..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="fermerModalValidation()">
+                            <i class="fas fa-times"></i> Annuler
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="confirmerValidation()">
+                            <i class="fas fa-check"></i> Confirmer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Nettoyage
+    $('#validationModalDynamic').remove();
+    $('.modal-backdrop').remove();
+    $('body').removeClass('modal-open').css('padding-right', '');
+
+    // Ajout au DOM
+    $('body').append(modalHTML);
+
+    // Affichage
+    setTimeout(() => {
+        const $modal = $('#validationModalDynamic');
+
+        // Ajouter le backdrop
+        $('body').append('<div class="modal-backdrop fade show" id="validationBackdrop"></div>');
+
+        // Afficher le modal
+        $modal.addClass('show').css({
+            'display': 'block',
+            'padding-right': '0px'
+        }).attr('aria-hidden', 'false');
+
+        // Ajouter classe au body
+        $('body').addClass('modal-open').css('padding-right', '0px');
+    }, 50);
+}
+
+// ✅ FERMER LE MODAL
+function fermerModalValidation() {
+    const $modal = $('#validationModalDynamic');
+
+    // Retirer les classes et styles
+    $modal.removeClass('show').css('display', 'none').attr('aria-hidden', 'true');
+
+    // Retirer le backdrop
+    $('#validationBackdrop').remove();
+    $('.modal-backdrop').remove();
+
+    // Retirer classe du body
+    $('body').removeClass('modal-open').css('padding-right', '');
+
+    // Supprimer le modal
+    setTimeout(() => {
+        $modal.remove();
+        currentAbsenceId = null;
+        currentDecision = null;
+    }, 150);
+}
+
+// ✅ CONFIRMER LA VALIDATION
+function confirmerValidation() {
+    const commentaire = $('#commentaire_rh_dynamic').val().trim();
+
+    if (!currentAbsenceId || !currentDecision) {
+        toastr.error('Données de validation manquantes');
+        return;
+    }
+
+    const $modal = $('#validationModalDynamic');
+    const $confirmBtn = $modal.find('.btn-primary');
+
+    $confirmBtn.prop('disabled', true)
+               .html('<i class="fas fa-spinner fa-spin"></i> Traitement...');
+
+    $.ajax({
+        url: `/absence/api/absence/${currentAbsenceId}/valider/`,
+        type: 'POST',
+        data: {
+            decision: currentDecision,
+            commentaire: commentaire,
+            csrfmiddlewaretoken: getCsrfToken()
+        },
+        success: function(response) {
+            if (response.success) {
+                fermerModalValidation();
+                toastr.success(response.message);
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                toastr.error(response.error || 'Erreur lors de la validation');
+                $confirmBtn.prop('disabled', false)
+                           .html('<i class="fas fa-check"></i> Confirmer');
+            }
+        },
+        error: function(xhr) {
+            const errorMsg = xhr.responseJSON?.error || 'Erreur serveur';
+            toastr.error(errorMsg);
+            $confirmBtn.prop('disabled', false)
+                       .html('<i class="fas fa-check"></i> Confirmer');
+        }
+    });
+}
+
+// ✅ UTILITAIRES
+function formatDate(dateStr) {
+    if (!dateStr) return 'N/A';
+    try {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('fr-FR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    } catch {
+        return dateStr;
+    }
+}
+
+function formatDateTime(dateStr) {
+    if (!dateStr) return 'N/A';
+    try {
+        const date = new Date(dateStr);
+        return date.toLocaleString('fr-FR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    } catch {
+        return dateStr;
+    }
+}
+
+function getCsrfToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
+           document.cookie.split('; ').find(r => r.startsWith('csrftoken='))?.split('=')[1];
+}
+</script>
+<script>
+$(document).ready(function() {
+    // Récupérer l'ID de l'absence à mettre en évidence depuis l'URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const highlightId = urlParams.get('highlight');
+
+    if (highlightId) {
+        // Trouver la card correspondante et la mettre en évidence
+        const $card = $(`.validation-card[data-absence-id="${highlightId}"]`);
+
+        if ($card.length) {
+            // Scroll vers la card
+            $('html, body').animate({
+                scrollTop: $card.offset().top - 100
+            }, 500);
+
+            // Effet de mise en évidence
+            $card.addClass('highlight-card');
+
+            // Retirer l'effet après 3 secondes
+            setTimeout(() => {
+                $card.removeClass('highlight-card');
+            }, 3000);
+        }
+    }
+});
+</script>
+{% endblock %}

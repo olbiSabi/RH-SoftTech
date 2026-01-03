@@ -1,8 +1,12 @@
 from django.contrib import admin
+
+from .forms import ZY00Form
 from .models import ZY00, ZYCO, ZYTE, ZYME, ZYAF, ZYAD, ZYDO, ZYFA, ZYNP, ZYPP, ZYIB, ZYRO, ZYRE
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils import timezone
+from django.contrib.auth.models import Group
+from django.contrib.auth.admin import GroupAdmin
 
 # ===============================
 # ADMIN INLINES
@@ -118,10 +122,12 @@ class ZYPPInline(admin.TabularInline):
 @admin.register(ZY00)
 class ZY00Admin(admin.ModelAdmin):
     """Admin pour les employés (ZY00)"""
+    form = ZY00Form  # Utiliser le formulaire personnalisé
     list_display = (
         'matricule',
         'username',
         'prenomuser',
+        'entreprise_display',  # Nouveau
         'type_dossier_display',
         'etat_display',
         'photo_preview'
@@ -130,27 +136,37 @@ class ZY00Admin(admin.ModelAdmin):
         'type_dossier',
         'etat',
         'sexe',
-        'situation_familiale'
+        'situation_familiale',
+        'entreprise',  # Nouveau
     )
     search_fields = (
         'matricule',
         'username',
         'prenomuser',
         'ville_naissance',
-        'pays_naissance'
+        'pays_naissance',
+        'entreprise__nom',  # Nouveau
     )
     readonly_fields = (
         'matricule',
         'uuid',
-        'photo_preview'
+        'photo_preview',
+        'anciennete_annees_display',  # Nouveau
     )
     fieldsets = (
-        ('Informations Personnelles', {
+        ('Photo et Identité', {
             'fields': (
                 'photo_preview',
                 'photo',
+                'matricule',
                 'nom',
                 'prenoms',
+                'username',
+                'prenomuser',
+            )
+        }),
+        ('Informations Personnelles', {
+            'fields': (
                 'date_naissance',
                 'sexe',
                 'situation_familiale'
@@ -170,6 +186,15 @@ class ZY00Admin(admin.ModelAdmin):
                 'date_expiration_id'
             )
         }),
+        ('Rattachement Entreprise', {
+            'fields': (
+                'entreprise',
+                'convention_personnalisee',
+                'date_entree_entreprise',
+                'anciennete_annees_display',  # Lecture seule
+                'coefficient_temps_travail',
+            )
+        }),
         ('Informations Administratives', {
             'fields': (
                 'type_dossier',
@@ -179,8 +204,8 @@ class ZY00Admin(admin.ModelAdmin):
         }),
         ('Métadonnées', {
             'fields': (
-                'matricule',
-                'uuid'
+                'uuid',
+                'user'
             ),
             'classes': ('collapse',)
         }),
@@ -195,26 +220,120 @@ class ZY00Admin(admin.ModelAdmin):
         ZYFAInline,
     ]
 
+    # Actions personnalisées
+    actions = ['activer_employes', 'desactiver_employes']
+
     def nom_complet(self, obj):
         return f"{obj.nom} {obj.prenoms}"
+
     nom_complet.short_description = 'Nom complet'
 
     def type_dossier_display(self, obj):
         return obj.get_type_dossier_display()
+
     type_dossier_display.short_description = 'Type dossier'
 
     def etat_display(self, obj):
-        return obj.get_etat_display()
+        color = 'green' if obj.etat == 'actif' else 'red'
+        return format_html(
+            '<span style="color: {};">{}</span>',
+            color,
+            obj.get_etat_display()
+        )
+
     etat_display.short_description = 'État'
+    etat_display.admin_order_field = 'etat'
 
     def photo_preview(self, obj):
         if obj.photo:
             return format_html(
-                '<img src="{}" style="max-height: 100px; max-width: 100px; border-radius: 5px;" />',
+                '<img src="{}" style="max-height: 50px; max-width: 50px; border-radius: 5px;" />',
                 obj.photo.url
             )
-        return "Aucune photo"
+        # Photo par défaut selon le sexe
+        default_photo = '/static/assets/img/default_female_avatar.png' if obj.sexe == 'F' else '/static/assets/img/default_male_avatar.png'
+        return format_html(
+            '<img src="{}" style="max-height: 50px; max-width: 50px; border-radius: 5px; opacity: 0.5;" />',
+            default_photo
+        )
+
     photo_preview.short_description = 'Photo'
+
+    def entreprise_display(self, obj):
+        if obj.entreprise:
+            return obj.entreprise.nom
+        return "Non rattaché"
+
+    entreprise_display.short_description = 'Entreprise'
+    entreprise_display.admin_order_field = 'entreprise__nom'
+
+    def anciennete_annees_display(self, obj):
+        """Affiche l'ancienneté en années"""
+        return f"{obj.anciennete_annees} ans"
+
+    anciennete_annees_display.short_description = 'Ancienneté'
+
+    # Actions admin
+    def activer_employes(self, request, queryset):
+        """Activer les employés sélectionnés"""
+        updated = queryset.update(etat='actif')
+        self.message_user(request, f"{updated} employé(s) activé(s) avec succès.")
+
+    activer_employes.short_description = "Activer les employés sélectionnés"
+
+    def desactiver_employes(self, request, queryset):
+        """Désactiver les employés sélectionnés"""
+        # Vérifier s'il y a des managers actifs
+        managers = queryset.filter(is_manager=True, etat='actif')
+        if managers.exists():
+            self.message_user(
+                request,
+                f"Attention : {managers.count()} employé(s) sont managers. "
+                "Veuillez réaffecter leur département avant désactivation.",
+                level='warning'
+            )
+            return
+
+        updated = queryset.update(etat='inactif')
+        self.message_user(request, f"{updated} employé(s) désactivé(s) avec succès.")
+
+    desactiver_employes.short_description = "Désactiver les employés sélectionnés"
+
+    def get_queryset(self, request):
+        """Optimisation des requêtes pour l'admin"""
+        queryset = super().get_queryset(request)
+        return queryset.select_related(
+            'entreprise',
+            'convention_personnalisee',
+            'user'
+        )
+
+    def save_model(self, request, obj, form, change):
+        """Logique supplémentaire lors de la sauvegarde"""
+        if not change:  # Nouvel employé
+            obj.created_by = request.user.employe if hasattr(request.user, 'employe') else None
+
+        # Mettre à jour l'utilisateur Django associé si nécessaire
+        if not obj.user and obj.username:
+            # Créer un utilisateur Django associé
+            from django.contrib.auth.models import User
+            user, created = User.objects.get_or_create(
+                username=obj.username,
+                defaults={
+                    'first_name': obj.prenomuser,
+                    'last_name': obj.username,
+                    'email': f"{obj.username}.{obj.prenomuser}@entreprise.com",
+                    'is_active': obj.etat == 'actif'
+                }
+            )
+            if created:
+                obj.user = user
+
+        super().save_model(request, obj, form, change)
+
+        # Désactiver les données associées si l'employé est inactif
+        if obj.etat == 'inactif':
+            obj.desactiver_donnees_associees()
 
 
 @admin.register(ZYFA)
@@ -1277,33 +1396,34 @@ class ZYIBAdmin(admin.ModelAdmin):
         return qs.select_related('employe')
 
 
-"""
-Admin pour les rôles
-À ajouter dans employee/admin.py
-"""
 @admin.register(ZYRO)
 class ZYROAdmin(admin.ModelAdmin):
-    """Admin pour les rôles"""
+    """Admin pour les rôles avec support système hybride"""
 
     list_display = [
         'CODE',
         'LIBELLE',
-        'actif_badge',
+        'django_group_display',
+        'actif',
         'nb_attributions',
-        'permissions_display',
+        'permissions_count',
         'created_at'
     ]
     list_filter = ['actif', 'created_at']
     search_fields = ['CODE', 'LIBELLE', 'DESCRIPTION']
-    readonly_fields = ['created_at', 'updated_at']
+    readonly_fields = ['created_at', 'updated_at', 'permissions_preview']
 
     fieldsets = (
         ('Informations principales', {
             'fields': ('CODE', 'LIBELLE', 'DESCRIPTION', 'actif')
         }),
-        ('Permissions', {
-            'fields': ('PERMISSIONS',),
-            'description': 'Format JSON: {"can_validate_rh": true, "can_validate_manager": true}'
+        ('Système hybride', {
+            'fields': ('django_group',),
+            'description': 'Groupe Django associé pour les permissions natives'
+        }),
+        ('Permissions personnalisées', {
+            'fields': ('PERMISSIONS_CUSTOM', 'permissions_preview'),
+            'description': 'Permissions métier au format JSON'
         }),
         ('Audit', {
             'fields': ('created_at', 'updated_at'),
@@ -1311,52 +1431,113 @@ class ZYROAdmin(admin.ModelAdmin):
         }),
     )
 
-    def actif_badge(self, obj):
-        if obj.actif:
-            return format_html(
-                '<span style="color: #10b981; font-weight: bold;">✓ Actif</span>'
-            )
-        return format_html(
-            '<span style="color: #ef4444; font-weight: bold;">✗ Inactif</span>'
-        )
+    def django_group_display(self, obj):
+        """Affiche le groupe Django associé"""
+        if obj.django_group:
+            perms_count = obj.django_group.permissions.count()
+            return f"{obj.django_group.name} ({perms_count} permissions)"
+        return "Aucun groupe"
 
-    actif_badge.short_description = 'Statut'
+    django_group_display.short_description = 'Groupe Django'
 
     def nb_attributions(self, obj):
+        """Nombre d'attributions actives"""
         count = obj.attributions.filter(actif=True, date_fin__isnull=True).count()
-        return format_html(
-            '<span style="background: #dbeafe; padding: 4px 8px; border-radius: 4px;">{}</span>',
-            count
-        )
+        return f"{count} employé(s)"
 
-    nb_attributions.short_description = 'Employés'
+    nb_attributions.short_description = 'Attributions actives'
 
-    def permissions_display(self, obj):
-        if not obj.PERMISSIONS:
-            return '-'
+    def permissions_count(self, obj):
+        """Compte des permissions (Django + Custom)"""
+        django_count = 0
+        if obj.django_group:
+            django_count = obj.django_group.permissions.count()
 
-        perms = []
-        for key, value in obj.PERMISSIONS.items():
-            if value:
-                perms.append(f'✓ {key}')
+        custom_count = 0
+        if obj.PERMISSIONS_CUSTOM:
+            custom_count = sum(1 for v in obj.PERMISSIONS_CUSTOM.values() if v)
 
-        if perms:
-            return format_html('<br>'.join(perms))
-        return '-'
+        total = django_count + custom_count
+        return f"{total} (Django: {django_count} | Custom: {custom_count})"
 
-    permissions_display.short_description = 'Permissions'
+    permissions_count.short_description = 'Total permissions'
+
+    def permissions_preview(self, obj):
+        """Prévisualisation des permissions"""
+        lines = []
+
+        # Permissions Django
+        if obj.django_group:
+            lines.append("=== PERMISSIONS DJANGO ===")
+            perms = obj.django_group.permissions.select_related('content_type').all()
+            if perms:
+                perms_by_model = {}
+                for perm in perms:
+                    model = perm.content_type.model
+                    if model not in perms_by_model:
+                        perms_by_model[model] = []
+                    perms_by_model[model].append(perm.codename)
+
+                for model, model_perms in sorted(perms_by_model.items()):
+                    lines.append(f"{model.upper()}: {', '.join(model_perms)}")
+            else:
+                lines.append("Aucune permission Django")
+
+        # Permissions Custom
+        lines.append("\n=== PERMISSIONS PERSONNALISÉES ===")
+        if obj.PERMISSIONS_CUSTOM:
+            perms_actives = [k for k, v in obj.PERMISSIONS_CUSTOM.items() if v]
+            if perms_actives:
+                for perm in perms_actives:
+                    lines.append(f"  - {perm}")
+            else:
+                lines.append("Aucune permission custom active")
+        else:
+            lines.append("Aucune permission custom définie")
+
+        return '\n'.join(lines)
+
+    permissions_preview.short_description = 'Aperçu des permissions'
+
+    actions = ['synchroniser_groupes_django', 'activer_roles', 'desactiver_roles']
+
+    def synchroniser_groupes_django(self, request, queryset):
+        """Synchronise les rôles avec les groupes Django"""
+        count = 0
+        for role in queryset:
+            if role.sync_to_django_group():
+                count += 1
+
+        self.message_user(request, f'{count} rôle(s) synchronisé(s) avec les groupes Django.')
+
+    synchroniser_groupes_django.short_description = "Synchroniser avec groupes Django"
+
+    def activer_roles(self, request, queryset):
+        """Active les rôles sélectionnés"""
+        count = queryset.update(actif=True)
+        self.message_user(request, f'{count} rôle(s) activé(s).')
+
+    activer_roles.short_description = "Activer les rôles sélectionnés"
+
+    def desactiver_roles(self, request, queryset):
+        """Désactive les rôles sélectionnés"""
+        count = queryset.update(actif=False)
+        self.message_user(request, f'{count} rôle(s) désactivé(s).')
+
+    desactiver_roles.short_description = "Désactiver les rôles sélectionnés"
 
 
 @admin.register(ZYRE)
 class ZYREAdmin(admin.ModelAdmin):
-    """Admin pour les attributions de rôles"""
+    """Admin pour les attributions de rôles avec synchronisation Django Groups"""
 
     list_display = [
         'employe_display',
         'role_display',
+        'django_group_sync_status',
         'date_debut',
         'date_fin',
-        'actif_badge',
+        'actif',
         'created_by_display'
     ]
     list_filter = [
@@ -1372,7 +1553,7 @@ class ZYREAdmin(admin.ModelAdmin):
         'role__CODE',
         'role__LIBELLE'
     ]
-    readonly_fields = ['created_at', 'updated_at']
+    readonly_fields = ['created_at', 'updated_at', 'sync_info']
     autocomplete_fields = ['employe', 'created_by']
     date_hierarchy = 'date_debut'
 
@@ -1382,6 +1563,10 @@ class ZYREAdmin(admin.ModelAdmin):
         }),
         ('Période', {
             'fields': ('date_debut', 'date_fin', 'actif')
+        }),
+        ('Synchronisation', {
+            'fields': ('sync_info',),
+            'description': 'Informations sur la synchronisation avec les groupes Django'
         }),
         ('Informations complémentaires', {
             'fields': ('commentaire', 'created_by')
@@ -1393,68 +1578,185 @@ class ZYREAdmin(admin.ModelAdmin):
     )
 
     def employe_display(self, obj):
-        return format_html(
-            '<a href="/admin/employee/zy00/{}/change/" target="_blank">{} {}</a>',
-            obj.employe.pk,
-            obj.employe.nom,
-            obj.employe.prenoms
-        )
+        """Affichage de l'employé"""
+        has_user = "Oui" if obj.employe.user else "Non"
+        return f"{obj.employe.nom} {obj.employe.prenoms} (User: {has_user})"
 
     employe_display.short_description = 'Employé'
     employe_display.admin_order_field = 'employe__nom'
 
     def role_display(self, obj):
-        color = '#10b981' if obj.role.actif else '#6b7280'
-        return format_html(
-            '<span style="color: {}; font-weight: bold;">{} - {}</span>',
-            color,
-            obj.role.CODE,
-            obj.role.LIBELLE
-        )
+        """Affichage du rôle"""
+        statut = "Actif" if obj.role.actif else "Inactif"
+        return f"{obj.role.CODE} - {obj.role.LIBELLE} ({statut})"
 
     role_display.short_description = 'Rôle'
     role_display.admin_order_field = 'role__CODE'
 
-    def actif_badge(self, obj):
-        if obj.actif and not obj.date_fin:
-            return format_html(
-                '<span style="background: #d1fae5; color: #065f46; padding: 4px 8px; '
-                'border-radius: 4px; font-weight: bold;">✓ Actif</span>'
-            )
-        elif obj.date_fin:
-            return format_html(
-                '<span style="background: #fee2e2; color: #991b1b; padding: 4px 8px; '
-                'border-radius: 4px;">Terminé le {}</span>',
-                obj.date_fin.strftime('%d/%m/%Y')
-            )
-        return format_html(
-            '<span style="background: #e5e7eb; color: #374151; padding: 4px 8px; '
-            'border-radius: 4px;">Inactif</span>'
-        )
+    def django_group_sync_status(self, obj):
+        """Statut de synchronisation avec Django Groups"""
+        if not obj.employe.user:
+            return "Pas de compte"
 
-    actif_badge.short_description = 'Statut'
+        if not obj.role.django_group:
+            return "Pas de groupe"
+
+        if obj.actif and not obj.date_fin:
+            is_in_group = obj.role.django_group in obj.employe.user.groups.all()
+            return "Synchronisé" if is_in_group else "Non synchronisé"
+        else:
+            return "Inactif"
+
+    django_group_sync_status.short_description = 'Sync Django'
 
     def created_by_display(self, obj):
+        """Affichage du créateur"""
         if obj.created_by:
             return f"{obj.created_by.nom} {obj.created_by.prenoms}"
         return '-'
 
     created_by_display.short_description = 'Créé par'
 
-    actions = ['activer_attributions', 'desactiver_attributions']
+    def sync_info(self, obj):
+        """Informations détaillées sur la synchronisation"""
+        lines = []
+
+        # Employé
+        lines.append("=== EMPLOYÉ ===")
+        lines.append(f"Nom: {obj.employe.nom} {obj.employe.prenoms}")
+        lines.append(f"Matricule: {obj.employe.matricule}")
+
+        if obj.employe.user:
+            lines.append(f"Username: {obj.employe.user.username}")
+            groups = obj.employe.user.groups.all()
+            if groups:
+                lines.append(f"Groupes Django: {', '.join([g.name for g in groups])}")
+            else:
+                lines.append("Groupes Django: Aucun")
+        else:
+            lines.append("ATTENTION: Aucun compte utilisateur")
+
+        # Rôle
+        lines.append("\n=== RÔLE ===")
+        lines.append(f"Code: {obj.role.CODE}")
+        lines.append(f"Libellé: {obj.role.LIBELLE}")
+
+        if obj.role.django_group:
+            perms_count = obj.role.django_group.permissions.count()
+            lines.append(f"Groupe Django: {obj.role.django_group.name} ({perms_count} permissions)")
+        else:
+            lines.append("ATTENTION: Aucun groupe Django associé")
+
+        custom_perms = sum(1 for v in (obj.role.PERMISSIONS_CUSTOM or {}).values() if v)
+        lines.append(f"Permissions custom: {custom_perms}")
+
+        # Statut
+        lines.append("\n=== STATUT ===")
+
+        if obj.actif and not obj.date_fin:
+            lines.append("Attribution: ACTIVE")
+
+            if obj.employe.user and obj.role.django_group:
+                is_synced = obj.role.django_group in obj.employe.user.groups.all()
+                if is_synced:
+                    lines.append("Synchronisation: OK")
+                else:
+                    lines.append("Synchronisation: ERREUR - Non synchronisé")
+            elif not obj.employe.user:
+                lines.append("Synchronisation: Impossible (pas de compte utilisateur)")
+            else:
+                lines.append("Synchronisation: Impossible (pas de groupe Django)")
+        else:
+            lines.append("Attribution: INACTIVE")
+
+        return '\n'.join(lines)
+
+    sync_info.short_description = 'Informations de synchronisation'
+
+    actions = ['activer_attributions', 'desactiver_attributions', 'forcer_synchronisation']
 
     def activer_attributions(self, request, queryset):
-        count = queryset.update(actif=True)
-        self.message_user(request, f'{count} attribution(s) activée(s).')
+        """Active les attributions sélectionnées"""
+        count = queryset.update(actif=True, date_fin=None)
+
+        # Synchroniser avec Django Groups
+        for attribution in queryset:
+            if attribution.employe.user and attribution.role.django_group:
+                attribution.employe.user.groups.add(attribution.role.django_group)
+
+        self.message_user(request, f'{count} attribution(s) activée(s) et synchronisée(s).')
 
     activer_attributions.short_description = "Activer les attributions sélectionnées"
 
     def desactiver_attributions(self, request, queryset):
+        """Désactive les attributions sélectionnées"""
         from datetime import date
         count = queryset.update(actif=False, date_fin=date.today())
+
+        # Retirer des Django Groups
+        for attribution in queryset:
+            if attribution.employe.user and attribution.role.django_group:
+                attribution.employe.user.groups.remove(attribution.role.django_group)
+
         self.message_user(request, f'{count} attribution(s) désactivée(s).')
 
     desactiver_attributions.short_description = "Désactiver les attributions sélectionnées"
+
+    def forcer_synchronisation(self, request, queryset):
+        """Force la synchronisation avec les groupes Django"""
+        count_synced = 0
+        count_errors = 0
+
+        for attribution in queryset:
+            if attribution.actif and not attribution.date_fin:
+                if attribution.employe.user and attribution.role.django_group:
+                    attribution.employe.user.groups.add(attribution.role.django_group)
+                    count_synced += 1
+                else:
+                    count_errors += 1
+
+        if count_synced > 0:
+            self.message_user(request, f'{count_synced} attribution(s) synchronisée(s).')
+
+        if count_errors > 0:
+            self.message_user(
+                request,
+                f'{count_errors} attribution(s) non synchronisées (pas de compte ou groupe).',
+                level='warning'
+            )
+
+    forcer_synchronisation.short_description = "Forcer la synchronisation avec Django Groups"
+
+admin.site.unregister(Group)
+
+@admin.register(Group)
+class CustomGroupAdmin(GroupAdmin):
+    """Admin personnalisé pour les groupes Django"""
+
+    list_display = ['name', 'role_zyro_link', 'permissions_count', 'users_count']
+
+    def role_zyro_link(self, obj):
+        """Lien vers le rôle ZYRO associé"""
+        try:
+            role = obj.role_zyro
+            return f"{role.CODE} - {role.LIBELLE}"
+        except:
+            return "-"
+
+    role_zyro_link.short_description = 'Rôle ZYRO'
+
+    def permissions_count(self, obj):
+        """Nombre de permissions"""
+        return obj.permissions.count()
+
+    permissions_count.short_description = 'Nb permissions'
+
+    def users_count(self, obj):
+        """Nombre d'utilisateurs"""
+        return obj.user_set.count()
+
+    users_count.short_description = 'Nb utilisateurs'
+
 
 # ===============================
 # CUSTOMIZATION DE L'ADMIN

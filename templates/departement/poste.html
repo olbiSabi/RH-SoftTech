@@ -1,8 +1,7 @@
 {% extends 'base/baseSansMatricule.html' %}
-{% block title %} <title>ONIAN-SofTech</title>>{% endblock %}
 {% load static %}
 {% block extrastylet %}
-
+<link rel="stylesheet" href="{% static 'assets/css/table.css' %}">
 {% endblock %}
 
 <!-- Content Body (Page Body) -->
@@ -19,7 +18,7 @@
                 <h2 style="margin-bottom: 25px; color: #667eea;">
                     <span id="form-title">Nouveau Poste</span>
                 </h2>
-                <form id="posteForm" method="post" action="{% if editing %}{% url 'poste_edit' poste_id %}{% else %}{% url 'poste_list' %}{% endif %}">
+                <form id="posteForm" method="post" action="{% if editing %}{% url 'departement:poste_edit' poste_id %}{% else %}{% url 'departement:poste_list' %}{% endif %}">
                     {% csrf_token %}
 
                     <div class="form-group">
@@ -93,7 +92,7 @@
                     </button>
 
                     {% if editing %}
-                    <a href="{% url 'poste_list' %}" class="btn btn-secondary" style="text-decoration: none; display: inline-block; text-align: center;">
+                    <a href="{% url 'departement:poste_list' %}" class="btn btn-secondary" style="text-decoration: none; display: inline-block; text-align: center;">
                         ❌ Annuler
                     </a>
                     {% endif %}
@@ -142,10 +141,10 @@
                                     </td>
                                     <td>
                                         <div class="action-icons">
-                                            <a href="{% url 'poste_edit' poste.id %}"  title="Modifier" >
+                                            <a href="{% url 'departement:poste_edit' poste.id %}"  title="Modifier" >
                                                 ✏️
                                             </a>
-                                            <form method="post" action="{% url 'poste_delete' poste.id %}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer le poste {{ poste.CODE }} ?');">
+                                            <form method="post" action="{% url 'departement:poste_delete' poste.id %}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer le poste {{ poste.CODE }} ?');">
                                                 {% csrf_token %}
                                                 <button type="submit" class="icon-btn delete-btn" title="Supprimer">
                                                      <i class="fas fa-trash"></i>

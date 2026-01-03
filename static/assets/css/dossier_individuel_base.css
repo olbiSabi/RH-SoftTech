@@ -691,7 +691,7 @@
 
         .modal-header h2 {
             margin: 0;
-            color: #111827;
+            color: #ffffffff;
         }
 
         .close {
@@ -752,3 +752,14 @@
                 grid-template-columns: 1fr;
             }
         }
+
+
+.btn-supprimer {
+    background-color: #dc2626;
+    color: white;
+}
+
+.btn-supprimer:hover {
+    background-color: #b91c1c;
+    transform: scale(1.05);
+}

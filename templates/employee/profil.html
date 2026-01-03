@@ -1,0 +1,986 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'assets/css/employee/profil.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="content container-fluid">
+
+    <!-- En-tête du profil -->
+    <div class="profile-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <!-- Photo de profil -->
+                    <div class="profile-photo-wrapper">
+                        <img src="{{ employe.get_photo_url }}"
+                             alt="{{ employe.username }}"
+                             class="profile-photo"
+                             id="profilePhoto">
+                        <label for="photoUpload" class="photo-upload-btn" title="Changer la photo">
+                            <i class="fas fa-camera"></i>
+                        </label>
+                        <input type="file"
+                               id="photoUpload"
+                               accept="image/*"
+                               style="display: none;"
+                               onchange="uploadPhoto(this)">
+                    </div>
+
+                    <!-- Informations principales -->
+                    <div class="profile-name">
+                        <h2>{{ employe.username }} {{ employe.prenomuser }}</h2>
+                        <p><i class="fas fa-id-card"></i> Matricule: {{ employe.matricule }}</p>
+                        {% if employe.affectations.all.0 %}
+                        <p><i class="fas fa-briefcase"></i> {{ employe.affectations.all.0.poste.LIBELLE }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Onglets -->
+    <div class="card tab-box">
+        <div class="row user-tabs">
+            <div class="col-lg-12 col-md-12 col-sm-12 line-tabs">
+                <ul class="nav nav-tabs nav-tabs-bottom" role="tablist">
+                    <li class="nav-item">
+                        <a href="#tab_informations" data-bs-toggle="tab" class="nav-link active" role="tab">
+                            <i class="fas fa-user"></i> Informations
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab_contacts" data-bs-toggle="tab" class="nav-link" role="tab">
+                            <i class="fas fa-phone"></i> Contacts d'urgence
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab_absences" data-bs-toggle="tab" class="nav-link" role="tab">
+                            <i class="fas fa-calendar-times"></i> Absences
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab_documents" data-bs-toggle="tab" class="nav-link" role="tab">
+                            <i class="fas fa-file-alt"></i> Documents
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-content">
+
+        <!-- ONGLET INFORMATIONS -->
+        <div id="tab_informations" class="tab-pane fade show active" role="tabpanel">
+            <div class="row">
+
+                <!-- Informations personnelles -->
+                <div class="col-md-6">
+                    <div class="info-card">
+                        <h3><i class="fas fa-user-circle"></i> Informations personnelles</h3>
+
+                        <div class="info-row">
+                            <div class="info-label">Nom complet</div>
+                            <div class="info-value">
+                                <strong>{{ employe.nom }} {{ employe.prenoms }}</strong>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-label">Date de naissance</div>
+                            <div class="info-value">{{ employe.date_naissance|date:"d/m/Y" }}</div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-label">Lieu de naissance</div>
+                            <div class="info-value">{{ employe.ville_naissance }}, {{ employe.pays_naissance }}</div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-label">Sexe</div>
+                            <div class="info-value">
+                                {% if employe.sexe == 'M' %}
+                                    <i class="fas fa-mars text-primary"></i> Masculin
+                                {% else %}
+                                    <i class="fas fa-venus text-danger"></i> Féminin
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-label">Situation familiale</div>
+                            <div class="info-value">
+                                <span class="badge-custom badge-info-custom">
+                                    {{ employe.get_situation_familiale_display|default:"Non renseignée" }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-label">Nationalité</div>
+                            <div class="info-value">{{ employe.pays_naissance }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Identité -->
+                    <div class="info-card">
+                        <h3><i class="fas fa-id-card"></i> Pièce d'identité</h3>
+
+                        <div class="info-row">
+                            <div class="info-label">Type</div>
+                            <div class="info-value">{{ employe.get_type_id_display }}</div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-label">Numéro</div>
+                            <div class="info-value"><strong>{{ employe.numero_id }}</strong></div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-label">Validité</div>
+                            <div class="info-value">
+                                {{ employe.date_validite_id|date:"d/m/Y" }} - {{ employe.date_expiration_id|date:"d/m/Y" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informations professionnelles -->
+                <div class="col-md-6">
+                    <div class="info-card">
+                        <h3><i class="fas fa-briefcase"></i> Informations professionnelles</h3>
+
+                        <div class="info-row">
+                            <div class="info-label">Entreprise</div>
+                            <div class="info-value">
+                                {% if employe.entreprise %}
+                                    <strong>{{ employe.entreprise.nom }}</strong>
+                                {% else %}
+                                    <em class="text-muted">Non affecté</em>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-label">Date d'entrée</div>
+                            <div class="info-value">{{ employe.date_entree_entreprise|date:"d/m/Y"|default:"Non renseignée" }}</div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-label">Ancienneté</div>
+                            <div class="info-value">
+                                <strong>{{ employe.anciennete_annees }} an{{ employe.anciennete_annees|pluralize }}</strong>
+                            </div>
+                        </div>
+
+                        {% if employe.affectations.all.0 %}
+                        <div class="info-row">
+                            <div class="info-label">Département</div>
+                            <div class="info-value">{{ employe.affectations.all.0.poste.DEPARTEMENT.LIBELLE }}</div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-label">Poste</div>
+                            <div class="info-value">{{ employe.affectations.all.0.poste.LIBELLE }}</div>
+                        </div>
+                        {% endif %}
+
+                        <div class="info-row">
+                            <div class="info-label">Type de dossier</div>
+                            <div class="info-value">
+                                <span class="badge-custom {% if employe.type_dossier == 'SAL' %}badge-success-custom{% else %}badge-warning-custom{% endif %}">
+                                    {{ employe.get_type_dossier_display }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-label">Statut</div>
+                            <div class="info-value">
+                                <span class="badge-custom {% if employe.etat == 'actif' %}badge-success-custom{% else %}badge-warning-custom{% endif %}">
+                                    {{ employe.get_etat_display }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-label">Temps de travail</div>
+                            <div class="info-value">
+                                {{ employe.coefficient_temps_travail|floatformat:2 }}
+                                {% if employe.coefficient_temps_travail == 1.00 %}
+                                    (Temps plein)
+                                {% else %}
+                                    (Temps partiel)
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact -->
+                    <div class="info-card">
+                        <h3><i class="fas fa-envelope"></i> Contact</h3>
+
+                        {% with employe.telephones.all.0 as tel %}
+                        <div class="info-row">
+                            <div class="info-label">Téléphone</div>
+                            <div class="info-value">
+                                {% if tel %}
+                                    <i class="fas fa-phone text-primary"></i> {{ tel.numero }}
+                                {% else %}
+                                    <em class="text-muted">Non renseigné</em>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endwith %}
+
+                        {% with employe.emails.all.0 as email %}
+                        <div class="info-row">
+                            <div class="info-label">Email</div>
+                            <div class="info-value">
+                                {% if email %}
+                                    <i class="fas fa-envelope text-primary"></i> {{ email.email }}
+                                {% else %}
+                                    <em class="text-muted">Non renseigné</em>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endwith %}
+
+                        {% with employe.adresses.all.0 as adresse %}
+                        <div class="info-row">
+                            <div class="info-label">Adresse</div>
+                            <div class="info-value">
+                                {% if adresse %}
+                                    {{ adresse.rue }}<br>
+                                    {% if adresse.complement %}{{ adresse.complement }}<br>{% endif %}
+                                    {{ adresse.code_postal }} {{ adresse.ville }}<br>
+                                    {{ adresse.pays }}
+                                {% else %}
+                                    <em class="text-muted">Non renseignée</em>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ONGLET CONTACTS D'URGENCE -->
+        <div id="tab_contacts" class="tab-pane fade" role="tabpanel">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="info-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="mb-0"><i class="fas fa-phone-alt"></i> Personnes à prévenir en cas d'urgence</h3>
+                            <button class="btn btn-primary btn-sm" onclick="openContactModal()">
+                                <i class="fas fa-plus"></i> Ajouter un contact
+                            </button>
+                        </div>
+
+                        {% if contacts_urgence %}
+                            {% for contact in contacts_urgence %}
+                            <div class="contact-urgence-card">
+                                <div class="row align-items-center">
+                                    <div class="col-md-1 text-center">
+                                        <span class="priorite-badge priorite-{{ contact.ordre_priorite }}">
+                                            {{ contact.ordre_priorite }}
+                                        </span>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <h5 class="mb-1">
+                                            <i class="fas fa-user"></i> {{ contact.prenom }} {{ contact.nom }}
+                                        </h5>
+                                        <p class="text-muted mb-1">
+                                            <i class="fas fa-users"></i> {{ contact.get_lien_parente_display }}
+                                        </p>
+                                        <p class="mb-0">
+                                            <i class="fas fa-phone text-success"></i> {{ contact.telephone_principal }}
+                                            {% if contact.telephone_secondaire %}
+                                                <br><i class="fas fa-phone text-info"></i> {{ contact.telephone_secondaire }}
+                                            {% endif %}
+                                            {% if contact.email %}
+                                                <br><i class="fas fa-envelope text-primary"></i> {{ contact.email }}
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                    <div class="col-md-3 text-right">
+                                        <button class="btn btn-sm btn-info" onclick="editContact({{ contact.id }})" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteContact({{ contact.id }}, '{{ contact.prenom }} {{ contact.nom }}')" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                {% if contact.remarques %}
+                                <div class="row mt-2">
+                                    <div class="col-md-12">
+                                        <small class="text-muted">
+                                            <i class="fas fa-sticky-note"></i> {{ contact.remarques }}
+                                        </small>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-phone-slash fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Aucun contact d'urgence enregistré</p>
+                                <button class="btn btn-primary" onclick="openContactModal()">
+                                    <i class="fas fa-plus"></i> Ajouter le premier contact
+                                </button>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ONGLET ABSENCES -->
+<div id="tab_absences" class="tab-pane fade" role="tabpanel">
+    <div class="row">
+        <!-- Solde de congés -->
+        <div class="col-md-12">
+            <div class="info-card">
+                <h3>
+                    <i class="fas fa-chart-line"></i> Solde de congés
+                    {% if acquisition_conges %}
+                        <small class="text-muted">
+                            (Acquis en {{ annee_acquisition }} - Consommables en {{ annee_consommation }})
+                        </small>
+                    {% endif %}
+                </h3>
+
+                {% if acquisition_conges %}
+                <div class="row text-center mb-3">
+                    <div class="col-md-3">
+                        <div class="p-3 bg-light rounded">
+                            <h4 class="text-success mb-0">{{ acquisition_conges.jours_acquis }}</h4>
+                            <small class="text-muted">Jours acquis ({{ annee_acquisition }})</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-3 bg-light rounded">
+                            <h4 class="text-warning mb-0">{{ acquisition_conges.jours_pris }}</h4>
+                            <small class="text-muted">Jours pris ({{ annee_consommation }})</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-3 bg-light rounded">
+                            <h4 class="text-primary mb-0">{{ acquisition_conges.jours_restants }}</h4>
+                            <small class="text-muted">Jours restants</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-3 bg-light rounded">
+                            <h4 class="text-info mb-0">{{ acquisition_conges.jours_report_anterieur }}</h4>
+                            <small class="text-muted">Report antérieur</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Barre de progression visuelle -->
+                <div class="solde-progress">
+                    {% widthratio acquisition_conges.jours_pris acquisition_conges.jours_acquis 100 as pris_percent %}
+                    {% widthratio acquisition_conges.jours_restants acquisition_conges.jours_acquis 100 as restant_percent %}
+
+                    <div class="solde-progress-bar solde-progress-pris" style="width: {{ pris_percent }}%;">
+                        {{ acquisition_conges.jours_pris }} pris
+                    </div>
+                    <div class="solde-progress-bar solde-progress-restant" style="width: {{ restant_percent }}%;">
+                        {{ acquisition_conges.jours_restants }} restants
+                    </div>
+                </div>
+
+                <div class="solde-legend">
+                    <div class="solde-legend-item">
+                        <div class="solde-legend-color"
+                             style="background: linear-gradient(90deg, #ff6b6b 0%, #ff8787 100%);"></div>
+                        <span>Jours consommés</span>
+                    </div>
+                    <div class="solde-legend-item">
+                        <div class="solde-legend-color"
+                             style="background: linear-gradient(90deg, #51cf66 0%, #69db7c 100%);"></div>
+                        <span>Jours disponibles</span>
+                    </div>
+                </div>
+
+                <!-- Explication du système N+1 -->
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Système N+1 :</strong>
+                    Les congés acquis en {{ annee_acquisition }} sont utilisables du 1er janvier au 31 décembre {{
+                    annee_consommation }}.
+                    Vous avez actuellement <strong>{{ acquisition_conges.jours_restants }} jours</strong> disponibles
+                    pour cette année.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Liste des absences -->
+        <div class="col-md-12">
+            <div class="info-card">
+                <h3>
+                    <i class="fas fa-calendar-times"></i> Historique des absences {{ annee_consommation }}
+                </h3>
+
+                {% if absences %}
+                    {% for absence in absences %}
+                    <div class="absence-card">
+                        <div class="absence-header">
+                            <div>
+                                <strong>{{ absence.type_absence.libelle }}</strong>
+                                <span class="badge badge-sm" style="background-color: {{ absence.type_absence.couleur }}; color: white;">
+                                    {{ absence.type_absence.code }}
+                                </span>
+                            </div>
+                            <div>
+                                {% if absence.statut == 'VALIDE' %}
+                                    <span class="badge badge-success">Validée</span>
+                                {% elif absence.statut == 'REJETE' %}
+                                    <span class="badge badge-danger">Rejetée</span>
+                                {% elif absence.statut == 'EN_ATTENTE_MANAGER' %}
+                                    <span class="badge badge-warning">En attente manager</span>
+                                {% elif absence.statut == 'EN_ATTENTE_RH' %}
+                                    <span class="badge badge-info">En attente RH</span>
+                                {% elif absence.statut == 'ANNULE' %}
+                                    <span class="badge badge-secondary">Annulée</span>
+                                {% else %}
+                                    <span class="badge badge-secondary">{{ absence.get_statut_display }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar"></i>
+                                    {{ absence.date_debut|date:"d/m/Y" }} - {{ absence.date_fin|date:"d/m/Y" }}
+                                </small>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock"></i>
+                                    {{ absence.jours_ouvrables }} jour{{ absence.jours_ouvrables|pluralize }}
+                                </small>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-sun"></i>
+                                    {{ absence.get_periode_display }}
+                                </small>
+                            </div>
+                        </div>
+                        {% if absence.motif %}
+                        <div class="mt-2">
+                            <small><strong>Motif:</strong> {{ absence.motif }}</small>
+                        </div>
+                        {% endif %}
+
+                        <!-- ✅ AJOUT : Afficher l'année d'acquisition utilisée -->
+                        {% if absence.type_absence.decompte_solde %}
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                <i class="fas fa-coins"></i>
+                                Déduit du solde {{ absence.annee_acquisition_utilisee }}
+                            </small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-calendar-check fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Aucune absence enregistrée pour l'année {{ annee_consommation }}</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+        <!-- ONGLET DOCUMENTS -->
+        <div id="tab_documents" class="tab-pane fade" role="tabpanel">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="info-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="mb-0"><i class="fas fa-file-alt"></i> Documents</h3>
+                            <button class="btn btn-primary btn-sm" onclick="openDocumentModal()">
+                                <i class="fas fa-plus"></i> Ajouter un document
+                            </button>
+                        </div>
+
+                        {% if documents %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Nom du fichier</th>
+                                    <th>Date d'ajout</th>
+                                    <th>Taille</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for doc in documents %}
+                                <tr>
+                                    <td>
+                                        <span class="badge badge-primary">
+                                            {{ doc.get_type_document_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ doc.description|truncatewords:10|default:"-" }}</td>
+                                    <td>
+                                        <i class="fas fa-file-pdf text-danger"></i> {{ doc.get_nom_fichier }}
+                                    </td>
+                                    <td>{{ doc.date_ajout|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ doc.get_taille_lisible }}</td>
+                                    <td class="text-center">
+                                        <a href="{{ doc.fichier.url }}" class="btn btn-sm btn-info" target="_blank"
+                                           title="Télécharger">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                        <button class="btn btn-sm btn-danger"
+                                                onclick="deleteDocument({{ doc.id }}, '{{ doc.get_nom_fichier }}')"
+                                                title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Aucun document disponible</p>
+                            <button class="btn btn-primary" onclick="openDocumentModal()">
+                                <i class="fas fa-plus"></i> Ajouter le premier document
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal Contact d'urgence -->
+<div id="contactModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="contactModalTitle">
+                    <i class="fas fa-phone-alt"></i> Contact d'urgence
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form id="contactForm" method="POST" action="">
+                {% csrf_token %}
+                <input type="hidden" id="contact_id" name="contact_id">
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Nom <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="nom" name="nom" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Prénom <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="prenom" name="prenom" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Lien de parenté <span class="text-danger">*</span></label>
+                                <select class="form-control" id="lien_parente" name="lien_parente" required>
+                                    <option value="">Sélectionner...</option>
+                                    <option value="CONJOINT">Conjoint(e)</option>
+                                    <option value="PARENT">Parent</option>
+                                    <option value="ENFANT">Enfant</option>
+                                    <option value="FRERE_SOEUR">Frère/Sœur</option>
+                                    <option value="AMI">Ami(e)</option>
+                                    <option value="COLLEGUE">Collègue</option>
+                                    <option value="VOISIN">Voisin(e)</option>
+                                    <option value="AUTRE">Autre</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Ordre de priorité <span class="text-danger">*</span></label>
+                                <select class="form-control" id="ordre_priorite" name="ordre_priorite" required>
+                                    <option value="1">1 - Contact principal</option>
+                                    <option value="2">2 - Contact secondaire</option>
+                                    <option value="3">3 - Contact tertiaire</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Téléphone principal <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="telephone_principal" name="telephone_principal" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Téléphone secondaire</label>
+                                <input type="tel" class="form-control" id="telephone_secondaire" name="telephone_secondaire">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" class="form-control" id="email" name="email">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Adresse</label>
+                        <textarea class="form-control" id="adresse" name="adresse" rows="2"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Remarques</label>
+                        <textarea class="form-control" id="remarques" name="remarques" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times"></i> Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Document -->
+<div id="documentModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-file-upload"></i> Ajouter un document
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form id="documentForm" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Formats acceptés :</strong> PDF, DOC, DOCX, XLS, XLSX, JPG, PNG (Max : 10 MB)
+                    </div>
+
+                    <div class="form-group">
+                        <label>Type de document <span class="text-danger">*</span></label>
+                        <select class="form-control" id="type_document" name="type_document" required>
+                            <option value="">Sélectionner...</option>
+                            <option value="CV">CV</option>
+                            <option value="LETTRE_MOTIVATION">Lettre de motivation</option>
+                            <option value="DIPLOME">Diplôme</option>
+                            <option value="ATTESTATION_FORMATION">Attestation de formation</option>
+                            <option value="CERTIFICAT_TRAVAIL">Certificat de travail</option>
+                            <option value="LETTRE_RECOMMANDATION">Lettre de recommandation</option>
+                            <option value="CNI">Carte Nationale d'Identité</option>
+                            <option value="PASSEPORT">Passeport</option>
+                            <option value="ACTE_NAISSANCE">Acte de naissance</option>
+                            <option value="CERTIFICAT_RESIDENCE">Certificat de résidence</option>
+                            <option value="RIB">RIB</option>
+                            <option value="ATTESTATION_SECURITE_SOCIALE">Attestation sécurité sociale</option>
+                            <option value="CERTIFICAT_MEDICAL">Certificat médical</option>
+                            <option value="CONTRAT_SIGNE">Contrat signé</option>
+                            <option value="ATTESTATION_ASSURANCE">Attestation d'assurance</option>
+                            <option value="JUSTIFICATIF_DOMICILE">Justificatif de domicile</option>
+                            <option value="PHOTO_IDENTITE">Photo d'identité</option>
+                            <option value="AUTRES">Autres</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Description du document (optionnel)"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fichier <span class="text-danger">*</span></label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="fichier" name="fichier" required>
+                            <label class="custom-file-label" for="fichier">Choisir un fichier...</label>
+                        </div>
+                        <small class="form-text text-muted">
+                            Taille maximale : 10 MB
+                        </small>
+                    </div>
+
+                    <!-- Prévisualisation du fichier -->
+                    <div id="filePreview" class="mt-3" style="display: none;">
+                        <div class="alert alert-success">
+                            <i class="fas fa-file-check"></i>
+                            <strong>Fichier sélectionné :</strong> <span id="fileName"></span>
+                            (<span id="fileSize"></span>)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times"></i> Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitDocBtn">
+                        <i class="fas fa-upload"></i> Téléverser
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extrascript %}
+<script>
+// Upload de la photo
+function uploadPhoto(input) {
+    if (input.files && input.files[0]) {
+        const formData = new FormData();
+        formData.append('photo', input.files[0]);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        fetch('{% url "employee:upload_photo" employe.matricule %}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('profilePhoto').src = data.photo_url;
+                alert('Photo mise à jour avec succès !');
+            } else {
+                alert('Erreur: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de l\'upload de la photo');
+        });
+    }
+}
+
+// Gestion des contacts d'urgence
+function openContactModal() {
+    document.getElementById('contactForm').reset();
+    document.getElementById('contact_id').value = '';
+    document.getElementById('contactModalTitle').innerHTML = '<i class="fas fa-phone-alt"></i> Nouveau contact d\'urgence';
+    document.getElementById('contactForm').action = '{% url "employee:create_contact_urgence" employe.matricule %}';
+    $('#contactModal').modal('show');
+}
+
+function editContact(contactId) {
+    fetch(`/hronian/employee/contact-urgence/${contactId}/detail/`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('contact_id').value = data.id;
+            document.getElementById('nom').value = data.nom;
+            document.getElementById('prenom').value = data.prenom;
+            document.getElementById('lien_parente').value = data.lien_parente;
+            document.getElementById('ordre_priorite').value = data.ordre_priorite;
+            document.getElementById('telephone_principal').value = data.telephone_principal;
+            document.getElementById('telephone_secondaire').value = data.telephone_secondaire || '';
+            document.getElementById('email').value = data.email || '';
+            document.getElementById('adresse').value = data.adresse || '';
+            document.getElementById('remarques').value = data.remarques || '';
+
+            document.getElementById('contactModalTitle').innerHTML = '<i class="fas fa-edit"></i> Modifier le contact';
+            document.getElementById('contactForm').action = `/hronian/employee/contact-urgence/${contactId}/update/`;
+            $('#contactModal').modal('show');
+        });
+}
+
+function deleteContact(contactId, nom) {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer le contact "${nom}" ?`)) {
+        fetch(`/hronian/employee/contact-urgence/${contactId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Erreur: ' + data.error);
+            }
+        });
+    }
+}
+
+// Soumission du formulaire contact
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    fetch(this.action, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#contactModal').modal('hide');
+            location.reload();
+        } else {
+            alert('Erreur: ' + (data.error || 'Erreur inconnue'));
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Erreur lors de l\'enregistrement');
+    });
+});
+
+
+// ========================================
+// GESTION DES DOCUMENTS
+// ========================================
+
+// Prévisualisation du fichier sélectionné
+document.getElementById('fichier').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const filePreview = document.getElementById('filePreview');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const fileLabel = document.querySelector('.custom-file-label');
+
+    if (file) {
+        // Afficher le nom dans le label
+        fileLabel.textContent = file.name;
+
+        // Afficher la prévisualisation
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        filePreview.style.display = 'block';
+
+        // Vérifier la taille (max 10 MB)
+        if (file.size > 10 * 1024 * 1024) {
+            alert('Le fichier est trop volumineux. Taille maximale : 10 MB');
+            e.target.value = '';
+            filePreview.style.display = 'none';
+            fileLabel.textContent = 'Choisir un fichier...';
+        }
+    } else {
+        filePreview.style.display = 'none';
+        fileLabel.textContent = 'Choisir un fichier...';
+    }
+});
+
+// Formater la taille du fichier
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+// Ouvrir le modal d'ajout de document
+function openDocumentModal() {
+    document.getElementById('documentForm').reset();
+    document.getElementById('filePreview').style.display = 'none';
+    document.querySelector('.custom-file-label').textContent = 'Choisir un fichier...';
+    $('#documentModal').modal('show');
+}
+
+// Soumission du formulaire document
+document.getElementById('documentForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const submitBtn = document.getElementById('submitDocBtn');
+
+    // Désactiver le bouton pendant l'upload
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Téléversement...';
+
+    fetch('{% url "employee:upload_document" employe.matricule %}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#documentModal').modal('hide');
+            location.reload();
+        } else {
+            alert('Erreur: ' + (data.error || 'Erreur inconnue'));
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-upload"></i> Téléverser';
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Erreur lors du téléversement du document');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-upload"></i> Téléverser';
+    });
+});
+
+// Supprimer un document
+function deleteDocument(documentId, fileName) {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer le document "${fileName}" ?`)) {
+        fetch(`/hronian/employee/document/${documentId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Erreur: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la suppression');
+        });
+    }
+}
+</script>
+{% endblock %}

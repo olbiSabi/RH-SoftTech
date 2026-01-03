@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 # ==========================================
-# MODÈLE ZDPO POUR LE DEPARTEMENT
+# MODÈLE ZDDE POUR LE DEPARTEMENT
 # ==========================================
 class ZDDE(models.Model):
     """Modèle Département"""

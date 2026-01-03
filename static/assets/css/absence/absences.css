@@ -1,0 +1,1130 @@
+/* static/assets/css/absence/absences.css */
+
+/* ===== VARIABLES ===== */
+:root {
+    --primary-color: #1c5d5f;
+    --secondary-color: #193f41;
+    --success-color: #28a745;
+    --info-color: #17a2b8;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --light-gray: #f8f9fa;
+    --border-color: #dee2e6;
+}
+
+/* ===== SOLDE DE CONGÉS - CARD PRINCIPALE ===== */
+.solde-card {
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+    transition: transform 0.3s ease;
+}
+
+.solde-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.solde-item {
+    text-align: center;
+    padding: 10px;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.solde-item:last-child {
+    border-right: none;
+}
+
+.solde-item h3 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0;
+    color: #fff;
+}
+
+.solde-item p {
+    font-size: 0.9rem;
+    margin: 5px 0 0 0;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* ===== STATISTIQUES - SMALL BOXES ===== */
+.small-box {
+    position: relative;
+    display: block;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    padding: 15px;
+    min-height: 120px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.small-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.small-box > .inner {
+    padding: 10px;
+    position: relative;
+    z-index: 5;
+}
+
+.small-box > .inner h3 {
+    font-size: 2.2rem;
+    font-weight: bold;
+    margin: 0 0 10px 0;
+    padding: 0;
+    color: #fff;
+}
+
+.small-box > .inner p {
+    font-size: 1rem;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.small-box .icon {
+    position: absolute;
+    top: auto;
+    bottom: 10px;
+    right: 10px;
+    z-index: 0;
+    font-size: 70px;
+    color: rgba(0, 0, 0, 0.15);
+    transition: all 0.3s linear;
+}
+
+.small-box:hover .icon {
+    font-size: 80px;
+}
+
+/* Couleurs pour les small-box */
+.small-box.bg-info {
+    background-color: #17a2b8 !important;
+}
+
+.small-box.bg-success {
+    background-color: #28a745 !important;
+}
+
+.small-box.bg-warning {
+    background-color: #ffc107 !important;
+}
+
+.small-box.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+/* ===== ONGLETS ===== */
+.nav-tabs .nav-link {
+    color: #495057;
+    font-weight: 500;
+    border: none;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    border-color: #1c5d5f;
+    color: #1c5d5f;
+}
+
+.nav-tabs .nav-link.active {
+    color: #1c5d5f;
+    border-bottom: 3px solid #1c5d5f;
+    background-color: transparent;
+}
+
+/* ===== TABLE ===== */
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(102, 126, 234, 0.05);
+    transition: background-color 0.2s ease;
+}
+
+.table th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    color: #6c757d;
+    border-top: none;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* ===== BADGES ===== */
+.badge {
+    font-size: 0.85rem;
+    padding: 0.5em 0.75em;
+    font-weight: 500;
+    border-radius: 0.25rem;
+}
+
+.badge i {
+    margin-right: 3px;
+}
+
+/* Compatibilité Bootstrap 4/5 */
+.badge-primary {
+    background-color: #007bff !important;
+    color: #fff !important;
+}
+
+.badge-success {
+    background-color: #28a745 !important;
+    color: #fff !important;
+}
+
+.badge-info {
+    background-color: #17a2b8 !important;
+    color: #fff !important;
+}
+
+.badge-warning {
+    background-color: #ffc107 !important;
+    color: #212529 !important;
+}
+
+.badge-danger {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+}
+
+.badge-secondary {
+    background-color: #6c757d !important;
+    color: #fff !important;
+}
+
+/* ===== VALIDATION PROGRESS ===== */
+.validation-progress {
+    display: flex;
+    gap: 8px;
+    font-size: 1.2rem;
+}
+
+.validation-progress i {
+    transition: all 0.3s ease;
+}
+
+.validation-progress i:hover {
+    transform: scale(1.2);
+}
+
+/* ===== ACTIONS BUTTONS ===== */
+.action-buttons {
+    white-space: nowrap;
+}
+
+.action-buttons .btn {
+    margin: 0 2px;
+}
+
+/* ===== CALENDRIER PRINCIPAL ===== */
+#calendar {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.fc {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.fc-toolbar-title {
+    font-size: 1.5rem !important;
+    font-weight: 600 !important;
+    color: #495057;
+}
+
+.fc-button {
+    background-color: #1c5d5f !important;
+    border-color: #1c5d5f !important;
+    text-transform: capitalize;
+}
+
+.fc-button:hover {
+    background-color: #5568d3 !important;
+    border-color: #5568d3 !important;
+}
+
+.fc-button-active {
+    background-color: #193f41 !important;
+    border-color: #193f41 !important;
+}
+
+/* Events dans le calendrier */
+.fc-event {
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    padding: 2px 4px;
+}
+
+.event-valide {
+    background-color: #28a745 !important;
+    border-left: 3px solid #1e7e34 !important;
+}
+
+.event-attente {
+    background-color: #ffc107 !important;
+    border-left: 3px solid #d39e00 !important;
+    color: #212529 !important;
+}
+
+.event-rejete {
+    background-color: #dc3545 !important;
+    border-left: 3px solid #bd2130 !important;
+}
+
+.weekend-cell {
+    background-color: #f8f9fa !important;
+}
+
+/* ===== MINI CALENDRIER (FORMULAIRE) ===== */
+#miniCalendar {
+    max-width: 100%;
+}
+
+#miniCalendar .fc-toolbar {
+    margin-bottom: 1rem;
+}
+
+#miniCalendar .fc-toolbar-title {
+    font-size: 1.1rem !important;
+}
+
+#miniCalendar .fc-button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.9rem;
+}
+
+#miniCalendar .fc-daygrid-day {
+    cursor: pointer;
+}
+
+#miniCalendar .fc-daygrid-day:hover {
+    background-color: rgba(102, 126, 234, 0.1);
+}
+
+#miniCalendar .fc-daygrid-day.fc-day-today {
+    background-color: rgba(102, 126, 234, 0.2) !important;
+}
+
+/* ===== LÉGENDE ===== */
+.legend {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+/* ===== SOLDE MINI (FORMULAIRE) ===== */
+.solde-mini {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+}
+
+.solde-mini-item {
+    text-align: center;
+}
+
+.solde-mini-item strong {
+    display: block;
+    font-size: 1.5rem;
+    color: #1c5d5f;
+}
+
+.solde-mini-item small {
+    display: block;
+    color: #6c757d;
+    font-size: 0.8rem;
+}
+
+/* ===== FORMULAIRE ===== */
+.form-control:focus {
+    border-color: #1c5d5f;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.form-group label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.form-text {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+/* ===== ALERTS ===== */
+.alert {
+    border-radius: 0.5rem;
+    border: none;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.alert i {
+    margin-right: 5px;
+}
+
+/* ===== MODAL ===== */
+.modal-header {
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+    border-bottom: none;
+}
+
+.modal-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+/* ===== DETAILS MODAL ===== */
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #6c757d;
+    flex: 0 0 40%;
+}
+
+.detail-value {
+    flex: 0 0 60%;
+    text-align: right;
+    color: #495057;
+}
+
+.detail-value.highlight {
+    font-weight: 600;
+    color: #1c5d5f;
+}
+
+/* ===== HISTORIQUE VALIDATION ===== */
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 60px;
+    margin-bottom: 30px;
+}
+
+.timeline-badge {
+    position: absolute;
+    left: 8px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid #28a745;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timeline-badge.pending {
+    border-color: #ffc107;
+}
+
+.timeline-badge.rejected {
+    border-color: #dc3545;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 3px solid #28a745;
+}
+
+.timeline-content.pending {
+    border-left-color: #ffc107;
+}
+
+.timeline-content.rejected {
+    border-left-color: #dc3545;
+}
+
+.timeline-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.timeline-title {
+    font-weight: 600;
+    color: #495057;
+}
+
+.timeline-date {
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.timeline-body {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* ===== BOUTONS ===== */
+.btn {
+    border-radius: 0.25rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+.btn-info:hover {
+    background-color: #138496;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #212529;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+}
+
+.btn i {
+    margin-right: 5px;
+}
+
+.btn-sm i {
+    margin-right: 0;
+}
+
+/* ===== PAGINATION ===== */
+.pagination {
+    margin-top: 20px;
+}
+
+.page-link {
+    color: #1c5d5f;
+    border-color: #dee2e6;
+}
+
+.page-link:hover {
+    color: #1c5d5f;
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+.page-item.active .page-link {
+    background-color: #1c5d5f;
+    border-color: #1c5d5f;
+}
+
+/* ===== BREADCRUMB ===== */
+.breadcrumb {
+    background-color: transparent;
+    padding: 0;
+    margin-bottom: 0;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    color: #6c757d;
+}
+
+.breadcrumb-item a {
+    color: #1c5d5f;
+}
+
+.breadcrumb-item.active {
+    color: #6c757d;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .small-box .icon {
+        font-size: 50px;
+        bottom: 5px;
+        right: 5px;
+    }
+
+    .small-box .inner h3 {
+        font-size: 1.8rem;
+    }
+
+    .small-box {
+        min-height: 100px;
+    }
+
+    .solde-card {
+        margin-bottom: 20px;
+    }
+
+    .solde-item {
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 15px;
+    }
+
+    .solde-item:last-child {
+        border-bottom: none;
+    }
+
+    .table-responsive {
+        font-size: 0.85rem;
+    }
+
+    .action-buttons .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        margin: 2px;
+    }
+
+    .fc-toolbar {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .fc-toolbar-chunk {
+        margin-bottom: 10px;
+    }
+
+    .modal-lg {
+        max-width: 95%;
+    }
+
+    .detail-row {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .detail-label,
+    .detail-value {
+        flex: 1;
+        text-align: left;
+    }
+}
+
+@media (max-width: 576px) {
+    .content-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .small-box .inner h3 {
+        font-size: 1.5rem;
+    }
+
+    .small-box .icon {
+        font-size: 40px;
+    }
+
+    .solde-item h3 {
+        font-size: 1.5rem;
+    }
+
+    .solde-mini {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .legend {
+        font-size: 0.85rem;
+    }
+
+    .legend-color {
+        width: 16px;
+        height: 16px;
+    }
+
+    .timeline-item {
+        padding-left: 50px;
+    }
+
+    .timeline::before {
+        left: 15px;
+    }
+
+    .timeline-badge {
+        left: 3px;
+        width: 22px;
+        height: 22px;
+    }
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal.show .modal-dialog {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.card {
+    animation: slideIn 0.5s ease;
+}
+
+/* ===== LOADING STATE ===== */
+.btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.15em;
+}
+
+/* ===== ICÔNES ===== */
+.fas,
+.far {
+    vertical-align: middle;
+}
+
+/* ===== SCROLLBAR PERSONNALISÉE (WEBKIT) ===== */
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* ===== FLATPICKR CUSTOMIZATION ===== */
+.flatpickr-calendar {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.flatpickr-day.selected {
+    background: #1c5d5f;
+    border-color: #1c5d5f;
+}
+
+.flatpickr-day:hover {
+    background: rgba(102, 126, 234, 0.1);
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+    .btn,
+    .action-buttons,
+    .card-header,
+    .breadcrumb,
+    .pagination {
+        display: none;
+    }
+
+    .card {
+        border: 1px solid #dee2e6;
+        box-shadow: none;
+    }
+
+    .table {
+        font-size: 0.85rem;
+    }
+}
+
+.event-annule {
+    background-color: #6c757d !important;
+    border-left: 3px solid #495057 !important;
+    opacity: 0.7;
+    text-decoration: line-through;
+}
+
+
+/* Calendrier */
+#calendar {
+    min-height: 600px;
+}
+
+.weekend-cell {
+    background-color: #f8f9fa !important;
+}
+
+.event-valide {
+    background-color: #28a745 !important;
+    border-color: #1e7e34 !important;
+}
+
+.event-attente {
+    background-color: #ffc107 !important;
+    border-color: #e0a800 !important;
+}
+
+.event-rejete {
+    background-color: #dc3545 !important;
+    border-color: #bd2130 !important;
+}
+
+.event-annule {
+    background-color: #6c757d !important;
+    border-color: #545b62 !important;
+}
+
+/* Calendrier styles */
+.fc {
+    font-family: inherit;
+}
+
+.fc-daygrid-day-number {
+    font-weight: bold;
+}
+
+.fc-event {
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.fc-event:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+    transition: all 0.2s;
+}
+
+.event-valide {
+    background-color: #28a745 !important;
+    border-color: #1e7e34 !important;
+}
+
+.event-attente {
+    background-color: #ffc107 !important;
+    border-color: #e0a800 !important;
+}
+
+.event-rejete {
+    background-color: #dc3545 !important;
+    border-color: #bd2130 !important;
+}
+
+.event-annule {
+    background-color: #6c757d !important;
+    border-color: #545b62 !important;
+}
+
+.weekend-cell {
+    background-color: #f8f9fa !important;
+}
+
+.fc-toolbar-title {
+    font-size: 1.5rem;
+    color: #343a40;
+}
+
+.fc-button {
+    background-color: #007bff !important;
+    border-color: #007bff !important;
+}
+
+.fc-button:hover {
+    background-color: #0056b3 !important;
+    border-color: #0056b3 !important;
+}
+
+.fc-button-active {
+    background-color: #0056b3 !important;
+    border-color: #0056b3 !important;
+}
+
+/* Onglets */
+.nav-tabs .nav-link {
+    border: 1px solid transparent;
+    border-top-left-radius: 0.25rem;
+    border-top-right-radius: 0.25rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #fff;
+    border-color: #dee2e6 #dee2e6 #fff;
+    color: #007bff;
+}
+
+/* Card solde */
+.solde-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.solde-item h3 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.solde-item p {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+
+/* Badges */
+.badge {
+    font-size: 85%;
+    padding: 0.4em 0.6em;
+}
+
+/* Table */
+#absencesTable tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.action-buttons .btn {
+    margin: 0 2px;
+}
+
+
+/* Dans votre fichier CSS */
+.fc-daygrid-day .fc-daygrid-day-frame {
+    position: relative;
+}
+
+/* Style pour les jours fériés */
+.fc-daygrid-day.ferie-day {
+    background-color: #f8f9fa !important;
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(255, 0, 0, 0.05) 10px,
+        rgba(255, 0, 0, 0.05) 20px
+    ) !important;
+}
+
+.fc-daygrid-day-number.ferie {
+    color: #dc3545 !important;
+    font-weight: bold !important;
+}
+
+/* Tooltip pour jours fériés */
+.ferie-tooltip {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 8px;
+    height: 8px;
+    background-color: #dc3545;
+    border-radius: 50%;
+    z-index: 10;
+}
+
+.fc-event[data-event-type="jour_ferie"] {
+    background-color: transparent !important;
+    border: none !important;
+}
+
+/* Pour afficher le nom du jour férié dans le jour */
+.fc-daygrid-day-top .ferie-nom {
+    font-size: 0.7em;
+    color: #dc3545;
+    font-weight: bold;
+    margin-top: 2px;
+}
+
+
+.main-content-with-sidebar {
+    display: flex;
+    gap: 20px;
+}
+
+.content-left {
+    flex: 1;
+    min-width: 0; /* Pour éviter les débordements */
+}
+
+.sidebar-right {
+    width: 400px;
+    flex-shrink: 0;
+}
+
+/* Calendrier compact dans la sidebar */
+#sidebarCalendar {
+    min-height: 400px;
+}
+
+#sidebarCalendar .fc-toolbar {
+    font-size: 0.9em;
+}
+
+#sidebarCalendar .fc-daygrid-day-number {
+    font-size: 0.85em;
+}
+
+#sidebarCalendar .fc-event {
+    font-size: 0.75em;
+    padding: 1px 2px;
+}
+
+/* Sticky sidebar */
+.sidebar-right .card {
+    position: sticky;
+    top: 20px;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .main-content-with-sidebar {
+        flex-direction: column;
+    }
+
+    .sidebar-right {
+        width: 100%;
+    }
+
+    .sidebar-right .card {
+        position: relative;
+        top: 0;
+    }
+}
+
+/* Animation pour les jours fériés */
+.fc-day.jour-ferie {
+    background-color: #fff3cd !important;
+}
+
+.table-warning {
+    background-color: #fff3cd !important;
+    transition: background-color 2s ease-out;
+}
+
+.fc-day.jour-ferie {
+    background-color: #ffe6e6 !important;
+}
+
+/* Week-ends */
+.fc-day.weekend-cell {
+    background-color: #f8f9fa !important;
+}
+
+/* Événements jours fériés */
+.fc-event[data-type="jour_ferie"] {
+    background-color: #ffe6e6 !important;
+    border-color: #ff9999 !important;
+    color: #cc0000 !important;
+    font-weight: bold;
+}

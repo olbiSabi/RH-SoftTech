@@ -1,0 +1,696 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+    <link rel="stylesheet" href="{% static 'assets/css/entreprise/profil_entreprise.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+
+    {% if not entreprise %}
+    <!-- ========================================
+         AUCUNE ENTREPRISE - CRÉATION
+         ======================================== -->
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+            <div class="card welcome-card">
+                <div class="card-body text-center py-5">
+                    <div class="welcome-icon mb-4">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <h2 class="mb-3">Bienvenue dans ONIAN-EasyM</h2>
+                    <p class="lead mb-4">
+                        Pour commencer à utiliser le système de gestion des ressources humaines,<br>
+                        veuillez d'abord créer le profil de votre entreprise.
+                    </p>
+                    <button type="button" class="btn btn-primary btn-lg" onclick="openCreateModal()">
+                        <i class="fas fa-plus-circle"></i> Créer le Profil de l'Entreprise
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- ========================================
+         PROFIL ENTREPRISE - AFFICHAGE
+         ======================================== -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="fas fa-building text-primary"></i>
+                Profil de l'Entreprise
+            </h1>
+            <p class="text-muted mb-0">
+                <i class="fas fa-info-circle"></i>
+                Informations générales de votre entreprise
+            </p>
+        </div>
+        <div>
+            <button type="button" class="btn btn-primary" onclick="openEditModal('{{ entreprise.uuid }}')">
+                <i class="fas fa-edit"></i> Modifier
+            </button>
+            <button type="button" class="btn btn-outline-danger" onclick="deleteEntreprise('{{ entreprise.uuid }}', '{{ entreprise.nom|escapejs }}')">
+                <i class="fas fa-trash"></i> Supprimer
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Colonne principale -->
+        <div class="col-lg-8">
+            <!-- Carte Informations Générales -->
+            <div class="card info-card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle"></i> Informations Générales
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="info-label">Code</label>
+                            <div class="info-value">
+                                <span class="badge bg-primary">{{ entreprise.code }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="info-label">Nom de l'entreprise</label>
+                            <div class="info-value">{{ entreprise.nom }}</div>
+                        </div>
+                    </div>
+
+                    {% if entreprise.raison_sociale %}
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="info-label">Raison sociale</label>
+                            <div class="info-value">{{ entreprise.raison_sociale }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if entreprise.sigle %}
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="info-label">Sigle</label>
+                            <div class="info-value">{{ entreprise.sigle }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if entreprise.description %}
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="info-label">Description</label>
+                            <div class="info-value">{{ entreprise.description }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Carte Coordonnées -->
+            <div class="card info-card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-map-marker-alt"></i> Coordonnées
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="info-label">Adresse</label>
+                            <div class="info-value">{{ entreprise.adresse }}</div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="info-label">Ville</label>
+                            <div class="info-value">
+                                <i class="fas fa-city text-muted"></i> {{ entreprise.ville }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="info-label">Pays</label>
+                            <div class="info-value">
+                                <i class="fas fa-flag text-muted"></i> {{ entreprise.pays }}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if entreprise.telephone or entreprise.email or entreprise.site_web %}
+                    <div class="row">
+                        {% if entreprise.telephone %}
+                        <div class="col-md-4">
+                            <label class="info-label">Téléphone</label>
+                            <div class="info-value">
+                                <i class="fas fa-phone text-muted"></i> {{ entreprise.telephone }}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if entreprise.email %}
+                        <div class="col-md-4">
+                            <label class="info-label">Email</label>
+                            <div class="info-value">
+                                <i class="fas fa-envelope text-muted"></i>
+                                <a href="mailto:{{ entreprise.email }}">{{ entreprise.email }}</a>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if entreprise.site_web %}
+                        <div class="col-md-4">
+                            <label class="info-label">Site web</label>
+                            <div class="info-value">
+                                <i class="fas fa-globe text-muted"></i>
+                                <a href="{{ entreprise.site_web }}" target="_blank">{{ entreprise.site_web }}</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Carte Informations Légales -->
+            {% if entreprise.rccm or entreprise.numero_impot or entreprise.numero_cnss %}
+            <div class="card info-card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-gavel"></i> Informations Légales
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% if entreprise.rccm %}
+                        <div class="col-md-4 mb-3">
+                            <label class="info-label">RCCM</label>
+                            <div class="info-value">{{ entreprise.rccm }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if entreprise.numero_impot %}
+                        <div class="col-md-4 mb-3">
+                            <label class="info-label">Numéro d'impôt</label>
+                            <div class="info-value">{{ entreprise.numero_impot }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if entreprise.numero_cnss %}
+                        <div class="col-md-4 mb-3">
+                            <label class="info-label">Numéro CNSS</label>
+                            <div class="info-value">{{ entreprise.numero_cnss }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Colonne latérale -->
+        <div class="col-lg-4">
+            <!-- Carte Logo -->
+            <div class="card info-card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-image"></i> Logo
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    {% if entreprise.logo %}
+                    <img src="{{ entreprise.logo.url }}"
+                         alt="{{ entreprise.nom }}"
+                         class="logo-display img-fluid">
+                    {% else %}
+                    <div class="logo-placeholder">
+                        <i class="fas fa-building"></i>
+                        <p class="text-muted mt-2 mb-0">Aucun logo</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Carte Convention Collective -->
+            <div class="card info-card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-contract"></i> Convention Collective
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if entreprise.configuration_conventionnelle %}
+                    <div class="mb-3">
+                        <label class="info-label">Convention appliquée</label>
+                        <div class="info-value">
+                            <span class="badge bg-info">
+                                {{ entreprise.configuration_conventionnelle.code }}
+                            </span>
+                            {{ entreprise.configuration_conventionnelle.nom }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="info-label">Année de référence</label>
+                        <div class="info-value">{{ entreprise.configuration_conventionnelle.annee_reference }}</div>
+                    </div>
+
+                    {% if entreprise.date_application_convention %}
+                    <div class="mb-3">
+                        <label class="info-label">Date d'application</label>
+                        <div class="info-value">{{ entreprise.date_application_convention|date:"d/m/Y" }}</div>
+                    </div>
+                    {% endif %}
+
+                    <div class="alert alert-sm" style="background-color: #d1ecf1; color: #0c5460; padding: 0.5rem;">
+                        <i class="fas fa-check-circle"></i>
+                        {% if entreprise.configuration_conventionnelle.est_en_vigueur %}
+                        Convention en vigueur
+                        {% else %}
+                        Convention inactive
+                        {% endif %}
+                        <br>La convention collective définit les règles de calcul des congés,
+                        les périodes de prise, et les droits des employés de l'entreprise.
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted">
+                        <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                        <p class="mb-0">Aucune convention appliquée</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Carte Dates -->
+            <div class="card info-card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar"></i> Dates Importantes
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if entreprise.date_creation %}
+                    <div class="mb-3">
+                        <label class="info-label">Date de création</label>
+                        <div class="info-value">
+                            <i class="fas fa-calendar-alt text-muted"></i>
+                            {{ entreprise.date_creation|date:"d/m/Y" }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div>
+                        <label class="info-label">Statut</label>
+                        <div class="info-value">
+                            {% if entreprise.actif %}
+                            <span class="badge bg-success">
+                                <i class="fas fa-check-circle"></i> Active
+                            </span>
+                            {% else %}
+                            <span class="badge bg-danger">
+                                <i class="fas fa-times-circle"></i> Inactive
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</section>
+
+<!-- Modal Création/Édition -->
+<div class="modal fade" id="entrepriseModal" tabindex="-1" aria-labelledby="entrepriseModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-entreprise text-white">
+                <h5 class="modal-title" id="entrepriseModalLabel">
+                    <i class="fas fa-building"></i>
+                    <span id="modalTitle">Nouvelle Entreprise</span>
+                </h5>
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="entrepriseForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" id="entrepriseUuid" name="uuid">
+
+                    <!-- Onglets -->
+                    <ul class="nav nav-tabs mb-3" id="entrepriseTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="general-tab" data-bs-toggle="tab"
+                                    data-bs-target="#general" type="button" role="tab">
+                                <i class="fas fa-info-circle"></i> Informations générales
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="legal-tab" data-bs-toggle="tab"
+                                    data-bs-target="#legal" type="button" role="tab">
+                                <i class="fas fa-gavel"></i> Informations légales
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="convention-tab" data-bs-toggle="tab"
+                                    data-bs-target="#convention" type="button" role="tab">
+                                <i class="fas fa-file-contract"></i> Convention collective
+                            </button>
+                        </li>
+                    </ul>
+
+                    <!-- Contenu des onglets -->
+                    <div class="tab-content" id="entrepriseTabContent">
+                        <!-- Onglet 1: Informations générales -->
+                        <div class="tab-pane fade show active" id="general" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group mb-3">
+                                        <label for="code" class="form-label">
+                                            Code <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text"
+                                               class="form-control text-uppercase"
+                                               id="code"
+                                               name="code"
+                                               placeholder="Ex: ONIAN"
+                                               maxlength="10"
+                                               required>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="nom" class="form-label">
+                                            Nom de l'entreprise <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text"
+                                               class="form-control"
+                                               id="nom"
+                                               name="nom"
+                                               placeholder="Ex: ONIAN SARL"
+                                               required>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group mb-3">
+                                        <label for="sigle" class="form-label">
+                                            Sigle
+                                        </label>
+                                        <input type="text"
+                                               class="form-control text-uppercase"
+                                               id="sigle"
+                                               name="sigle"
+                                               placeholder="Ex: ONIAN"
+                                               maxlength="20">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group mb-3">
+                                        <label for="raison_sociale" class="form-label">
+                                            Raison sociale
+                                        </label>
+                                        <input type="text"
+                                               class="form-control"
+                                               id="raison_sociale"
+                                               name="raison_sociale"
+                                               placeholder="Ex: ONIAN Société à Responsabilité Limitée">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group mb-3">
+                                        <label for="adresse" class="form-label">
+                                            Adresse <span class="text-danger">*</span>
+                                        </label>
+                                        <textarea class="form-control"
+                                                  id="adresse"
+                                                  name="adresse"
+                                                  rows="2"
+                                                  placeholder="Adresse complète"
+                                                  required></textarea>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="ville" class="form-label">
+                                            Ville <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text"
+                                               class="form-control"
+                                               id="ville"
+                                               name="ville"
+                                               placeholder="Ex: Lomé"
+                                               required>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="pays" class="form-label">
+                                            Pays <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text"
+                                               class="form-control text-uppercase"
+                                               id="pays"
+                                               name="pays"
+                                               value="TOGO"
+                                               required>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label for="telephone" class="form-label">
+                                            Téléphone
+                                        </label>
+                                        <input type="text"
+                                               class="form-control"
+                                               id="telephone"
+                                               name="telephone"
+                                               placeholder="+228 XX XX XX XX">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label for="email" class="form-label">
+                                            Email
+                                        </label>
+                                        <input type="email"
+                                               class="form-control"
+                                               id="email"
+                                               name="email"
+                                               placeholder="contact@entreprise.tg">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label for="site_web" class="form-label">
+                                            Site web
+                                        </label>
+                                        <input type="url"
+                                               class="form-control"
+                                               id="site_web"
+                                               name="site_web"
+                                               placeholder="https://www.entreprise.tg">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="logo" class="form-label">
+                                            Logo
+                                        </label>
+                                        <input type="file"
+                                               class="form-control"
+                                               id="logo"
+                                               name="logo"
+                                               accept="image/*">
+                                        <small class="form-text text-muted">Format: JPG, PNG, GIF (Max: 2MB)</small>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="date_creation" class="form-label">
+                                            Date de création
+                                        </label>
+                                        <input type="date"
+                                               class="form-control"
+                                               id="date_creation"
+                                               name="date_creation">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group mb-3">
+                                        <label for="description" class="form-label">
+                                            Description
+                                        </label>
+                                        <textarea class="form-control"
+                                                  id="description"
+                                                  name="description"
+                                                  rows="3"
+                                                  placeholder="Description de l'entreprise"></textarea>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               id="actif"
+                                               name="actif"
+                                               checked>
+                                        <label class="form-check-label" for="actif">
+                                            <i class="fas fa-check-circle"></i> Entreprise active
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Onglet 2: Informations légales -->
+                        <div class="tab-pane fade" id="legal" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label for="rccm" class="form-label">
+                                            RCCM
+                                        </label>
+                                        <input type="text"
+                                               class="form-control"
+                                               id="rccm"
+                                               name="rccm"
+                                               placeholder="Ex: TG-LOM-XXX">
+                                        <small class="form-text text-muted">Registre de Commerce et du Crédit Mobilier</small>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label for="numero_impot" class="form-label">
+                                            Numéro d'impôt
+                                        </label>
+                                        <input type="text"
+                                               class="form-control"
+                                               id="numero_impot"
+                                               name="numero_impot"
+                                               placeholder="Numéro d'identification fiscale">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label for="numero_cnss" class="form-label">
+                                            Numéro CNSS
+                                        </label>
+                                        <input type="text"
+                                               class="form-control"
+                                               id="numero_cnss"
+                                               name="numero_cnss"
+                                               placeholder="Numéro CNSS">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Onglet 3: Convention collective -->
+                        <div class="tab-pane fade" id="convention" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group mb-3">
+                                        <label for="configuration_conventionnelle" class="form-label">
+                                            Convention collective applicable
+                                        </label>
+                                        <select class="form-control"
+                                                id="configuration_conventionnelle"
+                                                name="configuration_conventionnelle">
+                                            <option value="">-- Aucune convention --</option>
+                                            {% for conv in conventions %}
+                                            <option value="{{ conv.id }}">
+                                                {{ conv.code }} - {{ conv.nom }} ({{ conv.annee_reference }})
+                                                {% if conv.est_en_vigueur %}✓{% endif %}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                        <small class="form-text text-muted">
+                                            Sélectionner la convention collective applicable à cette entreprise
+                                        </small>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label for="date_application_convention" class="form-label">
+                                            Date d'application
+                                        </label>
+                                        <input type="date"
+                                               class="form-control"
+                                               id="date_application_convention"
+                                               name="date_application_convention">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Information :</strong>
+                                La convention collective définit les règles de calcul des congés,
+                                les périodes de prise, et les droits des employés de l'entreprise.
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+                <button type="button" class="btn btn-success" onclick="saveEntreprise()">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block extrascript %}
+    <script src="{% static 'assets/js/entreprise/profil_entreprise.js' %}"></script>
+{% endblock %}

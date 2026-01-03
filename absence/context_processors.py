@@ -1,40 +1,21 @@
-"""
-Context processor basé sur les rôles
-À remplacer dans absence/context_processors.py
-"""
-from .models import ZANO
+from .models import NotificationAbsence
 
 
-def notifications(request):
-    """Context processor pour les notifications"""
-    context = {
-        'notifications_non_lues': [],
-        'nb_notifications_non_lues': 0,
+def notifications_absences(request):
+    """
+    Context processor pour ajouter les notifications d'absence
+    dans tous les templates
+    """
+    if request.user.is_authenticated and hasattr(request.user, 'employe'):
+        notifications_non_lues = NotificationAbsence.get_non_lues(request.user.employe)
+        count_non_lues = notifications_non_lues.count()
+
+        return {
+            'notifications_absences': notifications_non_lues[:5],  # 5 dernières
+            'notifications_absences_count': count_non_lues
+        }
+
+    return {
+        'notifications_absences': [],
+        'notifications_absences_count': 0
     }
-
-    if hasattr(request, 'user') and request.user.is_authenticated:
-        try:
-            # Trouver l'employé correspondant à l'utilisateur
-            if hasattr(request.user, 'employe'):
-                employe = request.user.employe
-
-                # Récupérer les notifications non lues
-                notifications_non_lues = ZANO.objects.filter(
-                    destinataire=employe,
-                    lue=False
-                ).select_related('demande_absence', 'demande_absence__type_absence').order_by('-date_creation')[:10]
-
-                # Compter le nombre total de notifications non lues
-                nb_notifications_non_lues = ZANO.objects.filter(
-                    destinataire=employe,
-                    lue=False
-                ).count()
-
-                context = {
-                    'notifications_non_lues': notifications_non_lues,
-                    'nb_notifications_non_lues': nb_notifications_non_lues,
-                }
-        except Exception as e:
-            print(f"Erreur context processor notifications: {e}")
-
-    return context

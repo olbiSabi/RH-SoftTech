@@ -1,8 +1,9 @@
 from django.db.models.signals import post_save, pre_save
-from django.dispatch import receiver
-from django.db import transaction
 from .models import ZDDA, ZANO
-from employee.models import ZY00
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from .models import ZDDA
+from .views import mettre_a_jour_solde_conges
 
 
 @receiver(post_save, sender=ZDDA)
@@ -191,3 +192,45 @@ def detecter_changement_statut(sender, instance, **kwargs):
             instance._old_statut = None
     else:
         instance._old_statut = None
+
+
+@receiver(post_save, sender=ZDDA)
+def mettre_a_jour_solde_apres_demande(sender, instance, created, **kwargs):
+    """
+    Met à jour automatiquement le solde après chaque modification d'une demande
+    """
+    if instance.type_absence.CODE in ['CPN', 'RTT']:
+        mettre_a_jour_solde_conges(instance.employe, instance.date_debut.year)
+
+
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+from .models import ZDDA
+
+
+@receiver(post_save, sender=ZDDA)
+def mettre_a_jour_solde_apres_sauvegarde(sender, instance, created, **kwargs):
+    """
+    Met à jour automatiquement le solde après chaque création/modification de demande
+    """
+    from .views import mettre_a_jour_solde_conges
+
+    # Ne mettre à jour que pour les types CPN et RTT
+    if instance.type_absence.CODE in ['CPN', 'RTT']:
+        print(f"\n🔔 Signal: Demande {instance.numero_demande} {'créée' if created else 'modifiée'}")
+        print(f"🔔 Date consommation: {instance.date_debut}")
+
+        # Mettre à jour le solde pour cette date de consommation
+        mettre_a_jour_solde_conges(instance.employe, instance.date_debut)
+
+
+@receiver(post_delete, sender=ZDDA)
+def mettre_a_jour_solde_apres_suppression(sender, instance, **kwargs):
+    """
+    Met à jour automatiquement le solde après suppression d'une demande
+    """
+    from .views import mettre_a_jour_solde_conges
+
+    if instance.type_absence.CODE in ['CPN', 'RTT']:
+        print(f"\n🔔 Signal: Demande {instance.numero_demande} supprimée")
+        mettre_a_jour_solde_conges(instance.employe, instance.date_debut.year)

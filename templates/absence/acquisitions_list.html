@@ -1,0 +1,436 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'assets/css/absence/acquisitions.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Acquisitions de Congés</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+
+        <!-- Calcul en masse -->
+        <div class="card mb-4">
+            <div class="card-header bg-gradient-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-calculator"></i> Calcul Automatique des Acquisitions
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="calculForm" method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="id_annee_reference">Année de référence</label>
+                                {{ calcul_form.annee_reference }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>&nbsp;</label> <!-- Espacement pour aligner avec les autres champs -->
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox"
+                                           class="custom-control-input"
+                                           id="id_recalculer_existantes"
+                                           name="recalculer_existantes"
+                                           {% if request.GET.recalculer_existantes or request.POST.recalculer_existantes %}checked{% endif %}>
+                                    <label class="custom-control-label" for="id_recalculer_existantes">
+                                        Recalculer les existantes
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Employés (optionnel)</label>
+                                <small class="form-text text-muted mb-2">
+                                    Laissez vide pour tous les employés actifs
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>&nbsp;</label> <!-- Espacement -->
+
+                                {% if annee_verrouille %}
+                                <!-- Année verrouillée : bouton désactivé -->
+                                <button type="button"
+                                        class="btn btn-secondary btn-block"
+                                        disabled
+                                        title="Impossible de calculer l'année {{ annee_filter }}. {{ message_verrouillage }}">
+                                    <i class="fas fa-lock"></i> Verrouillée
+                                </button>
+                                <small class="text-danger mt-2 d-block">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    {{ message_verrouillage }}
+                                </small>
+                                {% else %}
+                                <!-- Année modifiable : bouton actif -->
+                                <button type="submit" class="btn btn-success btn-block">
+                                    <i class="fas fa-calculator"></i> Calculer
+                                </button>
+
+                                {% if date_limite_recalcul %}
+                                <small class="text-muted mt-2 d-block">
+                                    <i class="fas fa-info-circle"></i>
+                                    Recalcul possible jusqu'au {{ date_limite_recalcul|date:"d/m/Y" }}
+                                </small>
+                                {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Filtres et Liste -->
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-md-8">
+                        <form method="GET" id="filterForm" class="form-inline">
+                            <!-- Recherche -->
+                            <div class="input-group input-group-sm mr-2 group-spaced mb-2">
+                                <input type="text"
+                                       name="search"
+                                       class="form-control"
+                                       placeholder="Rechercher..."
+                                       value="{{ search }}">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="submit">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Filtre Année -->
+                            <select name="annee" class="form-control form-control-sm mr-2 group-spaced mb-2" onchange="this.form.submit()">
+                                {% for annee in annees %}
+                                <option value="{{ annee }}" {% if annee_filter|stringformat:"s" == annee|stringformat:"s" %}selected{% endif %}>
+                                    {{ annee }}
+                                </option>
+                                {% empty %}
+                                <option value="{{ annee_filter }}">{{ annee_filter }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <!-- Filtre Employé -->
+                            <select name="employe" class="form-control form-control-sm mr-2 group-spaced mb-2" onchange="this.form.submit()">
+                                <option value="">Tous les employés</option>
+                                {% for emp in employes %}
+                                <option value="{{ emp.matricule }}" {% if employe_filter == emp.matricule %}selected{% endif %}>
+                                    {{ emp.nom }} {{ emp.prenoms }}
+                                </option>
+                                {% endfor %}
+                            </select>
+
+                            <!-- Bouton Reset -->
+                            {% if search or employe_filter %}
+                            <a href="{% url 'absence:liste_acquisitions' %}?annee={{ annee_filter }}"
+                               class="btn btn-secondary btn-sm mb-2">
+                                <i class="fas fa-redo"></i> Réinitialiser
+                            </a>
+                            {% endif %}
+                        </form>
+                    </div>
+                    <div class="col-md-4 text-right">
+                        <button type="button"
+                                class="btn btn-info btn-sm"
+                                onclick="exportToExcel()">
+                            <i class="fas fa-file-excel"></i> Exporter
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover mb-0" id="acquisitionsTable">
+                        <thead class="bg-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Matricule</th>
+                            <th>Employé</th>
+                            <th>Année</th>
+                            <th>Convention</th>
+                            <th class="text-center">Acquis</th>
+                            <th class="text-center">Pris</th>
+                            <th class="text-center">Restants</th>
+                            <th class="text-center">Report Ant.</th>
+                            <th class="text-center">Nouveau Report</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for acq in acquisitions %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>
+                                <span class="badge badge-secondary">{{ acq.employe.matricule }}</span>
+                            </td>
+                            <td>
+                                <strong>{{ acq.employe.nom }} {{ acq.employe.prenoms }}</strong>
+                                {% if acq.employe.coefficient_temps_travail != 1.00 %}
+                                <br>
+                                <small class="text-info">
+                                    <i class="fas fa-clock"></i> {{ acq.employe.coefficient_temps_travail|floatformat:2 }}
+                                </small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge badge-dark">{{ acq.annee_reference }}</span>
+                            </td>
+                            <td>
+                                {% if acq.employe.convention_personnalisee %}
+                                <span class="badge badge-info" title="Convention personnalisée">
+                                    <i class="fas fa-user-tie"></i> {{ acq.employe.convention_personnalisee.code }}
+                                </span>
+                                {% elif acq.employe.entreprise.configuration_conventionnelle %}
+                                <span class="badge badge-success" title="Convention entreprise">
+                                    <i class="fas fa-building"></i> {{ acq.employe.entreprise.configuration_conventionnelle.code }}
+                                </span>
+                                {% else %}
+                                <span class="badge badge-danger">Aucune</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-lg badge-success">
+                                    {{ acq.jours_acquis|floatformat:2 }}j
+                                </span>
+                                <br>
+                                <small class="text-muted" title="Dernière mise à jour">
+                                    <i class="fas fa-clock"></i> {{ acq.date_maj|date:"d/m/Y H:i" }}
+                                </small>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-lg badge-warning">
+                                    {{ acq.jours_pris|floatformat:2 }}j
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-lg badge-primary">
+                                    {{ acq.jours_restants|floatformat:2 }}j
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-lg badge-info">
+                                    {{ acq.jours_report_anterieur|floatformat:2 }}j
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-lg badge-secondary">
+                                    {{ acq.jours_report_nouveau|floatformat:2 }}j
+                                </span>
+                            </td>
+                            <td class="text-center action-buttons">
+                                {% if acq.est_verrouille_cache %}
+                                <!-- Année verrouillée : Détails uniquement -->
+                                <button type="button"
+                                        class="btn btn-sm btn-info"
+                                        onclick="openDetailModal({{ acq.id }})"
+                                        title="Détails">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+
+                                <span class="badge badge-secondary"
+                                      title="Année {{ acq.annee_reference }} verrouillée. Délai expiré le {{ acq.date_limite_modification_cache|date:'d/m/Y' }}">
+                                    <i class="fas fa-lock"></i> Verrouillée
+                                </span>
+
+                                {% elif acq.est_dans_delai_grace_cache %}
+                                <!-- Dans les 2 derniers jours : boutons avec avertissement -->
+                                <button type="button"
+                                        class="btn btn-sm btn-info"
+                                        onclick="openDetailModal({{ acq.id }})"
+                                        title="Détails">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-warning btn-sm"
+                                        onclick="openEditModal({{ acq.id }})"
+                                        title="Modifier le report - ATTENTION : Dernier délai le {{ acq.date_limite_modification_cache|date:'d/m/Y' }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-warning btn-sm"
+                                        onclick="recalculerAcquisition({{ acq.id }})"
+                                        title="Recalculer - ATTENTION : Dernier délai le {{ acq.date_limite_modification_cache|date:'d/m/Y' }}">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-danger"
+                                        onclick="deleteAcquisition({{ acq.id }}, '{{ acq.employe|escapejs }}', {{ acq.annee_reference }})"
+                                        title="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+
+                                {% else %}
+                                <!-- Année modifiable : tous les boutons normaux -->
+                                <button type="button"
+                                        class="btn btn-sm btn-info"
+                                        onclick="openDetailModal({{ acq.id }})"
+                                        title="Détails">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-primary"
+                                        onclick="openEditModal({{ acq.id }})"
+                                        title="Modifier le report">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-success"
+                                        onclick="recalculerAcquisition({{ acq.id }})"
+                                        title="Recalculer">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-danger"
+                                        onclick="deleteAcquisition({{ acq.id }}, '{{ acq.employe|escapejs }}', {{ acq.annee_reference }})"
+                                        title="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="11" class="text-center text-muted py-4">
+                                <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                                Aucune acquisition trouvée
+                                <br>
+                                <button class="btn btn-primary mt-3" onclick="$('#calculForm').submit()">
+                                    <i class="fas fa-calculator"></i> Calculer les acquisitions
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal Détails -->
+<div class="modal fade" id="detailModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-info-circle"></i> Détails de l'Acquisition
+                </h5>
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="detailContent">
+                <div class="text-center py-4">
+                    <i class="fas fa-spinner fa-spin fa-2x"></i>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Édition Report -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit"></i> Modifier le Report Antérieur
+                </h5>
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <form id="editForm">
+                {% csrf_token %}
+                <input type="hidden" id="edit_acquisition_id">
+
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Seul le <strong>report de l'année précédente</strong> peut être modifié manuellement.
+                        Les autres valeurs sont calculées automatiquement.
+                    </div>
+
+                    <div class="form-group">
+                        <label>Employé</label>
+                        <input type="text" class="form-control" id="edit_employe_nom" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Année</label>
+                        <input type="text" class="form-control" id="edit_annee" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit_jours_report_anterieur">
+                            Report de l'année précédente (jours) <span class="text-danger">*</span>
+                        </label>
+                        <input type="number"
+                               class="form-control"
+                               id="edit_jours_report_anterieur"
+                               name="jours_report_anterieur"
+                               step="0.01"
+                               min="0"
+                               max="30"
+                               required>
+                        <small class="form-text text-muted">
+                            Jours de congé reportés de l'année précédente
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Jours Restants (après modification)</label>
+                        <input type="text" class="form-control" id="edit_jours_restants_preview" readonly>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitEditBtn">
+                        <i class="fas fa-save"></i> Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'assets/js/absence/acquisitions.js' %}"></script>
+{% endblock %}

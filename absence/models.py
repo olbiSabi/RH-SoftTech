@@ -1,592 +1,1392 @@
+# absence/models.py
 from django.db import models
-from django.core.validators import MinValueValidator, RegexValidator
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from decimal import Decimal
-import uuid
+from datetime import date
+from django.db import transaction
+import os
 
-from employee.models import ZY00
-from parametre.models import ZDAB
 
+# ========================================
+# FONCTION D'UPLOAD
+# ========================================
 
-# ==========================================
-# MODÈLE PRINCIPAL - DEMANDE D'ABSENCE (ZDDA)
-# ==========================================
-
-class ZDDA(models.Model):
+def upload_justificatif(instance, filename):
     """
-    Table principale des demandes de congés et absences
-    ZDDA = Zelio Demande D'Absence
+    Génère le chemin d'upload des justificatifs
+    Structure: justificatifs_absences/MATRICULE/YYYY/MM/fichier.ext
     """
+    ext = filename.split('.')[-1]
+    date_now = timezone.now()
 
-    # Choix pour les statuts
-    STATUS_CHOICES = [
-        ('EN_ATTENTE', 'En attente'),
-        ('VALIDEE_MANAGER', 'Validée Manager'),
-        ('VALIDEE_RH', 'Validée RH'),
-        ('REFUSEE_MANAGER', 'Refusée Manager'),
-        ('REFUSEE_RH', 'Refusée RH'),
-        ('ANNULEE', 'Annulée'),
+    # Nom de fichier avec horodatage lisible + timestamp pour unicité
+    filename = f"{instance.employe.matricule}_{date_now.strftime('%Y%m%d_%H%M%S')}_{int(date_now.timestamp())}.{ext}"
+
+    # Chemin: employé → année → mois
+    return os.path.join(
+        'justificatifs_absences',
+        str(instance.employe.matricule),
+        date_now.strftime('%Y'),
+        date_now.strftime('%m'),
+        filename
+    )
+
+
+# 1. ConfigurationConventionnelle
+class ConfigurationConventionnelle(models.Model):
+    """Configuration d'une convention collective"""
+
+    METHODE_CALCUL_CHOICES = [
+        ('MOIS_TRAVAILLES', 'Par mois travaillés'),
+        ('HEURES_TRAVAILLEES', 'Par heures travaillées'),
+        ('JOURS_TRAVAILLES', 'Par jours travaillés'),
     ]
 
-    # Choix pour la durée
-    DUREE_CHOICES = [
-        ('COMPLETE', 'Journée complète'),
-        ('DEMI', 'Demi-journée'),
+    # ✅ NOUVEAU : Type de convention
+    TYPE_CONVENTION_CHOICES = [
+        ('ENTREPRISE', 'Convention d\'entreprise'),
+        ('PERSONNALISEE', 'Convention personnalisée'),
     ]
 
-    # Choix pour la période (demi-journée)
+    type_convention = models.CharField(
+        max_length=20,
+        choices=TYPE_CONVENTION_CHOICES,
+        default='ENTREPRISE',
+        verbose_name="Type de convention",
+        help_text="Convention d'entreprise (unique) ou personnalisée (pour employés spécifiques)"
+    )
+
+    nom = models.CharField(max_length=100, verbose_name="Nom de la convention")
+    code = models.CharField(max_length=20, unique=True, verbose_name="Code")
+    annee_reference = models.IntegerField(verbose_name="Année de référence")
+
+    # Période de validité
+    date_debut = models.DateField(verbose_name="Date de début d'effet")
+    date_fin = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name="Date de fin d'effet",
+        help_text="Laisser vide si la convention est toujours en vigueur"
+    )
+    actif = models.BooleanField(default=True, verbose_name="Actif")
+
+    # Paramètres de calcul
+    jours_acquis_par_mois = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        default=Decimal('2.5'),
+        verbose_name="Jours acquis par mois",
+        help_text="Nombre de jours de congé acquis par mois travaillé"
+    )
+    duree_conges_principale = models.IntegerField(
+        default=12,
+        verbose_name="Durée congés principale",
+        help_text="Durée minimale en jours pour les congés principaux consécutifs"
+    )
+
+    # Période de prise des congés
+    periode_prise_debut = models.DateField(
+        verbose_name="Début période de prise",
+        help_text="Date de début de la période de prise des congés (ex: 1er mai)"
+    )
+    periode_prise_fin = models.DateField(
+        verbose_name="Fin période de prise",
+        help_text="Date de fin de la période de prise des congés (ex: 30 avril)"
+    )
+
+    methode_calcul = models.CharField(
+        max_length=20,
+        choices=METHODE_CALCUL_CHOICES,
+        default='MOIS_TRAVAILLES',
+        verbose_name="Méthode de calcul"
+    )
+
+    periode_prise_fin_annee_suivante = models.BooleanField(
+        default=False,
+        verbose_name="Fin en année N+1",
+        help_text="Cochez si la période de prise se termine l'année suivante (ex: mai N → avril N+1)"
+    )
+
+
+    class Meta:
+        ordering = ['-annee_reference']
+        verbose_name = "Configuration conventionnelle"
+        verbose_name_plural = "Configurations conventionnelles"
+
+    def __str__(self):
+        type_label = "ENT" if self.type_convention == 'ENTREPRISE' else "PERSO"
+        return f"[{type_label}] {self.nom} ({self.annee_reference})"
+
+
+    def get_periode_acquisition(self, annee_reference):
+        """
+        Retourne les dates de début et fin de la période d'acquisition
+        pour une année de référence donnée
+
+        Args:
+            annee_reference (int): Année de référence (N)
+
+        Returns:
+            tuple: (date_debut, date_fin)
+        """
+        debut = date(
+            annee_reference,
+            self.periode_prise_debut.month,
+            self.periode_prise_debut.day
+        )
+
+        if self.periode_prise_fin_annee_suivante:
+            # Fin en N+1
+            fin = date(
+                annee_reference + 1,
+                self.periode_prise_fin.month,
+                self.periode_prise_fin.day
+            )
+        else:
+            # Fin en N
+            fin = date(
+                annee_reference,
+                self.periode_prise_fin.month,
+                self.periode_prise_fin.day
+            )
+
+        return (debut, fin)
+
+    @property
+    def est_en_vigueur(self):
+        """
+        Vérifie si la convention est actuellement en vigueur
+        """
+        today = date.today()
+
+        if not self.actif:
+            return False
+
+        if today < self.date_debut:
+            return False
+
+        if self.date_fin and today > self.date_fin:
+            return False
+
+        return True
+
+    @property
+    def est_clôturée(self):
+        """
+        Vérifie si la convention est clôturée (possède une date de fin)
+        """
+        return self.date_fin is not None
+
+    def clean(self):
+        """Validation des dates et règles de gestion"""
+        super().clean()
+
+        errors = {}
+
+        # ============================================================
+        # VALIDATION 1 : Date de fin > Date de début
+        # ============================================================
+        if self.date_fin and self.date_fin <= self.date_debut:
+            errors['date_fin'] = "La date de fin doit être postérieure à la date de début"
+
+        # ============================================================
+        # VALIDATION 2 : Période de prise (peut s'étendre sur 2 ans)
+        # ============================================================
+        if self.periode_prise_fin and self.periode_prise_debut:
+            diff_mois = (self.periode_prise_fin.year - self.periode_prise_debut.year) * 12 + \
+                        (self.periode_prise_fin.month - self.periode_prise_debut.month)
+
+            if diff_mois < 0:
+                errors['periode_prise_fin'] = \
+                    "La date de fin de période doit être postérieure à la date de début. " \
+                    "Vérifiez les années (N/N+1) sélectionnées."
+
+            if diff_mois > 18:
+                errors['periode_prise_fin'] = \
+                    "La période de prise ne peut pas dépasser 18 mois. " \
+                    "La durée habituelle est de 12 mois (ex: 1er mai N → 30 avril N+1)."
+
+        # ============================================================
+        # VALIDATION 3 & 4 : UNIQUEMENT POUR LES CONVENTIONS D'ENTREPRISE
+        # ============================================================
+        if self.type_convention == 'ENTREPRISE':
+            # ✅ VALIDATION 3 : Pas de chevauchement de périodes (ENTREPRISE uniquement)
+            if self.date_debut:
+                queryset = ConfigurationConventionnelle.objects.filter(
+                    type_convention='ENTREPRISE'  # ✅ Filtrer uniquement les conventions d'entreprise
+                )
+
+                if self.pk:
+                    queryset = queryset.exclude(pk=self.pk)
+
+                chevauchements = []
+                for conv in queryset:
+                    notre_fin = self.date_fin if self.date_fin else date(9999, 12, 31)
+                    conv_fin = conv.date_fin if conv.date_fin else date(9999, 12, 31)
+
+                    if self.date_debut <= conv_fin and notre_fin >= conv.date_debut:
+                        chevauchements.append(conv)
+
+                if chevauchements:
+                    conv_list = []
+                    for c in chevauchements:
+                        fin_str = c.date_fin.strftime('%d/%m/%Y') if c.date_fin else 'en cours'
+                        conv_list.append(f"'{c.code}' ({c.date_debut.strftime('%d/%m/%Y')} - {fin_str})")
+
+                    errors['date_debut'] = \
+                        f"Chevauchement de période détecté avec la(les) convention(s) d'entreprise : {', '.join(conv_list)}. " \
+                        f"Veuillez ajuster les dates ou clôturer la convention existante."
+
+            # ✅ VALIDATION 4 : Une seule convention d'entreprise active sans date de fin
+            if self.actif and not self.date_fin:
+                queryset = ConfigurationConventionnelle.objects.filter(
+                    type_convention='ENTREPRISE',  # ✅ Filtrer uniquement les conventions d'entreprise
+                    actif=True,
+                    date_fin__isnull=True
+                )
+
+                if self.pk:
+                    queryset = queryset.exclude(pk=self.pk)
+
+                conventions_actives = queryset
+
+                if conventions_actives.exists():
+                    conv_list = ', '.join([f"'{c.code}'" for c in conventions_actives])
+                    errors['date_fin'] = \
+                        f"Impossible d'enregistrer une convention d'entreprise active sans date de fin. " \
+                        f"Les conventions d'entreprise suivantes sont déjà actives sans date de fin : {conv_list}. " \
+                        f"Veuillez d'abord ajouter une date de fin à ces conventions ou les désactiver."
+
+        # ============================================================
+        # LEVER LES ERREURS SI NÉCESSAIRE
+        # ============================================================
+        if errors:
+            raise ValidationError(errors)
+
+
+# 2. TypeAbsence
+class TypeAbsence(models.Model):
+    """Types d'absence (congés payés, maladie, etc.)"""
+
+    CATEGORIE_CHOICES = [
+        ('CONGES_PAYES', 'Congés Payés'),
+        ('MALADIE', 'Maladie/Accident'),
+        ('AUTORISATION', 'Autorisation spéciale'),
+        ('SANS_SOLDE', 'Sans solde'),
+        ('MATERNITE', 'Maternité/Paternité'),
+        ('FORMATION', 'Formation'),
+        ('MISSION', 'Mission'),
+    ]
+
+    code = models.CharField(
+        max_length=3,
+        unique=True,
+        verbose_name="Code",
+        help_text="Code sur 3 caractères (ex: CPN, MAL, AUT)"
+    )
+    libelle = models.CharField(
+        max_length=100,
+        verbose_name="Libellé"
+    )
+    categorie = models.CharField(
+        max_length=20,
+        choices=CATEGORIE_CHOICES,
+        verbose_name="Catégorie"
+    )
+
+    paye = models.BooleanField(
+        default=True,
+        verbose_name="Payé"
+    )
+    decompte_solde = models.BooleanField(
+        default=True,
+        verbose_name="Décompte du solde",
+        help_text="Décompte du solde de congés"
+    )
+    justificatif_obligatoire = models.BooleanField(
+        default=False,
+        verbose_name="Justificatif obligatoire"
+    )
+
+    couleur = models.CharField(
+        max_length=7,
+        default='#3498db',
+        verbose_name="Couleur",
+        help_text="Code couleur hexadécimal (#RRGGBB)"
+    )
+    ordre = models.IntegerField(
+        default=0,
+        verbose_name="Ordre d'affichage"
+    )
+    actif = models.BooleanField(
+        default=True,
+        verbose_name="Actif"
+    )
+
+    class Meta:
+        db_table = 'absence_type_absence'
+        verbose_name = "Type d'absence"
+        verbose_name_plural = "Types d'absence"
+        ordering = ['ordre', 'libelle']
+
+    def __str__(self):
+        return f"{self.code} - {self.libelle}"
+
+    def clean(self):
+        """Validation personnalisée"""
+        from django.core.exceptions import ValidationError
+
+        # ✅ Convertir le code en majuscules
+        if self.code:
+            self.code = self.code.upper().strip()
+
+            # Vérifier que le code fait exactement 3 caractères
+            if len(self.code) != 3:
+                raise ValidationError({
+                    'code': 'Le code doit contenir exactement 3 caractères'
+                })
+
+            # Vérifier que le code est alphanumérique
+            if not self.code.isalnum():
+                raise ValidationError({
+                    'code': 'Le code ne doit contenir que des lettres et des chiffres'
+                })
+
+            # Vérifier l'unicité (case-insensitive)
+            queryset = TypeAbsence.objects.filter(code__iexact=self.code)
+            if self.pk:
+                queryset = queryset.exclude(pk=self.pk)
+
+            if queryset.exists():
+                raise ValidationError({
+                    'code': f'Le code "{self.code}" existe déjà'
+                })
+
+        # ✅ Capitaliser le libellé (première lettre en majuscule)
+        if self.libelle:
+            self.libelle = self.libelle.strip().capitalize()
+
+        # Valider le code couleur
+        if self.couleur:
+            import re
+            if not re.match(r'^#[0-9A-Fa-f]{6}$', self.couleur):
+                raise ValidationError({
+                    'couleur': 'Format invalide. Utilisez le format #RRGGBB (ex: #3498db)'
+                })
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+
+# 3. JourFerie
+class JourFerie(models.Model):
+    """
+    Gestion des jours fériés par année
+    Permet de définir les jours fériés légaux et spécifiques à l'entreprise
+    """
+
+    TYPE_CHOICES = [
+        ('LEGAL', 'Légal (Code du travail)'),
+        ('ENTREPRISE', 'Spécifique à l\'entreprise'),
+    ]
+
+    nom = models.CharField(
+        max_length=100,
+        verbose_name="Nom du jour férié",
+        help_text="Ex: Jour de l'an, Fête du travail, etc."
+    )
+
+    date = models.DateField(
+        verbose_name="Date",
+        help_text="Date du jour férié",
+        unique=True
+    )
+
+    type_ferie = models.CharField(
+        max_length=20,
+        choices=TYPE_CHOICES,
+        default='LEGAL',
+        verbose_name="Type de jour férié"
+    )
+
+    recurrent = models.BooleanField(
+        default=True,
+        verbose_name="Récurrent",
+        help_text="Si coché, ce jour férié sera automatiquement reporté chaque année"
+    )
+
+    description = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Description",
+        help_text="Informations complémentaires"
+    )
+
+    actif = models.BooleanField(
+        default=True,
+        verbose_name="Actif"
+    )
+
+    # Audit
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        'employee.ZY00',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='jours_feries_crees',
+        verbose_name="Créé par"
+    )
+
+    class Meta:
+        db_table = 'absence_jour_ferie'
+        verbose_name = "Jour férié"
+        verbose_name_plural = "Jours fériés"
+        ordering = ['date']
+        # ✅ SUPPRESSION de unique_together (remplacé par unique sur date)
+
+    def __str__(self):
+        return f"{self.nom} - {self.date.strftime('%d/%m/%Y')}"
+
+    @property
+    def annee(self):
+        """Retourne l'année du jour férié"""
+        return self.date.year
+
+    @property
+    def mois_nom(self):
+        """Retourne le nom du mois en français"""
+        mois = [
+            'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+            'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+        ]
+        return mois[self.date.month - 1]
+
+    @property
+    def jour_semaine(self):
+        """Retourne le jour de la semaine en français"""
+        jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
+        return jours[self.date.weekday()]
+
+    def clean(self):
+        """Validation personnalisée"""
+        from django.core.exceptions import ValidationError
+
+        # ✅ Vérifier l'unicité de la date
+        if self.date:
+            queryset = JourFerie.objects.filter(date=self.date)
+
+            # Exclure l'instance actuelle en cas de modification
+            if self.pk:
+                queryset = queryset.exclude(pk=self.pk)
+
+            if queryset.exists():
+                jour_existant = queryset.first()
+                raise ValidationError({
+                    'date': f"Un jour férié existe déjà pour cette date : '{jour_existant.nom}' le {self.date.strftime('%d/%m/%Y')}"
+                })
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+
+# 4. ParametreCalculConges
+class ParametreCalculConges(models.Model):
+    """Paramètres avancés pour le calcul des congés"""
+
+    configuration = models.OneToOneField(
+        ConfigurationConventionnelle,
+        on_delete=models.CASCADE,
+        related_name='parametres_calcul'
+    )
+
+    mois_acquisition_min = models.IntegerField(
+        default=1,
+        verbose_name="Mois d'acquisition minimum"
+    )
+    plafond_jours_an = models.IntegerField(
+        default=30,
+        verbose_name="Plafond jours/an"
+    )
+
+    report_autorise = models.BooleanField(
+        default=True,
+        verbose_name="Report autorisé"
+    )
+    jours_report_max = models.IntegerField(
+        default=15,
+        verbose_name="Jours de report maximum"
+    )
+    delai_prise_report = models.IntegerField(
+        default=365,
+        verbose_name="Délai de prise du report (jours)"
+    )
+
+    jours_supp_anciennete = models.JSONField(
+        default=dict,
+        verbose_name="Jours supplémentaires ancienneté",
+        help_text='Format JSON: {"5": 1, "10": 2} = +1 jour après 5 ans, +2 après 10 ans'
+    )
+
+    prise_compte_temps_partiel = models.BooleanField(
+        default=True,
+        verbose_name="Prise en compte temps partiel"
+    )
+
+    class Meta:
+        verbose_name = "Paramètre calcul congés"
+        verbose_name_plural = "Paramètres calcul congés"
+
+    def __str__(self):
+        return f"Paramètres - {self.configuration.nom}"
+
+
+# 5. AcquisitionConges
+class AcquisitionConges(models.Model):
+    """Solde de congés d'un employé pour une année"""
+
+    employe = models.ForeignKey(
+        'employee.ZY00',
+        on_delete=models.CASCADE,
+        related_name='acquisitions_conges'
+    )
+    annee_reference = models.IntegerField(verbose_name="Année de référence")
+
+    jours_acquis = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="Jours acquis"
+    )
+    jours_pris = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="Jours pris"
+    )
+    jours_restants = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="Jours restants"
+    )
+
+    jours_report_anterieur = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="Report antérieur"
+    )
+    jours_report_nouveau = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="Nouveau report"
+    )
+
+    date_calcul = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Date de calcul"
+    )
+    date_maj = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Date de mise à jour"
+    )
+
+    class Meta:
+        unique_together = ['employe', 'annee_reference']
+        indexes = [
+            models.Index(fields=['employe', 'annee_reference']),
+        ]
+        verbose_name = "Acquisition de congés"
+        verbose_name_plural = "Acquisitions de congés"
+
+    def __str__(self):
+        return f"{self.employe} - {self.annee_reference}"
+
+    def save(self, *args, **kwargs):
+        """Recalcule les jours restants automatiquement"""
+        self.jours_restants = (
+                self.jours_acquis +
+                self.jours_report_anterieur -
+                self.jours_pris
+        )
+        super().save(*args, **kwargs)
+
+
+# ========================================
+# 6. ABSENCE (MODÈLE PRINCIPAL)
+# ========================================
+class Absence(models.Model):
+    """Déclaration d'absence d'un employé"""
+
+    STATUT_CHOICES = [
+        ('BROUILLON', 'Brouillon'),
+        ('EN_ATTENTE_MANAGER', 'En attente du manager'),
+        ('EN_ATTENTE_RH', 'En attente des RH'),
+        ('VALIDE', 'Validée'),
+        ('REJETE', 'Rejetée'),
+        ('ANNULE', 'Annulée'),
+    ]
+
     PERIODE_CHOICES = [
+        ('JOURNEE_COMPLETE', 'Journée complète'),
         ('MATIN', 'Matin'),
         ('APRES_MIDI', 'Après-midi'),
     ]
 
-    # Identifiant et numéro
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    numero_demande = models.CharField(
-        max_length=20,
-        unique=True,
-        editable=False,
-        verbose_name="Numéro de demande"
-    )
-
-    # Relations principales
+    # 1. Identité
     employe = models.ForeignKey(
-        ZY00,
+        'employee.ZY00',
         on_delete=models.CASCADE,
-        related_name='demandes_absence',
+        related_name='absences',
         verbose_name="Employé"
     )
+
     type_absence = models.ForeignKey(
-        ZDAB,
+        'absence.TypeAbsence',
         on_delete=models.PROTECT,
-        related_name='demandes',
         verbose_name="Type d'absence"
     )
 
-    # Dates et durée
+    # 2. Période
     date_debut = models.DateField(verbose_name="Date de début")
     date_fin = models.DateField(verbose_name="Date de fin")
-    duree = models.CharField(
-        max_length=10,
-        choices=DUREE_CHOICES,
-        default='COMPLETE',
-        verbose_name="Durée"
-    )
+
+    # ✅ UN SEUL CHAMP : période
     periode = models.CharField(
-        max_length=15,
-        choices=PERIODE_CHOICES,
-        blank=True,
-        null=True,
-        verbose_name="Période (si demi-journée)"
-    )
-    nombre_jours = models.DecimalField(
-        max_digits=5,
-        decimal_places=1,
-        validators=[MinValueValidator(Decimal('0.5'))],
-        verbose_name="Nombre de jours"
-    )
-
-    # Motif et justification
-    motif = models.TextField(
-        blank=True,
-        verbose_name="Motif de la demande"
-    )
-    justificatif = models.FileField(
-        upload_to='absences/justificatifs/%Y/%m/',
-        blank=True,
-        null=True,
-        verbose_name="Justificatif"
-    )
-
-    # Statut
-    statut = models.CharField(
         max_length=20,
-        choices=STATUS_CHOICES,
-        default='EN_ATTENTE',
+        choices=PERIODE_CHOICES,
+        default='JOURNEE_COMPLETE',
+        verbose_name="Période"
+    )
+
+    # 3. Calculs
+    jours_ouvrables = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="Jours ouvrables"
+    )
+    jours_calendaires = models.IntegerField(
+        default=0,
+        verbose_name="Jours calendaires"
+    )
+
+    # 4. Statut et validation
+    statut = models.CharField(
+        max_length=30,
+        choices=STATUT_CHOICES,
+        default='BROUILLON',
         verbose_name="Statut"
     )
 
-    # ============ VALIDATION MANAGER ============
-    validee_manager = models.BooleanField(default=False, verbose_name="Validée par le manager")
-    date_validation_manager = models.DateTimeField(
-        blank=True,
+    manager_validateur = models.ForeignKey(
+        'employee.ZY00',
+        on_delete=models.SET_NULL,
         null=True,
+        blank=True,
+        related_name='absences_validees_manager',
+        verbose_name="Validateur manager"
+    )
+
+    rh_validateur = models.ForeignKey(
+        'employee.ZY00',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='absences_validees_rh',
+        verbose_name="Validateur RH"
+    )
+
+    date_validation_manager = models.DateTimeField(
+        null=True,
+        blank=True,
         verbose_name="Date validation manager"
     )
-    validateur_manager = models.ForeignKey(
-        ZY00,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='validations_manager_absence',
-        verbose_name="Manager validateur"
-    )
-    commentaire_manager = models.TextField(
-        blank=True,
-        null=True,
-        verbose_name="Commentaire manager"
-    )
-    motif_refus_manager = models.TextField(
-        blank=True,
-        null=True,
-        verbose_name="Motif refus manager"
-    )
-
-    # ============ VALIDATION RH ============
-    validee_rh = models.BooleanField(default=False, verbose_name="Validée par RH")
     date_validation_rh = models.DateTimeField(
-        blank=True,
         null=True,
+        blank=True,
         verbose_name="Date validation RH"
     )
-    validateur_rh = models.ForeignKey(
-        ZY00,
-        on_delete=models.SET_NULL,
+
+    # 5. Justificatifs et commentaires
+    justificatif = models.FileField(
+        upload_to=upload_justificatif,
         null=True,
         blank=True,
-        related_name='validations_rh_absence',
-        verbose_name="RH validateur"
+        verbose_name="Justificatif"
     )
+
+    motif = models.TextField(
+        blank=True,
+        verbose_name="Motif",
+        help_text="Raison de l'absence"
+    )
+
+    commentaire_manager = models.TextField(
+        blank=True,
+        verbose_name="Commentaire du manager"
+    )
+
     commentaire_rh = models.TextField(
         blank=True,
-        null=True,
-        verbose_name="Commentaire RH"
-    )
-    motif_refus_rh = models.TextField(
-        blank=True,
-        null=True,
-        verbose_name="Motif refus RH"
+        verbose_name="Commentaire des RH"
     )
 
-    # ============ GESTION ============
-    est_urgent = models.BooleanField(default=False, verbose_name="Demande urgente")
-    est_annulee = models.BooleanField(default=False, verbose_name="Annulée")
-    date_annulation = models.DateTimeField(
-        blank=True,
-        null=True,
-        verbose_name="Date d'annulation"
+    # 6. Métadonnées
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Date de création"
     )
-    motif_annulation = models.TextField(
-        blank=True,
-        null=True,
-        verbose_name="Motif d'annulation"
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Date de modification"
     )
-
-    # ============ SOLDES ============
-    solde_avant = models.DecimalField(
-        max_digits=5,
-        decimal_places=1,
-        blank=True,
-        null=True,
-        verbose_name="Solde avant"
-    )
-    solde_apres = models.DecimalField(
-        max_digits=5,
-        decimal_places=1,
-        blank=True,
-        null=True,
-        verbose_name="Solde après"
-    )
-
-    # ============ NOTIFICATIONS ============
-    notification_envoyee_manager = models.BooleanField(
-        default=False,
-        verbose_name="Notification envoyée au manager"
-    )
-    notification_envoyee_rh = models.BooleanField(
-        default=False,
-        verbose_name="Notification envoyée à RH"
-    )
-    notification_envoyee_employe = models.BooleanField(
-        default=False,
-        verbose_name="Notification envoyée à l'employé"
-    )
-
-    # ============ AUDIT ============
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date de création")
-    updated_at = models.DateTimeField(auto_now=True, verbose_name="Date de modification")
     created_by = models.ForeignKey(
-        ZY00,
+        'employee.ZY00',
         on_delete=models.SET_NULL,
         null=True,
-        blank=True,
-        related_name='demandes_absence_creees',
+        related_name='absences_crees',
         verbose_name="Créé par"
-    )
-    updated_by = models.ForeignKey(
-        ZY00,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='demandes_absence_modifiees',
-        verbose_name="Modifié par"
-    )
-    ip_address = models.GenericIPAddressField(
-        blank=True,
-        null=True,
-        verbose_name="Adresse IP"
     )
 
     class Meta:
-        db_table = 'ZDDA'
-        verbose_name = 'Demande d\'absence'
-        verbose_name_plural = 'Demandes d\'absence'
-        ordering = ['-created_at']
+        verbose_name = "Absence"
+        verbose_name_plural = "Absences"
+        ordering = ['-date_debut', '-created_at']
         indexes = [
             models.Index(fields=['employe', 'statut']),
-            models.Index(fields=['date_debut', 'date_fin']),
-            models.Index(fields=['statut']),
-            models.Index(fields=['created_at']),
+            models.Index(fields=['statut', 'date_debut']),
+            models.Index(fields=['type_absence', 'date_debut']),
         ]
 
     def __str__(self):
-        return f"{self.numero_demande} - {self.employe.nom} {self.employe.prenoms}"
-
-    def clean(self):
-        """Validation personnalisée"""
-        errors = {}
-
-        # Vérifier que date_fin >= date_debut
-        if self.date_fin and self.date_debut and self.date_fin < self.date_debut:
-            errors['date_fin'] = "La date de fin doit être supérieure ou égale à la date de début."
-
-        # Vérifier la cohérence durée/période
-        if self.duree == 'DEMI' and not self.periode:
-            errors['periode'] = "La période doit être spécifiée pour une demi-journée."
-
-        if self.duree == 'COMPLETE' and self.periode:
-            self.periode = None
-
-        if errors:
-            raise ValidationError(errors)
+        return f"{self.employe} - {self.type_absence} ({self.date_debut} au {self.date_fin})"
 
     def save(self, *args, **kwargs):
-        # Générer le numéro de demande si nouveau
-        if not self.numero_demande:
-            year = timezone.now().year
-            last_demande = ZDDA.objects.filter(
-                numero_demande__startswith=f'ABS-{year}-'
-            ).order_by('-numero_demande').first()
+        """Sauvegarde avec calculs automatiques et notifications"""
+        is_new = self.pk is None
 
-            if last_demande:
-                last_number = int(last_demande.numero_demande.split('-')[-1])
-                new_number = last_number + 1
-            else:
-                new_number = 1
+        # Calculer les jours
+        self.calculer_jours()
 
-            self.numero_demande = f'ABS-{year}-{new_number:05d}'
+        # Nettoyer les données
+        self.full_clean()
 
-        # Mettre à jour les flags de validation
-        self.validee_manager = self.statut in ['VALIDEE_MANAGER', 'VALIDEE_RH']
-        self.validee_rh = self.statut == 'VALIDEE_RH'
-        self.est_annulee = self.statut == 'ANNULEE'
+        # Pour les nouvelles absences, définir le statut
+        if not self.pk and self.statut == 'BROUILLON':
+            if self.motif or self.justificatif:
+                self.statut = 'EN_ATTENTE_MANAGER'
 
-        # Validation sans updated_by (sera défini par le signal)
-        # self.full_clean()  # Commenté car updated_by n'est pas encore défini
         super().save(*args, **kwargs)
+
+        # ✅ NOTIFICATION : Nouvelle demande créée
+        if is_new and self.statut == 'EN_ATTENTE_MANAGER':
+            self._notifier_nouvelle_demande()
+
+    def clean(self):
+        """Validation des données"""
+        super().clean()
+
+        # ✅ 0. FORCER JOURNEE_COMPLETE POUR PLUSIEURS JOURS (AVANT VALIDATION)
+        if self.date_debut and self.date_fin:
+            if self.date_debut != self.date_fin:
+                if self.periode and self.periode != 'JOURNEE_COMPLETE':
+                    self.periode = 'JOURNEE_COMPLETE'
+
+        # ✅ 1. Vérifier les dates
+        if self.date_fin < self.date_debut:
+            raise ValidationError({
+                'date_fin': "La date de fin ne peut pas être antérieure à la date de début"
+            })
+
+        # ✅ 2. Vérifier que les demi-journées sont UNIQUEMENT pour un même jour
+        if self.date_debut != self.date_fin:
+            if self.periode != 'JOURNEE_COMPLETE':
+                raise ValidationError({
+                    'periode': 'Les demi-journées ne sont autorisées que pour une absence d\'un seul jour'
+                })
+
+        # 3. Vérifier le justificatif si obligatoire
+        if (self.type_absence.justificatif_obligatoire and
+                not self.justificatif and
+                self.statut != 'BROUILLON'):
+            raise ValidationError({
+                'justificatif': "Un justificatif est obligatoire pour ce type d'absence"
+            })
+
+    def calculer_jours(self):
+        """
+        Calcule automatiquement le nombre de jours avec support des demi-journées
+        ✅ CORRECTION : Demi-journées UNIQUEMENT pour un même jour
+        """
+        if not self.date_debut or not self.date_fin:
+            return
+
+        # Jours calendaires
+        delta = self.date_fin - self.date_debut
+        self.jours_calendaires = delta.days + 1
+
+        # ✅ Si plusieurs jours, forcer "Journée complète"
+        if self.date_debut != self.date_fin:
+            self.periode = 'JOURNEE_COMPLETE'
+
+        # Calcul jours ouvrables
+        jours = Decimal('0.00')
+        current = self.date_debut
+
+        while current <= self.date_fin:
+            # Ignorer week-ends
+            if current.weekday() < 5:  # Lundi à Vendredi
+
+                # ✅ Même jour : Tenir compte de la période
+                if self.date_debut == self.date_fin:
+                    if self.periode == 'JOURNEE_COMPLETE':
+                        jours += Decimal('1.00')
+                    else:
+                        jours += Decimal('0.50')  # MATIN ou APRES_MIDI
+
+                # ✅ Plusieurs jours : Toujours journée complète
+                else:
+                    jours += Decimal('1.00')
+
+            current += timezone.timedelta(days=1)
+
+        self.jours_ouvrables = jours
+
+    # ========================================
+    # MÉTHODES DE NOTIFICATION
+    # ========================================
+
+    def _notifier_nouvelle_demande(self):
+        """Notifier le manager d'une nouvelle demande"""
+        manager = self.employe.get_manager_departement()
+
+        if manager:
+            NotificationAbsence.creer_notification(
+                destinataire=manager,
+                absence=self,
+                type_notif='DEMANDE_CREEE',
+                contexte='MANAGER',  # ✅ CONTEXTE MANAGER
+                message=f"{self.employe.nom} {self.employe.prenoms} a créé une demande d'absence ({self.type_absence.libelle}) du {self.date_debut.strftime('%d/%m/%Y')} au {self.date_fin.strftime('%d/%m/%Y')}"
+            )
+
+    def _notifier_validation_manager(self):
+        """Notifier l'employé et les RH après validation manager"""
+
+        # 1. Notification à l'employé (CONTEXTE EMPLOYE)
+        NotificationAbsence.creer_notification(
+            destinataire=self.employe,
+            absence=self,
+            type_notif='VALIDATION_MANAGER',
+            contexte='EMPLOYE',  # ✅ CONTEXTE EMPLOYE
+            message=f"Votre demande d'absence ({self.type_absence.libelle}) a été approuvée par votre manager {self.manager_validateur.nom}"
+        )
+
+        # 2. Notification aux RH (CONTEXTE RH) - MÊME si c'est la même personne
+        from employee.models import ZY00
+        responsables_rh = ZY00.objects.filter(
+            roles_attribues__role__CODE='RH',
+            roles_attribues__actif=True,
+            roles_attribues__date_fin__isnull=True,
+            etat='actif'
+        ).distinct()
+
+        for rh in responsables_rh:
+            NotificationAbsence.creer_notification(
+                destinataire=rh,
+                absence=self,
+                type_notif='DEMANDE_VALIDEE_MANAGER',
+                contexte='RH',  # ✅ CONTEXTE RH
+                message=f"Nouvelle demande à valider (RH) : {self.employe.nom} {self.employe.prenoms} - {self.type_absence.libelle} - Approuvée par {self.manager_validateur.nom}"
+            )
+
+    def _notifier_rejet_manager(self):
+        """Notifier l'employé du rejet par le manager"""
+        NotificationAbsence.creer_notification(
+            destinataire=self.employe,
+            absence=self,
+            type_notif='REJET_MANAGER',
+            contexte='EMPLOYE',  # ✅ CONTEXTE EMPLOYE
+            message=f"Votre demande d'absence ({self.type_absence.libelle}) a été rejetée par votre manager"
+        )
+
+    def _notifier_validation_rh(self):
+        """Notifier l'employé de la validation finale par les RH"""
+        NotificationAbsence.creer_notification(
+            destinataire=self.employe,
+            absence=self,
+            type_notif='VALIDATION_RH',
+            contexte='EMPLOYE',  # ✅ CONTEXTE EMPLOYE
+            message=f"Votre demande d'absence ({self.type_absence.libelle}) a été validée par les RH. Elle est maintenant confirmée."
+        )
+
+    def _notifier_rejet_rh(self):
+        """Notifier l'employé du rejet par les RH"""
+        NotificationAbsence.creer_notification(
+            destinataire=self.employe,
+            absence=self,
+            type_notif='REJET_RH',
+            contexte='EMPLOYE',  # ✅ CONTEXTE EMPLOYE
+            message=f"Votre demande d'absence ({self.type_absence.libelle}) a été rejetée par les RH"
+        )
+
+    def _notifier_annulation(self):
+        """Notifier le manager de l'annulation"""
+        manager = self.employe.get_manager_departement()
+
+        if manager:
+            NotificationAbsence.creer_notification(
+                destinataire=manager,
+                absence=self,
+                type_notif='ABSENCE_ANNULEE',
+                contexte='MANAGER',  # ✅ CONTEXTE MANAGER
+                message=f"{self.employe.nom} {self.employe.prenoms} a annulé sa demande d'absence ({self.type_absence.libelle})"
+            )
+
+    # ========================================
+    # MÉTHODES DE GESTION DES SOLDES
+    # ========================================
+
+    def get_solde_disponible(self):
+        """Retourne le solde de congés disponible selon le système N+1"""
+        from .models import AcquisitionConges
+
+        annee_absence = self.date_debut.year
+        annee_acquisition = annee_absence - 1
+
+        try:
+            acquisition = AcquisitionConges.objects.get(
+                employe=self.employe,
+                annee_reference=annee_acquisition
+            )
+            return acquisition.jours_restants
+        except AcquisitionConges.DoesNotExist:
+            return Decimal('0.00')
+
+    def decompter_solde(self):
+        """Déduit les jours du solde selon le système N+1"""
+        from .models import AcquisitionConges
+
+        if not self.type_absence.decompte_solde:
+            return
+
+        annee_absence = self.date_debut.year
+        annee_acquisition = annee_absence - 1
+
+        try:
+            with transaction.atomic():
+                acquisition = AcquisitionConges.objects.select_for_update().get(
+                    employe=self.employe,
+                    annee_reference=annee_acquisition
+                )
+                acquisition.jours_pris += self.jours_ouvrables
+                acquisition.save()
+
+        except AcquisitionConges.DoesNotExist:
+            AcquisitionConges.objects.create(
+                employe=self.employe,
+                annee_reference=annee_acquisition,
+                jours_acquis=Decimal('0.00'),
+                jours_pris=self.jours_ouvrables,
+                jours_restants=-self.jours_ouvrables,
+                jours_report_anterieur=Decimal('0.00'),
+                jours_report_nouveau=Decimal('0.00'),
+            )
+
+    def restituer_solde(self):
+        """Restitue les jours au solde (en cas d'annulation)"""
+        from .models import AcquisitionConges
+
+        if not self.type_absence.decompte_solde:
+            return
+
+        annee_absence = self.date_debut.year
+        annee_acquisition = annee_absence - 1
+
+        try:
+            with transaction.atomic():
+                acquisition = AcquisitionConges.objects.select_for_update().get(
+                    employe=self.employe,
+                    annee_reference=annee_acquisition
+                )
+                acquisition.jours_pris -= self.jours_ouvrables
+                acquisition.save()
+
+        except AcquisitionConges.DoesNotExist:
+            pass
+
+    # ========================================
+    # TRAÇABILITÉ DES VALIDATIONS
+    # ========================================
+
+    def creer_trace_validation(self, etape, validateur, decision, commentaire=""):
+        """Crée une trace de validation pour la traçabilité"""
+        from .models import ValidationAbsence
+
+        ordre = 1 if etape == 'MANAGER' else 2
+
+        ValidationAbsence.objects.create(
+            absence=self,
+            etape=etape,
+            ordre=ordre,
+            validateur=validateur,
+            decision=decision,
+            commentaire=commentaire,
+            date_validation=timezone.now()
+        )
+
+    # ========================================
+    # MÉTHODES DE VALIDATION AVEC NOTIFICATIONS
+    # ========================================
+
+    def valider_par_manager(self, manager, decision, commentaire=""):
+        """Validation par le manager avec vérification départementale et notifications"""
+        if self.statut != 'EN_ATTENTE_MANAGER':
+            raise ValidationError("Cette absence n'est pas en attente de validation manager")
+
+        # 1. Vérification des permissions générales
+        if not manager.peut_valider_absence_manager():
+            raise ValidationError("Vous n'avez pas la permission de valider les absences")
+
+        # 2. VÉRIFICATION CRITIQUE : L'employé est-il dans le département du manager ?
+        if not self.employe.est_dans_departement_manager(manager):
+            raise ValidationError(
+                f"Vous n'êtes pas le manager du département de {self.employe.nom}. "
+                f"Seul le manager de son département peut valider cette absence."
+            )
+
+        # 3. Vérifier que le manager est bien le manager actif du département
+        try:
+            from django.apps import apps
+            ZYMA = apps.get_model('departement', 'ZYMA')
+            ZYAF = apps.get_model('employee', 'ZYAF')
+
+            affectation = ZYAF.objects.filter(
+                employe=self.employe,
+                date_fin__isnull=True
+            ).select_related('poste__DEPARTEMENT').first()
+
+            if not affectation:
+                raise ValidationError("L'employé n'a pas d'affectation active")
+
+            is_manager_of_dept = ZYMA.objects.filter(
+                employe=manager,
+                departement=affectation.poste.DEPARTEMENT,
+                actif=True,
+                date_fin__isnull=True
+            ).exists()
+
+            if not is_manager_of_dept:
+                raise ValidationError(
+                    f"Vous n'êtes pas le manager actif du département "
+                    f"{affectation.poste.DEPARTEMENT.LIBELLE}"
+                )
+
+        except Exception as e:
+            raise ValidationError(f"Erreur de vérification manager: {str(e)}")
+
+        # 4. Appliquer la décision
+        with transaction.atomic():
+            if decision == 'APPROUVE':
+                self.statut = 'EN_ATTENTE_RH'
+                self.manager_validateur = manager
+                self.date_validation_manager = timezone.now()
+                self.commentaire_manager = commentaire
+
+                # Créer trace de validation
+                self.creer_trace_validation('MANAGER', manager, 'APPROUVE', commentaire)
+
+                # Sauvegarder
+                self.save(update_fields=[
+                    'statut', 'manager_validateur',
+                    'date_validation_manager', 'commentaire_manager'
+                ])
+
+                # ✅ NOTIFICATIONS
+                self._notifier_validation_manager()
+
+            elif decision in ['REJETE', 'RETOURNE']:
+                self.statut = decision
+                self.manager_validateur = manager
+                self.date_validation_manager = timezone.now()
+                self.commentaire_manager = commentaire
+
+                # Créer trace de validation
+                self.creer_trace_validation('MANAGER', manager, decision, commentaire)
+
+                # Sauvegarder
+                self.save(update_fields=[
+                    'statut', 'manager_validateur',
+                    'date_validation_manager', 'commentaire_manager'
+                ])
+
+                # ✅ NOTIFICATION
+                self._notifier_rejet_manager()
+
+        return True
+
+    def valider_par_rh(self, rh, decision, commentaire=""):
+        """Validation par les RH avec notifications"""
+        if self.statut != 'EN_ATTENTE_RH':
+            raise ValidationError("Cette absence n'est pas en attente de validation RH")
+
+        # Vérification par permission OU rôle
+        if not rh.peut_valider_absence_rh():
+            raise ValidationError("Vous n'avez pas la permission de valider les absences RH")
+
+        with transaction.atomic():
+            if decision == 'APPROUVE':
+                self.statut = 'VALIDE'
+                self.rh_validateur = rh
+                self.date_validation_rh = timezone.now()
+                self.commentaire_rh = commentaire
+
+                # Créer trace de validation
+                self.creer_trace_validation('RH', rh, 'APPROUVE', commentaire)
+
+                # Sauvegarder
+                self.save(update_fields=[
+                    'statut', 'rh_validateur',
+                    'date_validation_rh', 'commentaire_rh'
+                ])
+
+                # ✅ Décompter les jours du solde (système N+1)
+                self.decompter_solde()
+
+                # ✅ NOTIFICATION
+                self._notifier_validation_rh()
+
+            elif decision == 'REJETE':
+                self.statut = 'REJETE'
+                self.rh_validateur = rh
+                self.date_validation_rh = timezone.now()
+                self.commentaire_rh = commentaire
+
+                # Créer trace de validation
+                self.creer_trace_validation('RH', rh, 'REJETE', commentaire)
+
+                # Sauvegarder
+                self.save(update_fields=[
+                    'statut', 'rh_validateur',
+                    'date_validation_rh', 'commentaire_rh'
+                ])
+
+                # ✅ NOTIFICATION
+                self._notifier_rejet_rh()
+
+        return True
+
+    def annuler(self, utilisateur):
+        """
+        Annulation d'une absence par l'employé avec notifications
+
+        Scénarios :
+        1. EN_ATTENTE_MANAGER : Simple annulation (pas encore validée)
+        2. EN_ATTENTE_RH : Annulation après validation manager
+        3. VALIDE : Annulation avec restitution des jours
+        4. REJETE : Impossible d'annuler
+        """
+        # ✅ Vérifier que l'absence peut être annulée
+        if self.statut == 'REJETE':
+            raise ValidationError("Impossible d'annuler une absence rejetée")
+
+        if self.statut == 'ANNULE':
+            raise ValidationError("Cette absence est déjà annulée")
+
+        if self.statut == 'BROUILLON':
+            raise ValidationError("Cette absence est en brouillon, supprimez-la directement")
+
+        # ✅ Vérifier que c'est bien l'employé propriétaire qui annule
+        if self.employe != utilisateur:
+            raise ValidationError("Seul l'employé peut annuler sa propre absence")
+
+        with transaction.atomic():
+            # Si l'absence était validée ET qu'elle décompte le solde, restituer les jours
+            if self.statut == 'VALIDE' and self.type_absence.decompte_solde:
+                self.restituer_solde()
+
+            # Changer le statut
+            self.statut = 'ANNULE'
+            self.save(update_fields=['statut'])
+
+            # ✅ NOTIFICATION
+            self._notifier_annulation()
+
+        return True
+
+    # ========================================
+    # PROPRIÉTÉS UTILES
+    # ========================================
 
     @property
     def est_validee(self):
-        """Retourne True si la demande est complètement validée"""
-        return self.statut == 'VALIDEE_RH'
+        return self.statut == 'VALIDE'
 
     @property
-    def est_en_attente_validation(self):
-        """Retourne True si la demande est en attente de validation"""
-        return self.statut in ['EN_ATTENTE', 'VALIDEE_MANAGER']
+    def est_en_attente(self):
+        return self.statut in ['EN_ATTENTE_MANAGER', 'EN_ATTENTE_RH']
 
     @property
-    def est_refusee(self):
-        """Retourne True si la demande a été refusée"""
-        return self.statut in ['REFUSEE_MANAGER', 'REFUSEE_RH']
+    def duree_jours(self):
+        return self.jours_calendaires
 
-    def get_manager(self):
-        """Retourne le manager responsable de l'employé"""
-        return self.employe.get_manager_responsable()
+    @property
+    def prochain_validateur(self):
+        """Retourne le prochain validateur attendu"""
+        if self.statut == 'EN_ATTENTE_MANAGER':
+            return self.employe.get_manager_departement()
+        elif self.statut == 'EN_ATTENTE_RH':
+            from employee.models import ZY00
+            return ZY00.objects.filter(
+                roles_attribues__role__CODE='RH',
+                roles_attribues__actif=True,
+                roles_attribues__date_fin__isnull=True,
+                etat='actif'
+            ).first()
+        return None
 
-    def peut_etre_annulee(self):
-        """Vérifie si la demande peut être annulée"""
-        return self.statut in ['EN_ATTENTE', 'VALIDEE_MANAGER'] and self.date_debut > timezone.now().date()
+    @property
+    def peut_modifier(self):
+        """
+        L'employé peut modifier son absence si :
+        - BROUILLON
+        - RETOURNE (pour correction)
+        """
+        return self.statut in ['BROUILLON', 'RETOURNE']
 
+    @property
+    def peut_supprimer(self):
+        """
+        L'employé peut supprimer son absence si :
+        - BROUILLON
+        - EN_ATTENTE_MANAGER (avant validation du manager)
+        - REJETE (après rejet)
+        - ANNULE (déjà annulée)
+        """
+        return self.statut in ['BROUILLON', 'EN_ATTENTE_MANAGER', 'REJETE', 'ANNULE']
 
-# ==========================================
-# SOLDE DE CONGÉS (ZDSO)
-# ==========================================
+    @property
+    def peut_annuler(self):
+        """
+        L'employé peut annuler son absence si :
+        - EN_ATTENTE_MANAGER (avant validation)
+        - EN_ATTENTE_RH (entre les deux validations)
+        - VALIDE (après validation complète, avec restitution des jours)
+        """
+        return self.statut in ['EN_ATTENTE_MANAGER', 'EN_ATTENTE_RH', 'VALIDE']
 
-class ZDSO(models.Model):
-    """
-    Table des soldes de congés par employé et par année
-    ZDSO = Zelio Données SOlde
-    """
+    @property
+    def annee_acquisition_utilisee(self):
+        """Retourne l'année d'acquisition utilisée (système N+1)"""
+        return self.date_debut.year - 1
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    employe = models.ForeignKey(
-        ZY00,
-        on_delete=models.CASCADE,
-        related_name='soldes_conges',
-        verbose_name="Employé"
-    )
-    annee = models.IntegerField(verbose_name="Année")
-
-    # ============ CONGÉS PAYÉS ============
-    jours_acquis = models.DecimalField(
-        max_digits=5,
-        decimal_places=1,
-        default=25.0,
-        verbose_name="Jours acquis"
-    )
-    jours_pris = models.DecimalField(
-        max_digits=5,
-        decimal_places=1,
-        default=0.0,
-        verbose_name="Jours pris"
-    )
-    jours_en_attente = models.DecimalField(
-        max_digits=5,
-        decimal_places=1,
-        default=0.0,
-        verbose_name="Jours en attente"
-    )
-    jours_disponibles = models.DecimalField(
-        max_digits=5,
-        decimal_places=1,
-        default=25.0,
-        verbose_name="Jours disponibles"
-    )
-    jours_reportes = models.DecimalField(
-        max_digits=5,
-        decimal_places=1,
-        default=0.0,
-        verbose_name="Jours reportés N-1"
-    )
-
-    # ============ RTT ============
-    rtt_acquis = models.DecimalField(
-        max_digits=5,
-        decimal_places=1,
-        default=0.0,
-        verbose_name="RTT acquis"
-    )
-    rtt_pris = models.DecimalField(
-        max_digits=5,
-        decimal_places=1,
-        default=0.0,
-        verbose_name="RTT pris"
-    )
-    rtt_disponibles = models.DecimalField(
-        max_digits=5,
-        decimal_places=1,
-        default=0.0,
-        verbose_name="RTT disponibles"
-    )
-
-    # ============ AUDIT ============
-    derniere_maj = models.DateTimeField(auto_now=True, verbose_name="Dernière mise à jour")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        db_table = 'ZDSO'
-        verbose_name = 'Solde de congés'
-        verbose_name_plural = 'Soldes de congés'
-        unique_together = ['employe', 'annee']
-        ordering = ['-annee', 'employe']
-
-    def __str__(self):
-        return f"{self.employe.nom} {self.employe.prenoms} - {self.annee} - {self.jours_disponibles} jours"
-
-    def calculer_soldes(self):
-        """Recalcule automatiquement les soldes disponibles"""
-        self.jours_disponibles = (
-            self.jours_acquis +
-            self.jours_reportes -
-            self.jours_pris -
-            self.jours_en_attente
-        )
-        self.rtt_disponibles = self.rtt_acquis - self.rtt_pris
-        self.save()
+    # ========================================
+    # MÉTHODES DE CLASSE
+    # ========================================
 
     @classmethod
-    def get_or_create_solde(cls, employe, annee=None):
-        """Récupère ou crée le solde pour un employé et une année"""
-        if annee is None:
-            annee = timezone.now().year
+    def get_absences_a_valider_par_manager(cls, manager):
+        """
+        Retourne les absences que ce manager peut valider
+        (uniquement les employés de ses départements)
+        """
+        from django.apps import apps
+        ZYMA = apps.get_model('departement', 'ZYMA')
+        ZYAF = apps.get_model('employee', 'ZYAF')
 
-        solde, created = cls.objects.get_or_create(
-            employe=employe,
-            annee=annee,
-            defaults={
-                'jours_acquis': 25.0,
-                'jours_disponibles': 25.0,
-            }
-        )
-        return solde
+        departements_geres = ZYMA.objects.filter(
+            employe=manager,
+            actif=True,
+            date_fin__isnull=True
+        ).values_list('departement', flat=True)
+
+        if not departements_geres:
+            return cls.objects.none()
+
+        employes_departements = ZYAF.objects.filter(
+            poste__DEPARTEMENT__in=departements_geres,
+            date_fin__isnull=True,
+            employe__etat='actif'
+        ).values_list('employe', flat=True).distinct()
+
+        return cls.objects.filter(
+            employe__in=employes_departements,
+            statut='EN_ATTENTE_MANAGER'
+        ).select_related('employe', 'type_absence')
+
+    @classmethod
+    def get_absences_a_valider_par_rh(cls, rh):
+        """
+        Retourne toutes les absences en attente de validation RH
+        (si l'utilisateur a les permissions RH)
+        """
+        if not rh.peut_valider_absence_rh():
+            return cls.objects.none()
+
+        return cls.objects.filter(
+            statut='EN_ATTENTE_RH'
+        ).select_related('employe', 'type_absence', 'manager_validateur')
 
 
-# ==========================================
-# HISTORIQUE DES ABSENCES (ZDHA)
-# ==========================================
+# ========================================
+# MODÈLE DE NOTIFICATION
+# ========================================
 
-class ZDHA(models.Model):
-    """
-    Historique des modifications sur les demandes d'absence
-    ZDHA = Zelio Données Historique Absence
-    """
+class NotificationAbsence(models.Model):
+    """Notifications pour le workflow des absences"""
 
-    ACTION_CHOICES = [
-        ('CREATION', 'Création'),
-        ('MODIFICATION', 'Modification'),
-        ('VALIDATION_MANAGER', 'Validation Manager'),
+    TYPE_CHOICES = [
+        ('DEMANDE_CREEE', 'Nouvelle demande d\'absence'),
+        ('DEMANDE_VALIDEE_MANAGER', 'Demande validée par le manager'),
+        ('VALIDATION_MANAGER', 'Validation manager'),
+        ('REJET_MANAGER', 'Rejet manager'),
         ('VALIDATION_RH', 'Validation RH'),
-        ('REFUS_MANAGER', 'Refus Manager'),
-        ('REFUS_RH', 'Refus RH'),
-        ('ANNULATION', 'Annulation'),
+        ('REJET_RH', 'Rejet RH'),
+        ('ABSENCE_ANNULEE', 'Absence annulée'),
     ]
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    demande = models.ForeignKey(
-        ZDDA,
-        on_delete=models.CASCADE,
-        related_name='historique',
-        verbose_name="Demande"
-    )
-    action = models.CharField(
-        max_length=30,
-        choices=ACTION_CHOICES,
-        verbose_name="Action"
-    )
-    utilisateur = models.ForeignKey(
-        ZY00,
-        on_delete=models.SET_NULL,
-        null=True,
-        verbose_name="Utilisateur"
-    )
-    ancien_statut = models.CharField(
-        max_length=20,
-        blank=True,
-        null=True,
-        verbose_name="Ancien statut"
-    )
-    nouveau_statut = models.CharField(
-        max_length=20,
-        blank=True,
-        null=True,
-        verbose_name="Nouveau statut"
-    )
-    commentaire = models.TextField(
-        blank=True,
-        null=True,
-        verbose_name="Commentaire"
-    )
-    donnees_modifiees = models.JSONField(
-        blank=True,
-        null=True,
-        verbose_name="Données modifiées"
-    )
-    ip_address = models.GenericIPAddressField(
-        blank=True,
-        null=True,
-        verbose_name="Adresse IP"
-    )
-    timestamp = models.DateTimeField(auto_now_add=True, verbose_name="Date/Heure")
-
-    class Meta:
-        db_table = 'ZDHA'
-        verbose_name = 'Historique absence'
-        verbose_name_plural = 'Historiques absences'
-        ordering = ['-timestamp']
-
-    def __str__(self):
-        return f"{self.demande.numero_demande} - {self.action} - {self.timestamp}"
-
-
-# ==========================================
-# JOURS FÉRIÉS (ZDJF)
-# ==========================================
-
-class ZDJF(models.Model):
-    """
-    Table des jours fériés
-    ZDJF = Zelio Données Jour Férié
-    """
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    date = models.DateField(unique=True, verbose_name="Date")
-    libelle = models.CharField(max_length=100, verbose_name="Libellé")
-    fixe = models.BooleanField(default=True, verbose_name="Date fixe")
-    actif = models.BooleanField(default=True, verbose_name="Actif")
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        db_table = 'ZDJF'
-        verbose_name = 'Jour férié'
-        verbose_name_plural = 'Jours fériés'
-        ordering = ['date']
-
-    def __str__(self):
-        return f"{self.date.strftime('%d/%m/%Y')} - {self.libelle}"
-
-    @classmethod
-    def est_jour_ferie(cls, date):
-        """Vérifie si une date est un jour férié"""
-        return cls.objects.filter(date=date, actif=True).exists()
-
-
-
-######################
-### Notifications ZANO ###
-######################
-class ZANO(models.Model):
-    """Table des notifications"""
-
-    TYPE_NOTIFICATION_CHOICES = [
-        ('ABSENCE_NOUVELLE', 'Nouvelle demande d\'absence'),
-        ('ABSENCE_VALIDEE_MANAGER', 'Absence validée par le manager'),
-        ('ABSENCE_REJETEE_MANAGER', 'Absence rejetée par le manager'),
-        ('ABSENCE_VALIDEE_RH', 'Absence validée par les RH'),
-        ('ABSENCE_REJETEE_RH', 'Absence rejetée par les RH'),
-        ('ABSENCE_ANNULEE', 'Absence annulée'),
+    CONTEXTE_CHOICES = [
+        ('EMPLOYE', 'En tant qu\'employé'),
+        ('MANAGER', 'En tant que manager'),
+        ('RH', 'En tant que RH'),
     ]
 
     destinataire = models.ForeignKey(
         'employee.ZY00',
         on_delete=models.CASCADE,
-        related_name='notifications',
+        related_name='notifications_absences',
         verbose_name="Destinataire"
+    )
+    absence = models.ForeignKey(
+        'Absence',
+        on_delete=models.CASCADE,
+        related_name='notifications',
+        verbose_name="Absence"
     )
     type_notification = models.CharField(
         max_length=30,
-        choices=TYPE_NOTIFICATION_CHOICES,
+        choices=TYPE_CHOICES,
         verbose_name="Type de notification"
     )
-    titre = models.CharField(
-        max_length=200,
-        verbose_name="Titre"
+    # ✅ NOUVEAU CHAMP
+    contexte = models.CharField(
+        max_length=20,
+        choices=CONTEXTE_CHOICES,
+        default='EMPLOYE',
+        verbose_name="Contexte de la notification"
     )
     message = models.TextField(
         verbose_name="Message"
     )
-    lien = models.CharField(
-        max_length=500,
-        blank=True,
-        null=True,
-        verbose_name="Lien associé",
-        help_text="URL vers l'élément concerné"
-    )
-    demande_absence = models.ForeignKey(
-        ZDDA,  # ✅ Utiliser ZDDA directement (pas de guillemets car la classe est déjà définie)
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        related_name='notifications',
-        verbose_name="Demande d'absence"
-    )
     lue = models.BooleanField(
         default=False,
-        verbose_name="Lue"
+        verbose_name="Notification lue"
     )
     date_creation = models.DateTimeField(
         auto_now_add=True,
@@ -599,268 +1399,101 @@ class ZANO(models.Model):
     )
 
     class Meta:
-        db_table = 'ZANO'
-        verbose_name = "Notification"
-        verbose_name_plural = "Notifications"
+        db_table = 'notification_absence'
+        verbose_name = "Notification d'absence"
+        verbose_name_plural = "Notifications d'absence"
         ordering = ['-date_creation']
         indexes = [
             models.Index(fields=['destinataire', 'lue']),
-            models.Index(fields=['date_creation']),
+            models.Index(fields=['-date_creation']),
+            models.Index(fields=['contexte']),  # ✅ NOUVEL INDEX
         ]
 
     def __str__(self):
-        return f"{self.destinataire.matricule} - {self.titre}"
+        return f"{self.destinataire.nom} - {self.get_type_notification_display()} ({self.get_contexte_display()})"
 
     def marquer_comme_lue(self):
         """Marquer la notification comme lue"""
         if not self.lue:
             self.lue = True
             self.date_lecture = timezone.now()
-            self.save()
+            self.save(update_fields=['lue', 'date_lecture'])
 
-    @staticmethod
-    def creer_notification_absence(demande_absence, type_notification, destinataire):
-        """Créer une notification pour une demande d'absence"""
-        from django.urls import reverse
-
-        # Définir le titre et le message selon le type
-        messages_config = {
-            'ABSENCE_NOUVELLE': {
-                'titre': f"Nouvelle demande d'absence - {demande_absence.employe.nom} {demande_absence.employe.prenoms}",
-                'message': f"{demande_absence.employe.nom} {demande_absence.employe.prenoms} a fait une demande d'absence du {demande_absence.date_debut.strftime('%d/%m/%Y')} au {demande_absence.date_fin.strftime('%d/%m/%Y')} ({demande_absence.type_absence.LIBELLE})."
-            },
-            'ABSENCE_VALIDEE_MANAGER': {
-                'titre': "Votre demande d'absence a été validée par votre manager",
-                'message': f"Votre demande d'absence du {demande_absence.date_debut.strftime('%d/%m/%Y')} au {demande_absence.date_fin.strftime('%d/%m/%Y')} a été validée par votre manager et est en attente de validation RH."
-            },
-            'ABSENCE_REJETEE_MANAGER': {
-                'titre': "Votre demande d'absence a été rejetée",
-                'message': f"Votre demande d'absence du {demande_absence.date_debut.strftime('%d/%m/%Y')} au {demande_absence.date_fin.strftime('%d/%m/%Y')} a été rejetée par votre manager."
-            },
-            'ABSENCE_VALIDEE_RH': {
-                'titre': "Votre demande d'absence a été validée",
-                'message': f"Votre demande d'absence du {demande_absence.date_debut.strftime('%d/%m/%Y')} au {demande_absence.date_fin.strftime('%d/%m/%Y')} a été validée par les RH. Votre absence est confirmée."
-            },
-            'ABSENCE_REJETEE_RH': {
-                'titre': "Votre demande d'absence a été rejetée par les RH",
-                'message': f"Votre demande d'absence du {demande_absence.date_debut.strftime('%d/%m/%Y')} au {demande_absence.date_fin.strftime('%d/%m/%Y')} a été rejetée par les RH."
-            },
-            'ABSENCE_ANNULEE': {
-                'titre': "Une demande d'absence a été annulée",
-                'message': f"La demande d'absence du {demande_absence.date_debut.strftime('%d/%m/%Y')} au {demande_absence.date_fin.strftime('%d/%m/%Y')} a été annulée."
-            },
-        }
-
-        config = messages_config.get(type_notification, {
-            'titre': 'Notification',
-            'message': 'Vous avez une nouvelle notification.'
-        })
-
-        # 🆕 CRÉER LE LIEN SELON LE TYPE DE NOTIFICATION ET LE DESTINATAIRE
-        lien = '#'
-        try:
-            # Si c'est une nouvelle demande, vérifier si le destinataire est RH ou Manager
-            if type_notification == 'ABSENCE_NOUVELLE':
-                # Vérifier si le destinataire a le rôle DRH
-                if destinataire.has_role('DRH'):
-                    lien = reverse('absence:rh_validation')
-                else:
-                    # Sinon c'est un manager
-                    lien = reverse('absence:manager_validation')
-
-            # Si c'est une validation/rejet, rediriger vers la liste des demandes de l'employé
-            elif type_notification in ['ABSENCE_VALIDEE_MANAGER', 'ABSENCE_REJETEE_MANAGER',
-                                       'ABSENCE_VALIDEE_RH', 'ABSENCE_REJETEE_RH']:
-                lien = reverse('absence:employe_demandes')
-
-            # Si c'est une annulation
-            elif type_notification == 'ABSENCE_ANNULEE':
-                if destinataire.has_role('DRH'):
-                    lien = reverse('absence:rh_validation')
-                else:
-                    lien = reverse('absence:manager_validation')
-        except Exception as e:
-            print(f"Erreur création lien notification: {e}")
-            lien = '#'
-
-        # Créer la notification
-        notification = ZANO.objects.create(
+    @classmethod
+    def creer_notification(cls, destinataire, absence, type_notif, message, contexte='EMPLOYE'):
+        """Créer une nouvelle notification avec contexte"""
+        return cls.objects.create(
             destinataire=destinataire,
-            type_notification=type_notification,
-            titre=config['titre'],
-            message=config['message'],
-            lien=lien,
-            demande_absence=demande_absence
+            absence=absence,
+            type_notification=type_notif,
+            contexte=contexte,
+            message=message
         )
 
-        return notification
+    @classmethod
+    def get_non_lues(cls, employe):
+        """Récupérer toutes les notifications non lues d'un employé"""
+        return cls.objects.filter(
+            destinataire=employe,
+            lue=False
+        ).select_related('absence', 'absence__employe', 'absence__type_absence')
 
-    @staticmethod
-    def notifier_nouvelle_demande(demande_absence):
-        """Notifier le manager lors d'une nouvelle demande"""
-        manager = demande_absence.get_manager()
-        if manager and manager.employe:
-            ZANO.creer_notification_absence(
-                demande_absence,
-                'ABSENCE_NOUVELLE',
-                manager.employe
-            )
-
-    @staticmethod
-    def notifier_validation_manager(demande_absence):
-        """Notifier l'employé et les RH après validation manager"""
-        # Notifier l'employé
-        ZANO.creer_notification_absence(
-            demande_absence,
-            'ABSENCE_VALIDEE_MANAGER',
-            demande_absence.employe
-        )
-
-        # Notifier les utilisateurs RH
-        from django.contrib.auth import get_user_model
-        User = get_user_model()
-
-        # Trouver les utilisateurs ayant le rôle RH
-        try:
-            from employee.models import ZY00
-            employes_rh = ZY00.objects.filter(
-                user__groups__name='RH'
-            ).distinct()
-
-            for employe_rh in employes_rh:
-                ZANO.creer_notification_absence(
-                    demande_absence,
-                    'ABSENCE_NOUVELLE',
-                    employe_rh
-                )
-        except Exception as e:
-            print(f"Erreur notification RH: {e}")
-
-    @staticmethod
-    def notifier_rejet_manager(demande_absence):
-        """Notifier l'employé après rejet manager"""
-        ZANO.creer_notification_absence(
-            demande_absence,
-            'ABSENCE_REJETEE_MANAGER',
-            demande_absence.employe
-        )
-
-    @staticmethod
-    def notifier_validation_rh(demande_absence):
-        """Notifier l'employé après validation RH"""
-        ZANO.creer_notification_absence(
-            demande_absence,
-            'ABSENCE_VALIDEE_RH',
-            demande_absence.employe
-        )
-
-    @staticmethod
-    def notifier_rejet_rh(demande_absence):
-        """Notifier l'employé après rejet RH"""
-        ZANO.creer_notification_absence(
-            demande_absence,
-            'ABSENCE_REJETEE_RH',
-            demande_absence.employe
-        )
+    @classmethod
+    def count_non_lues(cls, employe):
+        """Compter les notifications non lues"""
+        return cls.objects.filter(
+            destinataire=employe,
+            lue=False
+        ).count()
 
 
-# ==========================================
-# PÉRIODES DE FERMETURE (ZDPF)
-# ==========================================
 
-class ZDPF(models.Model):
-    """
-    Périodes de fermeture de l'entreprise
-    ZDPF = Zelio Données Période Fermeture
-    """
+# 7. ValidationAbsence (Optionnel - pour traçabilité détaillée)
+class ValidationAbsence(models.Model):
+    """Trace chaque étape de validation"""
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    libelle = models.CharField(max_length=100, verbose_name="Libellé")
-    date_debut = models.DateField(verbose_name="Date de début")
-    date_fin = models.DateField(verbose_name="Date de fin")
-    description = models.TextField(blank=True, null=True, verbose_name="Description")
-    actif = models.BooleanField(default=True, verbose_name="Actif")
+    ETAPE_CHOICES = [
+        ('MANAGER', 'Validation manager'),
+        ('RH', 'Validation RH'),
+    ]
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(
-        ZY00,
-        on_delete=models.SET_NULL,
-        null=True,
-        verbose_name="Créé par"
+    DECISION_CHOICES = [
+        ('EN_ATTENTE', 'En attente'),
+        ('APPROUVE', 'Approuvé'),
+        ('REJETE', 'Rejeté'),
+        ('RETOURNE', 'Retourné pour modification'),
+    ]
+
+    absence = models.ForeignKey(
+        Absence,
+        on_delete=models.CASCADE,
+        related_name='validations_detail'
+    )
+    etape = models.CharField(max_length=20, choices=ETAPE_CHOICES)
+    ordre = models.IntegerField()
+
+    validateur = models.ForeignKey(
+        'employee.ZY00',
+        on_delete=models.CASCADE,
+        related_name='validations_effectuees'
     )
 
+    decision = models.CharField(
+        max_length=20,
+        choices=DECISION_CHOICES,
+        default='EN_ATTENTE'
+    )
+    commentaire = models.TextField(blank=True)
+
+    date_demande = models.DateTimeField(auto_now_add=True)
+    date_validation = models.DateTimeField(null=True, blank=True)
+
     class Meta:
-        db_table = 'ZDPF'
-        verbose_name = 'Période de fermeture'
-        verbose_name_plural = 'Périodes de fermeture'
-        ordering = ['-date_debut']
+        unique_together = ['absence', 'etape']
+        ordering = ['absence', 'ordre']
+        verbose_name = "Validation d'absence"
+        verbose_name_plural = "Validations d'absence"
 
     def __str__(self):
-        return f"{self.libelle} ({self.date_debut} - {self.date_fin})"
+        return f"Validation {self.etape} - {self.absence}"
 
-    def clean(self):
-        """Validation"""
-        if self.date_fin and self.date_debut and self.date_fin < self.date_debut:
-            raise ValidationError({
-                'date_fin': 'La date de fin doit être supérieure ou égale à la date de début.'
-            })
-
-
-# ==========================================
-# FONCTIONS UTILITAIRES
-# ==========================================
-
-def calculer_jours_ouvres(date_debut, date_fin):
-    """
-    Calcule le nombre de jours ouvrés entre deux dates
-    Exclut les week-ends et les jours fériés
-    """
-    from datetime import timedelta
-
-    nb_jours = 0
-    date_courante = date_debut
-
-    while date_courante <= date_fin:
-        # Vérifier si c'est un jour de semaine (0 = lundi, 6 = dimanche)
-        if date_courante.weekday() < 5:  # Lundi à vendredi
-            # Vérifier si ce n'est pas un jour férié
-            if not ZDJF.est_jour_ferie(date_courante):
-                nb_jours += 1
-
-        date_courante += timedelta(days=1)
-
-    return Decimal(str(nb_jours))
-
-
-def mettre_a_jour_solde_conges(employe, annee=None):
-    """
-    Met à jour le solde de congés d'un employé pour une année donnée
-    """
-    if annee is None:
-        annee = timezone.now().year
-
-    solde = ZDSO.get_or_create_solde(employe, annee)
-
-    # Calculer les jours pris (validés RH)
-    jours_pris = ZDDA.objects.filter(
-        employe=employe,
-        statut='VALIDEE_RH',
-        date_debut__year=annee,
-        type_absence__CODE__in=['CPN', 'RTT']  # Types qui déduisent du solde
-    ).aggregate(total=models.Sum('nombre_jours'))['total'] or Decimal('0.0')
-
-    # Calculer les jours en attente
-    jours_en_attente = ZDDA.objects.filter(
-        employe=employe,
-        statut__in=['EN_ATTENTE', 'VALIDEE_MANAGER'],
-        date_debut__year=annee,
-        type_absence__CODE__in=['CPN', 'RTT']
-    ).aggregate(total=models.Sum('nombre_jours'))['total'] or Decimal('0.0')
-
-    # Mettre à jour le solde
-    solde.jours_pris = jours_pris
-    solde.jours_en_attente = jours_en_attente
-    solde.calculer_soldes()
-
-    return solde

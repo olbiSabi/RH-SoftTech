@@ -12,6 +12,9 @@
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/dossier_individuel.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/dossier_individuel_base.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/absence/notifications.css' %}">
+    <!-- ✅ AJOUTER JQUERY ICI (AVANT TOUS LES SCRIPTS) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body data-employe-uuid="{% if employe %}{{ employe.uuid }}{% endif %}">
 <!-- Header -->
@@ -77,27 +80,27 @@
         <!-- Onglets -->
  <div class="tabs-wrapper">
     <div class="tabs">
-        <a href="{% url 'dossier_individuel_detail' employe.uuid %}?tab=donnees"
+        <a href="{% url 'employee:dossier_individuel_detail' employe.uuid %}?tab=donnees"
            class="tab {% if request.GET.tab == 'donnees' or not request.GET.tab %}active{% endif %}">
             <i class="fas fa-user"></i>
             <span class="tab-text">Données Agent</span>
         </a>
-        <a href="{% url 'dossier_individuel_detail' employe.uuid %}?tab=coordonnees"
+        <a href="{% url 'employee:dossier_individuel_detail' employe.uuid %}?tab=coordonnees"
            class="tab {% if request.GET.tab == 'coordonnees' %}active{% endif %}">
             <i class="fas fa-address-book"></i>
             <span class="tab-text">Coordonnées</span>
         </a>
-        <a href="{% url 'dossier_individuel_detail' employe.uuid %}?tab=contrats"
+        <a href="{% url 'employee:dossier_individuel_detail' employe.uuid %}?tab=contrats"
            class="tab {% if request.GET.tab == 'contrats' %}active{% endif %}">
             <i class="fas fa-file-contract"></i>
             <span class="tab-text">Contrats & Affectations</span>
         </a>
-        <a href="{% url 'dossier_individuel_detail' employe.uuid %}?tab=famille"
+        <a href="{% url 'employee:dossier_individuel_detail' employe.uuid %}?tab=famille"
            class="tab {% if request.GET.tab == 'famille' %}active{% endif %}">
             <i class="fas fa-users"></i>
             <span class="tab-text">Famille</span>
         </a>
-        <a href="{% url 'dossier_individuel_detail' employe.uuid %}?tab=documents"
+        <a href="{% url 'employee:dossier_individuel_detail' employe.uuid %}?tab=documents"
            class="tab {% if request.GET.tab == 'documents' %}active{% endif %}">
             <i class="fas fa-folder-open"></i>
             <span class="tab-text">Documents</span>
@@ -119,6 +122,8 @@
 {% endif %}
 
 <script src="{% static 'assets/js/dossier_individuel.js' %}"></script>
+<script src="{% static 'assets/js/absence/notifications.js' %}"></script>
+
 <script>
 
 document.addEventListener('DOMContentLoaded', function() {

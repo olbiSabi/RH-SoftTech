@@ -10,6 +10,7 @@
     <!-- Chargez les CSS un par un pour debug -->
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/dossier_individuel_base.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/absence/notifications.css' %}">
 </head>
 <body data-employe-uuid="{% if employe %}{{ employe.uuid }}{% endif %}">
 <!-- Header -->
@@ -159,23 +160,33 @@
                     <td>
                         <div style="display: flex; gap: 5px;">
                             {% if attribution.actif and not attribution.date_fin %}
-                                <button class="btn-action btn-retirer"
-                                        onclick="retirerRole('{{ attribution.pk }}', '{{ attribution.employe.nom }}', '{{ attribution.role.LIBELLE }}')"
-                                        title="Retirer le rôle">
-                                    <i class="fas fa-user-minus"></i>
-                                </button>
+                            <!-- Rôle actif : Retirer -->
+                            <button class="btn-action btn-retirer"
+                                    onclick="retirerRole('{{ attribution.pk }}', '{{ attribution.employe.nom }}', '{{ attribution.role.LIBELLE }}')"
+                                    title="Retirer le rôle">
+                                <i class="fas fa-user-minus"></i>
+                            </button>
                             {% else %}
-                                <button class="btn-action btn-reactiver"
-                                        onclick="reactiverRole('{{ attribution.pk }}', '{{ attribution.employe.nom }}', '{{ attribution.role.LIBELLE }}')"
-                                        title="Réactiver le rôle">
-                                    <i class="fas fa-user-check"></i>
-                                </button>
+                            <!-- Rôle inactif : Réactiver -->
+                            <button class="btn-action btn-reactiver"
+                                    onclick="reactiverRole('{{ attribution.pk }}', '{{ attribution.employe.nom }}', '{{ attribution.role.LIBELLE }}')"
+                                    title="Réactiver le rôle">
+                                <i class="fas fa-user-check"></i>
+                            </button>
                             {% endif %}
 
+                            <!-- ✅ Modifier (toujours disponible) -->
                             <button class="btn-action btn-modifier"
                                     onclick="ouvrirModalModification('{{ attribution.pk }}')"
                                     title="Modifier">
                                 <i class="fas fa-edit"></i>
+                            </button>
+
+                            <!-- ✅ NOUVEAU : Supprimer (toujours disponible) -->
+                            <button class="btn-action btn-supprimer"
+                                    onclick="supprimerRole('{{ attribution.pk }}', '{{ attribution.employe.nom }}', '{{ attribution.role.LIBELLE }}')"
+                                    title="Supprimer définitivement">
+                                <i class="fas fa-trash"></i>
                             </button>
                         </div>
                     </td>
@@ -297,6 +308,12 @@
     </div>
 </div>
 
+<!-- ✅ CHARGER JQUERY EN PREMIER -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- PUIS charger notifications.js -->
+<script src="{% static 'assets/js/absence/notifications.js' %}"></script>
+
 <script>
 function getCookie(name) {
     let cookieValue = null;
@@ -315,7 +332,6 @@ function getCookie(name) {
 
 function ouvrirModalAttribution() {
     document.getElementById('modalAttribution').classList.add('show');
-    // Définir la date d'aujourd'hui par défaut
     document.getElementById('date_debut').valueAsDate = new Date();
 }
 
@@ -333,25 +349,45 @@ function soumettreAttribution(event) {
     formData.append('date_debut', document.getElementById('date_debut').value);
     formData.append('commentaire', document.getElementById('commentaire').value);
 
-    fetch('/employee/roles/attribuer/', {
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
+
+    fetch("{% url 'employee:attribuer_role' %}", {
         method: 'POST',
         headers: {
             'X-CSRFToken': getCookie('csrftoken'),
         },
         body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(text => {
+                try {
+                    const json = JSON.parse(text);
+                    throw new Error(json.error || 'Erreur serveur');
+                } catch (e) {
+                    throw new Error(`Erreur ${response.status}`);
+                }
+            });
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             alert(data.message);
             location.reload();
         } else {
             alert('Erreur: ' + data.error);
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
         }
     })
     .catch(error => {
-        console.error('Erreur:', error);
-        alert('Une erreur est survenue');
+        alert('Erreur: ' + error.message);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
     });
 
     return false;
@@ -362,7 +398,7 @@ function retirerRole(attributionId, employeNom, roleLibelle) {
         return;
     }
 
-    fetch(`/employee/roles/retirer/${attributionId}/`, {
+    fetch(`{% url 'employee:retirer_role' 0 %}`.replace('0', attributionId), {
         method: 'POST',
         headers: {
             'X-CSRFToken': getCookie('csrftoken'),
@@ -378,7 +414,6 @@ function retirerRole(attributionId, employeNom, roleLibelle) {
         }
     })
     .catch(error => {
-        console.error('Erreur:', error);
         alert('Une erreur est survenue');
     });
 }
@@ -388,7 +423,7 @@ function reactiverRole(attributionId, employeNom, roleLibelle) {
         return;
     }
 
-    fetch(`/employee/roles/reactiver/${attributionId}/`, {
+    fetch(`{% url 'employee:reactiver_role' 0 %}`.replace('0', attributionId), {
         method: 'POST',
         headers: {
             'X-CSRFToken': getCookie('csrftoken'),
@@ -404,37 +439,26 @@ function reactiverRole(attributionId, employeNom, roleLibelle) {
         }
     })
     .catch(error => {
-        console.error('Erreur:', error);
         alert('Une erreur est survenue');
     });
 }
 
-// Fermer modal en cliquant en dehors
-window.onclick = function(event) {
-    const modal = document.getElementById('modalAttribution');
-    if (event.target === modal) {
-        fermerModalAttribution();
-    }
-}
-
-// Variable globale pour stocker les données de l'attribution en cours de modification
-let attributionEnModification = null;
-
-/**
- * Ouvrir le modal de modification
- */
+// ✅ FONCTION MODIFIER CORRIGÉE
 function ouvrirModalModification(attributionId) {
-    // Récupérer les données de l'attribution depuis la ligne du tableau
-    const row = event.target.closest('tr');
+    const row = window.event.target.closest('tr');
 
-    // Extraire les informations de la ligne
+    if (!row) {
+        console.error('Impossible de trouver la ligne du tableau');
+        alert('Erreur lors de l\'ouverture du formulaire de modification');
+        return;
+    }
+
     const employeCell = row.cells[0].querySelector('strong').textContent;
     const roleCell = row.cells[1].querySelector('span').textContent;
     const dateDebut = row.cells[2].textContent.trim();
     const dateFin = row.cells[3].textContent.trim();
     const commentaireCell = row.cells[5].textContent.trim();
 
-    // Convertir la date FR vers format ISO (YYYY-MM-DD)
     function convertirDateFRversISO(dateFR) {
         if (!dateFR || dateFR === '-') return '';
         const parts = dateFR.split('/');
@@ -444,7 +468,6 @@ function ouvrirModalModification(attributionId) {
         return '';
     }
 
-    // Remplir le formulaire
     document.getElementById('modification_attribution_id').value = attributionId;
     document.getElementById('modification_employe').value = employeCell;
     document.getElementById('modification_role').value = roleCell;
@@ -452,22 +475,14 @@ function ouvrirModalModification(attributionId) {
     document.getElementById('modification_date_fin').value = convertirDateFRversISO(dateFin);
     document.getElementById('modification_commentaire').value = commentaireCell !== '-' ? commentaireCell : '';
 
-    // Afficher le modal
     document.getElementById('modalModification').classList.add('show');
 }
 
-/**
- * Fermer le modal de modification
- */
 function fermerModalModification() {
     document.getElementById('modalModification').classList.remove('show');
     document.getElementById('formModification').reset();
-    attributionEnModification = null;
 }
 
-/**
- * Soumettre le formulaire de modification
- */
 function soumettreModification(event) {
     event.preventDefault();
 
@@ -477,7 +492,7 @@ function soumettreModification(event) {
     formData.append('date_fin', document.getElementById('modification_date_fin').value);
     formData.append('commentaire', document.getElementById('modification_commentaire').value);
 
-    fetch(`/employee/roles/modifier/${attributionId}/`, {
+    fetch(`{% url 'employee:modifier_role' 0 %}`.replace('0', attributionId), {
         method: 'POST',
         headers: {
             'X-CSRFToken': getCookie('csrftoken'),
@@ -495,14 +510,42 @@ function soumettreModification(event) {
         }
     })
     .catch(error => {
-        console.error('Erreur:', error);
         alert('Une erreur est survenue lors de la modification');
     });
 
     return false;
 }
 
-// Mettre à jour la fonction window.onclick pour gérer les 2 modals
+// ✅ NOUVELLE FONCTION SUPPRIMER
+function supprimerRole(attributionId, employeNom, roleLibelle) {
+    if (!confirm(`ATTENTION : Voulez-vous vraiment SUPPRIMER DÉFINITIVEMENT le rôle "${roleLibelle}" de ${employeNom} ?\n\nCette action est irréversible !`)) {
+        return;
+    }
+
+    if (!confirm(`Confirmez-vous la suppression définitive ?`)) {
+        return;
+    }
+
+    fetch(`{% url 'employee:supprimer_role' 0 %}`.replace('0', attributionId), {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Erreur: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('Une erreur est survenue lors de la suppression');
+    });
+}
+
 window.onclick = function(event) {
     const modalAttribution = document.getElementById('modalAttribution');
     const modalModification = document.getElementById('modalModification');

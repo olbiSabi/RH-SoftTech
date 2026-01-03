@@ -1,0 +1,434 @@
+/* static/assets/css/absence/acquisitions.css */
+
+/* ===== STATISTIQUES ===== */
+.card-stats {
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-stats:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.small-box .inner h3 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.small-box .inner p {
+    font-size: 1rem;
+    margin: 0;
+}
+
+.small-box .icon {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 4rem;
+    position: absolute;
+    right: 15px;
+    top: 15px;
+}
+
+/* ===== CARD CALCUL ===== */
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+}
+
+/* ===== FILTRES ===== */
+.card-header .form-inline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.card-header .input-group,
+.card-header .form-control {
+    max-width: 250px;
+}
+
+/* ===== TABLE ===== */
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+    transition: background-color 0.2s ease;
+}
+
+.table th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    color: #6c757d;
+    border-top: none;
+    white-space: nowrap;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.action-buttons {
+    white-space: nowrap;
+}
+
+.action-buttons .btn {
+    margin: 0 2px;
+}
+
+/* ===== BADGES ===== */
+.badge {
+    font-size: 0.85rem;
+    padding: 0.4em 0.6em;
+    font-weight: 500;
+}
+
+.badge-lg {
+    font-size: 0.95rem;
+    padding: 0.5em 0.8em;
+    font-weight: 600;
+}
+
+.badge i {
+    margin-right: 3px;
+}
+
+/* Badges colorés pour les valeurs */
+.badge-success {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.badge-primary {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.badge-info {
+    background-color: #17a2b8;
+    color: #fff;
+}
+
+.badge-secondary {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.badge-danger {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.badge-dark {
+    background-color: #343a40;
+    color: #fff;
+}
+
+/* ===== MODAL ===== */
+.modal-header {
+    border-bottom: none;
+}
+
+.modal-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+/* ===== DÉTAILS DANS LE MODAL ===== */
+.detail-row {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.25rem;
+}
+
+.detail-value {
+    color: #212529;
+    font-size: 1.1rem;
+}
+
+.detail-value.highlight {
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* ===== FORMULAIRE ===== */
+.form-group label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.form-control[readonly] {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+.form-text {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+/* ===== CUSTOM CHECKBOX ===== */
+.custom-control-label {
+    font-weight: 500;
+    color: #495057;
+    cursor: pointer;
+}
+
+.custom-control-input:checked ~ .custom-control-label::before {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+/* ===== BOUTONS ===== */
+.btn {
+    border-radius: 0.25rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #458487 0%, #25696d 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+.btn-info:hover {
+    background-color: #138496;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(23, 162, 184, 0.3);
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #212529;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    color: #212529;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.btn i {
+    margin-right: 5px;
+}
+
+.btn-sm i {
+    margin-right: 0;
+}
+
+/* ===== ALERTS ===== */
+.alert {
+    border-radius: 0.25rem;
+    border: none;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.alert-info i {
+    margin-right: 8px;
+}
+
+/* ===== PREVIEW JOURS RESTANTS ===== */
+#edit_jours_restants_preview {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #007bff;
+    background-color: #e7f3ff;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .small-box .icon {
+        font-size: 3rem;
+        right: 10px;
+        top: 10px;
+    }
+
+    .small-box .inner h3 {
+        font-size: 2rem;
+    }
+
+    .card-header .form-inline {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .card-header .input-group,
+    .card-header .form-control {
+        max-width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .table-responsive {
+        font-size: 0.85rem;
+    }
+
+    .action-buttons .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .badge-lg {
+        font-size: 0.85rem;
+        padding: 0.4em 0.6em;
+    }
+}
+
+@media (max-width: 576px) {
+    .content-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+    }
+
+    .modal-footer .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .modal-footer .btn:last-child {
+        margin-bottom: 0;
+    }
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal.show .modal-dialog {
+    animation: fadeIn 0.3s ease;
+}
+
+/* ===== LOADING STATE ===== */
+.btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.15em;
+}
+
+/* ===== SCROLLBAR PERSONNALISÉE ===== */
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.group-spaced{
+    margin-right: 5px !important;
+    border-radius: 0.25rem !important; /* Restaure les coins arrondis */
+}
+
+.input-group-append
+{
+    margin-left: 5px !important;
+}

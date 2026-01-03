@@ -1,7 +1,9 @@
+#employee/models.py
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.contrib.auth.models import Group, Permission
 import uuid
 import os
 
@@ -117,10 +119,52 @@ class ZY00(models.Model):
         verbose_name="Compte utilisateur"
     )
 
+    # 🔵 Lien vers l'entreprise (obligatoire pour les employés)
+    entreprise = models.ForeignKey(
+        'entreprise.Entreprise',
+        on_delete=models.PROTECT,  # Empêche la suppression si des employés existent
+        null=True,  # Temporairement null pour les employés existants
+        blank=True,
+        related_name='employes',
+        verbose_name="Entreprise",
+        help_text="Entreprise à laquelle l'employé est rattaché"
+    )
+
+    # 🔵 Convention personnalisée (optionnelle - surcharge de l'entreprise)
+    convention_personnalisee = models.ForeignKey(
+        'absence.ConfigurationConventionnelle',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='employes_personnalises',
+        verbose_name="Convention personnalisée",
+        help_text="Convention spécifique (prioritaire sur celle de l'entreprise)"
+    )
+
+    # 🔵 Date d'entrée dans l'entreprise (pour calcul ancienneté)
+    date_entree_entreprise = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name="Date d'entrée dans l'entreprise",
+        help_text="Date de première prise de service dans l'entreprise"
+    )
+
+    # 🔵 Coefficient temps de travail (pour temps partiel)
+    coefficient_temps_travail = models.DecimalField(
+        max_digits=3,
+        decimal_places=2,
+        default=1.00,
+        verbose_name="Coefficient temps travail",
+        help_text="1.00 = temps plein, 0.50 = mi-temps, etc."
+    )
+
     class Meta:
         db_table = 'ZY00'
         verbose_name = "Employé"
         verbose_name_plural = "Employés"
+        indexes = [
+            models.Index(fields=['entreprise', 'etat']),
+        ]
 
     def __str__(self):
         return f"{self.matricule} - {self.username} {self.prenomuser}" if self.username else f"{self.matricule} - {self.nom} {self.prenoms}"
@@ -208,6 +252,176 @@ class ZY00(models.Model):
         self.full_clean()
         super().save(*args, **kwargs)
 
+    @property
+    def convention_applicable(self):
+        """
+        Retourne la convention applicable à l'employé
+        Priorité : convention_personnalisee > entreprise.configuration_conventionnelle
+        """
+        if self.convention_personnalisee:
+            return self.convention_personnalisee
+        if self.entreprise and self.entreprise.configuration_conventionnelle:
+            return self.entreprise.configuration_conventionnelle
+        return None
+
+    @property
+    def anciennete_annees(self):
+        """Calcule l'ancienneté en années complètes"""
+        if not self.date_entree_entreprise:
+            return 0
+
+        aujourdhui = timezone.now().date()
+        delta = aujourdhui - self.date_entree_entreprise
+        return delta.days // 365
+
+    def est_manager_departement(self):
+        """
+        Vérifie si l'employé est manager d'un département (via ZYMA)
+        """
+        from departement.models import ZYMA
+        return ZYMA.objects.filter(
+            employe=self,
+            actif=True,
+            date_fin__isnull=True
+        ).exists()
+
+    def get_departements_geres(self):
+        """
+        Retourne les départements gérés par cet employé (s'il est manager)
+        """
+        from departement.models import ZYMA
+        if self.est_manager_departement():
+            return ZYMA.objects.filter(
+                employe=self,
+                actif=True,
+                date_fin__isnull=True
+            ).values_list('departement', flat=True)
+        return []
+
+    def get_subordonnes_hierarchiques(self):
+        """
+        Retourne tous les subordonnés (employés des départements gérés)
+        """
+        # Récupérer les départements gérés
+        departements_geres = self.get_departements_geres()
+        if not departements_geres:
+            return ZY00.objects.none()
+
+        # Récupérer les employés de ces départements (via leur affectation active)
+        subordonnes_ids = ZYAF.objects.filter(
+            poste__DEPARTEMENT__in=departements_geres,
+            date_fin__isnull=True,
+            employe__etat='actif'
+        ).exclude(employe=self).values_list('employe', flat=True).distinct()
+
+        return ZY00.objects.filter(id__in=subordonnes_ids)
+
+    def peut_valider_absence_rh(self):
+        """
+        Vérifie si l'employé peut valider les absences RH
+        UTILISE VOTRE SYSTÈME DE RÔLES EXISTANT (ZYRO)
+        """
+        return self.has_role('RH_VALIDATION') or self.has_permission('absence.valider_absence_rh')
+
+    def peut_valider_absence_manager(self):
+        """
+        Vérifie si l'employé peut valider les absences en tant que manager
+        UTILISE VOTRE SYSTÈME DE RÔLES EXISTANT (ZYRO)
+        """
+        return (self.has_role('MANAGER_ABSENCE') or
+                self.has_permission('absence.valider_absence_manager') or
+                self.est_manager_departement())
+
+    def est_manager_de(self, autre_employe):
+        """
+        Vérifie si cet employé est manager d'un autre employé
+        Basé sur ZYMA (manager de département) ET vérification que l'employé est dans ce département
+        """
+        try:
+            from departement.models import ZYMA
+
+            # 1. Vérifier si cet employé est manager d'un département
+            est_manager = ZYMA.objects.filter(
+                employe=self,
+                actif=True,
+                date_fin__isnull=True
+            ).exists()
+
+            if not est_manager:
+                return False  # Pas manager du tout
+
+            # 2. Vérifier si l'autre employé est dans un département géré
+            return autre_employe.est_dans_departement_manager(self)
+
+        except Exception as e:
+            print(f"Erreur dans est_manager_de: {e}")
+            return False
+
+    def est_dans_departement_manager(self, manager):
+        """
+        Vérifie si cet employé est dans un département géré par le manager
+        Basé sur ZYMA (managers) et ZYAF (affectations)
+        """
+        try:
+            # Éviter l'import circulaire
+            from django.apps import apps
+            ZYMA = apps.get_model('departement', 'ZYMA')
+            ZYAF = apps.get_model('employee', 'ZYAF')
+
+            # 1. Récupérer les départements gérés par le manager
+            departements_geres = ZYMA.objects.filter(
+                employe=manager,
+                actif=True,
+                date_fin__isnull=True
+            ).values_list('departement', flat=True)
+
+            if not departements_geres:
+                return False  # Le manager ne gère aucun département
+
+            # 2. Récupérer l'affectation active de l'employé
+            affectation_employe = ZYAF.objects.filter(
+                employe=self,
+                date_fin__isnull=True,
+                employe__etat='actif'
+            ).select_related('poste__DEPARTEMENT').first()
+
+            if not affectation_employe or not affectation_employe.poste.DEPARTEMENT:
+                return False  # L'employé n'a pas d'affectation active
+
+            # 3. Vérifier si le département de l'employé est dans ceux gérés par le manager
+            return affectation_employe.poste.DEPARTEMENT.id in departements_geres
+
+        except Exception as e:
+            print(f"Erreur dans est_dans_departement_manager: {e}")
+            return False
+
+    def get_manager_departement(self):
+        """
+        Retourne le manager du département de l'employé
+        """
+        try:
+            # Éviter l'import circulaire
+            from django.apps import apps
+            ZYMA = apps.get_model('departement', 'ZYMA')
+            ZYAF = apps.get_model('employee', 'ZYAF')
+
+            # Récupérer l'affectation active de l'employé
+            affectation = ZYAF.objects.filter(
+                employe=self,
+                date_fin__isnull=True
+            ).select_related('poste__DEPARTEMENT').first()
+
+            if affectation and affectation.poste.DEPARTEMENT:
+                # Récupérer le manager actif de ce département
+                manager_zyma = ZYMA.get_manager_actif(affectation.poste.DEPARTEMENT)
+                if manager_zyma:
+                    return manager_zyma.employe
+
+            return None
+        except Exception as e:
+            print(f"Erreur get_manager_departement: {e}")
+            return None
+
     def get_photo_url(self):
         """Retourne l'URL de la photo ou une photo par défaut"""
         if self.photo and hasattr(self.photo, 'url'):
@@ -250,10 +464,6 @@ class ZY00(models.Model):
             statut='actif',
             date_fin__isnull=True
         ).exists()
-
-    """
-    Méthodes à ajouter au modèle ZY00 dans employee/models.py
-    """
 
     def has_role(self, role_code):
         """
@@ -301,19 +511,34 @@ class ZY00(models.Model):
     def has_permission(self, permission_name):
         """
         Vérifie si l'employé a une permission spécifique via ses rôles
+        Cherche dans Django Groups ET dans les permissions custom
 
         Args:
-            permission_name (str): Nom de la permission (ex: 'can_validate_rh')
+            permission_name (str): Nom de la permission
+                - Format Django: 'app_label.codename' ou juste 'codename'
+                - Format custom: 'can_validate_rh', 'zdda.delete', etc.
 
         Returns:
             bool: True si au moins un des rôles actifs a cette permission
 
-        Exemple:
-            if employe.has_permission('can_validate_rh'):
-                # Peut valider en tant que RH
+        Exemples:
+            if employe.has_permission('absence.validate_absence_rh'):  # Django
+            if employe.has_permission('can_validate_rh'):  # Custom
         """
         from employee.models import ZYRE
 
+        # 1. Vérifier dans les permissions Django natives de l'utilisateur
+        if self.user:
+            if self.user.has_perm(permission_name):
+                return True
+
+            # Vérifier aussi avec le format court si format long fourni
+            if '.' in permission_name:
+                _, codename = permission_name.split('.', 1)
+                if self.user.has_perm(permission_name):
+                    return True
+
+        # 2. Vérifier dans les rôles ZYRO (Django Groups + Custom)
         roles_actifs = ZYRE.objects.filter(
             employe=self,
             actif=True,
@@ -382,7 +607,48 @@ class ZY00(models.Model):
             date_fin=date.today()
         )
 
-    # Ajouter ces méthodes à la classe ZY00 dans employee/models.py
+    def peut_gerer_parametrage_app(self):
+        """
+        Vérifie si l'employé peut gérer le paramétrage de l'application
+        (GESTION_APP uniquement)
+        """
+        return self.has_role('GESTION_APP')
+
+    def peut_gerer_parametrage_absence(self):
+        """Alias pour la gestion des absences"""
+        return self.has_role('GESTION_APP')
+
+    def peut_gerer_parametrage_entreprise(self):
+        """Alias pour la gestion de l'entreprise"""
+        return self.has_role('GESTION_APP')
+
+    def est_drh(self):
+        """Vérifie si l'employé est DRH"""
+        return self.has_role('DRH') or self.has_role('GESTION_APP')
+
+    def est_assistant_rh(self):
+        """Vérifie si l'employé est assistant RH"""
+        return self.has_role('ASSISTANT_RH')
+
+    def peut_gerer_employes(self):
+        """
+        Vérifie si l'employé peut accéder au menu Salariés
+        (DRH, GESTION_APP, ASSISTANT_RH)
+        """
+        return (
+                self.has_role('DRH') or
+                self.has_role('GESTION_APP') or
+                self.has_role('ASSISTANT_RH') or
+                self.has_role('RH_VALIDATION_ABS')
+        )
+
+    def peut_embaucher(self):
+        """
+        Vérifie si l'employé peut embaucher
+        (DRH et GESTION_APP uniquement)
+        """
+        return self.has_role('DRH') or self.has_role('GESTION_APP')
+
 
 ######################
 ###  Security  ###
@@ -1435,12 +1701,26 @@ class ZYRO(models.Model):
         null=True,
         verbose_name="Description du rôle"
     )
-    PERMISSIONS = models.JSONField(
+
+    # ✅ NOUVEAU : Lien avec Django Groups
+    django_group = models.OneToOneField(
+        Group,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='role_zyro',
+        verbose_name="Groupe Django associé",
+        help_text="Groupe Django pour les permissions natives"
+    )
+
+    # ✅ RENOMMÉ : PERMISSIONS → PERMISSIONS_CUSTOM
+    PERMISSIONS_CUSTOM = models.JSONField(
         default=dict,
         blank=True,
-        verbose_name="Permissions associées",
-        help_text="Ex: {'can_validate_rh': True, 'can_validate_manager': True}"
+        verbose_name="Permissions personnalisées",
+        help_text="Permissions métier non gérées par Django. Ex: {'can_validate_rh': True}"
     )
+
     actif = models.BooleanField(
         default=True,
         verbose_name="Rôle actif"
@@ -1453,13 +1733,52 @@ class ZYRO(models.Model):
         verbose_name = "Rôle"
         verbose_name_plural = "Rôles"
         ordering = ['CODE']
+        # ✅ NOUVEAU : Permissions Django natives sur le modèle ZYRO
+        permissions = [
+            ('manage_roles', 'Peut gérer les rôles'),
+            ('assign_roles', 'Peut attribuer des rôles'),
+            ('view_all_roles', 'Peut voir tous les rôles'),
+        ]
 
     def __str__(self):
         return f"{self.CODE} - {self.LIBELLE}"
 
+    # ✅ NOUVEAU : Synchroniser avec Django Groups
+    def sync_to_django_group(self):
+        """Synchronise le rôle avec le groupe Django"""
+        if not self.django_group:
+            # Créer le groupe Django
+            group, created = Group.objects.get_or_create(
+                name=f"ROLE_{self.CODE}"
+            )
+            self.django_group = group
+            self.save()
+
+        return self.django_group
+
+    # ✅ MODIFIÉ : Vérifier dans Django OU custom
     def has_permission(self, permission_name):
-        """Vérifie si le rôle a une permission spécifique"""
-        return self.PERMISSIONS.get(permission_name, False)
+        """
+        Vérifie si le rôle a une permission spécifique
+        Cherche d'abord dans les permissions Django, puis dans les permissions custom
+        """
+        # 1. Vérifier dans les permissions Django
+        if self.django_group:
+            # Format Django complet : 'app_label.codename'
+            if '.' in permission_name:
+                app_label, codename = permission_name.split('.', 1)
+                if self.django_group.permissions.filter(
+                        content_type__app_label=app_label,
+                        codename=codename
+                ).exists():
+                    return True
+            # Format court : juste le codename
+            else:
+                if self.django_group.permissions.filter(codename=permission_name).exists():
+                    return True
+
+        # 2. Vérifier dans les permissions custom
+        return self.PERMISSIONS_CUSTOM.get(permission_name, False)
 
 
 class ZYRE(models.Model):
@@ -1512,7 +1831,8 @@ class ZYRE(models.Model):
         verbose_name = "Attribution de rôle"
         verbose_name_plural = "Attributions de rôles"
         ordering = ['-date_debut']
-        unique_together = [['employe', 'role', 'actif']]
+        # ✅ RETIRER unique_together qui cause des problèmes
+        # unique_together = [['employe', 'role', 'actif']]  # À RETIRER
 
     def __str__(self):
         return f"{self.employe.nom} - {self.role.CODE}"
@@ -1521,8 +1841,8 @@ class ZYRE(models.Model):
         """Validation: une seule attribution active par rôle et employé"""
         from django.core.exceptions import ValidationError
 
+        # ✅ Vérification améliorée
         if self.actif and not self.date_fin:
-            # Vérifier qu'il n'y a pas déjà une attribution active
             existing = ZYRE.objects.filter(
                 employe=self.employe,
                 role=self.role,
@@ -1534,4 +1854,20 @@ class ZYRE(models.Model):
                 raise ValidationError(
                     f"L'employé a déjà le rôle {self.role.CODE} actif."
                 )
+
+    def save(self, *args, **kwargs):
+        # ✅ APPELER clean() avant la sauvegarde
+        if not kwargs.pop('skip_validation', False):
+            self.full_clean()
+
+        super().save(*args, **kwargs)
+
+        # Synchroniser avec les groupes Django
+        if hasattr(self.employe, 'user') and self.employe.user:
+            if self.actif and not self.date_fin:
+                if self.role.django_group:
+                    self.employe.user.groups.add(self.role.django_group)
+            else:
+                if self.role.django_group:
+                    self.employe.user.groups.remove(self.role.django_group)
 

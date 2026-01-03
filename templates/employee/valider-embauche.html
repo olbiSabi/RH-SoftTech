@@ -64,13 +64,13 @@
                 {{ employe.nom }} {{ employe.prenoms }}
             </h1>
             <div>
-                <a href="{% url 'liste_employes' %}" class="btn btn-secondary">
+                <a href="{% url 'employee:liste_employes' %}" class="btn btn-secondary">
                     <i class="bi bi-arrow-left"></i> Retour
                 </a>
-                <a href="{% url 'modifier_employe' employe.uuid %}" class="btn btn-warning">
+                <a href="{% url 'employee:modifier_employe' employe.uuid %}" class="btn btn-warning">
                     <i class="bi bi-pencil"></i> Modifier
                 </a>
-                <a href="{% url 'supprimer_employe' employe.uuid %}" class="btn btn-danger"
+                <a href="{% url 'employee:supprimer_employe' employe.uuid %}" class="btn btn-danger"
                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet employé ?')">
                     <i class="bi bi-trash"></i> Supprimer
                 </a>
@@ -83,7 +83,7 @@
                     <i class="bi bi-person-vcard"></i> Informations personnelles
                 </h5>
                 {% if employe.type_dossier == 'PRE' %}
-                    <a href="{% url 'valider_embauche' employe.uuid %}" class="btn btn-success">
+                    <a href="{% url 'employee:valider_embauche' employe.uuid %}" class="btn btn-success">
                         <i class="bi bi-check-circle"></i> Valider l'embauche
                     </a>
                 {% else %}

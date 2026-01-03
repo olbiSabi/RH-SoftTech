@@ -1,0 +1,365 @@
+
+    .validation-card {
+        transition: all 0.3s ease;
+    }
+
+    .validation-card:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .employee-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .employee-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #e0e0e0;
+    }
+
+    .absence-period {
+        font-size: 0.9em;
+        color: #666;
+    }
+
+    .validation-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    /* ✅ STATS CARD OPTIMISÉ POUR 3 COLONNES */
+    .stats-card {
+        background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+        color: white;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        box-shadow: 0 8px 25px rgba(28, 93, 95, 0.4);
+    }
+
+    .stats-card .row {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 20px 30px;
+        position: relative;
+    }
+
+    /* ✅ Séparateurs verticaux entre les stats */
+    .stat-item:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 60px;
+        width: 2px;
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .stat-number {
+        font-size: 3em;
+        font-weight: bold;
+        text-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        line-height: 1;
+        margin-bottom: 10px;
+    }
+
+    .stat-label {
+        font-size: 1em;
+        opacity: 0.95;
+        margin-top: 8px;
+        font-weight: 300;
+        letter-spacing: 0.5px;
+    }
+
+    /* ✅ Icônes pour chaque stat (optionnel) */
+    .stat-item::before {
+        display: block;
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        font-size: 1.5em;
+        margin-bottom: 10px;
+        opacity: 0.6;
+    }
+
+    .stat-item:nth-child(1)::before {
+        content: "\f0ae"; /* fa-tasks */
+    }
+
+    .stat-item:nth-child(2)::before {
+        content: "\f0c0"; /* fa-users */
+    }
+
+    .stat-item:nth-child(3)::before {
+        content: "\f073"; /* fa-calendar-alt */
+    }
+
+    .department-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        background: #e3f2fd;
+        color: #1976d2;
+        border-radius: 6px;
+        font-size: 0.9em;
+        font-weight: 500;
+        margin: 4px;
+        transition: all 0.2s ease;
+    }
+
+    .department-badge:hover {
+        background: #bbdefb;
+        transform: translateY(-1px);
+    }
+
+    .manager-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        background: #d4edda;
+        color: #155724;
+        border-radius: 4px;
+        font-size: 0.8em;
+        font-weight: 500;
+    }
+
+    /* ✅ Cards d'absence */
+    .validation-card {
+        background: #fff;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        padding: 20px;
+        border-left: 4px solid #1c5d5f;
+    }
+
+    .validation-card:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Badge de statut */
+    .badge-info {
+        background-color: #1c5d5f;
+        padding: 5px 10px;
+    }
+
+    /* Boutons d'action */
+    .validation-buttons .btn-sm {
+        font-size: 0.875rem;
+        padding: 0.4rem 0.8rem;
+        transition: all 0.2s ease;
+    }
+
+    .validation-buttons button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    /* ✅ RESPONSIVE : Mobile */
+    @media (max-width: 992px) {
+        .stats-card {
+            padding: 20px 15px;
+        }
+
+        .stats-card .row {
+            flex-direction: column;
+        }
+
+        .stat-item {
+            width: 100%;
+            padding: 20px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Retirer les séparateurs verticaux en mobile */
+        .stat-item::after {
+            display: none;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .employee-info {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .validation-buttons {
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .validation-buttons .btn-sm {
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .validation-card {
+            padding: 15px;
+        }
+
+        .stat-number {
+            font-size: 2em;
+        }
+    }
+
+    /* État de chargement */
+    .spinner-border {
+        width: 3rem;
+        height: 3rem;
+    }
+
+    /* Modals avec gradients */
+    #validationModalHeader.bg-success {
+        background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%) !important;
+    }
+
+    #validationModalHeader.bg-danger {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+    }
+
+    /* Alert département */
+    .alert-info {
+        background-color: #e8f4f8;
+        border-color: #1c5d5f;
+        color: #0c3d3f;
+        border-radius: 8px;
+    }
+
+    .alert-info .department-badge {
+        margin: 5px;
+    }
+
+
+
+    /* ✅ FORCER L'AFFICHAGE DU MODAL DYNAMIQUE */
+    #validationModalDynamic {
+        z-index: 1050 !important;
+    }
+
+    #validationModalDynamic .modal-dialog {
+        z-index: 1051 !important;
+    }
+
+    .modal-backdrop {
+        z-index: 1040 !important;
+    }
+
+    /* ✅ Assurer que le modal est visible */
+    .modal.show {
+        display: block !important;
+    }
+
+    .modal.show .modal-dialog {
+        transform: translate(0, 0) !important;
+    }
+
+    /* ✅ Centrage vertical du modal */
+    .modal-dialog-centered {
+        display: flex;
+        align-items: center;
+        min-height: calc(100% - 1rem);
+    }
+
+    /* ✅ Amélioration visuelle des modals */
+    #validationModalDynamic .modal-content {
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+
+    #validationModalDynamic .modal-header.bg-success {
+        background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%) !important;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+
+    #validationModalDynamic .modal-header.bg-danger {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+
+
+    /* ✅ FORCER L'AFFICHAGE DU MODAL */
+    #validationModalDynamic.show {
+        display: block !important;
+        opacity: 1 !important;
+    }
+
+    #validationBackdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1040;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    #validationModalDynamic {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1050;
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden;
+        overflow-y: auto;
+        outline: 0;
+    }
+
+    #validationModalDynamic .modal-dialog {
+        position: relative;
+        width: auto;
+        margin: 1.75rem auto;
+        pointer-events: none;
+    }
+
+    #validationModalDynamic.show .modal-dialog {
+        pointer-events: auto;
+    }
+
+    #validationModalDynamic .modal-content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        pointer-events: auto;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid rgba(0,0,0,.2);
+        border-radius: 10px;
+        outline: 0;
+    }
+
+    /* Effet de mise en évidence */
+.highlight-card {
+    background-color: #fff3cd !important;
+    border-left: 4px solid #ffc107 !important;
+    animation: pulse 1s ease-in-out 3;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7);
+    }
+    50% {
+        transform: scale(1.02);
+        box-shadow: 0 0 20px 0 rgba(255, 193, 7, 0.4);
+    }
+}

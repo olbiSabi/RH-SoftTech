@@ -1,0 +1,524 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+    <link rel="stylesheet" href="{% static 'assets/css/absence/jours_feries.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="fas fa-calendar-day text-ferie"></i>
+                Gestion des Jours Fériés
+            </h1>
+            <p class="text-muted mb-0">
+                <i class="fas fa-info-circle"></i>
+                Définissez les jours fériés légaux et spécifiques à l'entreprise
+            </p>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="row mb-4">
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="card stat-card stat-total">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Total</div>
+                            <div class="stat-value">{{ total }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="card stat-card stat-actif">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Actifs</div>
+                            <div class="stat-value">{{ actifs }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="card stat-card stat-inactif">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Inactifs</div>
+                            <div class="stat-value">{{ inactifs }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="card stat-card stat-legal">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon">
+                            <i class="fas fa-gavel"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Légaux</div>
+                            <div class="stat-value">{{ legaux }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="card stat-card stat-entreprise">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Entreprise</div>
+                            <div class="stat-value">{{ entreprise }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="card stat-card stat-current">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Année {{ annee_courante }}</div>
+                            <div class="stat-value">
+                                {{ jours_feries|length }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres et Actions -->
+    <div class="card mb-4 filter-card">
+        <div class="card-body">
+            <form method="GET" id="filterForm" class="row g-3 align-items-end">
+                <!-- Recherche -->
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <label for="search" class="form-label">
+                        <i class="fas fa-search"></i> Rechercher
+                    </label>
+                    <input type="text"
+                           class="form-control form-control-sm"
+                           id="search"
+                           name="search"
+                           value="{{ search }}"
+                           placeholder="Nom du jour férié...">
+                </div>
+
+                <!-- Année -->
+                <div class="col-xl-2 col-lg-3 col-md-6">
+                    <label for="annee" class="form-label">
+                        <i class="fas fa-calendar"></i> Année
+                    </label>
+                    <select class="form-control form-control-sm" id="annee" name="annee">
+                        <option value="">Toutes les années</option>
+                        {% for annee in annees %}
+                        <option value="{{ annee }}" {% if annee_filter == annee|stringformat:"s" %}selected{% endif %}>
+                            {{ annee }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Type -->
+                <div class="col-xl-2 col-lg-3 col-md-6">
+                    <label for="type" class="form-label">
+                        <i class="fas fa-tag"></i> Type
+                    </label>
+                    <select class="form-control form-control-sm" id="type" name="type">
+                        <option value="">Tous les types</option>
+                        <option value="LEGAL" {% if type_filter == 'LEGAL' %}selected{% endif %}>
+                            Légal
+                        </option>
+                        <option value="ENTREPRISE" {% if type_filter == 'ENTREPRISE' %}selected{% endif %}>
+                            Entreprise
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Statut -->
+                <div class="col-xl-2 col-lg-3 col-md-6">
+                    <label for="actif" class="form-label">
+                        <i class="fas fa-toggle-on"></i> Statut
+                    </label>
+                    <select class="form-control form-control-sm" id="actif" name="actif">
+                        <option value="">Tous</option>
+                        <option value="oui" {% if actif_filter == 'oui' %}selected{% endif %}>
+                            Actifs uniquement
+                        </option>
+                        <option value="non" {% if actif_filter == 'non' %}selected{% endif %}>
+                            Inactifs uniquement
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Boutons -->
+                <div class="col-xl-3 col-lg-12">
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-filter"></i> Filtrer
+                        </button>
+                        <a href="{% url 'absence:liste_jours_feries' %}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-redo"></i> Réinitialiser
+                        </a>
+                        <button type="button" class="btn btn-success btn-sm" onclick="openCreateModal()">
+                            <i class="fas fa-plus"></i> Nouveau Jour Férié
+                        </button>
+                        <button type="button" class="btn btn-info btn-sm" onclick="openDuplicateModal()">
+                            <i class="fas fa-copy"></i> Dupliquer Année
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table des jours fériés -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%">#</th>
+                            <th style="width: 25%">Nom</th>
+                            <th style="width: 12%">Date</th>
+                            <th style="width: 10%">Jour</th>
+                            <th style="width: 10%">Type</th>
+                            <th style="width: 10%">Récurrent</th>
+                            <th style="width: 10%">Statut</th>
+                            <th style="width: 18%" class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if jours_feries %}
+                            {% for jour in jours_feries %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>
+                                    <strong>{{ jour.nom }}</strong>
+                                    {% if jour.description %}
+                                    <br>
+                                    <small class="text-muted">{{ jour.description|truncatewords:10 }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">
+                                        {{ jour.date|date:"d/m/Y" }}
+                                    </span>
+                                    <br>
+                                    <small class="text-muted">{{ jour.mois_nom }} {{ jour.annee }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        {{ jour.jour_semaine }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if jour.type_ferie == 'LEGAL' %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-gavel"></i> Légal
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-info">
+                                        <i class="fas fa-building"></i> Entreprise
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if jour.recurrent %}
+                                    <span class="badge bg-primary">
+                                        <i class="fas fa-sync-alt"></i> Oui
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">
+                                        <i class="fas fa-times"></i> Non
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if jour.actif %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check-circle"></i> Actif
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-times-circle"></i> Inactif
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-spaced" role="group">
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-primary"
+                                                onclick="openEditModal({{ jour.id }})"
+                                                title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-secondary"
+                                                onclick="toggleJourFerie({{ jour.id }})"
+                                                title="{% if jour.actif %}Désactiver{% else %}Activer{% endif %}">
+                                            <i class="fas fa-toggle-{% if jour.actif %}on{% else %}off{% endif %}"></i>
+                                        </button>
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteJourFerie({{ jour.id }}, '{{ jour.nom|escapejs }}')"
+                                                title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center py-5">
+                                    <div class="text-muted">
+                                        <i class="fas fa-calendar-times fa-3x mb-3 d-block"></i>
+                                        <h5>Aucun jour férié trouvé</h5>
+                                        <p>Commencez par créer votre premier jour férié</p>
+                                        <button type="button" class="btn btn-success mt-2" onclick="openCreateModal()">
+                                            <i class="fas fa-plus"></i> Créer un jour férié
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal Création/Édition -->
+<div class="modal fade" id="jourFerieModal" tabindex="-1" aria-labelledby="jourFerieModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-ferie text-white">
+                <h5 class="modal-title" id="jourFerieModalLabel">
+                    <i class="fas fa-calendar-day"></i>
+                    <span id="modalTitle">Nouveau Jour Férié</span>
+                </h5>
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                        onclick="resetForm()"></button>
+            </div>
+            <div class="modal-body">
+                <form id="jourFerieForm">
+                    <input type="hidden" id="jourFerieId" name="id">
+
+                    <!-- Informations de base -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <strong><i class="fas fa-info-circle"></i> Informations de Base</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group mb-3">
+                                        <label for="nom" class="form-label">
+                                            Nom du jour férié <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text"
+                                               class="form-control"
+                                               id="nom"
+                                               name="nom"
+                                               placeholder="Ex: Jour de l'an, Fête du travail..."
+                                               required>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label for="date" class="form-label">
+                                            Date <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="date"
+                                               class="form-control"
+                                               id="date"
+                                               name="date"
+                                               required>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="type_ferie" class="form-label">
+                                            Type <span class="text-danger">*</span>
+                                        </label>
+                                        <select class="form-control" id="type_ferie" name="type_ferie" required>
+                                            <option value="LEGAL">Légal (Code du travail)</option>
+                                            <option value="ENTREPRISE">Spécifique à l'entreprise</option>
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="form-label d-block">Options</label>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   id="recurrent"
+                                                   name="recurrent"
+                                                   checked>
+                                            <label class="form-check-label" for="recurrent">
+                                                <i class="fas fa-sync-alt"></i> Récurrent
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   id="actif"
+                                                   name="actif"
+                                                   checked>
+                                            <label class="form-check-label" for="actif">
+                                                <i class="fas fa-check-circle"></i> Actif
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-0">
+                                <label for="description" class="form-label">
+                                    Description
+                                </label>
+                                <textarea class="form-control"
+                                          id="description"
+                                          name="description"
+                                          rows="3"
+                                          placeholder="Informations complémentaires..."></textarea>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aide -->
+                    <div class="alert alert-info">
+                        <i class="fas fa-lightbulb"></i>
+                        <strong>Astuce :</strong>
+                        Cochez "Récurrent" pour que ce jour férié puisse être dupliqué automatiquement d'une année à l'autre.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+                <button type="button" class="btn btn-success" onclick="saveJourFerie()">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Duplication d'année -->
+<div class="modal fade" id="duplicateModal" tabindex="-1" aria-labelledby="duplicateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="duplicateModalLabel">
+                    <i class="fas fa-copy"></i> Dupliquer les Jours Fériés
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    Cette fonction copie tous les jours fériés <strong>récurrents</strong> d'une année vers une autre.
+                </div>
+
+                <form id="duplicateForm">
+                    <div class="form-group mb-3">
+                        <label for="annee_source" class="form-label">
+                            Année source <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-control" id="annee_source" name="annee_source" required>
+                            <option value="">Sélectionner l'année source</option>
+                            {% for annee in annees %}
+                            <option value="{{ annee }}">{{ annee }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="annee_cible" class="form-label">
+                            Année cible <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-control" id="annee_cible" name="annee_cible" required>
+                            <option value="">Sélectionner l'année cible</option>
+                            {% for annee in annees %}
+                            <option value="{{ annee }}">{{ annee }}</option>
+                            {% endfor %}
+                            <!-- Ajouter années futures -->
+                            <option value="{{ annee_courante|add:1 }}">{{ annee_courante|add:1 }}</option>
+                            <option value="{{ annee_courante|add:2 }}">{{ annee_courante|add:2 }}</option>
+                        </select>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Les jours fériés existants dans l'année cible ne seront pas dupliqués.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+                <button type="button" class="btn btn-info" onclick="duplicateJoursFeries()">
+                    <i class="fas fa-copy"></i> Dupliquer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extrascript %}
+    <script src="{% static 'assets/js/absence/jours_feries.js' %}"></script>
+{% endblock %}

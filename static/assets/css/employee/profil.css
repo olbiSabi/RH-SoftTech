@@ -1,0 +1,201 @@
+
+/* Styles pour le profil */
+.profile-header {
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+    padding: 30px 0;
+    margin-bottom: 30px;
+    border-radius: 10px;
+}
+.profile-photo-wrapper {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 20px;
+}
+.profile-photo {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+.photo-upload-btn {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #1c5d5f;
+    color: white;
+    border: 3px solid white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+.photo-upload-btn:hover {
+    background: #193f41;
+    transform: scale(1.1);
+}
+.profile-name {
+    color: white;
+    text-align: center;
+    margin-bottom: 10px;
+}
+.profile-name h2 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 600;
+}
+.profile-name p {
+    margin: 5px 0;
+    opacity: 0.9;
+}
+.info-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.info-card h3 {
+    color: #1c5d5f;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f0f0;
+}
+.info-row {
+    display: flex;
+    padding: 12px 0;
+    border-bottom: 1px solid #f5f5f5;
+}
+.info-row:last-child {
+    border-bottom: none;
+}
+.info-label {
+    font-weight: 600;
+    color: #555;
+    min-width: 180px;
+}
+.info-value {
+    color: #333;
+    flex: 1;
+}
+.badge-custom {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+.badge-success-custom {
+    background: #d4edda;
+    color: #155724;
+}
+.badge-warning-custom {
+    background: #fff3cd;
+    color: #856404;
+}
+.badge-info-custom {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+.absence-card {
+    border-left: 4px solid #1c5d5f;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+.absence-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.contact-urgence-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: all 0.3s;
+}
+.contact-urgence-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+.priorite-badge {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 30px;
+    font-weight: bold;
+    color: white;
+}
+.priorite-1 { background: #28a745; }
+.priorite-2 { background: #ffc107; }
+.priorite-3 { background: #6c757d; }
+
+
+/* Style pour le input file personnalisé */
+.custom-file-input:lang(fr) ~ .custom-file-label::after {
+    content: "Parcourir";
+}
+
+.custom-file-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* Barre de progression pour le solde */
+.solde-progress {
+    height: 30px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+    margin-top: 15px;
+}
+
+.solde-progress-bar {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    transition: width 0.3s ease;
+}
+
+.solde-progress-pris {
+    background: linear-gradient(90deg, #ff6b6b 0%, #ff8787 100%);
+}
+
+.solde-progress-restant {
+    background: linear-gradient(90deg, #51cf66 0%, #69db7c 100%);
+}
+
+.solde-legend {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+}
+
+.solde-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.solde-legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+}

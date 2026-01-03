@@ -17,22 +17,111 @@
             <!-- Menu Horizontal -->
             <nav class="horizontal-menu">
                 <ul class="menu-list">
+
+                    <!-- ========================================
+                         MENU SALARIÉS
+                         Visible pour : DRH, GESTION_APP, ASSISTANT_RH
+                         ======================================== -->
+                    {% if user.is_authenticated and user.employe %}
+                        {% if user.employe.peut_gerer_employes or user.is_superuser or user.is_staff %}
+                        <li class="menu-item">
+                            <a href="#" class="menu-link">
+                                <i class="fas fa-users"></i>
+                                <span>Salariés</span>
+                                <i class="fas fa-chevron-down menu-arrow"></i>
+                            </a>
+                            <ul class="submenu">
+                                <!-- Embaucher agent : DRH/GESTION_APP/Admin uniquement -->
+                                {% if user.employe.peut_embaucher or user.is_superuser or user.is_staff %}
+                                <li>
+                                    <a href="{% url 'employee:embauche_agent' %}">
+                                        <i class="fas fa-file-contract"></i>Embaucher agent
+                                    </a>
+                                </li>
+                                {% endif %}
+
+                                <!-- Liste agents : DRH/GESTION_APP/Admin uniquement -->
+                                {% if user.employe.peut_embaucher or user.is_superuser or user.is_staff %}
+                                <li>
+                                    <a href="{% url 'employee:liste_employes' %}">
+                                        <i class="fas fa-clipboard-check"></i>Liste agents
+                                    </a>
+                                </li>
+                                {% endif %}
+
+                                <!-- Dossier individuel : Tous les rôles RH (y compris Assistant RH) -->
+                                <li>
+                                    <a href="{% url 'employee:dossier_individuel' %}">
+                                        <i class="fas fa-check-circle"></i>Dossier individuel
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        {% endif %}
+                    {% endif %}
+
+                    <!-- ========================================
+                        MENU ABSENCE
+                        Visible pour : Tout le monde
+                    ======================================== -->
                     <li class="menu-item">
                         <a href="#" class="menu-link">
-                            <i class="fas fa-users"></i>
-                            <span>Salariés</span>
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Absence</span>
                             <i class="fas fa-chevron-down menu-arrow"></i>
                         </a>
                         <ul class="submenu">
-                            <li><a href="{% url 'embauche_agent' %}"><i class="fas fa-file-contract"></i>Embaucher agent</a></li>
-                            <li><a href="{% url 'liste_employes' %}"><i class="fas fa-clipboard-check"></i>Liste agents</a></li>
-                            <li><a href="{% url 'dossier_individuel' %}"><i class="fas fa-check-circle"></i>dossier individuel</a></li>
-                            <li><a href="{% url 'absence:employe_demandes' %}"><i class="fas fa-umbrella-beach"></i>Demande de congé</a></li>
-                            <li><a href="{% url 'absence:manager_validation' %}"><i class="fas fa-clipboard-check"></i>Validation de congé</a></li>
-                            <li><a href="{% url 'absence:rh_validation' %}"><i class="fas fa-clipboard-check"></i>Validation RH</a></li>
+                            <!-- Acquisition congé : DRH, GESTION_APP uniquement -->
+                            {% if user.is_authenticated and user.employe %}
+                                {% if user.employe.peut_embaucher or user.employe.peut_gerer_parametrage_app or user.is_superuser %}
+                                <li>
+                                    <a href="{% url 'absence:liste_acquisitions' %}">
+                                        <i class="fas fa-calendar-check"></i>Acquisition congé
+                                    </a>
+                                </li>
+                                {% endif %}
+                            {% endif %}
+
+                            <!-- Demande d'absence : Visible pour tout le monde -->
+                            <li>
+                                <a href="{% url 'absence:liste_absences' %}">
+                                    <i class="fas fa-calendar-plus"></i>Demande d'absence
+                                </a>
+                            </li>
+
+                            <!-- Validation manager : MANAGER_ABS + Managers de département -->
+                            {% if user.employe.est_manager_departement %}
+                            <li>
+                                <a href="{% url 'absence:validation_manager' %}">
+                                    <i class="fas fa-user-check"></i>Validation manager
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            <!-- Validation RH : RH_VALIDATION_ABS, DRH, GESTION_APP -->
+                            {% if user.employe.peut_valider_absence_rh %}
+                            <li>
+                                <a href="{% url 'absence:validation_rh' %}">
+                                    <i class="fas fa-user-shield"></i>Validation RH
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            <!-- Consultation absences : ASSISTANT_RH, RH_VALIDATION_ABS, DRH, GESTION_APP -->
+                            {% if user.employe.est_assistant_rh or user.employe.peut_valider_absence_rh or user.employe.peut_gerer_parametrage_app %}
+                            <li>
+                                <a href="{% url 'absence:consultation_absences' %}">
+                                    <i class="fas fa-eye"></i>Consulter absences
+                                </a>
+                            </li>
+                            {% endif %}
                         </ul>
                     </li>
 
+                    <!-- ========================================
+                         MENU RAPPORTS
+                         Visible pour : Tout le monde
+                         ======================================== -->
                     <li class="menu-item">
                         <a href="#" class="menu-link">
                             <i class="fas fa-chart-bar"></i>
@@ -45,7 +134,12 @@
                             <li><a href="#"><i class="fas fa-calendar-alt"></i> Rapport annuel</a></li>
                         </ul>
                     </li>
-
+                    <!-- ========================================
+                       MENU PARAMÈTRES
+                       Visible UNIQUEMENT pour : DRH, GESTION_APP, Admin
+                    ======================================== -->
+                    {% if user.is_authenticated and user.employe %}
+                    {% if user.employe.peut_embaucher or user.employe.peut_gerer_parametrage_app or user.is_superuser or user.employe.est_assistant_rh%}
                     <li class="menu-item">
                         <a href="#" class="menu-link">
                             <i class="fas fa-cog"></i>
@@ -53,91 +147,152 @@
                             <i class="fas fa-chevron-down menu-arrow"></i>
                         </a>
                         <ul class="submenu">
-                            <li><a href="{% url 'list' %}"><i class="fas fa-briefcase"></i>Département</a></li>
-                            <li><a href="{% url 'poste_list' %}"><i class="fas fa-id-card"></i>Poste</a></li>
-                            <li><a href="{% url 'absence_list' %}"><i class="fas fa-plane"></i>Type d'absence</a></li>
-                            <li><a href="{% url 'liste_managers' %}"><i class="fas fa-user-tie"></i> managers</a></li>
-                            <li><a href="{% url 'gestion_roles' %}"><i class="fas fa-crown"></i>Gestion de rôles</a></li>
+                            <!-- Département : DRH, GESTION_APP uniquement -->
+                            <li>
+                                <a href="{% url 'departement:list' %}">
+                                    <i class="fas fa-briefcase"></i>Département
+                                </a>
+                            </li>
+
+                            <!-- Poste : DRH, GESTION_APP uniquement -->
+                            <li>
+                                <a href="{% url 'departement:poste_list' %}">
+                                    <i class="fas fa-id-card"></i>Poste
+                                </a>
+                            </li>
+                            <!-- Managers : DRH, GESTION_APP uniquement -->
+                            <li>
+                                <a href="{% url 'departement:liste_managers' %}">
+                                    <i class="fas fa-user-tie"></i>Managers
+                                </a>
+                            </li>
+
+                            <!-- ====== SECTION RÉSERVÉE GESTION_APP ====== -->
+                            {% if user.employe.peut_gerer_parametrage_app or user.is_superuser %}
+
+                            <!-- Entreprise : GESTION_APP uniquement -->
+                            <li>
+                                <a href="{% url 'entreprise:profil_entreprise' %}">
+                                    <i class="fas fa-building"></i>Entreprise
+                                </a>
+                            </li>
+                            <!-- Gestion de rôles : GESTION_APP uniquement -->
+                            <li>
+                                <a href="{% url 'employee:gestion_roles' %}">
+                                    <i class="fas fa-user-shield"></i>Gestion de rôles
+                                </a>
+                            </li>
+                            <!-- Type d'absence : GESTION_APP uniquement -->
+                            <li>
+                                <a href="{% url 'absence:liste_types_absence' %}">
+                                    <i class="fas fa-calendar-times"></i>Type d'absence
+                                </a>
+                            </li>
+
+                            <!-- Conventions : GESTION_APP uniquement -->
+                            <li>
+                                <a href="{% url 'absence:liste_conventions' %}">
+                                    <i class="fas fa-umbrella-beach"></i>Conventions
+                                </a>
+                            </li>
+                            <!-- Jours fériés : GESTION_APP uniquement -->
+                            <li>
+                                <a href="{% url 'absence:liste_jours_feries' %}">
+                                    <i class="fas fa-calendar-day"></i>Jours fériés
+                                </a>
+                            </li>
+                            <!-- Paramètres calculs : GESTION_APP uniquement -->
+                            <li>
+                                <a href="{% url 'absence:liste_parametres_calcul' %}">
+                                    <i class="fas fa-calculator"></i>Paramètres calculs
+                                </a>
+                            </li>
+
+                            {% endif %}
                         </ul>
                     </li>
+                    {% endif %} {% endif %}
                 </ul>
             </nav>
         </div>
-
         <div class="header-right">
-            <!-- 🆕 SYSTÈME DE NOTIFICATIONS AMÉLIORÉ -->
+            <!-- ✅ NOTIFICATIONS -->
             {% if user.is_authenticated %}
-            <div class="notifications-container">
-                <button class="notification-bell" id="notificationBell">
+            <div class="notifications-dropdown">
+                <button class="notifications-btn" id="notificationsBtn">
                     <i class="fas fa-bell"></i>
-                    {% if nb_notifications_non_lues > 0 %}
-                    <span class="notification-badge">{{ nb_notifications_non_lues }}</span>
+                    {% if notifications_absences_count > 0 %}
+                    <span class="notifications-badge">{{ notifications_absences_count }}</span>
                     {% endif %}
                 </button>
 
-                <div class="notification-dropdown" id="notificationDropdown">
-                    <div class="notification-header">
-                        <h3><i class="fas fa-bell"></i> Notifications</h3>
-                        {% if nb_notifications_non_lues > 0 %}
-                        <button class="mark-all-read" id="markAllRead">
-                            <i class="fas fa-check-double"></i> Tout marquer comme lu
-                        </button>
+                <div class="notifications-menu" id="notificationsMenu">
+                    <div class="notifications-header">
+                        <h4>Notifications</h4>
+                        {% if notifications_absences_count > 0 %}
+                        <a href="{% url 'absence:marquer_toutes_lues' %}" class="mark-all-read">
+                            Tout marquer comme lu
+                        </a>
                         {% endif %}
                     </div>
 
-                    <div class="notification-list">
-                        {% if notifications_non_lues %}
-                            {% for notif in notifications_non_lues %}
-                            <div class="notification-item {% if not notif.lue %}unread{% endif %}"
-                                 data-notification-id="{{ notif.id }}"
-                                 data-notification-link="{% if notif.lien %}{{ notif.lien }}{% else %}#{% endif %}">
-                                <div class="notification-icon">
-                                    {% if notif.type_notification == 'ABSENCE_NOUVELLE' %}
-                                        <i class="fas fa-calendar-plus" style="color: #f59e0b;"></i>
-                                    {% elif 'VALIDEE' in notif.type_notification %}
-                                        <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                                    {% elif 'REJETEE' in notif.type_notification %}
-                                        <i class="fas fa-times-circle" style="color: #ef4444;"></i>
-                                    {% else %}
-                                        <i class="fas fa-info-circle" style="color: #3b82f6;"></i>
-                                    {% endif %}
-                                </div>
-                                <div class="notification-content">
-                                    <div class="notification-title">{{ notif.titre }}</div>
-                                    <div class="notification-message">{{ notif.message|truncatewords:15 }}</div>
-                                    {% if notif.demande_absence %}
-                                    <div class="notification-details">
-                                        <i class="fas fa-calendar"></i>
-                                        {{ notif.demande_absence.date_debut|date:"d/m/Y" }} - {{ notif.demande_absence.date_fin|date:"d/m/Y" }}
-                                        <span class="notification-days">
-                                            ({{ notif.demande_absence.nombre_jours|floatformat:0 }} jour{{ notif.demande_absence.nombre_jours|floatformat:0|pluralize }})
-                                        </span>
-                                    </div>
-                                    {% endif %}
-                                    <div class="notification-time">
-                                        <i class="fas fa-clock"></i> {{ notif.date_creation|timesince }}
-                                    </div>
-                                </div>
-                                {% if not notif.lue %}
-                                <div class="notification-unread-dot"></div>
+                    <div class="notifications-list">
+                        {% if notifications_absences %}
+                        {% for notif in notifications_absences %}
+                        <a href="{% url 'absence:notification_detail' notif.id %}"
+                           class="notification-item {% if not notif.lue %}unread{% endif %}">
+                            <div class="notification-icon">
+                                {% if notif.contexte == 'MANAGER' %}
+                                <i class="fas fa-user-tie text-primary"></i>
+                                {% elif notif.contexte == 'RH' %}
+                                <i class="fas fa-user-shield text-success"></i>
+                                {% else %}
+                                {% if notif.type_notification == 'DEMANDE_CREEE' %}
+                                <i class="fas fa-plus-circle text-info"></i>
+                                {% elif notif.type_notification == 'DEMANDE_VALIDEE_MANAGER' %}
+                                <i class="fas fa-user-check text-info"></i>
+                                {% elif notif.type_notification == 'VALIDATION_MANAGER' %}
+                                <i class="fas fa-check-circle text-success"></i>
+                                {% elif notif.type_notification == 'VALIDATION_RH' %}
+                                <i class="fas fa-check-double text-success"></i>
+                                {% elif 'REJET' in notif.type_notification %}
+                                <i class="fas fa-times-circle text-danger"></i>
+                                {% elif notif.type_notification == 'ABSENCE_ANNULEE' %}
+                                <i class="fas fa-ban text-warning"></i>
+                                {% endif %}
                                 {% endif %}
                             </div>
-                            {% endfor %}
-                        {% else %}
-                            <div class="notification-empty">
-                                <i class="fas fa-bell-slash"></i>
-                                <p>Aucune nouvelle notification</p>
+                            <div class="notification-content">
+                                <div class="notification-message">
+                                    {% if notif.contexte %}
+                                    <span class="context-badge context-{{ notif.contexte|lower }}">
+                                        {{ notif.get_contexte_display }}
+                                    </span>
+                                    {% endif %}
+                                    {{ notif.message }}
+                                </div>
+                                <div class="notification-time">
+                                    {{ notif.date_creation|timesince }}
+                                </div>
                             </div>
+                        </a>
+                        {% endfor %}
+                        {% else %}
+                        <div class="notification-empty">
+                            <i class="fas fa-bell-slash"></i>
+                            <p>Aucune notification</p>
+                        </div>
                         {% endif %}
                     </div>
 
-                    {% if notifications_non_lues %}
-                    <div class="notification-footer">
-                        <a href="{% url 'absence:liste_notifications' %}" class="view-all-notifications">
-                            <i class="fas fa-list"></i> Voir toutes les notifications
+                    <div class="notifications-footer">
+                        <a href="{% url 'absence:toutes_notifications' %}" class="notification-see-all">
+                            <i class="fas fa-history"></i> Voir toutes les notifications
+                            {% if notifications_absences_count > 5 %}
+                            ({{ notifications_absences_count }})
+                            {% endif %}
                         </a>
                     </div>
-                    {% endif %}
                 </div>
             </div>
             {% endif %}
@@ -167,18 +322,18 @@
                         </a>
                         <ul class="submenu">
                             <li>
-                                <a href="{% url 'profile-employee' %}">
+                                <a href="{% url 'employee:profil' request.user.employe.matricule %}">
                                     <i class="fas fa-user-circle"></i> Mon Profil
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'change_password' %}">
+                                    <i class="fas fa-key"></i> Changer mot de passe
                                 </a>
                             </li>
                             <li>
                                 <a href="{% url 'logout' %}">
                                     <i class="fas fa-power-off"></i> Déconnexion
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{% url 'change_password' %}">
-                                    <i class="fas fa-key"></i> Change password
                                 </a>
                             </li>
                         </ul>

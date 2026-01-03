@@ -173,7 +173,7 @@
                         <button type="button" class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#confirmModal">
                             <i class="bi bi-trash-fill"></i> Oui, supprimer définitivement
                         </button>
-                        <a href="{% url 'liste_employes' %}" class="btn btn-secondary btn-lg">
+                        <a href="{% url 'employee:liste_employes' %}" class="btn btn-secondary btn-lg">
                             <i class="bi bi-arrow-left"></i> Non, annuler et retourner
                         </a>
                     </div>
@@ -185,9 +185,9 @@
                         <i class="bi bi-info-circle"></i>
                         <small>
                             Vous pouvez également retourner à la
-                            <a href="{% url 'liste_employes' %}">liste des employés</a>
+                            <a href="{% url 'employee:liste_employes' %}">liste des employés</a>
                             ou consulter la
-                            <a href="{% url 'detail_employe' object.uuid %}">fiche de l'employé</a>.
+                            <a href="{% url 'employee:detail_employe' object.uuid %}">fiche de l'employé</a>.
                         </small>
                     </p>
                 </div>

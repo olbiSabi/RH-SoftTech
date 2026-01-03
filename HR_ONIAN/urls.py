@@ -26,11 +26,11 @@ from employee.auth_views import (
     CustomPasswordResetConfirmView,
     change_password_view
 )
-app_name = 'employee'
+
 
 urlpatterns = [
     path('hronian/', admin.site.urls),
-
+    path('entreprise/', include('entreprise.urls')),
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
     path('dashboard/', dashboard_view, name='dashboard'),
@@ -44,7 +44,7 @@ urlpatterns = [
     path('', RedirectView.as_view(pattern_name='login', permanent=False), name='home'),
 
     # URLs des applications
-    path('employe/', include('employee.urls')),
+    path('employe/', include('employee.urls', namespace='employee')),
     path('absence/', include('absence.urls')),
     path('projet/', include('projet.urls')),
     path('client/', include('client.urls')),

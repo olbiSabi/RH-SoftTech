@@ -1,149 +1,334 @@
-"""
-Décorateurs basés sur les rôles
-À remplacer dans absence/decorators.py
-"""
-
+# absence/decorators.py
 from functools import wraps
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 
-def role_required(*role_codes):
+def drh_or_admin_required(view_func):
     """
-    Décorateur pour vérifier qu'un utilisateur a au moins un des rôles spécifiés
+    Décorateur pour autoriser uniquement les DRH, PDG ou superusers
+    """
+    @wraps(view_func)
+    @login_required
+    def wrapper(request, *args, **kwargs):
+        user = request.user
+
+        # Superuser = toujours autorisé
+        if user.is_superuser:
+            return view_func(request, *args, **kwargs)
+
+        # Vérifier si l'utilisateur a un employé lié
+        if not hasattr(user, 'employe'):
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Vous n\'avez pas les permissions nécessaires'
+                }, status=403)
+            messages.error(request, '❌ Vous n\'avez pas les permissions nécessaires')
+            return redirect('dashboard')
+
+        employe = user.employe
+
+        # Vérifier si l'employé a le rôle DRH ou PDG
+        if employe.has_role('DRH') or employe.has_role('PDG'):
+            return view_func(request, *args, **kwargs)
+
+        # Accès refusé
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': 'Vous devez avoir le rôle DRH ou PDG pour accéder à cette fonctionnalité'
+            }, status=403)
+
+        messages.error(
+            request,
+            '❌ Vous devez avoir le rôle DRH ou PDG pour accéder à cette fonctionnalité'
+        )
+        return redirect('dashboard')
+
+    return wrapper
+
+
+def manager_required(view_func):
+    """
+    Décorateur pour autoriser uniquement les managers
+    """
+    @wraps(view_func)
+    @login_required
+    def wrapper(request, *args, **kwargs):
+        user = request.user
+
+        # Superuser = toujours autorisé
+        if user.is_superuser:
+            return view_func(request, *args, **kwargs)
+
+        # Vérifier si l'utilisateur a un employé lié
+        if not hasattr(user, 'employe'):
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Vous n\'avez pas les permissions nécessaires'
+                }, status=403)
+            messages.error(request, '❌ Vous n\'avez pas les permissions nécessaires')
+            return redirect('absence:liste_absences')
+
+        employe = user.employe
+
+        # Vérifier si l'employé est manager de département
+        if employe.est_manager_departement():
+            return view_func(request, *args, **kwargs)
+
+        # Accès refusé
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': 'Vous devez être manager pour accéder à cette fonctionnalité'
+            }, status=403)
+
+        messages.error(
+            request,
+            '❌ Vous devez être manager pour accéder à cette fonctionnalité'
+        )
+        return redirect('absence:liste_absences')
+
+    return wrapper
+
+
+def rh_required(view_func):
+    """
+    Décorateur pour autoriser uniquement les RH
+    """
+    @wraps(view_func)
+    @login_required
+    def wrapper(request, *args, **kwargs):
+        user = request.user
+
+        # Superuser = toujours autorisé
+        if user.is_superuser:
+            return view_func(request, *args, **kwargs)
+
+        # Vérifier si l'utilisateur a un employé lié
+        if not hasattr(user, 'employe'):
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Vous n\'avez pas les permissions nécessaires'
+                }, status=403)
+            messages.error(request, '❌ Vous n\'avez pas les permissions nécessaires')
+            return redirect('absence:liste_absences')
+
+        employe = user.employe
+
+        # Vérifier si l'employé a le rôle RH
+        if employe.peut_valider_absence_rh():
+            return view_func(request, *args, **kwargs)
+
+        # Accès refusé
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': 'Vous devez avoir le rôle RH pour accéder à cette fonctionnalité'
+            }, status=403)
+
+        messages.error(
+            request,
+            '❌ Vous devez avoir le rôle RH pour accéder à cette fonctionnalité'
+        )
+        return redirect('absence:liste_absences')
+
+    return wrapper
+
+
+def assistant_rh_required(view_func):
+    """
+    Décorateur pour autoriser les Assistants RH et rôles RH supérieurs
+    (consultation uniquement)
+    """
+    @wraps(view_func)
+    @login_required
+    def wrapper(request, *args, **kwargs):
+        user = request.user
+
+        # Superuser = toujours autorisé
+        if user.is_superuser:
+            return view_func(request, *args, **kwargs)
+
+        # Vérifier si l'utilisateur a un employé lié
+        if not hasattr(user, 'employe'):
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Vous n\'avez pas les permissions nécessaires'
+                }, status=403)
+            messages.error(request, '❌ Vous n\'avez pas les permissions nécessaires')
+            return redirect('absence:liste_absences')
+
+        employe = user.employe
+
+        # Vérifier si l'employé a le rôle ASSISTANT_RH ou rôles supérieurs
+        if (employe.has_role('ASSISTANT_RH') or
+            employe.has_role('RH_VALIDATION_ABS') or
+            employe.has_role('DRH') or
+            employe.has_role('GESTION_APP')):
+            return view_func(request, *args, **kwargs)
+
+        # Accès refusé
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': 'Vous devez avoir un rôle RH pour accéder à cette fonctionnalité'
+            }, status=403)
+
+        messages.error(
+            request,
+            '❌ Vous devez avoir un rôle RH pour accéder à cette fonctionnalité'
+        )
+        return redirect('absence:liste_absences')
+
+    return wrapper
+
+
+def gestion_app_required(view_func):
+    """
+    Décorateur pour autoriser uniquement les gestionnaires d'application
+    """
+    @wraps(view_func)
+    @login_required
+    def wrapper(request, *args, **kwargs):
+        user = request.user
+
+        # Superuser = toujours autorisé
+        if user.is_superuser:
+            return view_func(request, *args, **kwargs)
+
+        # Vérifier si l'utilisateur a un employé lié
+        if not hasattr(user, 'employe'):
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Vous n\'avez pas les permissions nécessaires'
+                }, status=403)
+            messages.error(request, '❌ Vous n\'avez pas les permissions nécessaires')
+            return redirect('dashboard')
+
+        employe = user.employe
+
+        # Vérifier si l'employé a le rôle GESTION_APP
+        if employe.peut_gerer_parametrage_app():
+            return view_func(request, *args, **kwargs)
+
+        # Accès refusé
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': 'Vous devez avoir le rôle Gestionnaire Application pour accéder à cette fonctionnalité'
+            }, status=403)
+
+        messages.error(
+            request,
+            '❌ Vous devez avoir le rôle Gestionnaire Application pour accéder à cette fonctionnalité'
+        )
+        return redirect('dashboard')
+
+    return wrapper
+
+
+def manager_or_rh_required(view_func):
+    """
+    Décorateur pour autoriser les managers OU les RH
+    """
+    @wraps(view_func)
+    @login_required
+    def wrapper(request, *args, **kwargs):
+        user = request.user
+
+        # Superuser = toujours autorisé
+        if user.is_superuser:
+            return view_func(request, *args, **kwargs)
+
+        # Vérifier si l'utilisateur a un employé lié
+        if not hasattr(user, 'employe'):
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Vous n\'avez pas les permissions nécessaires'
+                }, status=403)
+            messages.error(request, '❌ Vous n\'avez pas les permissions nécessaires')
+            return redirect('absence:liste_absences')
+
+        employe = user.employe
+
+        # Vérifier si manager OU RH
+        if employe.est_manager_departement() or employe.peut_valider_absence_rh():
+            return view_func(request, *args, **kwargs)
+
+        # Accès refusé
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': 'Vous devez être manager ou RH pour accéder à cette fonctionnalité'
+            }, status=403)
+
+        messages.error(
+            request,
+            '❌ Vous devez être manager ou RH pour accéder à cette fonctionnalité'
+        )
+        return redirect('absence:liste_absences')
+
+    return wrapper
+
+
+def role_required(*required_roles):
+    """
+    Décorateur générique pour vérifier plusieurs rôles
 
     Usage:
-        @role_required('DRH')
-        def rh_validation(request):
-            ...
-
-        @role_required('DRH', 'DIRECTEUR')  # DRH OU DIRECTEUR
+        @role_required('ASSISTANT_RH', 'RH_VALIDATION_ABS', 'DRH', 'GESTION_APP')
         def ma_vue(request):
             ...
     """
     def decorator(view_func):
         @wraps(view_func)
+        @login_required
         def wrapper(request, *args, **kwargs):
-            # Vérifier si l'utilisateur est connecté
-            if not request.user.is_authenticated:
-                #messages.warning(request, "Vous devez être connecté pour accéder à cette page.")
-                return redirect('login')
+            user = request.user
 
-            # Les staff et superusers ont accès à tout
-            if request.user.is_staff or request.user.is_superuser:
+            # Superuser = toujours autorisé
+            if user.is_superuser:
                 return view_func(request, *args, **kwargs)
 
-            # Vérifier si l'utilisateur a un employé
-            try:
-                employe = request.user.employe
-
-                # Vérifier si l'employé a au moins un des rôles requis
-                for role_code in role_codes:
-                    if employe.has_role(role_code):
-                        return view_func(request, *args, **kwargs)
-
-                # Aucun rôle requis trouvé
-                roles_str = " ou ".join(role_codes)
-                #messages.error(request,f"Accès refusé. Cette page nécessite le rôle : {roles_str}")
+            # Vérifier si l'utilisateur a un employé lié
+            if not hasattr(user, 'employe'):
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'Vous n\'avez pas les permissions nécessaires'
+                    }, status=403)
+                messages.error(request, '❌ Vous n\'avez pas les permissions nécessaires')
                 return redirect('dashboard')
 
-            except AttributeError:
-                #messages.error(request, "Accès refusé. Vous n'avez pas de profil employé associé.")
-                return redirect('dashboard')
+            employe = user.employe
 
-        return wrapper
-    return decorator
-
-
-def permission_required(permission_name):
-    """
-    Décorateur pour vérifier qu'un utilisateur a une permission spécifique
-
-    Usage:
-        @permission_required('can_validate_rh')
-        def rh_validation(request):
-            ...
-    """
-    def decorator(view_func):
-        @wraps(view_func)
-        def wrapper(request, *args, **kwargs):
-            if not request.user.is_authenticated:
-                #messages.warning(request, "Vous devez être connecté pour accéder à cette page.")
-                return redirect('login')
-
-            # Staff et superusers ont toutes les permissions
-            if request.user.is_staff or request.user.is_superuser:
-                return view_func(request, *args, **kwargs)
-
-            try:
-                employe = request.user.employe
-
-                if employe.has_permission(permission_name):
+            # Vérifier si l'employé a au moins un des rôles requis
+            for role in required_roles:
+                if employe.has_role(role):
                     return view_func(request, *args, **kwargs)
 
-                #messages.error(request,f"Accès refusé. Permission requise : {permission_name}")
-                return redirect('dashboard')
+            # Accès refusé
+            roles_str = ', '.join(required_roles)
+            error_message = f'Vous devez avoir l\'un de ces rôles : {roles_str}'
 
-            except AttributeError:
-                #messages.error(request, "Accès refusé. Vous n'avez pas de profil employé associé.")
-                return redirect('dashboard')
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'error': error_message
+                }, status=403)
+
+            messages.error(request, f'❌ {error_message}')
+            return redirect('dashboard')
 
         return wrapper
+
     return decorator
-
-
-# Décorateurs spécifiques pour faciliter l'utilisation
-def drh_required(view_func):
-    """
-    Décorateur spécifique pour le rôle DRH
-    Équivalent à @role_required('DRH')
-    """
-    return role_required('DRH')(view_func)
-
-
-def manager_required(view_func):
-    """
-    Décorateur spécifique pour le rôle MANAGER
-    """
-    return role_required('MANAGER')(view_func)
-
-
-# Fonctions utilitaires
-def user_has_role(user, role_code):
-    """
-    Vérifie si un utilisateur a un rôle spécifique
-
-    Args:
-        user: L'utilisateur Django
-        role_code: Code du rôle (ex: 'DRH')
-
-    Returns:
-        bool: True si l'utilisateur a ce rôle
-    """
-    if user.is_staff or user.is_superuser:
-        return True
-
-    try:
-        return user.employe.has_role(role_code)
-    except AttributeError:
-        return False
-
-
-def user_has_permission(user, permission_name):
-    """
-    Vérifie si un utilisateur a une permission spécifique
-
-    Args:
-        user: L'utilisateur Django
-        permission_name: Nom de la permission (ex: 'can_validate_rh')
-
-    Returns:
-        bool: True si l'utilisateur a cette permission
-    """
-    if user.is_staff or user.is_superuser:
-        return True
-
-    try:
-        return user.employe.has_permission(permission_name)
-    except AttributeError:
-        return False

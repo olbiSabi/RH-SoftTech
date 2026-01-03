@@ -74,7 +74,6 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-
     </style>
 {% endblock %}
 
@@ -107,56 +106,99 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1><i class="bi bi-person-badge"></i> {{ employe.nom }} {{ employe.prenoms }}</h1>
             <div>
-                <a href="{% url 'liste_employes' %}" class="btn btn-secondary ">
+                <a href="{% url 'employee:liste_employes' %}" class="btn btn-secondary ">
                     <i class="bi bi-arrow-left"></i> Retour
                 </a>
             </div>
         </div>
 
         <div class="card mb-3">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-person-vcard"></i> Informations personnelles</h5>
-                {% if employe.type_dossier == 'PRE' %}
-                    <a href="{% url 'valider_embauche' employe.uuid %}" class="btn btn-success">
-                        <i class="bi bi-check-circle"></i> Valider l'embauche
-                    </a>
-                {% else %}
-                    <span class="badge bg-success">
-                        <i class="bi bi-check-circle-fill"></i> Employé validé
-                    </span>
-                {% endif %}
-                <div class="pro-edit">
-                    <a href="{% url 'modifier_employe' employe.uuid %}"  class="icon-btn edit-btn">
-                    <i class="fa-solid fa-pencil"></i> </a>
-                </div>
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-person-vcard"></i> Informations personnelles</h5>
+        {% if employe.type_dossier == 'PRE' %}
+            <a href="{% url 'employee:valider_embauche' employe.uuid %}" class="btn btn-success">
+                <i class="bi bi-check-circle"></i> Valider l'embauche
+            </a>
+        {% else %}
+            <span class="badge bg-success">
+                <i class="bi bi-check-circle-fill"></i> Employé validé
+            </span>
+        {% endif %}
+        <div class="pro-edit">
+            <a href="{% url 'employee:modifier_employe' employe.uuid %}"  class="icon-btn edit-btn">
+            <i class="fa-solid fa-pencil"></i> </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong><i class="bi bi-upc"></i> Matricule:</strong> {{ employe.matricule }}</p>
+                <p><strong><i class="bi bi-person"></i> Nom:</strong> {{ employe.nom }}</p>
+                <p><strong><i class="bi bi-person-fill"></i> Prénom(s):</strong> {{ employe.prenoms }}</p>
+                <p><strong><i class="bi bi-calendar"></i> Date de naissance:</strong> {{ employe.date_naissance|date:"d/m/Y" }}</p>
+                <p><strong><i class="bi bi-gender-ambiguous"></i> Sexe:</strong> {{ employe.get_sexe_display }}</p>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong><i class="bi bi-upc"></i> Matricule:</strong> {{ employe.matricule }}</p>
-                        <p><strong><i class="bi bi-person"></i> Nom:</strong> {{ employe.nom }}</p>
-                        <p><strong><i class="bi bi-person-fill"></i> Prénom(s):</strong> {{ employe.prenoms }}</p>
-                        <p><strong><i class="bi bi-calendar"></i> Date de naissance:</strong> {{ employe.date_naissance|date:"d/m/Y" }}</p>
-                        <p><strong><i class="bi bi-gender-ambiguous"></i> Sexe:</strong> {{ employe.get_sexe_display }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong><i class="bi bi-heart"></i> Situation familiale:</strong> {{ employe.get_situation_familiale_display|default:"Non renseignée" }}</p>
-                        <p><strong><i class="bi bi-file-text"></i> Type de dossier:</strong>
-                            {% if employe.type_dossier == 'PRE' %}
-                                <span class="badge bg-warning text-dark">Pré-embauche</span>
-                            {% else %}
-                                <span class="badge bg-success">Salarié</span>
-                            {% endif %}
-                        </p>
-                        {% if employe.date_validation_embauche %}
-                        <p><strong><i class="bi bi-check-circle"></i> Date de validation:</strong> {{ employe.date_validation_embauche|date:"d/m/Y" }}</p>
-                        {% endif %}
-                        <p><strong><i class="bi bi-card-text"></i> Type d'ID:</strong> {{ employe.get_type_id_display }}</p>
-                        <p><strong><i class="bi bi-123"></i> Numéro ID:</strong> {{ employe.numero_id }}</p>
-                    </div>
-                </div>
+            <div class="col-md-6">
+                <p><strong><i class="bi bi-heart"></i> Situation familiale:</strong> {{ employe.get_situation_familiale_display|default:"Non renseignée" }}</p>
+                <p><strong><i class="bi bi-file-text"></i> Type de dossier:</strong>
+                    {% if employe.type_dossier == 'PRE' %}
+                        <span class="badge bg-warning text-dark">Pré-embauche</span>
+                    {% else %}
+                        <span class="badge bg-success">Salarié</span>
+                    {% endif %}
+                </p>
+                {% if employe.date_validation_embauche %}
+                <p><strong><i class="bi bi-check-circle"></i> Date de validation:</strong> {{ employe.date_validation_embauche|date:"d/m/Y" }}</p>
+                {% endif %}
+                <p><strong><i class="bi bi-card-text"></i> Type d'ID:</strong> {{ employe.get_type_id_display }}</p>
+                <p><strong><i class="bi bi-123"></i> Numéro ID:</strong> {{ employe.numero_id }}</p>
             </div>
         </div>
+
+        <!-- NOUVELLE LIGNE POUR LES CHAMPS AJOUTÉS -->
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <p><strong><i class="bi bi-percent"></i> Coefficient temps travail:</strong>
+                    <span class="badge
+                        {% if employe.coefficient_temps_travail == 1.00 %}bg-success
+                        {% elif employe.coefficient_temps_travail >= 0.80 %}bg-primary
+                        {% elif employe.coefficient_temps_travail >= 0.50 %}bg-warning text-dark
+                        {% else %}bg-secondary{% endif %}">
+                        {{ employe.coefficient_temps_travail }}
+                        {% if employe.coefficient_temps_travail == 1.00 %}(Temps plein)
+                        {% elif employe.coefficient_temps_travail == 0.50 %}(Mi-temps)
+                        {% else %}(Temps partiel){% endif %}
+                    </span>
+                </p>
+                <p><strong><i class="bi bi-clock-history"></i> Date d'entrée:</strong>
+                    {% if employe.date_entree_entreprise %}
+                        {{ employe.date_entree_entreprise|date:"d/m/Y" }}
+                    {% else %}
+                        <span class="text-muted">Non renseignée</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p><strong><i class="bi bi-file-earmark-text"></i> Convention applicable:</strong>
+                    {% if employe.convention_applicable %}
+                        {{ employe.convention_applicable.nom }}
+                        <span class="badge
+                            {% if employe.convention_personnalisee %}bg-warning text-dark
+                            {% else %}bg-info{% endif %}">
+                            {% if employe.convention_personnalisee %}Personnalisée
+                            {% else %}Entreprise{% endif %}
+                        </span>
+                    {% else %}
+                        <span class="text-muted">Aucune convention définie</span>
+                    {% endif %}
+                </p>
+                <p><strong><i class="bi bi-calendar-week"></i> Ancienneté totale:</strong>
+                    {{ employe.anciennete_annees }} an{{ employe.anciennete_annees|pluralize:"s" }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
 
         <!-- Contrats -->
         <div class="card mb-3">

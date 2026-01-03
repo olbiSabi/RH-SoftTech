@@ -104,7 +104,7 @@
         </div>
 
         <div class="mb-3">
-            <a href="{% url 'embauche_agent' %}" class="btn btn-primary">
+            <a href="{% url 'employee:embauche_agent' %}" class="btn btn-primary">
                 <i class="bi bi-person-plus"></i> Nouvelle embauche
             </a>
         </div>
@@ -129,7 +129,7 @@
                         <button type="submit" class="btn btn-info me-2">
                             <i class="bi bi-funnel"></i> Filtrer
                         </button>
-                        <a href="{% url 'liste_employes' %}" class="btn btn-secondary">
+                        <a href="{% url 'employee:liste_employes' %}" class="btn btn-secondary">
                             <i class="bi bi-arrow-counterclockwise"></i> Réinitialiser
                         </a>
                     </div>
@@ -179,17 +179,17 @@
                                 </td>
                                 <td>
                                     <div class="action-icons">
-                                        <a class="icon-btn view-btn" href="{% url 'detail_employe' employe.uuid %}"
+                                        <a class="icon-btn view-btn" href="{% url 'employee:detail_employe' employe.uuid %}"
                                            title="View">
                                             <i class="fa fa-eye"></i>
                                         </a>
 
-                                        <a class="icon-btn edit-btn" href="{% url 'modifier_employe' employe.uuid %}"
+                                        <a class="icon-btn edit-btn" href="{% url 'employee:modifier_employe' employe.uuid %}"
                                            title="Edit">
                                             <i class="fa-solid fa-pencil"></i>
                                         </a>
 
-                                        <a class="icon-btn delete-btn" href="{% url 'supprimer_employe' employe.uuid %}"
+                                        <a class="icon-btn delete-btn" href="{% url 'employee:supprimer_employe' employe.uuid %}"
                                            onclick="return confirm('Êtes-vous sûr de vouloir supprimer {{ employe.nom }} {{ employe.prenoms }} ?')"
                                            title="Delete">
                                             <i class="fa-solid fa-trash-can"></i>

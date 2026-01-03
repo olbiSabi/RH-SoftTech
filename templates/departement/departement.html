@@ -2,7 +2,7 @@
 {% load static %}
 {% block title %} <title>ONIAN-SofTech</title>{% endblock %}
 {% block extrastylet %}
-
+<link rel="stylesheet" href="{% static 'assets/css/table.css' %}">
 {% endblock %}
 
 <!-- Content Body (Page Body) -->
@@ -20,7 +20,7 @@
                     <span id="form-title">Nouveau Département</span>
                 </h2>
 
-                <form id="departmentForm" method="post" action="{% if editing %}{% url 'edit' department_id %}{% else %}{% url 'list' %}{% endif %}">
+                <form id="departmentForm" method="post" action="{% if editing %}{% url 'departement:edit' department_id %}{% else %}{% url 'departement:list' %}{% endif %}">
                     {% csrf_token %}
 
                     {% if editing %}
@@ -88,7 +88,7 @@
                     </button>
 
                     {% if editing %}
-                    <a href="{% url 'list' %}" class="btn btn-secondary" style="text-decoration: none; display: inline-block; text-align: center;">
+                    <a href="{% url 'departement:list' %}" class="btn btn-secondary" style="text-decoration: none; display: inline-block; text-align: center;">
                         ❌ Annuler
                     </a>
                     {% endif %}
@@ -134,10 +134,10 @@
                                 </td>
                                 <td>
                                     <div class="action-icons">
-                                        <a href="{% url 'edit' dept.id %}" title="Modifier">
+                                        <a href="{% url 'departement:edit' dept.id %}" title="Modifier">
                                             ✏️
                                         </a>
-                                        <form method="post" action="{% url 'delete' dept.id %}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer le département {{ dept.CODE }} ?');">
+                                        <form method="post" action="{% url 'departement:delete' dept.id %}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer le département {{ dept.CODE }} ?');">
                                             {% csrf_token %}
                                             <button type="submit" class="icon-btn delete-btn" title="Supprimer">
                                                <i class="fas fa-trash"></i>

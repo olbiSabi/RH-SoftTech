@@ -1,16 +1,20 @@
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from datetime import datetime
+from absence.decorators import drh_or_admin_required, gestion_app_required, assistant_rh_required
+import departement
 from employee.models import ZYAF, ZY00
 from .models import ZDDE, ZDPO, ZYMA
 from .forms import ZDDEForm, ZDPOForm
 from django.core.exceptions import ValidationError
-from django.contrib.auth.decorators import login_required  # ← AJOUT IMPORT
+from django.contrib.auth.decorators import login_required, permission_required
 
+
+#@permission_required('departement.view_zdde', raise_exception=True)
 @login_required
+@assistant_rh_required
 def department_list(request):
     """Vue principale pour afficher et gérer les départements"""
     departments = ZDDE.objects.all().order_by('CODE')
@@ -22,7 +26,7 @@ def department_list(request):
         if form.is_valid():
             department = form.save()
             #messages.success(request, f'✓ Département {department.CODE} créé avec succès!')
-            return redirect('list')
+            return redirect('departement:list')
         else:
             #messages.error(request, '✗ Erreur de validation. Veuillez corriger les erreurs ci-dessous.')
             print("Erreur de validation. Veuillez corriger les erreurs ci-dessous.")
@@ -34,6 +38,7 @@ def department_list(request):
         'form': form,
         'editing': False
     })
+
 
 @login_required
 def department_edit(request, pk):
@@ -47,7 +52,7 @@ def department_edit(request, pk):
         if form.is_valid():
             department = form.save()
             #messages.success(request, f'✓ Département {department.CODE} modifié avec succès!')
-            return redirect('list')
+            return redirect('departement:list')
         else:
             #messages.error(request, '✗ Erreur de validation. Veuillez corriger les erreurs ci-dessous.')
             print("Erreur de validation. Veuillez corriger les erreurs ci-dessous.")
@@ -61,6 +66,7 @@ def department_edit(request, pk):
         'department_id': pk
     })
 
+
 @login_required
 def department_delete(request, pk):
     """Supprimer un département"""
@@ -70,13 +76,14 @@ def department_delete(request, pk):
         department.delete()
         #messages.success(request, f'✓ Département {code} supprimé avec succès!')
 
-    return redirect('list')
+    return redirect('departement:list')
 
 
 # ==========================================
 # VUES POSTE (ZDPO)
 # ==========================================
 @login_required
+@assistant_rh_required
 def poste_list(request):
     """Vue principale pour afficher et gérer les postes"""
     postes = ZDPO.objects.select_related('DEPARTEMENT').all().order_by('CODE')
@@ -87,7 +94,7 @@ def poste_list(request):
         if form.is_valid():
             poste = form.save()
             #messages.success(request, f'✓ Poste {poste.CODE} créé avec succès!')
-            return redirect('poste_list')
+            return redirect('departement:poste_list')
         else:
             #messages.error(request, '✗ Erreur de validation. Veuillez corriger les erreurs ci-dessous.')
             print("Erreur de validation. Veuillez corriger les erreurs ci-dessous.")
@@ -112,7 +119,7 @@ def poste_edit(request, pk):
         if form.is_valid():
             poste = form.save()
             #messages.success(request, f'✓ Poste {poste.CODE} modifié avec succès!')
-            return redirect('poste_list')
+            return redirect('departement:poste_list')
         else:
             #messages.error(request, '✗ Erreur de validation. Veuillez corriger les erreurs ci-dessous.')
             print("Erreur de validation. Veuillez corriger les erreurs ci-dessous.")
@@ -135,12 +142,13 @@ def poste_delete(request, pk):
         poste.delete()
         #messages.success(request, f'✓ Poste {code} supprimé avec succès!')
 
-    return redirect('poste_list')
+    return redirect('departement:poste_list')
 
 # ==========================================
 # VUES managers (ZYMA)
 # ==========================================
 @login_required
+@assistant_rh_required
 def liste_managers(request):
     """Page principale de gestion des managers"""
     managers = ZYMA.objects.all().select_related('departement', 'employe').order_by('-date_debut')
@@ -157,6 +165,7 @@ def liste_managers(request):
 
 @require_http_methods(["GET"])
 @login_required
+@assistant_rh_required
 def api_manager_detail(request, id):
     """Récupérer les détails d'un manager"""
     try:

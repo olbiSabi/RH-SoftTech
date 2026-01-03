@@ -4,6 +4,8 @@ from . import views
 from .auth_views import login_view, logout_view, dashboard_view, change_password_view, password_reset_request, \
     CustomPasswordResetConfirmView,  test_reset_account
 
+app_name = 'employee'
+
 urlpatterns = [
 
     # ===== AUTHENTIFICATION =====
@@ -112,8 +114,20 @@ urlpatterns = [
     path('roles/retirer/<int:attribution_id>/', views.retirer_role, name='retirer_role'),
     path('roles/reactiver/<int:attribution_id>/', views.reactiver_role, name='reactiver_role'),
     path('roles/modifier/<int:attribution_id>/', views.modifier_role, name='modifier_role'),
+    path('roles/supprimer/<int:attribution_id>/', views.supprimer_role, name='supprimer_role'),
     path('roles/employe/<uuid:employe_uuid>/', views.roles_employe, name='roles_employe'),
 
+    # Profil
+    path('profil/<str:matricule>/', views.profil_employe, name='profil'),
+    path('profil/<str:matricule>/upload-photo/', views.upload_photo, name='upload_photo'),
 
-    path('profil-employee/', profilEmployee, name='profile-employee'),
+    # Contacts d'urgence
+    path('profil/<str:matricule>/contact-urgence/create/', views.create_contact_urgence, name='create_contact_urgence'),
+    path('contact-urgence/<int:contact_id>/detail/', views.contact_urgence_detail, name='contact_urgence_detail'),
+    path('contact-urgence/<int:contact_id>/update/', views.update_contact_urgence, name='update_contact_urgence'),
+    path('contact-urgence/<int:contact_id>/delete/', views.delete_contact_urgence, name='delete_contact_urgence'),
+
+    # Documents
+    path('profil/<str:matricule>/upload-document/', views.upload_document, name='upload_document'),
+    path('document/<int:document_id>/delete/', views.delete_document, name='delete_document'),
 ]

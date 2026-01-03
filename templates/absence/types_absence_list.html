@@ -1,0 +1,514 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+    <link rel="stylesheet" href="{% static 'assets/css/absence/types_absence.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="fas fa-calendar-times text-type"></i>
+                Gestion des Types d'Absence
+            </h1>
+            <p class="text-muted mb-0">
+                <i class="fas fa-info-circle"></i>
+                Définissez les différents types d'absence (congés payés, maladie, autorisation...)
+            </p>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="row mb-4">
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="card stat-card stat-total">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon">
+                            <i class="fas fa-list"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Total</div>
+                            <div class="stat-value">{{ total }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="card stat-card stat-actif">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Actifs</div>
+                            <div class="stat-value">{{ actifs }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="card stat-card stat-inactif">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Inactifs</div>
+                            <div class="stat-value">{{ inactifs }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="card stat-card stat-paye">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Payés</div>
+                            <div class="stat-value">{{ payes }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="card stat-card stat-non-paye">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon">
+                            <i class="fas fa-ban"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Non payés</div>
+                            <div class="stat-value">{{ non_payes }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="card stat-card stat-decompte">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon">
+                            <i class="fas fa-minus-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Avec décompte</div>
+                            <div class="stat-value">{{ avec_decompte }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres et Actions -->
+    <div class="card mb-4 filter-card">
+        <div class="card-body">
+            <form method="GET" id="filterForm" class="row g-3 align-items-end">
+                <!-- Recherche -->
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <label for="search" class="form-label">
+                        <i class="fas fa-search"></i> Rechercher
+                    </label>
+                    <input type="text"
+                           class="form-control form-control-sm"
+                           id="search"
+                           name="search"
+                           value="{{ search }}"
+                           placeholder="Code ou libellé...">
+                </div>
+
+                <!-- Catégorie -->
+                <div class="col-xl-2 col-lg-3 col-md-6">
+    <label for="categorie" class="form-label">
+        <i class="fas fa-tags"></i> Catégorie
+    </label>
+    <!-- ✅ CHANGER L'ID -->
+    <select class="form-control form-control-sm" id="categorie_filter" name="categorie">
+        <option value="">Toutes les catégories</option>
+        {% for value, label in categories %}
+        <option value="{{ value }}" {% if categorie_filter == value %}selected{% endif %}>
+            {{ label }}
+        </option>
+        {% endfor %}
+    </select>
+</div>
+
+                <!-- Payé -->
+                <div class="col-xl-2 col-lg-3 col-md-6">
+                    <label for="paye" class="form-label">
+                        <i class="fas fa-money-bill"></i> Payé
+                    </label>
+                    <select class="form-control form-control-sm" id="paye" name="paye">
+                        <option value="">Tous</option>
+                        <option value="oui" {% if paye_filter == 'oui' %}selected{% endif %}>
+                            Payés uniquement
+                        </option>
+                        <option value="non" {% if paye_filter == 'non' %}selected{% endif %}>
+                            Non payés uniquement
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Statut -->
+                <div class="col-xl-2 col-lg-3 col-md-6">
+                    <label for="actif" class="form-label">
+                        <i class="fas fa-toggle-on"></i> Statut
+                    </label>
+                    <select class="form-control form-control-sm" id="actif" name="actif">
+                        <option value="">Tous</option>
+                        <option value="oui" {% if actif_filter == 'oui' %}selected{% endif %}>
+                            Actifs uniquement
+                        </option>
+                        <option value="non" {% if actif_filter == 'non' %}selected{% endif %}>
+                            Inactifs uniquement
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Boutons -->
+                <div class="col-xl-3 col-lg-12">
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-filter"></i> Filtrer
+                        </button>
+                        <a href="{% url 'absence:liste_types_absence' %}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-redo"></i> Réinitialiser
+                        </a>
+                        <button type="button" class="btn btn-success btn-sm" onclick="openCreateModal()">
+                            <i class="fas fa-plus"></i> Nouveau Type
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table des types d'absence -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%">#</th>
+                            <th style="width: 8%">Code</th>
+                            <th style="width: 20%">Libellé</th>
+                            <th style="width: 15%">Catégorie</th>
+                            <th style="width: 8%" class="text-center">Payé</th>
+                            <th style="width: 10%" class="text-center">Décompte</th>
+                            <th style="width: 10%" class="text-center">Justificatif</th>
+                            <th style="width: 5%" class="text-center">Ordre</th>
+                            <th style="width: 8%" class="text-center">Statut</th>
+                            <th style="width: 11%" class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if types_absence %}
+                            {% for type in types_absence %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>
+                                    <span class="badge badge-code" style="background-color: {{ type.couleur }}; color: white;">
+                                        {{ type.code }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="color-indicator" style="background-color: {{ type.couleur }};"></div>
+                                        <strong>{{ type.libelle }}</strong>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">
+                                        {{ type.get_categorie_display }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    {% if type.paye %}
+                                    <i class="fas fa-check-circle text-success" title="Payé"></i>
+                                    {% else %}
+                                    <i class="fas fa-times-circle text-danger" title="Non payé"></i>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if type.decompte_solde %}
+                                    <i class="fas fa-check-circle text-success" title="Avec décompte"></i>
+                                    {% else %}
+                                    <i class="fas fa-times-circle text-secondary" title="Sans décompte"></i>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if type.justificatif_obligatoire %}
+                                    <i class="fas fa-file-alt text-warning" title="Justificatif obligatoire"></i>
+                                    {% else %}
+                                    <i class="fas fa-minus text-secondary" title="Pas de justificatif"></i>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-secondary">{{ type.ordre }}</span>
+                                </td>
+                                <td class="text-center">
+                                    {% if type.actif %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check-circle"></i> Actif
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-times-circle"></i> Inactif
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-spaced" role="group">
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-primary"
+                                                onclick="openEditModal({{ type.id }})"
+                                                title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-secondary"
+                                                onclick="toggleTypeAbsence({{ type.id }})"
+                                                title="{% if type.actif %}Désactiver{% else %}Activer{% endif %}">
+                                            <i class="fas fa-toggle-{% if type.actif %}on{% else %}off{% endif %}"></i>
+                                        </button>
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteTypeAbsence({{ type.id }}, '{{ type.code|escapejs }}')"
+                                                title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="10" class="text-center py-5">
+                                    <div class="text-muted">
+                                        <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                                        <h5>Aucun type d'absence trouvé</h5>
+                                        <p>Commencez par créer votre premier type d'absence</p>
+                                        <button type="button" class="btn btn-success mt-2" onclick="openCreateModal()">
+                                            <i class="fas fa-plus"></i> Créer un type d'absence
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal Création/Édition -->
+<div class="modal fade" id="typeAbsenceModal" tabindex="-1" aria-labelledby="typeAbsenceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-type text-white">
+                <h5 class="modal-title" id="typeAbsenceModalLabel">
+                    <i class="fas fa-calendar-times"></i>
+                    <span id="modalTitle">Nouveau Type d'Absence</span>
+                </h5>
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="typeAbsenceForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="typeAbsenceId" name="id">
+
+                    <!-- Informations de base -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <strong><i class="fas fa-info-circle"></i> Informations de Base</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group mb-3">
+                                        <label for="code" class="form-label">
+                                            Code <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text"
+                                               class="form-control text-uppercase"
+                                               id="code"
+                                               name="code"
+                                               placeholder="Ex: CPN"
+                                               maxlength="3"
+                                               style="text-transform: uppercase;"
+                                               required>
+                                        <small class="form-text text-muted">3 caractères max</small>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="libelle" class="form-label">
+                                            Libellé <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text"
+                                               class="form-control"
+                                               id="libelle"
+                                               name="libelle"
+                                               placeholder="Ex: Congés payés"
+                                               required>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group mb-3">
+                                        <label for="couleur" class="form-label">
+                                            Couleur <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="color"
+                                               class="form-control form-control-color"
+                                               id="couleur"
+                                               name="couleur"
+                                               value="#3498db"
+                                               required>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <!-- Modal - NE PAS CHANGER -->
+                                <div class="col-md-8">
+                                    <div class="form-group mb-3">
+                                        <label for="categorie" class="form-label">
+                                            Catégorie <span class="text-danger">*</span>
+                                        </label>
+                                        <select class="form-control" id="categorie" name="categorie" required>
+                                            <option value="">Sélectionner une catégorie</option>
+                                            {% for value, label in categories %}
+                                            <option value="{{ value }}">{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label for="ordre" class="form-label">
+                                            Ordre d'affichage
+                                        </label>
+                                        <input type="number"
+                                               class="form-control"
+                                               id="ordre"
+                                               name="ordre"
+                                               value="0"
+                                               min="0">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Options -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <strong><i class="fas fa-cog"></i> Options</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               id="paye"
+                                               name="paye"
+                                               checked>
+                                        <label class="form-check-label" for="paye">
+                                            <i class="fas fa-money-bill-wave"></i> Absence payée
+                                        </label>
+                                    </div>
+
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               id="decompte_solde"
+                                               name="decompte_solde"
+                                               checked>
+                                        <label class="form-check-label" for="decompte_solde">
+                                            <i class="fas fa-minus-circle"></i> Décompte du solde de congés
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               id="justificatif_obligatoire"
+                                               name="justificatif_obligatoire">
+                                        <label class="form-check-label" for="justificatif_obligatoire">
+                                            <i class="fas fa-file-alt"></i> Justificatif obligatoire
+                                        </label>
+                                    </div>
+
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               id="actif"
+                                               name="actif"
+                                               checked>
+                                        <label class="form-check-label" for="actif">
+                                            <i class="fas fa-check-circle"></i> Type d'absence actif
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aide -->
+                    <div class="alert alert-info">
+                        <i class="fas fa-lightbulb"></i>
+                        <strong>Astuce :</strong>
+                        Le code sera automatiquement converti en majuscules (ex: "cpn" → "CPN") et le libellé aura sa première lettre en majuscule.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+                <button type="button" class="btn btn-success" onclick="saveTypeAbsence()">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extrascript %}
+    <script src="{% static 'assets/js/absence/types_absence.js' %}"></script>
+{% endblock %}

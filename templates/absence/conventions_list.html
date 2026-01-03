@@ -1,0 +1,516 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'assets/css/absence/conventions.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Conventions Collectives</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+
+        <!-- Statistiques -->
+        <div class="stats-card">
+            <h4 style="margin-bottom: 20px;">
+                <i class="fas fa-file-contract"></i> Statistiques des Conventions
+            </h4>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.total|default:0 }}</div>
+                    <div class="stat-label">Total Conventions</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.actives|default:0 }}</div>
+                    <div class="stat-label">Conventions Actives</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ entreprise_count|default:0 }}</div>
+                    <div class="stat-label">Entreprises</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ personnalisee_count|default:0 }}</div>
+                    <div class="stat-label">Personnalisées</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtres et Actions -->
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-md-8">
+                        <form method="GET" id="filterForm" class="form-inline">
+                            <!-- Recherche -->
+                            <div class="input-group input-group-sm mr-2 mb-2">
+                                <input type="text"
+                                       name="search"
+                                       class="form-control"
+                                       placeholder="Rechercher..."
+                                       value="{{ search }}">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="submit">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- ✅ NOUVEAU FILTRE : Type -->
+                            <select name="type" class="form-control form-control-sm mr-2 mb-2" onchange="this.form.submit()">
+                                <option value="">Tous les types</option>
+                                <option value="ENTREPRISE" {% if type_filter == 'ENTREPRISE' %}selected{% endif %}>Entreprise</option>
+                                <option value="PERSONNALISEE" {% if type_filter == 'PERSONNALISEE' %}selected{% endif %}>Personnalisée</option>
+                            </select>
+
+                            <!-- Filtre Statut -->
+                            <select name="actif" class="form-control form-control-sm mr-2 mb-2" onchange="this.form.submit()">
+                                <option value="">Tous les statuts</option>
+                                <option value="oui" {% if filtre_actif == 'oui' %}selected{% endif %}>Actives</option>
+                                <option value="non" {% if filtre_actif == 'non' %}selected{% endif %}>Inactives</option>
+                            </select>
+
+                            <!-- Filtre Année -->
+                            <select name="annee" class="form-control form-control-sm mr-2 mb-2" onchange="this.form.submit()">
+                                <option value="">Toutes les années</option>
+                                {% for annee in annees %}
+                                <option value="{{ annee }}" {% if filtre_annee == annee|stringformat:"s" %}selected{% endif %}>
+                                {{ annee }}
+                                </option>
+                                {% endfor %}
+                            </select>
+
+                            <!-- Bouton Reset -->
+                            {% if search or filtre_actif or filtre_annee or type_filter %}
+                            <a href="{% url 'absence:liste_conventions' %}" class="btn btn-secondary btn-sm mb-2">
+                                <i class="fas fa-redo"></i> Réinitialiser
+                            </a>
+                            {% endif %}
+                        </form>
+                    </div>
+                    <div class="col-md-4 text-right">
+                        <button type="button"
+                                class="btn btn-success btn-sm"
+                                data-toggle="modal"
+                                data-target="#conventionModal"
+                                onclick="openCreateModal()">
+                            <i class="fas fa-plus"></i> Nouvelle Convention
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead class="bg-light">
+                        <tr>
+                            <th>Code</th>
+                            <th>Type</th> <!-- ✅ NOUVELLE COLONNE -->
+                            <th>Nom</th>
+                            <th>Année</th>
+                            <th>Jours/Mois</th>
+                            <th>Période d'effet</th>
+                            <th>Statut</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for convention in conventions %}
+                        <tr>
+                            <td>
+                                <strong>{{ convention.code }}</strong>
+                            </td>
+                            <!-- ✅ NOUVELLE COLONNE : Type -->
+                            <td>
+                                {% if convention.type_convention == 'ENTREPRISE' %}
+                                    <span class="badge badge-success">
+                                        <i class="fas fa-building"></i> Entreprise
+                                    </span>
+                                {% else %}
+                                    <span class="badge badge-info">
+                                        <i class="fas fa-user-tie"></i> Personnalisée
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>{{ convention.nom }}</td>
+                            <td>
+                                <span class="badge badge-info">{{ convention.annee_reference }}</span>
+                            </td>
+                            <td>{{ convention.jours_acquis_par_mois }} j</td>
+                            <td>
+                                <small>
+                                    <i class="fas fa-calendar-start"></i> {{ convention.date_debut|date:"d/m/Y" }}
+                                    {% if convention.date_fin %}
+                                        - {{ convention.date_fin|date:"d/m/Y" }}
+                                    {% else %}
+                                        - <em>En cours</em>
+                                    {% endif %}
+                                </small>
+                                <br>
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar-check"></i>
+                                    Prise: {{ convention.periode_prise_debut|date:"d/m" }} → {{ convention.periode_prise_fin|date:"d/m" }}
+                                    {% if convention.periode_prise_fin.year > convention.periode_prise_debut.year %}
+                                        <span class="badge badge-info badge-sm">sur 2 ans</span>
+                                    {% endif %}
+                                </small>
+                            </td>
+                            <td>
+                                {% if convention.actif %}
+                                <span class="badge badge-success badge-status">
+                                    <i class="fas fa-check"></i> Active
+                                </span>
+                                {% else %}
+                                <span class="badge badge-secondary badge-status">
+                                    <i class="fas fa-times"></i> Inactive
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center action-buttons">
+                                <!-- Bouton Activer/Désactiver -->
+                                <button type="button"
+                                        class="btn btn-sm {% if convention.actif %}btn-warning{% else %}btn-success{% endif %}"
+                                        onclick="toggleConvention({{ convention.id }})"
+                                        title="{% if convention.actif %}Désactiver{% else %}Activer{% endif %}">
+                                    <i class="fas fa-{% if convention.actif %}ban{% else %}check{% endif %}"></i>
+                                </button>
+
+                                <!-- Bouton Modifier -->
+                                <button type="button"
+                                        class="btn btn-sm btn-primary"
+                                        onclick="openEditModal({{ convention.id }})"
+                                        title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+
+                                <!-- Bouton Supprimer -->
+                                <button type="button"
+                                        class="btn btn-sm btn-danger"
+                                        onclick="deleteConvention({{ convention.id }}, '{{ convention.nom }}')"
+                                        title="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">
+                                <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                                Aucune convention trouvée
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Modal Création/Edition -->
+<div class="modal fade" id="conventionModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="conventionModalTitle">
+                    <i class="fas fa-file-contract"></i> Nouvelle Convention
+                </h5>
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                        onclick="resetForm()"></button>
+            </div>
+            <form id="conventionForm">
+                {% csrf_token %}
+                <input type="hidden" id="convention_id" name="convention_id">
+
+                <div class="modal-body">
+                    <!-- Messages d'erreur globaux -->
+                    <div id="formErrors" class="alert alert-danger" style="display: none;">
+                        <ul id="errorList" class="mb-0"></ul>
+                    </div>
+
+                    <!-- Informations générales -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <strong><i class="fas fa-info-circle"></i> Informations Générales</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="type_convention">Type de convention <span
+                                                class="text-danger">*</span></label>
+                                        <select class="form-control" id="type_convention" name="type_convention"
+                                                required>
+                                            <option value="ENTREPRISE">Convention d'entreprise (unique, par défaut)
+                                            </option>
+                                            <option value="PERSONNALISEE">Convention personnalisée (pour employés
+                                                spécifiques)
+                                            </option>
+                                        </select>
+                                        <small class="form-text text-muted">
+                                            <i class="fas fa-info-circle"></i>
+                                            <strong>Entreprise :</strong> Une seule convention active sans chevauchement
+                                            de dates.<br>
+                                            <strong>Personnalisée :</strong> Plusieurs conventions possibles, pour des
+                                            employés spécifiques.
+                                        </small>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label for="nom">Nom de la convention <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="nom" name="nom" required>
+                                        <small class="form-text text-muted">Ex: Convention Cadres 2025</small>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="annee_reference">Année <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="annee_reference" name="annee_reference"
+                                               min="2020" max="2099" required>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="code">Code <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="code" name="code" required>
+                                        <small class="form-text text-muted">Ex: CONV_CADRES_2025</small>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="methode_calcul">Méthode de calcul <span class="text-danger">*</span></label>
+                                        <select class="form-control" id="methode_calcul" name="methode_calcul" required>
+                                            <option value="MOIS_TRAVAILLES">Par mois travaillés</option>
+                                            <option value="HEURES_TRAVAILLEES">Par heures travaillées</option>
+                                            <option value="JOURS_TRAVAILLES">Par jours travaillés</option>
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="date_debut">Date de début <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" id="date_debut" name="date_debut" required>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="date_fin">Date de fin</label>
+                                        <input type="date" class="form-control" id="date_fin" name="date_fin">
+                                        <small class="form-text text-muted">Optionnel</small>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>&nbsp;</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="actif" name="actif" checked>
+                                            <label class="custom-control-label" for="actif">Convention active</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paramètres de calcul -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <strong><i class="fas fa-calculator"></i> Paramètres de Calcul</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="jours_acquis_par_mois">Jours acquis par mois <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="jours_acquis_par_mois"
+                                               name="jours_acquis_par_mois" step="0.01" min="0" max="5" value="2.5" required>
+                                        <small class="form-text text-muted">Par défaut: 2.5 jours</small>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="duree_conges_principale">Durée congés principale <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="duree_conges_principale"
+                                               name="duree_conges_principale" min="1" max="30" value="12" required>
+                                        <small class="form-text text-muted">Jours minimum consécutifs</small>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Période de prise -->
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <strong><i class="fas fa-calendar-alt"></i> Période de Prise des Congés</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                <small>Définissez la période de prise (ex: du 1er mai N au 30 avril N+1)</small>
+                            </div>
+                            <div class="row">
+                                <!-- Début de période -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="periode_prise_debut">Début période <span
+                                                class="text-danger">*</span></label>
+                                        <div class="row">
+                                            <div class="col-4">
+                                                <select class="form-control" id="periode_prise_debut_jour"
+                                                        name="periode_prise_debut_jour" required>
+                                                    <option value="">Jour</option>
+                                                    {% for i in "x"|rjust:"31" %}
+                                                    <option value="{{ forloop.counter }}">{{ forloop.counter }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="col-5">
+                                                <select class="form-control" id="periode_prise_debut_mois"
+                                                        name="periode_prise_debut_mois" required>
+                                                    <option value="">Mois</option>
+                                                    <option value="01">Janvier</option>
+                                                    <option value="02">Février</option>
+                                                    <option value="03">Mars</option>
+                                                    <option value="04">Avril</option>
+                                                    <option value="05">Mai</option>
+                                                    <option value="06">Juin</option>
+                                                    <option value="07">Juillet</option>
+                                                    <option value="08">Août</option>
+                                                    <option value="09">Septembre</option>
+                                                    <option value="10">Octobre</option>
+                                                    <option value="11">Novembre</option>
+                                                    <option value="12">Décembre</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-3">
+                                                <select class="form-control" id="periode_prise_debut_annee"
+                                                        name="periode_prise_debut_annee" required>
+                                                    <option value="N" selected>N</option>
+                                                    <option value="N+1">N+1</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <small class="form-text text-muted">Ex: 1er mai de l'année N</small>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Fin de période -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="periode_prise_fin">Fin période <span
+                                                class="text-danger">*</span></label>
+                                        <div class="row">
+                                            <div class="col-4">
+                                                <select class="form-control" id="periode_prise_fin_jour"
+                                                        name="periode_prise_fin_jour" required>
+                                                    <option value="">Jour</option>
+                                                    {% for i in "x"|rjust:"31" %}
+                                                    <option value="{{ forloop.counter }}">{{ forloop.counter }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="col-5">
+                                                <select class="form-control" id="periode_prise_fin_mois"
+                                                        name="periode_prise_fin_mois" required>
+                                                    <option value="">Mois</option>
+                                                    <option value="01">Janvier</option>
+                                                    <option value="02">Février</option>
+                                                    <option value="03">Mars</option>
+                                                    <option value="04">Avril</option>
+                                                    <option value="05">Mai</option>
+                                                    <option value="06">Juin</option>
+                                                    <option value="07">Juillet</option>
+                                                    <option value="08">Août</option>
+                                                    <option value="09">Septembre</option>
+                                                    <option value="10">Octobre</option>
+                                                    <option value="11">Novembre</option>
+                                                    <option value="12">Décembre</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-3">
+                                                <select class="form-control" id="periode_prise_fin_annee"
+                                                        name="periode_prise_fin_annee" required>
+                                                    <option value="N">N</option>
+                                                    <option value="N+1" selected>N+1</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <small class="form-text text-muted">Ex: 30 avril de l'année N+1</small>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Exemple visuel -->
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <div class="alert alert-light border">
+                                        <strong>📅 Exemple courant :</strong>
+                                        <span class="text-primary">1er mai N</span>
+                                        →
+                                        <span class="text-primary">30 avril N+1</span>
+                                        <br>
+                                        <small class="text-muted">Les congés acquis en N sont à prendre entre le 1er mai
+                                            N et le 30 avril N+1</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <i class="fas fa-save"></i> Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'assets/js/absence/conventions.js' %}"></script>
+{% endblock %}

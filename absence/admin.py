@@ -1,830 +1,618 @@
-"""
-Admin Django pour la gestion des congés et absences
-Application: absence
-Système HR_ONIAN
-"""
+# absence/admin.py
 
 from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
-from django.utils import timezone
-import json
+from django.utils.safestring import mark_safe
+from .models import (
+    ConfigurationConventionnelle,
+    TypeAbsence,
+    JourFerie,
+    ParametreCalculConges,
+    AcquisitionConges,
+    Absence,
+    NotificationAbsence,
+    ValidationAbsence
+)
 
-from .models import ZDDA, ZDSO, ZDHA, ZDJF, ZDPF
 
+# ========================================
+# 1. ConfigurationConventionnelle
+# ========================================
 
-# ==========================================
-# ADMIN DEMANDE D'ABSENCE (ZDDA)
-# ==========================================
-
-@admin.register(ZDDA)
-class ZDDAAdmin(admin.ModelAdmin):
-    """
-    Administration des demandes d'absence
-    """
-
+@admin.register(ConfigurationConventionnelle)
+class ConfigurationConventionnelleAdmin(admin.ModelAdmin):
     list_display = [
-        'numero_demande_colored',
-        'employe_link',
-        'type_absence_colored',
-        'date_debut',
-        'date_fin',
-        'nombre_jours_formatted',
-        'statut_badge',
-        'validee_manager_icon',
-        'validee_rh_icon',
-        'created_at',
+        'code', 'nom', 'type_convention_badge', 'annee_reference',
+        'periode_acquisition', 'jours_acquis_par_mois', 'actif_badge', 'en_vigueur_badge'
     ]
-
-    list_filter = [
-        'statut',
-        'type_absence',
-        'duree',
-        'validee_manager',
-        'validee_rh',
-        'est_urgent',
-        'created_at',
-        'date_debut',
-    ]
-
-    search_fields = [
-        'numero_demande',
-        'employe__nom',
-        'employe__prenoms',
-        'employe__matricule',
-        'motif',
-    ]
-
-    readonly_fields = [
-        'numero_demande',
-        'id',
-        'created_at',
-        'updated_at',
-        'created_by',
-        'updated_by',
-        'ip_address',
-        'solde_avant',
-        'solde_apres',
-        'historique_detail',
-    ]
+    list_filter = ['type_convention', 'actif', 'annee_reference', 'methode_calcul']
+    search_fields = ['code', 'nom']
+    readonly_fields = ['est_en_vigueur', 'est_clôturée']
 
     fieldsets = (
-        ('📋 Informations principales', {
+        ('Informations générales', {
+            'fields': ('type_convention', 'nom', 'code', 'annee_reference')
+        }),
+        ('Période de validité', {
+            'fields': ('date_debut', 'date_fin', 'actif', 'est_en_vigueur', 'est_clôturée')
+        }),
+        ('Période d\'acquisition', {
             'fields': (
-                'numero_demande',
-                'id',
-                'employe',
-                'type_absence',
+                'periode_prise_debut',
+                'periode_prise_fin',
+                'periode_prise_fin_annee_suivante'
+            ),
+            'description': 'Définit la période pendant laquelle les congés sont acquis (ex: 01/05/N → 30/04/N+1)'
+        }),
+        ('Paramètres de calcul', {
+            'fields': (
+                'jours_acquis_par_mois',
+                'duree_conges_principale',
+                'methode_calcul'
             )
-        }),
-        ('📅 Dates et durée', {
-            'fields': (
-                'date_debut',
-                'date_fin',
-                'duree',
-                'periode',
-                'nombre_jours',
-            )
-        }),
-        ('📝 Détails', {
-            'fields': (
-                'motif',
-                'justificatif',
-            )
-        }),
-        ('🔄 Statut', {
-            'fields': (
-                'statut',
-                'est_urgent',
-                'est_annulee',
-                'date_annulation',
-                'motif_annulation',
-            )
-        }),
-        ('✅ Validation Manager', {
-            'fields': (
-                'validee_manager',
-                'date_validation_manager',
-                'validateur_manager',
-                'commentaire_manager',
-                'motif_refus_manager',
-            ),
-            'classes': ('collapse',),
-        }),
-        ('✅ Validation RH', {
-            'fields': (
-                'validee_rh',
-                'date_validation_rh',
-                'validateur_rh',
-                'commentaire_rh',
-                'motif_refus_rh',
-            ),
-            'classes': ('collapse',),
-        }),
-        ('💰 Soldes', {
-            'fields': (
-                'solde_avant',
-                'solde_apres',
-            ),
-            'classes': ('collapse',),
-        }),
-        ('📧 Notifications', {
-            'fields': (
-                'notification_envoyee_manager',
-                'notification_envoyee_rh',
-                'notification_envoyee_employe',
-            ),
-            'classes': ('collapse',),
-        }),
-        ('🔍 Audit', {
-            'fields': (
-                'created_at',
-                'updated_at',
-                'created_by',
-                'updated_by',
-                'ip_address',
-            ),
-            'classes': ('collapse',),
-        }),
-        ('📜 Historique', {
-            'fields': (
-                'historique_detail',
-            ),
-            'classes': ('collapse',),
         }),
     )
 
-    date_hierarchy = 'date_debut'
-
-    actions = [
-        'valider_manager',
-        'valider_rh',
-        'refuser_manager',
-        'refuser_rh',
-        'annuler_demande',
-    ]
-
-    # Méthodes d'affichage personnalisées
-
-    def numero_demande_colored(self, obj):
-        """Numéro de demande avec couleur selon statut"""
-        colors = {
-            'EN_ATTENTE': '#fbbf24',
-            'VALIDEE_MANAGER': '#60a5fa',
-            'VALIDEE_RH': '#34d399',
-            'REFUSEE_MANAGER': '#f87171',
-            'REFUSEE_RH': '#ef4444',
-            'ANNULEE': '#9ca3af',
-        }
-        color = colors.get(obj.statut, '#6b7280')
+    def type_convention_badge(self, obj):
+        if obj.type_convention == 'ENTREPRISE':
+            return format_html(
+                '<span style="background-color: #28a745; color: white; padding: 3px 8px; '
+                'border-radius: 3px; font-size: 11px;">ENTREPRISE</span>'
+            )
         return format_html(
-            '<strong style="color: {};">{}</strong>',
-            color,
-            obj.numero_demande
+            '<span style="background-color: #17a2b8; color: white; padding: 3px 8px; '
+            'border-radius: 3px; font-size: 11px;">PERSONNALISÉE</span>'
         )
-    numero_demande_colored.short_description = 'Numéro'
-    numero_demande_colored.admin_order_field = 'numero_demande'
 
-    def employe_link(self, obj):
-        """Lien vers l'employé"""
-        url = reverse('admin:employee_zy00_change', args=[obj.employe.pk])
+    type_convention_badge.short_description = 'Type'
+
+    def periode_acquisition(self, obj):
+        debut, fin = obj.get_periode_acquisition(obj.annee_reference)
+        annee_label = 'N+1' if obj.periode_prise_fin_annee_suivante else 'N'
         return format_html(
-            '<a href="{}" target="_blank">{} {}</a>',
-            url,
-            obj.employe.nom,
-            obj.employe.prenoms
+            '{} → {} <span style="color: #888; font-size: 11px;">({})</span>',
+            debut.strftime('%d/%m'),
+            fin.strftime('%d/%m'),
+            annee_label
         )
-    employe_link.short_description = 'Employé'
-    employe_link.admin_order_field = 'employe__nom'
 
-    def type_absence_colored(self, obj):
-        """Type d'absence avec icône"""
-        icons = {
-            'CPN': '🏖️',
-            'RTT': '⏰',
-            'MAL': '🤒',
-            'FAM': '👨‍👩‍👧',
-            'FOR': '📚',
-            'CSS': '🚫',
-            'MAT': '🤰',
-            'PAT': '👶',
-            'PAR': '👶',
-        }
-        icon = icons.get(obj.type_absence.CODE, '📋')
-        return format_html(
-            '{} {}',
-            icon,
-            obj.type_absence.LIBELLE
-        )
-    type_absence_colored.short_description = 'Type'
-    type_absence_colored.admin_order_field = 'type_absence'
+    periode_acquisition.short_description = 'Période d\'acquisition'
 
-    def nombre_jours_formatted(self, obj):
-        """Nombre de jours formaté"""
-        if obj.nombre_jours:
-            return f"{obj.nombre_jours} jour{'s' if obj.nombre_jours > 1 else ''}"
-        return '-'
-    nombre_jours_formatted.short_description = 'Jours'
-    nombre_jours_formatted.admin_order_field = 'nombre_jours'
+    def actif_badge(self, obj):
+        if obj.actif:
+            return format_html(
+                '<span style="color: #28a745;">✓ Actif</span>'
+            )
+        return format_html('<span style="color: #dc3545;">✗ Inactif</span>')
 
-    def statut_badge(self, obj):
-        """Badge de statut"""
-        badges = {
-            'EN_ATTENTE': ('<span style="background: #fef3c7; color: #92400e; padding: 3px 8px; '
-                          'border-radius: 12px; font-size: 11px; font-weight: 600;">⏳ En attente</span>'),
-            'VALIDEE_MANAGER': ('<span style="background: #dbeafe; color: #1e40af; padding: 3px 8px; '
-                               'border-radius: 12px; font-size: 11px; font-weight: 600;">✅ Validée Manager</span>'),
-            'VALIDEE_RH': ('<span style="background: #d1fae5; color: #065f46; padding: 3px 8px; '
-                          'border-radius: 12px; font-size: 11px; font-weight: 600;">✅ Validée RH</span>'),
-            'REFUSEE_MANAGER': ('<span style="background: #fee2e2; color: #991b1b; padding: 3px 8px; '
-                               'border-radius: 12px; font-size: 11px; font-weight: 600;">❌ Refusée Manager</span>'),
-            'REFUSEE_RH': ('<span style="background: #fecaca; color: #7f1d1d; padding: 3px 8px; '
-                          'border-radius: 12px; font-size: 11px; font-weight: 600;">❌ Refusée RH</span>'),
-            'ANNULEE': ('<span style="background: #e5e7eb; color: #374151; padding: 3px 8px; '
-                       'border-radius: 12px; font-size: 11px; font-weight: 600;">🚫 Annulée</span>'),
-        }
-        return format_html(badges.get(obj.statut, obj.statut))
-    statut_badge.short_description = 'Statut'
-    statut_badge.admin_order_field = 'statut'
+    actif_badge.short_description = 'Statut'
 
-    def validee_manager_icon(self, obj):
-        """Icône validation manager"""
-        if obj.validee_manager:
-            return format_html('<span style="color: #10b981; font-size: 18px;">✅</span>')
-        return format_html('<span style="color: #d1d5db; font-size: 18px;">⭕</span>')
-    validee_manager_icon.short_description = 'Manager'
-    validee_manager_icon.admin_order_field = 'validee_manager'
+    def en_vigueur_badge(self, obj):
+        if obj.est_en_vigueur:
+            return format_html(
+                '<span style="color: #28a745;">● En vigueur</span>'
+            )
+        return format_html('<span style="color: #888;">○ Non en vigueur</span>')
 
-    def validee_rh_icon(self, obj):
-        """Icône validation RH"""
-        if obj.validee_rh:
-            return format_html('<span style="color: #10b981; font-size: 18px;">✅</span>')
-        return format_html('<span style="color: #d1d5db; font-size: 18px;">⭕</span>')
-    validee_rh_icon.short_description = 'RH'
-    validee_rh_icon.admin_order_field = 'validee_rh'
-
-    def historique_detail(self, obj):
-        """Affichage de l'historique"""
-        historique = obj.historique.all()[:10]
-        if not historique:
-            return format_html('<em>Aucun historique</em>')
-
-        html = '<table style="width: 100%; border-collapse: collapse;">'
-        html += '<tr style="background: #f3f4f6; font-weight: 600;">'
-        html += '<th style="padding: 8px; text-align: left;">Date</th>'
-        html += '<th style="padding: 8px; text-align: left;">Action</th>'
-        html += '<th style="padding: 8px; text-align: left;">Utilisateur</th>'
-        html += '<th style="padding: 8px; text-align: left;">Commentaire</th>'
-        html += '</tr>'
-
-        for h in historique:
-            html += '<tr style="border-bottom: 1px solid #e5e7eb;">'
-            html += f'<td style="padding: 8px;">{h.timestamp.strftime("%d/%m/%Y %H:%M")}</td>'
-            html += f'<td style="padding: 8px;"><strong>{h.get_action_display()}</strong></td>'
-            html += f'<td style="padding: 8px;">{h.utilisateur.nom if h.utilisateur else "-"}</td>'
-            html += f'<td style="padding: 8px;">{h.commentaire[:50] if h.commentaire else "-"}</td>'
-            html += '</tr>'
-
-        html += '</table>'
-        return format_html(html)
-    historique_detail.short_description = 'Historique des actions'
-
-    # Actions personnalisées
-
-    def valider_manager(self, request, queryset):
-        """Valider les demandes en tant que manager"""
-        updated = queryset.filter(statut='EN_ATTENTE').update(
-            statut='VALIDEE_MANAGER',
-            validee_manager=True,
-            date_validation_manager=timezone.now(),
-        )
-        self.message_user(request, f'{updated} demande(s) validée(s) par le manager.')
-    valider_manager.short_description = '✅ Valider (Manager)'
-
-    def valider_rh(self, request, queryset):
-        """Valider les demandes en tant que RH"""
-        updated = queryset.filter(statut='VALIDEE_MANAGER').update(
-            statut='VALIDEE_RH',
-            validee_rh=True,
-            date_validation_rh=timezone.now(),
-        )
-        self.message_user(request, f'{updated} demande(s) validée(s) par RH.')
-    valider_rh.short_description = '✅ Valider (RH)'
-
-    def refuser_manager(self, request, queryset):
-        """Refuser les demandes en tant que manager"""
-        updated = queryset.filter(statut='EN_ATTENTE').update(
-            statut='REFUSEE_MANAGER'
-        )
-        self.message_user(request, f'{updated} demande(s) refusée(s) par le manager.')
-    refuser_manager.short_description = '❌ Refuser (Manager)'
-
-    def refuser_rh(self, request, queryset):
-        """Refuser les demandes en tant que RH"""
-        updated = queryset.filter(statut='VALIDEE_MANAGER').update(
-            statut='REFUSEE_RH'
-        )
-        self.message_user(request, f'{updated} demande(s) refusée(s) par RH.')
-    refuser_rh.short_description = '❌ Refuser (RH)'
-
-    def annuler_demande(self, request, queryset):
-        """Annuler les demandes"""
-        updated = queryset.filter(
-            statut__in=['EN_ATTENTE', 'VALIDEE_MANAGER']
-        ).update(
-            statut='ANNULEE',
-            est_annulee=True,
-            date_annulation=timezone.now(),
-        )
-        self.message_user(request, f'{updated} demande(s) annulée(s).')
-    annuler_demande.short_description = '🚫 Annuler'
+    en_vigueur_badge.short_description = 'En vigueur'
 
 
-# ==========================================
-# ADMIN SOLDE DE CONGÉS (ZDSO)
-# ==========================================
+# ========================================
+# 2. TypeAbsence
+# ========================================
 
-@admin.register(ZDSO)
-class ZDSOAdmin(admin.ModelAdmin):
-    """
-    Administration des soldes de congés
-    """
-
+@admin.register(TypeAbsence)
+class TypeAbsenceAdmin(admin.ModelAdmin):
     list_display = [
-        'employe_link',
-        'annee',
-        'jours_disponibles_colored',
-        'jours_acquis',
-        'jours_pris',
-        'jours_en_attente',
-        'jours_reportes',
-        'rtt_disponibles',
-        'derniere_maj',
+        'code', 'libelle', 'categorie_badge', 'paye_badge',
+        'decompte_solde_badge', 'justificatif_badge', 'actif_badge', 'couleur_preview'
     ]
-
-    list_filter = [
-        'annee',
-        'derniere_maj',
-    ]
-
-    search_fields = [
-        'employe__nom',
-        'employe__prenoms',
-        'employe__matricule',
-    ]
-
-    readonly_fields = [
-        'id',
-        'derniere_maj',
-        'created_at',
-        'updated_at',
-        'jours_disponibles_progress',
-    ]
+    list_filter = ['categorie', 'paye', 'decompte_solde', 'actif', 'justificatif_obligatoire']
+    search_fields = ['code', 'libelle']
+    ordering = ['ordre', 'libelle']
 
     fieldsets = (
-        ('👤 Employé', {
+        ('Identification', {
+            'fields': ('code', 'libelle', 'categorie', 'ordre')
+        }),
+        ('Paramètres', {
             'fields': (
-                'id',
-                'employe',
-                'annee',
+                'paye',
+                'decompte_solde',
+                'justificatif_obligatoire',
+                'actif'
             )
         }),
-        ('🏖️ Congés Payés', {
+        ('Apparence', {
+            'fields': ('couleur',),
+            'description': 'Couleur d\'affichage au format hexadécimal (#RRGGBB)'
+        }),
+    )
+
+    def categorie_badge(self, obj):
+        colors = {
+            'CONGES_PAYES': '#3498db',
+            'MALADIE': '#e74c3c',
+            'AUTORISATION': '#f39c12',
+            'SANS_SOLDE': '#95a5a6',
+            'MATERNITE': '#9b59b6',
+            'FORMATION': '#1abc9c',
+            'MISSION': '#34495e',
+        }
+        color = colors.get(obj.categorie, '#95a5a6')
+        return format_html(
+            '<span style="background-color: {}; color: white; padding: 3px 8px; '
+            'border-radius: 3px; font-size: 11px;">{}</span>',
+            color,
+            obj.get_categorie_display()
+        )
+
+    categorie_badge.short_description = 'Catégorie'
+
+    def paye_badge(self, obj):
+        if obj.paye:
+            return format_html('<span style="color: #28a745;">✓ Payé</span>')
+        return format_html('<span style="color: #dc3545;">✗ Non payé</span>')
+
+    paye_badge.short_description = 'Payé'
+
+    def decompte_solde_badge(self, obj):
+        if obj.decompte_solde:
+            return format_html('<span style="color: #f39c12;">● Décompté</span>')
+        return format_html('<span style="color: #888;">○ Non décompté</span>')
+
+    decompte_solde_badge.short_description = 'Solde'
+
+    def justificatif_badge(self, obj):
+        if obj.justificatif_obligatoire:
+            return format_html('<span style="color: #dc3545;">✓ Obligatoire</span>')
+        return format_html('<span style="color: #888;">○ Facultatif</span>')
+
+    justificatif_badge.short_description = 'Justificatif'
+
+    def actif_badge(self, obj):
+        if obj.actif:
+            return format_html('<span style="color: #28a745;">✓</span>')
+        return format_html('<span style="color: #dc3545;">✗</span>')
+
+    actif_badge.short_description = 'Actif'
+
+    def couleur_preview(self, obj):
+        return format_html(
+            '<div style="width: 30px; height: 20px; background-color: {}; '
+            'border: 1px solid #ddd; border-radius: 3px;"></div>',
+            obj.couleur
+        )
+
+    couleur_preview.short_description = 'Couleur'
+
+
+# ========================================
+# 3. JourFerie
+# ========================================
+
+@admin.register(JourFerie)
+class JourFerieAdmin(admin.ModelAdmin):
+    list_display = [
+        'nom', 'date', 'jour_semaine', 'type_badge',
+        'recurrent_badge', 'actif_badge'
+    ]
+    # ✅ CORRECTION : Retirer 'date__year' et utiliser uniquement les champs directs
+    list_filter = ['type_ferie', 'recurrent', 'actif']  # ✅ Supprimé 'date__year'
+    search_fields = ['nom', 'description']
+    date_hierarchy = 'date'  # ✅ Ceci permet déjà de filtrer par année
+    readonly_fields = ['annee', 'mois_nom', 'jour_semaine', 'created_at', 'updated_at']
+
+    fieldsets = (
+        ('Informations', {
+            'fields': ('nom', 'date', 'type_ferie', 'recurrent', 'actif')
+        }),
+        ('Description', {
+            'fields': ('description',),
+            'classes': ('collapse',)
+        }),
+        ('Informations calculées', {
+            'fields': ('annee', 'mois_nom', 'jour_semaine'),
+            'classes': ('collapse',)
+        }),
+        ('Audit', {
+            'fields': ('created_by', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def type_badge(self, obj):
+        if obj.type_ferie == 'LEGAL':
+            return format_html(
+                '<span style="background-color: #28a745; color: white; padding: 3px 8px; '
+                'border-radius: 3px; font-size: 11px;">LÉGAL</span>'
+            )
+        return format_html(
+            '<span style="background-color: #17a2b8; color: white; padding: 3px 8px; '
+            'border-radius: 3px; font-size: 11px;">ENTREPRISE</span>'
+        )
+
+    type_badge.short_description = 'Type'
+
+    def recurrent_badge(self, obj):
+        if obj.recurrent:
+            return format_html('<span style="color: #17a2b8;">🔁 Oui</span>')
+        return format_html('<span style="color: #888;">✗ Non</span>')
+
+    recurrent_badge.short_description = 'Récurrent'
+
+    def actif_badge(self, obj):
+        if obj.actif:
+            return format_html('<span style="color: #28a745;">✓</span>')
+        return format_html('<span style="color: #dc3545;">✗</span>')
+
+    actif_badge.short_description = 'Actif'
+
+
+# ========================================
+# 4. ParametreCalculConges
+# ========================================
+
+@admin.register(ParametreCalculConges)
+class ParametreCalculCongesAdmin(admin.ModelAdmin):
+    list_display = [
+        'configuration', 'plafond_jours_an', 'report_badge',
+        'jours_report_max', 'prise_compte_temps_partiel_badge'
+    ]
+    list_filter = ['report_autorise', 'prise_compte_temps_partiel']
+    search_fields = ['configuration__nom', 'configuration__code']
+
+    fieldsets = (
+        ('Convention associée', {
+            'fields': ('configuration',)
+        }),
+        ('Acquisition', {
+            'fields': ('mois_acquisition_min', 'plafond_jours_an')
+        }),
+        ('Report', {
+            'fields': ('report_autorise', 'jours_report_max', 'delai_prise_report')
+        }),
+        ('Ancienneté', {
+            'fields': ('jours_supp_anciennete',),
+            'description': 'Format JSON: {"5": 1, "10": 2} = +1 jour après 5 ans, +2 après 10 ans'
+        }),
+        ('Temps partiel', {
+            'fields': ('prise_compte_temps_partiel',)
+        }),
+    )
+
+    def report_badge(self, obj):
+        if obj.report_autorise:
+            return format_html('<span style="color: #28a745;">✓ Autorisé</span>')
+        return format_html('<span style="color: #dc3545;">✗ Non autorisé</span>')
+
+    report_badge.short_description = 'Report'
+
+    def prise_compte_temps_partiel_badge(self, obj):
+        if obj.prise_compte_temps_partiel:
+            return format_html('<span style="color: #17a2b8;">✓ Oui</span>')
+        return format_html('<span style="color: #888;">✗ Non</span>')
+
+    prise_compte_temps_partiel_badge.short_description = 'Temps partiel'
+
+
+# ========================================
+# 5. AcquisitionConges
+# ========================================
+
+@admin.register(AcquisitionConges)
+class AcquisitionCongesAdmin(admin.ModelAdmin):
+    list_display = [
+        'employe', 'annee_reference', 'jours_acquis_display',
+        'jours_pris_display', 'jours_restants_display',
+        'jours_report_anterieur_display', 'date_maj'
+    ]
+    list_filter = ['annee_reference']
+    search_fields = ['employe__nom', 'employe__prenoms', 'employe__matricule']
+    readonly_fields = ['date_calcul', 'date_maj']
+    date_hierarchy = 'date_maj'
+
+    fieldsets = (
+        ('Employé', {
+            'fields': ('employe', 'annee_reference')
+        }),
+        ('Solde', {
             'fields': (
                 'jours_acquis',
-                'jours_reportes',
                 'jours_pris',
-                'jours_en_attente',
-                'jours_disponibles',
-                'jours_disponibles_progress',
+                'jours_restants',
+                'jours_report_anterieur',
+                'jours_report_nouveau'
             )
         }),
-        ('⏰ RTT', {
-            'fields': (
-                'rtt_acquis',
-                'rtt_pris',
-                'rtt_disponibles',
-            )
-        }),
-        ('🔍 Audit', {
-            'fields': (
-                'derniere_maj',
-                'created_at',
-                'updated_at',
-            ),
-            'classes': ('collapse',),
+        ('Dates', {
+            'fields': ('date_calcul', 'date_maj'),
+            'classes': ('collapse',)
         }),
     )
 
-    date_hierarchy = 'derniere_maj'
-
-    actions = ['recalculer_soldes']
-
-    def employe_link(self, obj):
-        """Lien vers l'employé"""
-        url = reverse('admin:employee_zy00_change', args=[obj.employe.pk])
+    def jours_acquis_display(self, obj):
         return format_html(
-            '<a href="{}" target="_blank">{} {}</a>',
-            url,
-            obj.employe.nom,
-            obj.employe.prenoms
+            '<span style="color: #28a745; font-weight: bold;">{} j</span>',
+            obj.jours_acquis
         )
-    employe_link.short_description = 'Employé'
-    employe_link.admin_order_field = 'employe__nom'
 
-    def jours_disponibles_colored(self, obj):
-        """Jours disponibles avec couleur"""
-        if obj.jours_disponibles < 5:
-            color = '#ef4444'  # Rouge
-        elif obj.jours_disponibles < 10:
-            color = '#f59e0b'  # Orange
-        else:
-            color = '#10b981'  # Vert
+    jours_acquis_display.short_description = 'Acquis'
 
+    def jours_pris_display(self, obj):
         return format_html(
-            '<strong style="color: {}; font-size: 16px;">{} jours</strong>',
+            '<span style="color: #f39c12; font-weight: bold;">{} j</span>',
+            obj.jours_pris
+        )
+
+    jours_pris_display.short_description = 'Pris'
+
+    def jours_restants_display(self, obj):
+        color = '#28a745' if obj.jours_restants > 0 else '#dc3545'
+        return format_html(
+            '<span style="color: {}; font-weight: bold;">{} j</span>',
             color,
-            obj.jours_disponibles
+            obj.jours_restants
         )
-    jours_disponibles_colored.short_description = 'Disponibles'
-    jours_disponibles_colored.admin_order_field = 'jours_disponibles'
 
-    def jours_disponibles_progress(self, obj):
-        """Barre de progression des jours"""
-        total = obj.jours_acquis + obj.jours_reportes
-        if total == 0:
-            pourcentage = 0
-        else:
-            pourcentage = (obj.jours_disponibles / total) * 100
+    jours_restants_display.short_description = 'Restants'
 
-        if pourcentage < 30:
-            color = '#ef4444'
-        elif pourcentage < 60:
-            color = '#f59e0b'
-        else:
-            color = '#10b981'
-
-        html = f'''
-        <div style="width: 100%; background: #e5e7eb; border-radius: 8px; overflow: hidden;">
-            <div style="width: {pourcentage}%; background: {color}; height: 24px; 
-                        display: flex; align-items: center; justify-content: center; 
-                        color: white; font-weight: 600; font-size: 12px;">
-                {pourcentage:.1f}%
-            </div>
-        </div>
-        <div style="margin-top: 5px; font-size: 12px; color: #6b7280;">
-            {obj.jours_disponibles} / {total} jours
-        </div>
-        '''
-        return format_html(html)
-    jours_disponibles_progress.short_description = 'Progression'
-
-    def recalculer_soldes(self, request, queryset):
-        """Recalculer les soldes"""
-        for solde in queryset:
-            solde.calculer_soldes()
-        self.message_user(request, f'{queryset.count()} solde(s) recalculé(s).')
-    recalculer_soldes.short_description = '🔄 Recalculer les soldes'
-
-
-# ==========================================
-# ADMIN HISTORIQUE (ZDHA)
-# ==========================================
-
-@admin.register(ZDHA)
-class ZDHAAdmin(admin.ModelAdmin):
-    """
-    Administration de l'historique des absences
-    """
-
-    list_display = [
-        'timestamp',
-        'demande_link',
-        'action_badge',
-        'utilisateur_link',
-        'ancien_statut',
-        'nouveau_statut',
-        'commentaire_short',
-    ]
-
-    list_filter = [
-        'action',
-        'timestamp',
-        'ancien_statut',
-        'nouveau_statut',
-    ]
-
-    search_fields = [
-        'demande__numero_demande',
-        'utilisateur__nom',
-        'utilisateur__prenoms',
-        'commentaire',
-    ]
-
-    readonly_fields = [
-        'id',
-        'demande',
-        'action',
-        'utilisateur',
-        'ancien_statut',
-        'nouveau_statut',
-        'commentaire',
-        'donnees_modifiees_formatted',
-        'ip_address',
-        'timestamp',
-    ]
-
-    fieldsets = (
-        ('📋 Informations', {
-            'fields': (
-                'id',
-                'demande',
-                'timestamp',
+    def jours_report_anterieur_display(self, obj):
+        if obj.jours_report_anterieur > 0:
+            return format_html(
+                '<span style="color: #17a2b8;">{} j</span>',
+                obj.jours_report_anterieur
             )
-        }),
-        ('⚡ Action', {
-            'fields': (
-                'action',
-                'utilisateur',
-                'ancien_statut',
-                'nouveau_statut',
-                'commentaire',
-            )
-        }),
-        ('📊 Données modifiées', {
-            'fields': (
-                'donnees_modifiees_formatted',
-            ),
-            'classes': ('collapse',),
-        }),
-        ('🔍 Technique', {
-            'fields': (
-                'ip_address',
-            ),
-            'classes': ('collapse',),
-        }),
-    )
-
-    date_hierarchy = 'timestamp'
-
-    def has_add_permission(self, request):
-        """Désactiver l'ajout manuel"""
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        """Désactiver la suppression"""
-        return False
-
-    def demande_link(self, obj):
-        """Lien vers la demande"""
-        url = reverse('admin:absence_zdda_change', args=[obj.demande.id])
-        return format_html(
-            '<a href="{}" target="_blank">{}</a>',
-            url,
-            obj.demande.numero_demande
-        )
-    demande_link.short_description = 'Demande'
-    demande_link.admin_order_field = 'demande__numero_demande'
-
-    def action_badge(self, obj):
-        """Badge pour l'action"""
-        colors = {
-            'CREATION': '#3b82f6',
-            'MODIFICATION': '#f59e0b',
-            'VALIDATION_MANAGER': '#10b981',
-            'VALIDATION_RH': '#059669',
-            'REFUS_MANAGER': '#ef4444',
-            'REFUS_RH': '#dc2626',
-            'ANNULATION': '#6b7280',
-        }
-        color = colors.get(obj.action, '#6b7280')
-        return format_html(
-            '<span style="background: {}; color: white; padding: 4px 10px; '
-            'border-radius: 12px; font-size: 11px; font-weight: 600;">{}</span>',
-            color,
-            obj.get_action_display()
-        )
-    action_badge.short_description = 'Action'
-    action_badge.admin_order_field = 'action'
-
-    def utilisateur_link(self, obj):
-        """Lien vers l'utilisateur"""
-        if not obj.utilisateur:
-            return '-'
-        url = reverse('admin:employee_zy00_change', args=[obj.utilisateur.pk])
-        return format_html(
-            '<a href="{}" target="_blank">{} {}</a>',
-            url,
-            obj.utilisateur.nom,
-            obj.utilisateur.prenoms
-        )
-    utilisateur_link.short_description = 'Utilisateur'
-    utilisateur_link.admin_order_field = 'utilisateur__nom'
-
-    def commentaire_short(self, obj):
-        """Commentaire tronqué"""
-        if obj.commentaire:
-            return obj.commentaire[:50] + ('...' if len(obj.commentaire) > 50 else '')
         return '-'
-    commentaire_short.short_description = 'Commentaire'
 
-    def donnees_modifiees_formatted(self, obj):
-        """Données modifiées formatées"""
-        if not obj.donnees_modifiees:
-            return format_html('<em>Aucune donnée</em>')
-
-        try:
-            data = json.dumps(obj.donnees_modifiees, indent=2, ensure_ascii=False)
-            return format_html('<pre style="background: #f3f4f6; padding: 10px; border-radius: 4px;">{}</pre>', data)
-        except:
-            return str(obj.donnees_modifiees)
-    donnees_modifiees_formatted.short_description = 'Données JSON'
+    jours_report_anterieur_display.short_description = 'Report ant.'
 
 
-# ==========================================
-# ADMIN JOURS FÉRIÉS (ZDJF)
-# ==========================================
+# ========================================
+# 6. Absence
+# ========================================
 
-@admin.register(ZDJF)
-class ZDJFAdmin(admin.ModelAdmin):
-    """
-    Administration des jours fériés
-    """
+class ValidationAbsenceInline(admin.TabularInline):
+    model = ValidationAbsence
+    extra = 0
+    readonly_fields = ['etape', 'ordre', 'validateur', 'decision', 'date_validation']
+    can_delete = False
 
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(Absence)
+class AbsenceAdmin(admin.ModelAdmin):
     list_display = [
-        'date_formatted',
-        'libelle',
-        'fixe_icon',
-        'actif_icon',
+        'employe', 'type_absence', 'periode_absence',
+        'periode_badge', 'jours_ouvrables_display',
+        'statut_badge', 'created_at'
     ]
-
-    list_filter = [
-        'fixe',
-        'actif',
-        'date',
-    ]
-
-    search_fields = [
-        'libelle',
-    ]
-
+    list_filter = ['statut', 'type_absence', 'periode', 'date_debut']
+    search_fields = ['employe__nom', 'employe__prenoms', 'employe__matricule', 'motif']
     readonly_fields = [
-        'id',
-        'created_at',
-        'updated_at',
+        'jours_ouvrables', 'jours_calendaires',
+        'created_at', 'updated_at', 'created_by',
+        'annee_acquisition_utilisee'
     ]
+    date_hierarchy = 'date_debut'
+    inlines = [ValidationAbsenceInline]
 
     fieldsets = (
-        ('📅 Jour férié', {
-            'fields': (
-                'id',
-                'date',
-                'libelle',
-                'fixe',
-                'actif',
-            )
+        ('Employé et Type', {
+            'fields': ('employe', 'type_absence', 'created_by')
         }),
-        ('🔍 Audit', {
+        ('Période', {
             'fields': (
-                'created_at',
-                'updated_at',
-            ),
-            'classes': ('collapse',),
-        }),
-    )
-
-    date_hierarchy = 'date'
-
-    actions = ['activer', 'desactiver']
-
-    def date_formatted(self, obj):
-        """Date formatée avec jour de la semaine"""
-        jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
-        jour = jours[obj.date.weekday()]
-        return format_html(
-            '<strong>{}</strong><br><small style="color: #6b7280;">{}</small>',
-            obj.date.strftime('%d/%m/%Y'),
-            jour
-        )
-    date_formatted.short_description = 'Date'
-    date_formatted.admin_order_field = 'date'
-
-    def fixe_icon(self, obj):
-        """Icône pour date fixe"""
-        if obj.fixe:
-            return format_html('<span style="color: #10b981; font-size: 18px;">📌</span>')
-        return format_html('<span style="color: #d1d5db; font-size: 18px;">📅</span>')
-    fixe_icon.short_description = 'Fixe'
-    fixe_icon.admin_order_field = 'fixe'
-
-    def actif_icon(self, obj):
-        """Icône pour actif"""
-        if obj.actif:
-            return format_html('<span style="color: #10b981; font-size: 18px;">✅</span>')
-        return format_html('<span style="color: #ef4444; font-size: 18px;">❌</span>')
-    actif_icon.short_description = 'Actif'
-    actif_icon.admin_order_field = 'actif'
-
-    def activer(self, request, queryset):
-        """Activer les jours fériés"""
-        updated = queryset.update(actif=True)
-        self.message_user(request, f'{updated} jour(s) férié(s) activé(s).')
-    activer.short_description = '✅ Activer'
-
-    def desactiver(self, request, queryset):
-        """Désactiver les jours fériés"""
-        updated = queryset.update(actif=False)
-        self.message_user(request, f'{updated} jour(s) férié(s) désactivé(s).')
-    desactiver.short_description = '❌ Désactiver'
-
-
-# ==========================================
-# ADMIN PÉRIODES DE FERMETURE (ZDPF)
-# ==========================================
-
-@admin.register(ZDPF)
-class ZDPFAdmin(admin.ModelAdmin):
-    """
-    Administration des périodes de fermeture
-    """
-
-    list_display = [
-        'libelle',
-        'date_debut',
-        'date_fin',
-        'duree_jours',
-        'actif_icon',
-        'created_by',
-    ]
-
-    list_filter = [
-        'actif',
-        'date_debut',
-        'created_at',
-    ]
-
-    search_fields = [
-        'libelle',
-        'description',
-    ]
-
-    readonly_fields = [
-        'id',
-        'created_at',
-        'updated_at',
-        'duree_jours',
-    ]
-
-    fieldsets = (
-        ('🏢 Période de fermeture', {
-            'fields': (
-                'id',
-                'libelle',
-                'description',
                 'date_debut',
                 'date_fin',
-                'duree_jours',
-                'actif',
+                'periode',
+                'jours_ouvrables',
+                'jours_calendaires',
+                'annee_acquisition_utilisee'
             )
         }),
-        ('🔍 Audit', {
+        ('Validation Manager', {
             'fields': (
-                'created_at',
-                'updated_at',
-                'created_by',
+                'manager_validateur',
+                'date_validation_manager',
+                'commentaire_manager'
             ),
-            'classes': ('collapse',),
+            'classes': ('collapse',)
+        }),
+        ('Validation RH', {
+            'fields': (
+                'rh_validateur',
+                'date_validation_rh',
+                'commentaire_rh'
+            ),
+            'classes': ('collapse',)
+        }),
+        ('Justification', {
+            'fields': ('motif', 'justificatif')
+        }),
+        ('Statut', {
+            'fields': ('statut',)
+        }),
+        ('Dates système', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
         }),
     )
 
-    date_hierarchy = 'date_debut'
+    def periode_absence(self, obj):
+        return f"{obj.date_debut.strftime('%d/%m/%Y')} → {obj.date_fin.strftime('%d/%m/%Y')}"
 
-    actions = ['activer', 'desactiver']
+    periode_absence.short_description = 'Période'
 
-    def duree_jours(self, obj):
-        """Calcul de la durée en jours"""
-        if obj.date_debut and obj.date_fin:
-            duree = (obj.date_fin - obj.date_debut).days + 1
-            return f"{duree} jour{'s' if duree > 1 else ''}"
+    def periode_badge(self, obj):
+        colors = {
+            'JOURNEE_COMPLETE': '#3498db',
+            'MATIN': '#f39c12',
+            'APRES_MIDI': '#9b59b6'
+        }
+        color = colors.get(obj.periode, '#95a5a6')
+        return format_html(
+            '<span style="background-color: {}; color: white; padding: 2px 6px; '
+            'border-radius: 3px; font-size: 10px;">{}</span>',
+            color,
+            obj.get_periode_display()
+        )
+
+    periode_badge.short_description = 'Période'
+
+    def jours_ouvrables_display(self, obj):
+        return format_html('<strong>{} j</strong>', obj.jours_ouvrables)
+
+    jours_ouvrables_display.short_description = 'Jours'
+
+    def statut_badge(self, obj):
+        colors = {
+            'BROUILLON': '#95a5a6',
+            'EN_ATTENTE_MANAGER': '#f39c12',
+            'EN_ATTENTE_RH': '#3498db',
+            'VALIDE': '#28a745',
+            'REJETE': '#dc3545',
+            'ANNULE': '#6c757d',
+        }
+        color = colors.get(obj.statut, '#95a5a6')
+        return format_html(
+            '<span style="background-color: {}; color: white; padding: 3px 8px; '
+            'border-radius: 3px; font-size: 11px;">{}</span>',
+            color,
+            obj.get_statut_display()
+        )
+
+    statut_badge.short_description = 'Statut'
+
+
+# ========================================
+# 7. NotificationAbsence
+# ========================================
+
+@admin.register(NotificationAbsence)
+class NotificationAbsenceAdmin(admin.ModelAdmin):
+    list_display = [
+        'destinataire', 'type_notification_badge', 'contexte_badge',
+        'absence_link', 'lue_badge', 'date_creation'
+    ]
+    list_filter = ['type_notification', 'contexte', 'lue', 'date_creation']
+    search_fields = ['destinataire__nom', 'destinataire__prenoms', 'message']
+    readonly_fields = ['date_creation', 'date_lecture']
+    date_hierarchy = 'date_creation'
+
+    fieldsets = (
+        ('Destinataire', {
+            'fields': ('destinataire', 'contexte')
+        }),
+        ('Notification', {
+            'fields': ('absence', 'type_notification', 'message')
+        }),
+        ('Lecture', {
+            'fields': ('lue', 'date_creation', 'date_lecture')
+        }),
+    )
+
+    def type_notification_badge(self, obj):
+        return format_html(
+            '<span style="font-size: 11px;">{}</span>',
+            obj.get_type_notification_display()
+        )
+
+    type_notification_badge.short_description = 'Type'
+
+    def contexte_badge(self, obj):
+        colors = {
+            'EMPLOYE': '#3498db',
+            'MANAGER': '#f39c12',
+            'RH': '#9b59b6'
+        }
+        color = colors.get(obj.contexte, '#95a5a6')
+        return format_html(
+            '<span style="background-color: {}; color: white; padding: 2px 6px; '
+            'border-radius: 3px; font-size: 10px;">{}</span>',
+            color,
+            obj.get_contexte_display()
+        )
+
+    contexte_badge.short_description = 'Contexte'
+
+    def absence_link(self, obj):
+        if obj.absence:
+            return format_html(
+                '{} - {}',
+                obj.absence.employe,
+                obj.absence.type_absence.code
+            )
         return '-'
-    duree_jours.short_description = 'Durée'
 
-    def actif_icon(self, obj):
-        """Icône pour actif"""
-        if obj.actif:
-            return format_html('<span style="color: #10b981; font-size: 18px;">✅</span>')
-        return format_html('<span style="color: #ef4444; font-size: 18px;">❌</span>')
-    actif_icon.short_description = 'Actif'
-    actif_icon.admin_order_field = 'actif'
+    absence_link.short_description = 'Absence'
 
-    def activer(self, request, queryset):
-        """Activer les périodes"""
-        updated = queryset.update(actif=True)
-        self.message_user(request, f'{updated} période(s) activée(s).')
-    activer.short_description = '✅ Activer'
+    def lue_badge(self, obj):
+        if obj.lue:
+            return format_html('<span style="color: #28a745;">✓ Lue</span>')
+        return format_html('<span style="color: #dc3545; font-weight: bold;">● Non lue</span>')
 
-    def desactiver(self, request, queryset):
-        """Désactiver les périodes"""
-        updated = queryset.update(actif=False)
-        self.message_user(request, f'{updated} période(s) désactivée(s).')
-    desactiver.short_description = '❌ Désactiver'
+    lue_badge.short_description = 'État'
+
+
+# ========================================
+# 8. ValidationAbsence
+# ========================================
+
+@admin.register(ValidationAbsence)
+class ValidationAbsenceAdmin(admin.ModelAdmin):
+    list_display = [
+        'absence', 'etape_badge', 'ordre', 'validateur',
+        'decision_badge', 'date_validation'
+    ]
+    list_filter = ['etape', 'decision', 'date_validation']
+    search_fields = ['absence__employe__nom', 'validateur__nom', 'commentaire']
+    readonly_fields = ['date_demande', 'date_validation']
+    date_hierarchy = 'date_validation'
+
+    fieldsets = (
+        ('Absence', {
+            'fields': ('absence', 'etape', 'ordre')
+        }),
+        ('Validation', {
+            'fields': ('validateur', 'decision', 'commentaire')
+        }),
+        ('Dates', {
+            'fields': ('date_demande', 'date_validation')
+        }),
+    )
+
+    def etape_badge(self, obj):
+        colors = {
+            'MANAGER': '#f39c12',
+            'RH': '#9b59b6'
+        }
+        color = colors.get(obj.etape, '#95a5a6')
+        return format_html(
+            '<span style="background-color: {}; color: white; padding: 3px 8px; '
+            'border-radius: 3px; font-size: 11px;">{}</span>',
+            color,
+            obj.get_etape_display()
+        )
+
+    etape_badge.short_description = 'Étape'
+
+    def decision_badge(self, obj):
+        colors = {
+            'EN_ATTENTE': '#95a5a6',
+            'APPROUVE': '#28a745',
+            'REJETE': '#dc3545',
+            'RETOURNE': '#f39c12',
+        }
+        color = colors.get(obj.decision, '#95a5a6')
+        return format_html(
+            '<span style="background-color: {}; color: white; padding: 3px 8px; '
+            'border-radius: 3px; font-size: 11px;">{}</span>',
+            color,
+            obj.get_decision_display()
+        )
+
+    decision_badge.short_description = 'Décision'

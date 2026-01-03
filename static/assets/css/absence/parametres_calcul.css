@@ -1,0 +1,557 @@
+/* static/assets/css/absence/parametres_calcul.css */
+
+/* ===== STATISTIQUES ===== */
+.small-box .inner h3 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.small-box .inner p {
+    font-size: 1rem;
+    margin: 0;
+}
+
+.small-box .icon {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 4rem;
+    position: absolute;
+    right: 15px;
+    top: 15px;
+}
+
+/* ===== FILTRES ===== */
+.card-header .form-inline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.card-header .input-group,
+.card-header .form-control {
+    max-width: 250px;
+}
+
+/* ===== TABLE ===== */
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+    transition: background-color 0.2s ease;
+}
+
+.table th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    color: #6c757d;
+    border-top: none;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.action-buttons {
+    white-space: nowrap;
+}
+
+.action-buttons .btn {
+    margin: 0 2px;
+}
+
+/* ===== BADGES ===== */
+.badge {
+    font-size: 0.85rem;
+    padding: 0.4em 0.6em;
+    font-weight: 500;
+}
+
+.badge i {
+    margin-right: 3px;
+}
+
+/* ===== MODAL ===== */
+.modal-lg {
+    max-width: 900px;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+    border-bottom: none;
+}
+
+.modal-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+}
+
+.modal-footer {
+    background-color: #fff;
+    border-top: 1px solid #dee2e6;
+}
+
+/* ===== CARDS DANS LE MODAL ===== */
+.modal-body .card {
+    border: 1px solid #dee2e6;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1rem;
+}
+
+.modal-body .card-header {
+    background: linear-gradient(to right, #f8f9fa, #e9ecef);
+    border-bottom: 1px solid #dee2e6;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+}
+
+.modal-body .card-body {
+    background-color: #fff;
+    padding: 1.25rem;
+}
+
+/* ===== FORMULAIRE ===== */
+.form-group label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.form-control,
+.form-select {
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #1c5d5f;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.form-control.is-invalid {
+    border-color: #193f41;
+}
+
+.form-control.is-invalid:focus {
+    border-color: #193f41;
+    box-shadow: 0 0 0 0.2rem #193f41;
+}
+
+.invalid-feedback {
+    display: none;
+    color: #193f41;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.form-control.is-invalid ~ .invalid-feedback {
+    display: block;
+}
+
+.form-text {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+/* ===== SWITCH PERSONNALISÉ ===== */
+.custom-control-label {
+    font-weight: 500;
+    color: #495057;
+    cursor: pointer;
+}
+
+.custom-control-input:checked ~ .custom-control-label::before {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+/* ===== MESSAGES D'ERREUR ===== */
+#formErrors {
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+}
+
+#errorList {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+#errorList li {
+    padding: 0.25rem 0;
+}
+
+#errorList li:before {
+    content: "• ";
+    color: #721c24;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+/* ===== BOUTONS ===== */
+.btn {
+    border-radius: 0.25rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+.btn-success {
+    background-color: #1c5d5f;
+    border-color: #193f41;
+}
+
+.btn-success:hover {
+    background-color: #1c5d5f;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px #193f41;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.btn i {
+    margin-right: 5px;
+}
+
+.btn-sm i {
+    margin-right: 0;
+}
+
+/* ===== CHAMPS CONDITIONNELS (REPORT) ===== */
+#report_fields {
+    display: none;
+    padding-top: 1rem;
+    border-top: 1px solid #dee2e6;
+    margin-top: 1rem;
+}
+
+#report_fields.show {
+    display: block;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .small-box .icon {
+        font-size: 3rem;
+        right: 10px;
+        top: 10px;
+    }
+
+    .small-box .inner h3 {
+        font-size: 2rem;
+    }
+
+    .modal-lg {
+        max-width: 95%;
+    }
+
+    .card-header .form-inline {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .card-header .input-group,
+    .card-header .form-control {
+        max-width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .table-responsive {
+        font-size: 0.85rem;
+    }
+
+    .action-buttons .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .content-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .modal-body .row > div {
+        margin-bottom: 1rem;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+    }
+
+    .modal-footer .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .modal-footer .btn:last-child {
+        margin-bottom: 0;
+    }
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal.show .modal-dialog {
+    animation: fadeIn 0.3s ease;
+}
+
+/* ===== LOADING STATE ===== */
+.btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.15em;
+}
+
+/* ===== ICÔNES ===== */
+.fas,
+.far {
+    vertical-align: middle;
+}
+
+/* ===== SCROLLBAR PERSONNALISÉE (WEBKIT) ===== */
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* ===== STATISTIQUES - SMALL BOXES ===== */
+.small-box {
+    position: relative;
+    display: block;
+    border-radius: 0.25rem;
+    box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+    margin-bottom: 20px;
+    padding: 10px;
+    min-height: 120px;
+}
+
+.small-box > .inner {
+    padding: 10px;
+    position: relative;
+    z-index: 5;
+}
+
+.small-box > .inner h3 {
+    font-size: 2.2rem;
+    font-weight: bold;
+    margin: 0 0 10px 0;
+    padding: 0;
+    white-space: nowrap;
+    color: #fff;
+}
+
+.small-box > .inner p {
+    font-size: 1rem;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.small-box .icon {
+    position: absolute;
+    top: auto;
+    bottom: 10px;
+    right: 10px;
+    z-index: 0;
+    font-size: 70px;
+    color: rgba(0, 0, 0, 0.15);
+    transition: all 0.3s linear;
+}
+
+.small-box:hover {
+    text-decoration: none;
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.small-box:hover .icon {
+    font-size: 80px;
+}
+
+/* Couleurs pour les small-box */
+.small-box.bg-info {
+    background-color: #17a2b8 !important;
+}
+
+.small-box.bg-success {
+    background-color: #28a745 !important;
+}
+
+.small-box.bg-warning {
+    background-color: #ffc107 !important;
+}
+
+.small-box.bg-primary {
+    background-color: #007bff !important;
+}
+
+/* Supprimer l'ancienne classe card-stats si elle existe */
+.card-stats {
+    /* Cette classe n'est plus nécessaire */
+}
+
+/* ===== RESPONSIVE POUR LES STATISTIQUES ===== */
+@media (max-width: 768px) {
+    .small-box > .inner h3 {
+        font-size: 1.8rem;
+    }
+
+    .small-box .icon {
+        font-size: 50px;
+        bottom: 5px;
+        right: 5px;
+    }
+
+    .small-box:hover .icon {
+        font-size: 60px;
+    }
+
+    .small-box {
+        min-height: 100px;
+    }
+}
+
+@media (max-width: 576px) {
+    .small-box > .inner h3 {
+        font-size: 1.5rem;
+    }
+
+    .small-box > .inner p {
+        font-size: 0.9rem;
+    }
+
+    .small-box .icon {
+        font-size: 40px;
+    }
+
+    .small-box:hover .icon {
+        font-size: 50px;
+    }
+}
+
+
+    .stats-card {
+        background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+
+    .stat-item {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .badge-readonly {
+        background: #17a2b8;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        margin-left: 10px;
+    }
+
+    .table-responsive {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .filter-section {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .highlight-card {
+        background-color: #fff3cd !important;
+        border-left: 4px solid #ffc107 !important;
+        transition: background-color 0.3s ease;
+    }

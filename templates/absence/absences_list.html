@@ -1,0 +1,522 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'assets/css/absence/absences.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<!-- ✅ FullCalendar CSS -->
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
+
+{% endblock %}
+
+{% block pageContent %}
+
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-calendar-alt"></i> Mes Absences
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <div class="float-right">
+                        <a href="{% url 'absence:creer_absence' %}" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Nouvelle demande
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Solde de congés -->
+        {% if solde_disponible %}
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card bg-gradient-primary text-white solde-card">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-3 text-center">
+                                <i class="fas fa-umbrella-beach fa-3x mb-2"></i>
+                                <h5>Solde de Congés</h5>
+                                <small>Année {{ solde_disponible.annee_acquisition }}</small>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="solde-item">
+                                            <h3>{{ solde_disponible.jours_acquis|floatformat:2 }}</h3>
+                                            <p>Jours Acquis</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="solde-item">
+                                            <h3>{{ solde_disponible.jours_pris|floatformat:2 }}</h3>
+                                            <p>Jours Pris</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="solde-item">
+                                            <h3 class="text-warning">{{ solde_disponible.jours_restants|floatformat:2 }}</h3>
+                                            <p>Jours Restants</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="progress" style="height: 30px;">
+                                            {% widthratio solde_disponible.jours_restants solde_disponible.jours_acquis 100 as pourcentage %}
+                                            <div class="progress-bar bg-warning" role="progressbar"
+                                                 style="width: {{ pourcentage }}%">
+                                                {{ pourcentage }}%
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Statistiques -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="small-box bg-info text-white">
+                    <div class="inner">
+                        <h3>{{ stats.total }}</h3>
+                        <p>Total Demandes</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-list"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="small-box bg-warning text-white">
+                    <div class="inner">
+                        <h3>{{ stats.en_attente }}</h3>
+                        <p>En Attente</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="small-box bg-success text-white">
+                    <div class="inner">
+                        <h3>{{ stats.validees }}</h3>
+                        <p>Validées</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="small-box bg-danger text-white">
+                    <div class="inner">
+                        <h3>{{ stats.rejetees }}</h3>
+                        <p>Rejetées</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-times"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ✅ LAYOUT AVEC SIDEBAR -->
+        <div class="main-content-with-sidebar">
+            <!-- CONTENU PRINCIPAL (Liste) -->
+            <div class="content-left">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-list"></i> Liste des absences
+                        </h3>
+                    </div>
+
+                    <div class="card-body">
+                        <!-- Filtres -->
+                        <form method="GET" id="filterForm" class="mb-4">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    {{ form.type_absence }}
+                                </div>
+                                <div class="col-md-3">
+                                    {{ form.statut }}
+                                </div>
+                                <div class="col-md-2">
+                                    {{ form.date_debut }}
+                                </div>
+                                <div class="col-md-2">
+                                    {{ form.date_fin }}
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="submit" class="btn btn-primary btn-block">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Tableau -->
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="absencesTable">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Type</th>
+                                        <th>Date Début</th>
+                                        <th>Date Fin</th>
+                                        <th>Durée</th>
+                                        <th>Statut</th>
+                                        <th>Validations</th>
+                                        <th class="text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for absence in page_obj %}
+                                    <tr data-absence-id="{{ absence.id }}">
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>
+                                            <i class="fas fa-circle" style="color: {{ absence.type_absence.couleur }}"></i>
+                                            {{ absence.type_absence.libelle }}
+                                        </td>
+                                        <td>{{ absence.date_debut|date:"d/m/Y" }}</td>
+                                        <td>{{ absence.date_fin|date:"d/m/Y" }}</td>
+                                        <td>
+                                            <span class="badge badge-info">
+                                                {{ absence.jours_ouvrables|floatformat:1 }}j
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if absence.statut == 'VALIDE' %}
+                                                <span class="badge badge-success">
+                                                    <i class="fas fa-check"></i> {{ absence.get_statut_display }}
+                                                </span>
+                                            {% elif absence.statut == 'REJETE' %}
+                                                <span class="badge badge-danger">
+                                                    <i class="fas fa-times"></i> {{ absence.get_statut_display }}
+                                                </span>
+                                            {% elif absence.statut == 'EN_ATTENTE_MANAGER' %}
+                                                <span class="badge badge-warning">
+                                                    <i class="fas fa-clock"></i> {{ absence.get_statut_display }}
+                                                </span>
+                                            {% elif absence.statut == 'EN_ATTENTE_RH' %}
+                                                <span class="badge badge-info">
+                                                    <i class="fas fa-clock"></i> {{ absence.get_statut_display }}
+                                                </span>
+                                            {% elif absence.statut == 'ANNULE' %}
+                                                <span class="badge badge-dark">
+                                                    <i class="fas fa-ban"></i> {{ absence.get_statut_display }}
+                                                </span>
+                                            {% else %}
+                                                <span class="badge badge-secondary">
+                                                    {{ absence.get_statut_display }}
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="validation-progress">
+                                                {% if absence.manager_validateur %}
+                                                    <i class="fas fa-check-circle text-success"
+                                                       title="Manager: {{ absence.manager_validateur }}"></i>
+                                                {% else %}
+                                                    <i class="fas fa-circle text-muted"
+                                                       title="En attente manager"></i>
+                                                {% endif %}
+
+                                                {% if absence.rh_validateur %}
+                                                    <i class="fas fa-check-circle text-success"
+                                                       title="RH: {{ absence.rh_validateur }}"></i>
+                                                {% else %}
+                                                    <i class="fas fa-circle text-muted"
+                                                       title="En attente RH"></i>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td class="text-center action-buttons">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-info btn-detail"
+                                                    data-absence-id="{{ absence.id }}"
+                                                    title="Détails">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+
+                                            {% if absence.peut_modifier and absence.employe == request.user.employe %}
+                                            <a href="{% url 'absence:modifier_absence' absence.id %}"
+                                               class="btn btn-sm btn-primary"
+                                               title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            {% endif %}
+
+                                            {% if absence.peut_annuler and absence.employe == request.user.employe %}
+                                            <button type="button"
+                                                    class="btn btn-sm btn-warning btn-annuler"
+                                                    data-absence-id="{{ absence.id }}"
+                                                    title="Annuler la demande">
+                                                <i class="fas fa-ban"></i>
+                                            </button>
+                                            {% endif %}
+
+                                            {% if absence.peut_supprimer and absence.employe == request.user.employe %}
+                                            <button type="button"
+                                                    class="btn btn-sm btn-danger btn-supprimer"
+                                                    data-absence-id="{{ absence.id }}"
+                                                    data-type-absence="{{ absence.type_absence.libelle }}"
+                                                    title="Supprimer définitivement">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted py-4">
+                                            <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                                            Aucune absence trouvée
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if page_obj.has_other_pages %}
+                        <nav>
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Précédent</a>
+                                </li>
+                                {% endif %}
+
+                                {% for num in page_obj.paginator.page_range %}
+                                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                                {% endfor %}
+
+                                {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Suivant</a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- ✅ SIDEBAR DROITE AVEC CALENDRIER -->
+            <div class="sidebar-right">
+                <div class="card">
+                    <div class="card-header bg-gradient-info text-white">
+                        <h3 class="card-title">
+                            <i class="fas fa-calendar"></i> Calendrier
+                        </h3>
+                    </div>
+                    <div class="card-body p-2">
+                        <div id="sidebarCalendar"></div>
+                    </div>
+                    <div class="card-footer bg-light">
+                        <div class="legend">
+                            <small><strong>Légende :</strong></small>
+                            <div class="d-flex flex-wrap mt-2">
+                                <span class="badge badge-success mr-2 mb-1">
+                                    <i class="fas fa-square"></i> Validée
+                                </span>
+                                <span class="badge badge-warning mr-2 mb-1">
+                                    <i class="fas fa-square"></i> En attente
+                                </span>
+                                <span class="badge badge-danger mr-2 mb-1">
+                                    <i class="fas fa-square"></i> Rejetée
+                                </span>
+                                <span class="badge badge-dark mb-1">
+                                    <i class="fas fa-square"></i> Annulée
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal Détails (reste identique) -->
+<div class="modal fade" id="detailModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-info-circle"></i> Détails de l'absence
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="detailContent">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary"></div>
+                    <p class="mt-2">Chargement...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times"></i> Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<!-- ✅ FullCalendar JS -->
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/locales/fr.global.min.js'></script>
+
+<script src="{% static 'assets/js/absence/absences.js' %}"></script>
+
+<script>
+toastr.options = {
+    closeButton: true,
+    progressBar: true,
+    positionClass: "toast-top-right",
+    timeOut: 5000
+};
+
+// ✅ INITIALISER LE CALENDRIER SIDEBAR
+$(document).ready(function() {
+    initSidebarCalendar();
+});
+
+function initSidebarCalendar() {
+    const calendarEl = document.getElementById('sidebarCalendar');
+    if (!calendarEl) {
+        return;
+    }
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        locale: 'fr',
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next',
+            center: 'title',
+            right: 'today'
+        },
+        buttonText: {
+            today: "Aujourd'hui"
+        },
+        height: 'auto',
+        fixedWeekCount: false,
+
+        // Charger absences + jours fériés
+        events: function(fetchInfo, successCallback, failureCallback) {
+            const startStr = fetchInfo.start.toISOString().split('T')[0];
+            const endStr = fetchInfo.end.toISOString().split('T')[0];
+
+            Promise.all([
+                fetch(`/absence/api/mes-absences-calendrier/?start=${fetchInfo.start.toISOString()}&end=${fetchInfo.end.toISOString()}`)
+                    .then(r => r.json()),
+                fetch(`/absence/api/jours-feries/?start=${startStr}&end=${endStr}`)
+                    .then(r => r.json())
+            ])
+            .then(([absencesData, joursFeriesData]) => {
+                const events = [];
+
+                // Absences
+                if (absencesData.success && absencesData.absences) {
+                    absencesData.absences.forEach(abs => {
+                        const endDate = new Date(abs.date_fin);
+                        endDate.setDate(endDate.getDate() + 1);
+
+                        events.push({
+                            id: 'absence-' + abs.id,
+                            title: abs.type_absence,
+                            start: abs.date_debut,
+                            end: endDate.toISOString().split('T')[0],
+                            backgroundColor: getEventColor(abs.statut),
+                            borderColor: getEventColor(abs.statut),
+                            textColor: '#ffffff',
+                            allDay: true,
+                            extendedProps: {
+                                type: 'absence',
+                                absenceId: abs.id,
+                                statut: abs.statut
+                            }
+                        });
+                    });
+                }
+
+                // Jours fériés
+                if (joursFeriesData.success && joursFeriesData.jours_feries) {
+                    joursFeriesData.jours_feries.forEach(jf => {
+                        events.push({
+                            id: 'ferie-' + jf.id,
+                            title: '🎉 ' + jf.nom,
+                            start: jf.date,
+                            backgroundColor: '#e7abab',
+                            borderColor: '#ff9999',
+                            textColor: '#cc0000',
+                            allDay: true,
+                            display: 'background',
+                            extendedProps: {
+                                type: 'jour_ferie'
+                            }
+                        });
+                    });
+                }
+
+                successCallback(events);
+            })
+            .catch(error => {
+                failureCallback(error);
+            });
+        },
+
+        // Clic sur un événement
+        eventClick: function(info) {
+            const eventType = info.event.extendedProps.type;
+            if (eventType === 'absence') {
+                const absenceId = info.event.extendedProps.absenceId;
+                if (absenceId) {
+                    openDetailModal(absenceId);
+                }
+            } else if (eventType === 'jour_ferie') {
+                toastr.info('Jour férié : ' + info.event.title.replace('🎉 ', ''));
+            }
+        }
+    });
+
+    calendar.render();
+}
+
+function getEventColor(statut) {
+    const colors = {
+        'VALIDE': '#28a745',
+        'EN_ATTENTE_MANAGER': '#ffc107',
+        'EN_ATTENTE_RH': '#17a2b8',
+        'REJETE': '#dc3545',
+        'ANNULE': '#6c757d'
+    };
+    return colors[statut] || '#6c757d';
+}
+</script>
+{% endblock %}

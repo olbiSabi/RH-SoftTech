@@ -1,158 +1,410 @@
 {% load static %}
-<!-- Page Content -->
 <div class="content container-fluid">
 
-   <!-- Statistiques -->
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-subtitle mb-2 text-white-50">Total Employés</h6>
-                        <h2 class="card-title mb-0">{{ total_employes }}</h2>
+    <!-- En-tête -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="page-title">
+                <i class="fas fa-chart-line"></i> Tableau de bord
+            </h1>
+            <p class="text-muted">Vue d'ensemble des ressources humaines</p>
+        </div>
+    </div>
+
+    <!-- ========================================
+         STATISTIQUES PRINCIPALES
+         ======================================== -->
+    <div class="row mb-4">
+        <!-- Total Employés -->
+        <div class="col-md-3">
+            <div class="card text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2 text-white-50">Total Employés</h6>
+                            <h2 class="card-title mb-0">{{ total_employes }}</h2>
+                        </div>
+                        <div>
+                            <i class="fas fa-users fa-3x opacity-50"></i>
+                        </div>
                     </div>
-                    <div>
-                        <i class="fas fa-users fa-3x opacity-50"></i>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <small class="text-white-50">
+                        <i class="fas fa-building"></i> Toutes entreprises
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employés Actifs -->
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2 text-white-50">Employés Actifs</h6>
+                            <h2 class="card-title mb-0">{{ employes_actifs }}</h2>
+                        </div>
+                        <div>
+                            <i class="fas fa-user-check fa-3x opacity-50"></i>
+                        </div>
                     </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <small class="text-white-50">
+                        {% widthratio employes_actifs total_employes 100 as pourcentage %}
+                        <i class="fas fa-chart-pie"></i> {{ pourcentage }}% du total
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- En Attente -->
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2 text-white-50">En Attente</h6>
+                            <h2 class="card-title mb-0">{{ employes_attente }}</h2>
+                        </div>
+                        <div>
+                            <i class="fas fa-clock fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <small class="text-white-50">
+                        <i class="fas fa-user-plus"></i> Nouvelles embauches
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contrats Actifs -->
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2 text-white-50">Contrats Actifs</h6>
+                            <h2 class="card-title mb-0">{{ contrats_actifs }}</h2>
+                        </div>
+                        <div>
+                            <i class="fas fa-file-contract fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <small class="text-white-50">
+                        <i class="fas fa-check-circle"></i> En vigueur
+                    </small>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="card text-white bg-success">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-subtitle mb-2 text-white-50">Employés Actifs</h6>
-                        <h2 class="card-title mb-0">{{ employes_actifs }}</h2>
+    <!-- ========================================
+         STATISTIQUES ABSENCES
+         ======================================== -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-times fa-3x text-warning mb-3"></i>
+                    <h3 class="mb-1">{{ absences_total_attente }}</h3>
+                    <p class="text-muted mb-0">Absences à valider</p>
+                    <hr>
+                    <div class="row">
+                        <div class="col-6">
+                            <small class="text-muted">Manager</small>
+                            <h5 class="text-warning">{{ absences_attente_manager }}</h5>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">RH</small>
+                            <h5 class="text-info">{{ absences_attente_rh }}</h5>
+                        </div>
                     </div>
-                    <div>
-                        <i class="fas fa-user-check fa-3x opacity-50"></i>
-                    </div>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{% url 'absence:validation_manager' %}" class="btn btn-sm btn-warning">
+                        <i class="fas fa-tasks"></i> Gérer
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-check fa-3x text-primary mb-3"></i>
+                    <h3 class="mb-1">{{ absences_mois }}</h3>
+                    <p class="text-muted mb-0">Absences ce mois</p>
+                    <hr>
+                    <small class="text-muted">Absences validées en cours</small>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{% url 'absence:liste_absences' %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-list"></i> Voir tout
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="fas fa-building fa-3x text-success mb-3"></i>
+                    <h3 class="mb-1">{{ total_departements }}</h3>
+                    <p class="text-muted mb-0">Départements actifs</p>
+                    <hr>
+                    <small class="text-muted">Structures organisationnelles</small>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{% url 'departement:list' %}" class="btn btn-sm btn-success">
+                        <i class="fas fa-sitemap"></i> Voir tout
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="card text-white bg-warning">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-subtitle mb-2 text-white-50">En Attente</h6>
-                        <h2 class="card-title mb-0">{{ employes_attente }}</h2>
-                    </div>
-                    <div>
-                        <i class="fas fa-clock fa-3x opacity-50"></i>
-                    </div>
+    <div class="row">
+        <!-- ========================================
+             EMBAUCHES EN ATTENTE
+             ======================================== -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-clock me-2"></i>Embauches en attente</span>
+                    {% if embauches_attente %}
+                        <span class="badge bg-warning">{{ embauches_attente|length }}</span>
+                    {% endif %}
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card text-white bg-info">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-subtitle mb-2 text-white-50">Contrats Actifs</h6>
-                        <h2 class="card-title mb-0">{{ contrats_actifs }}</h2>
-                    </div>
-                    <div>
-                        <i class="fas fa-file-contract fa-3x opacity-50"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <!-- Embauches en attente -->
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-clock me-2"></i>Embauches en attente de validation</span>
-                {% if embauches_attente %}
-                    <span class="badge bg-warning">{{ embauches_attente|length }}</span>
-                {% endif %}
-            </div>
-            <div class="card-body">
-                {% if embauches_attente %}
-                    <div class="list-group">
-                        {% for employe in embauches_attente %}
-                            <a href="" class="list-group-item list-group-item-action">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="mb-1">{{ employe.MATRICULE }} - {{ employe.NOM }} {{ employe.PRENOMS }}</h6>
-                                        <small class="text-muted">
-                                            <i class="fas fa-calendar me-1"></i>{{ employe.DATE_EMBAUCHE|date:"d/m/Y" }}
-                                        </small>
-                                    </div>
-                                    <span class="badge bg-warning">En attente</span>
-                                </div>
-                            </a>
-                        {% endfor %}
-                    </div>
-                    <div class="text-center mt-3">
-                        <a href="" class="btn btn-sm btn-outline-primary">
-                            Voir tout <i class="fas fa-arrow-right ms-1"></i>
-                        </a>
-                    </div>
-                {% else %}
-                    <div class="text-center text-muted py-4">
-                        <i class="fas fa-check-circle fa-3x mb-3"></i>
-                        <p>Aucune embauche en attente</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <!-- Dernières embauches -->
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-history me-2"></i>Dernières embauches
-            </div>
-            <div class="card-body">
-                {% if dernieres_embauches %}
-                    <div class="list-group">
-                        {% for employe in dernieres_embauches %}
-                            <a href="" class="list-group-item list-group-item-action">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="mb-1">{{ employe.MATRICULE }} - {{ employe.NOM }} {{ employe.PRENOMS }}</h6>
-                                        <small class="text-muted">
-                                            <i class="fas fa-calendar me-1"></i>{{ employe.DATE_EMBAUCHE|date:"d/m/Y" }}
-                                        </small>
-                                    </div>
-                                    {% if employe.STATUT_EMBAUCHE == 'VALIDE' %}
-                                        <span class="badge bg-success">Validé</span>
-                                    {% elif employe.STATUT_EMBAUCHE == 'EN_ATTENTE' %}
+                <div class="card-body">
+                    {% if embauches_attente %}
+                        <div class="list-group">
+                            {% for employe in embauches_attente %}
+                                <a href="{% url 'employee:profil' employe.matricule %}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">
+                                                {{ employe.matricule }} - {{ employe.nom }} {{ employe.prenoms }}
+                                            </h6>
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar me-1"></i>
+                                                {{ employe.date_entree_entreprise|date:"d/m/Y" }}
+                                            </small>
+                                        </div>
                                         <span class="badge bg-warning">En attente</span>
-                                    {% else %}
-                                        <span class="badge bg-danger">Rejeté</span>
-                                    {% endif %}
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-check-circle fa-3x mb-3"></i>
+                            <p>Aucune embauche en attente</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================
+             DERNIÈRES EMBAUCHES
+             ======================================== -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-history me-2"></i>Dernières embauches (30 jours)
+                </div>
+                <div class="card-body">
+                    {% if dernieres_embauches %}
+                        <div class="list-group">
+                            {% for employe in dernieres_embauches %}
+                                <a href="{% url 'employee:profil' employe.matricule %}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">
+                                                {{ employe.matricule }} - {{ employe.nom }} {{ employe.prenoms }}
+                                            </h6>
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar me-1"></i>
+                                                {{ employe.date_entree_entreprise|date:"d/m/Y" }}
+                                            </small>
+                                        </div>
+                                        <span class="badge bg-success">Actif</span>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-3x mb-3"></i>
+                            <p>Aucune embauche récente</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================
+             CONTRATS À ÉCHÉANCE
+             ======================================== -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Contrats arrivant à échéance (60 jours)
+                </div>
+                <div class="card-body">
+                    {% if contrats_echeance %}
+                        <div class="list-group">
+                            {% for contrat in contrats_echeance %}
+                                <a href="{% url 'employee:profil' contrat.employe.matricule %}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">
+                                                {{ contrat.employe.nom }} {{ contrat.employe.prenoms }}
+                                            </h6>
+                                            <small class="text-muted">
+                                                <i class="fas fa-file-contract me-1"></i>
+                                                {{ contrat.get_type_contrat_display }}
+                                            </small>
+                                        </div>
+                                        <span class="badge bg-danger">
+                                            {{ contrat.date_fin|date:"d/m/Y" }}
+                                        </span>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-check-circle fa-3x mb-3 text-success"></i>
+                            <p>Aucun contrat arrivant à échéance</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================
+             SOLDES DE CONGÉS FAIBLES
+             ======================================== -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-white">
+                    <i class="fas fa-exclamation-circle me-2"></i>Soldes de congés faibles (≤ 5 jours)
+                </div>
+                <div class="card-body">
+                    {% if soldes_faibles %}
+                        <div class="list-group">
+                            {% for acquisition in soldes_faibles %}
+                                <a href="{% url 'employee:profil' acquisition.employe.matricule %}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">
+                                                {{ acquisition.employe.nom }} {{ acquisition.employe.prenoms }}
+                                            </h6>
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar-alt me-1"></i>
+                                                Année {{ acquisition.annee_reference }}
+                                            </small>
+                                        </div>
+                                        <span class="badge bg-warning">
+                                            {{ acquisition.jours_restants }} jour{{ acquisition.jours_restants|pluralize }}
+                                        </span>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-check-circle fa-3x mb-3 text-success"></i>
+                            <p>Aucun solde critique</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================
+             ANNIVERSAIRES DE TRAVAIL
+             ======================================== -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-birthday-cake me-2"></i>Anniversaires de travail ce mois
+                </div>
+                <div class="card-body">
+                    {% if anniversaires %}
+                        <div class="list-group">
+                            {% for employe in anniversaires %}
+                                <a href="{% url 'employee:profil' employe.matricule %}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">
+                                                {{ employe.nom }} {{ employe.prenoms }}
+                                            </h6>
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar me-1"></i>
+                                                Embauché le {{ employe.date_entree_entreprise|date:"d/m/Y" }}
+                                            </small>
+                                        </div>
+                                        <span class="badge bg-info">
+                                            {{ employe.anciennete_annees }} an{{ employe.anciennete_annees|pluralize }}
+                                        </span>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-calendar fa-3x mb-3"></i>
+                            <p>Aucun anniversaire ce mois</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================
+             TOP 5 DÉPARTEMENTS PAR EFFECTIF
+             ======================================== -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-sitemap me-2"></i>Top 5 départements par effectif
+                </div>
+                <div class="card-body">
+                    {% if departements_effectifs %}
+                        <div class="list-group">
+                            {% for dept in departements_effectifs %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">{{ dept.LIBELLE }}</h6>
+                                            <small class="text-muted">
+                                                <i class="fas fa-code me-1"></i>{{ dept.CODE }}
+                                            </small>
+                                        </div>
+                                        <span class="badge bg-primary">
+                                            {{ dept.effectif }} employé{{ dept.effectif|pluralize }}
+                                        </span>
+                                    </div>
                                 </div>
-                            </a>
-                        {% endfor %}
-                    </div>
-                    <div class="text-center mt-3">
-                        <a href="" class="btn btn-sm btn-outline-primary">
-                            Voir tout <i class="fas fa-arrow-right ms-1"></i>
-                        </a>
-                    </div>
-                {% else %}
-                    <div class="text-center text-muted py-4">
-                        <i class="fas fa-inbox fa-3x mb-3"></i>
-                        <p>Aucune embauche récente</p>
-                    </div>
-                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-sitemap fa-3x mb-3"></i>
+                            <p>Aucun département actif</p>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
-</div>
 </div>

@@ -1312,3 +1312,76 @@
 .modal-form-group.form-error label {
     color: #dc3545;
 }
+
+    /* Styles pour les nouveaux éléments */
+    .coefficient-display {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .coefficient-value {
+        font-weight: bold;
+        font-size: 1.1em;
+        padding: 2px 8px;
+        border-radius: 4px;
+    }
+
+    .coefficient-value.full-time {
+        background-color: #d1e7dd;
+        color: #0f5132;
+    }
+
+    .coefficient-value.half-time {
+        background-color: #fff3cd;
+        color: #664d03;
+    }
+
+    .coefficient-value.part-time {
+        background-color: #cff4fc;
+        color: #055160;
+    }
+
+    .entreprise-display,
+    .convention-display,
+    .manager-display {
+        padding: 8px;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+    }
+
+    .convention-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.75em;
+        font-weight: 600;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Styles pour les badges */
+    .badge {
+        font-size: 0.85em;
+        padding: 4px 8px;
+    }
+
+    .bg-info {
+        background-color: #17a2b8 !important;
+    }
+
+    .bg-warning {
+        background-color: #ffc107 !important;
+    }

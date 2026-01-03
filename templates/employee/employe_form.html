@@ -28,6 +28,14 @@
             font-size: 0.875rem;
             color: #6c757d;
         }
+        .coefficient-badge {
+            display: inline-block;
+            padding: 0.25em 0.6em;
+            font-size: 0.875em;
+            font-weight: 600;
+            border-radius: 0.25rem;
+            margin-left: 5px;
+        }
     </style>
 {% endblock %}
 
@@ -260,6 +268,148 @@
                         </div>
                     </div>
 
+                    <!-- NOUVELLE SECTION : Informations professionnelles -->
+                    <div class="section-header">
+                        <h4><i class="bi bi-briefcase"></i> Informations Professionnelles</h4>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.entreprise.id_for_label }}" class="form-label required">Entreprise</label>
+                            {{ form.entreprise }}
+                            {% if form.entreprise.help_text %}
+                            <div class="form-help">{{ form.entreprise.help_text }}</div>
+                            {% endif %}
+                            {% if form.entreprise.errors %}
+                            <div class="text-danger">
+                                {% for error in form.entreprise.errors %}
+                                    <small>{{ error }}</small><br>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.date_entree_entreprise.id_for_label }}" class="form-label required">Date d'entrée dans l'entreprise</label>
+                            {{ form.date_entree_entreprise }}
+                            {% if form.date_entree_entreprise.help_text %}
+                            <div class="form-help">{{ form.date_entree_entreprise.help_text }}</div>
+                            {% endif %}
+                            {% if form.date_entree_entreprise.errors %}
+                            <div class="text-danger">
+                                {% for error in form.date_entree_entreprise.errors %}
+                                    <small>{{ error }}</small><br>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.coefficient_temps_travail.id_for_label }}" class="form-label required">Coefficient temps de travail</label>
+                            <div class="input-group">
+                                {{ form.coefficient_temps_travail }}
+                                <span class="input-group-text">
+                                    <span id="coefficient-badge" class="coefficient-badge">
+                                        {% if form.instance.coefficient_temps_travail %}
+                                            {% if form.instance.coefficient_temps_travail == 1.00 %}
+                                                <span class="badge bg-success">Temps plein</span>
+                                            {% elif form.instance.coefficient_temps_travail == 0.50 %}
+                                                <span class="badge bg-warning text-dark">Mi-temps</span>
+                                            {% elif form.instance.coefficient_temps_travail < 0.50 %}
+                                                <span class="badge bg-secondary">Temps partiel</span>
+                                            {% else %}
+                                                <span class="badge bg-primary">Temps partiel</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="badge bg-light text-dark">1.00 = temps plein</span>
+                                        {% endif %}
+                                    </span>
+                                </span>
+                            </div>
+                            {% if form.coefficient_temps_travail.help_text %}
+                            <div class="form-help">{{ form.coefficient_temps_travail.help_text }}</div>
+                            {% endif %}
+                            {% if form.coefficient_temps_travail.errors %}
+                            <div class="text-danger">
+                                {% for error in form.coefficient_temps_travail.errors %}
+                                    <small>{{ error }}</small><br>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.convention_personnalisee.id_for_label }}" class="form-label">Convention personnalisée</label>
+                            {{ form.convention_personnalisee }}
+                            {% if form.convention_personnalisee.help_text %}
+                            <div class="form-help">{{ form.convention_personnalisee.help_text }}</div>
+                            {% endif %}
+                            {% if form.convention_personnalisee.errors %}
+                            <div class="text-danger">
+                                {% for error in form.convention_personnalisee.errors %}
+                                    <small>{{ error }}</small><br>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Informations administratives (si l'employé existe déjà) -->
+                    {% if form.instance.matricule %}
+                    <div class="section-header">
+                        <h4><i class="bi bi-gear"></i> Informations Administratives</h4>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.type_dossier.id_for_label }}" class="form-label">Type de dossier</label>
+                            {{ form.type_dossier }}
+                            {% if form.type_dossier.help_text %}
+                            <div class="form-help">{{ form.type_dossier.help_text }}</div>
+                            {% endif %}
+                            {% if form.type_dossier.errors %}
+                            <div class="text-danger">
+                                {% for error in form.type_dossier.errors %}
+                                    <small>{{ error }}</small><br>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.etat.id_for_label }}" class="form-label">État</label>
+                            {{ form.etat }}
+                            {% if form.etat.help_text %}
+                            <div class="form-help">{{ form.etat.help_text }}</div>
+                            {% endif %}
+                            {% if form.etat.errors %}
+                            <div class="text-danger">
+                                {% for error in form.etat.errors %}
+                                    <small>{{ error }}</small><br>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.date_validation_embauche.id_for_label }}" class="form-label">Date de validation embauche</label>
+                            {{ form.date_validation_embauche }}
+                            {% if form.date_validation_embauche.help_text %}
+                            <div class="form-help">{{ form.date_validation_embauche.help_text }}</div>
+                            {% endif %}
+                            {% if form.date_validation_embauche.errors %}
+                            <div class="text-danger">
+                                {% for error in form.date_validation_embauche.errors %}
+                                    <small>{{ error }}</small><br>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
                     <!-- Erreurs non-field (erreurs générales du formulaire) -->
                     {% if form.non_field_errors %}
                     <div class="alert alert-danger" role="alert">
@@ -279,11 +429,11 @@
                             </button>
 
                             {% if form.instance.matricule %}
-                                <a href="{% url 'detail_employe' form.instance.uuid %}" class="btn btn-secondary btn-lg">
+                                <a href="{% url 'employee:detail_employe' form.instance.uuid %}" class="btn btn-secondary btn-lg">
                                     <i class="bi bi-x-circle"></i> Annuler
                                 </a>
                             {% else %}
-                                <a href="{% url 'liste_employes' %}" class="btn btn-secondary btn-lg">
+                                <a href="{% url 'employee:liste_employes' %}" class="btn btn-secondary btn-lg">
                                     <i class="bi bi-x-circle"></i> Annuler
                                 </a>
                             {% endif %}
@@ -301,7 +451,7 @@
                                     <i class="bi bi-exclamation-triangle"></i>
                                     <strong>Note:</strong> Cette modification n'affecte que les données personnelles de l'employé.
                                     Pour modifier les contrats, affectations, téléphones, emails ou adresses,
-                                    consultez la <a href="{% url 'detail_employe' form.instance.uuid %}">page de détail</a>.
+                                    consultez la <a href="{% url 'employee:detail_employe' form.instance.uuid %}">page de détail</a>.
                                     {% endif %}
                                 </small>
                             </p>
@@ -346,6 +496,83 @@
                 }
             });
 
+            // Mise à jour dynamique du badge du coefficient
+            const coefficientInput = document.getElementById('{{ form.coefficient_temps_travail.id_for_label }}');
+            const coefficientBadge = document.getElementById('coefficient-badge');
+
+            if (coefficientInput && coefficientBadge) {
+                function updateCoefficientBadge() {
+                    const value = parseFloat(coefficientInput.value);
+                    if (isNaN(value)) return;
+
+                    let badgeClass = 'badge ';
+                    let badgeText = '';
+
+                    if (value === 1.00) {
+                        badgeClass += 'bg-success';
+                        badgeText = 'Temps plein';
+                    } else if (value === 0.50) {
+                        badgeClass += 'bg-warning text-dark';
+                        badgeText = 'Mi-temps';
+                    } else if (value < 0.50) {
+                        badgeClass += 'bg-secondary';
+                        badgeText = 'Temps partiel';
+                    } else if (value > 0.50 && value < 1.00) {
+                        badgeClass += 'bg-primary';
+                        badgeText = 'Temps partiel';
+                    } else {
+                        badgeClass += 'bg-light text-dark';
+                        badgeText = '1.00 = temps plein';
+                    }
+
+                    coefficientBadge.innerHTML = `<span class="${badgeClass}">${badgeText}</span>`;
+                }
+
+                // Initialisation
+                updateCoefficientBadge();
+
+                // Écouter les changements
+                coefficientInput.addEventListener('input', updateCoefficientBadge);
+                coefficientInput.addEventListener('change', updateCoefficientBadge);
+
+                // Validation en temps réel du coefficient
+                coefficientInput.addEventListener('blur', function() {
+                    const value = parseFloat(this.value);
+                    if (isNaN(value) || value <= 0 || value > 1) {
+                        this.classList.add('is-invalid');
+                    } else {
+                        this.classList.remove('is-invalid');
+                    }
+                });
+            }
+
+            // Validation de la date d'entrée (ne peut pas être dans le futur pour les modifications)
+            const dateEntreeInput = document.getElementById('{{ form.date_entree_entreprise.id_for_label }}');
+            if (dateEntreeInput && form.instance.matricule) {
+                dateEntreeInput.addEventListener('change', function() {
+                    const selectedDate = new Date(this.value);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+
+                    if (selectedDate > today) {
+                        this.classList.add('is-invalid');
+                        let errorDiv = this.nextElementSibling;
+                        if (!errorDiv || !errorDiv.classList.contains('invalid-feedback')) {
+                            errorDiv = document.createElement('div');
+                            errorDiv.className = 'invalid-feedback';
+                            this.parentNode.appendChild(errorDiv);
+                        }
+                        errorDiv.textContent = 'La date d\'entrée ne peut pas être dans le futur';
+                    } else {
+                        this.classList.remove('is-invalid');
+                        const errorDiv = this.nextElementSibling;
+                        if (errorDiv && errorDiv.classList.contains('invalid-feedback')) {
+                            errorDiv.remove();
+                        }
+                    }
+                });
+            }
+
             // Auto-fermer les messages de succès après 5 secondes
             setTimeout(function() {
                 var alerts = document.querySelectorAll('.alert-success');
@@ -362,6 +589,3 @@
         }
     </script>
 {% endblock %}
-
-
-

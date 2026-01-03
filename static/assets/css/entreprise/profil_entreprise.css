@@ -1,0 +1,500 @@
+/* ========================================
+   PROFIL ENTREPRISE - STYLES
+   ======================================== */
+
+:root {
+    --entreprise-primary: #2c3e50;
+    --entreprise-secondary: #34495e;
+    --entreprise-light: #ecf0f1;
+    --entreprise-gradient-start: #2c3e50;
+    --entreprise-gradient-end: #34495e;
+}
+
+/* ========================================
+   CARTE DE BIENVENUE (Aucune entreprise)
+   ======================================== */
+
+.welcome-card {
+    border: none !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+    margin-top: 3rem !important;
+}
+
+.welcome-icon {
+    width: 120px !important;
+    height: 120px !important;
+    margin: 0 auto !important;
+    background: linear-gradient(135deg, var(--entreprise-gradient-start) 0%, var(--entreprise-gradient-end) 100%) !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    animation: pulse 2s infinite !important;
+}
+
+.welcome-icon i {
+    font-size: 3.5rem !important;
+    color: white !important;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 4px 20px rgba(44, 62, 80, 0.2);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 8px 30px rgba(44, 62, 80, 0.3);
+    }
+}
+
+.welcome-card h2 {
+    color: var(--entreprise-primary) !important;
+    font-weight: 700 !important;
+}
+
+.welcome-card .lead {
+    color: #6c757d !important;
+    font-size: 1.1rem !important;
+}
+
+/* ========================================
+   CARTES D'INFORMATION
+   ======================================== */
+
+.info-card {
+    border: none !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    transition: all 0.3s ease !important;
+}
+
+.info-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+    transform: translateY(-2px) !important;
+}
+
+.info-card .card-header {
+    background: linear-gradient(135deg, var(--entreprise-gradient-start) 0%, var(--entreprise-gradient-end) 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-top-left-radius: 12px !important;
+    border-top-right-radius: 12px !important;
+    padding: 1rem 1.25rem !important;
+}
+
+.info-card .card-header h5 {
+    margin: 0 !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+}
+
+.info-card .card-header i {
+    margin-right: 0.5rem !important;
+}
+
+.info-card .card-body {
+    padding: 1.5rem !important;
+}
+
+/* ========================================
+   LABELS ET VALEURS
+   ======================================== */
+
+.info-label {
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    color: #6c757d !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    margin-bottom: 0.5rem !important;
+    display: block !important;
+}
+
+.info-value {
+    font-size: 1rem !important;
+    color: #2c3e50 !important;
+    font-weight: 500 !important;
+    padding: 0.5rem 0 !important;
+}
+
+.info-value i {
+    margin-right: 0.5rem !important;
+    color: #6c757d !important;
+}
+
+.info-value a {
+    color: #3498db !important;
+    text-decoration: none !important;
+}
+
+.info-value a:hover {
+    text-decoration: underline !important;
+}
+
+.info-value .badge {
+    font-size: 0.9rem !important;
+    padding: 0.5rem 0.75rem !important;
+    font-weight: 600 !important;
+}
+
+/* ========================================
+   LOGO
+   ======================================== */
+
+.logo-display {
+    max-width: 100% !important;
+    max-height: 200px !important;
+    border-radius: 8px !important;
+    border: 2px solid #e9ecef !important;
+    padding: 1rem !important;
+    object-fit: contain !important;
+}
+
+.logo-placeholder {
+    width: 100% !important;
+    height: 200px !important;
+    background: linear-gradient(135deg, #ecf0f1 0%, #bdc3c7 100%) !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #7f8c8d !important;
+}
+
+.logo-placeholder i {
+    font-size: 3rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+/* ========================================
+   BADGES
+   ======================================== */
+
+.badge {
+    font-size: 0.85rem !important;
+    padding: 0.5rem 0.75rem !important;
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+}
+
+.badge i {
+    margin-right: 0.25rem !important;
+}
+
+.badge.bg-primary {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+}
+
+.badge.bg-success {
+    background: linear-gradient(135deg, #27ae60 0%, #229954 100%) !important;
+}
+
+.badge.bg-danger {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
+}
+
+.badge.bg-info {
+    background: linear-gradient(135deg, #16a085 0%, #138d75 100%) !important;
+}
+
+/* ========================================
+   BOUTONS
+   ======================================== */
+
+.btn {
+    border-radius: 8px !important;
+    padding: 0.6rem 1.5rem !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+    border: none !important;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #2980b9 0%, #21618c 100%) !important;
+}
+
+.btn-lg {
+    padding: 0.8rem 2rem !important;
+    font-size: 1.1rem !important;
+}
+
+.btn-outline-danger {
+    border: 2px solid #e74c3c !important;
+    color: #e74c3c !important;
+}
+
+.btn-outline-danger:hover {
+    background-color: #e74c3c !important;
+    color: white !important;
+}
+
+/* ========================================
+   ALERTES
+   ======================================== */
+
+.alert-sm {
+    border-radius: 6px !important;
+    border: none !important;
+    font-size: 0.9rem !important;
+}
+
+.alert-sm i {
+    margin-right: 0.5rem !important;
+}
+
+/* ========================================
+   MODAL
+   ======================================== */
+
+.modal-content {
+    border: none !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2) !important;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, var(--entreprise-gradient-start) 0%, var(--entreprise-gradient-end) 100%) !important;
+    color: white !important;
+    border-top-left-radius: 12px !important;
+    border-top-right-radius: 12px !important;
+    padding: 1.25rem 1.5rem !important;
+    border-bottom: none !important;
+}
+
+.modal-header .modal-title {
+    font-weight: 600 !important;
+    font-size: 1.25rem !important;
+}
+
+.modal-body {
+    padding: 1.5rem !important;
+}
+
+.modal-body .form-label {
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    color: #495057 !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.modal-body .form-control,
+.modal-body .form-select,
+.modal-body textarea {
+    border: 1px solid #ced4da !important;
+    border-radius: 6px !important;
+    padding: 0.6rem 0.75rem !important;
+    font-size: 0.9rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.modal-body .form-control:focus,
+.modal-body .form-select:focus,
+.modal-body textarea:focus {
+    border-color: var(--entreprise-primary) !important;
+    box-shadow: 0 0 0 0.2rem rgba(44, 62, 80, 0.15) !important;
+}
+
+.modal-body .form-control.is-invalid {
+    border-color: #dc3545 !important;
+    background-image: none !important;
+}
+
+.modal-body .invalid-feedback {
+    display: block !important;
+    font-size: 0.85rem !important;
+    margin-top: 0.25rem !important;
+}
+
+.modal-body .form-check-input {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    margin-top: 0.125rem !important;
+    cursor: pointer !important;
+}
+
+.modal-body .form-check-input:checked {
+    background-color: var(--entreprise-primary) !important;
+    border-color: var(--entreprise-primary) !important;
+}
+
+.modal-body .form-check-label {
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    margin-left: 0.5rem !important;
+}
+
+.modal-footer {
+    border-top: 1px solid #e9ecef !important;
+    padding: 1rem 1.5rem !important;
+}
+
+.modal-footer .btn {
+    border-radius: 6px !important;
+    padding: 0.6rem 1.5rem !important;
+    font-weight: 500 !important;
+}
+
+/* ========================================
+   ONGLETS
+   ======================================== */
+
+.nav-tabs {
+    border-bottom: 2px solid #dee2e6 !important;
+}
+
+.nav-tabs .nav-link {
+    border: none !important;
+    border-bottom: 3px solid transparent !important;
+    color: #6c757d !important;
+    font-weight: 500 !important;
+    padding: 0.75rem 1.5rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.nav-tabs .nav-link:hover {
+    border-color: transparent !important;
+    background-color: #f8f9fa !important;
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--entreprise-primary) !important;
+    border-color: var(--entreprise-primary) !important;
+    background-color: transparent !important;
+}
+
+.nav-tabs .nav-link i {
+    margin-right: 0.5rem !important;
+}
+
+.tab-content {
+    padding-top: 1.5rem !important;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 992px) {
+    .info-card {
+        margin-bottom: 1rem !important;
+    }
+
+    .logo-display,
+    .logo-placeholder {
+        max-height: 150px !important;
+        height: 150px !important;
+    }
+
+    .welcome-icon {
+        width: 100px !important;
+        height: 100px !important;
+    }
+
+    .welcome-icon i {
+        font-size: 3rem !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .modal-dialog {
+        margin: 0.5rem !important;
+    }
+
+    .modal-body {
+        padding: 1rem !important;
+    }
+
+    .nav-tabs .nav-link {
+        padding: 0.5rem 1rem !important;
+        font-size: 0.85rem !important;
+    }
+
+    .info-value {
+        font-size: 0.9rem !important;
+    }
+
+    .btn {
+        width: 100% !important;
+        margin-bottom: 0.5rem !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .welcome-card {
+        margin-top: 1rem !important;
+    }
+
+    .welcome-card h2 {
+        font-size: 1.5rem !important;
+    }
+
+    .welcome-card .lead {
+        font-size: 1rem !important;
+    }
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.info-card,
+.welcome-card {
+    animation: fadeIn 0.3s ease-out !important;
+}
+
+/* ========================================
+   UTILITAIRES
+   ======================================== */
+
+.text-muted {
+    color: #6c757d !important;
+}
+
+.mb-0 {
+    margin-bottom: 0 !important;
+}
+
+.mt-2 {
+    margin-top: 0.5rem !important;
+}
+
+.mb-2 {
+    margin-bottom: 0.5rem !important;
+}
+
+.mb-3 {
+    margin-bottom: 1rem !important;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem !important;
+}
+
+.py-5 {
+    padding-top: 3rem !important;
+    padding-bottom: 3rem !important;
+}

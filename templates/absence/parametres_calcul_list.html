@@ -1,0 +1,377 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'assets/css/absence/parametres_calcul.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Paramètres de Calcul des Congés</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Statistiques -->
+
+        <div class="stats-card">
+            <h4 style="margin-bottom: 20px;">
+                <i class="fas fa-calculator"></i> Statistiques des Paramètres
+            </h4>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">{{ total|default:0 }}</div>
+                    <div class="stat-label">Total Paramètres</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ avec_report|default:0 }}</div>
+                    <div class="stat-label">Avec Report</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ sans_report|default:0 }}</div>
+                    <div class="stat-label">Sans Report</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ avec_anciennete|default:0 }}</div>
+                    <div class="stat-label">Avec Ancienneté</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtres et Actions -->
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-md-8">
+                        <form method="GET" id="filterForm" class="form-inline">
+                            <!-- Recherche -->
+                            <div class="input-group input-group-sm mr-2 mb-2">
+                                <input type="text"
+                                       name="search"
+                                       class="form-control"
+                                       placeholder="Rechercher..."
+                                       value="{{ search }}">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="submit">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Filtre Convention -->
+                            <select name="convention" class="form-control form-control-sm mr-2 mb-2" onchange="this.form.submit()">
+                                <option value="">Toutes les conventions</option>
+                                {% for conv in conventions %}
+                                <option value="{{ conv.id }}" {% if convention_filter == conv.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ conv.code }} - {{ conv.nom }}
+                                </option>
+                                {% endfor %}
+                            </select>
+
+                            <!-- Bouton Reset -->
+                            {% if search or convention_filter %}
+                            <a href="{% url 'absence:liste_parametres_calcul' %}" class="btn btn-secondary btn-sm mb-2">
+                                <i class="fas fa-redo"></i> Réinitialiser
+                            </a>
+                            {% endif %}
+                        </form>
+                    </div>
+                    <div class="col-md-4 text-right">
+                        <button type="button"
+                                class="btn btn-success btn-sm"
+                                onclick="openCreateModal()">
+                            <i class="fas fa-plus"></i> Nouveau Paramètre
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead class="bg-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Convention</th>
+                            <th>Plafond/An</th>
+                            <th>Report</th>
+                            <th>Ancienneté</th>
+                            <th>Temps Partiel</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for param in parametres %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>
+                                <strong>{{ param.configuration.code }}</strong><br>
+                                <small class="text-muted">{{ param.configuration.nom }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-info text-white">{{ param.plafond_jours_an }} jours</span>
+                            </td>
+                            <td>
+                                {% if param.report_autorise %}
+                                <span class="badge bg-success text-white">
+                                    <i class="fas fa-check"></i> {{ param.jours_report_max }}j / {{ param.delai_prise_report }}j
+                                </span>
+                                {% else %}
+                                <span class="badge bg-secondary text-white">
+                                    <i class="fas fa-times"></i> Non autorisé
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if param.jours_supp_anciennete %}
+                                <span class="badge bg-primary text-white">
+                                    <i class="fas fa-award"></i> Oui
+                                </span>
+                                {% else %}
+                                <span class="badge bg-secondary text-white">Non</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if param.prise_compte_temps_partiel %}
+                                <span class="badge bg-success text-white">
+                                    <i class="fas fa-check"></i> Oui
+                                </span>
+                                {% else %}
+                                <span class="badge bg-secondary text-white">Non</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center action-buttons">
+                                <button type="button"
+                                        class="btn btn-sm btn-primary"
+                                        onclick="openEditModal({{ param.id }})"
+                                        title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-danger"
+                                        onclick="deleteParametre({{ param.id }}, '{{ param.configuration.nom|escapejs }}')"
+                                        title="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                                Aucun paramètre trouvé
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal Création/Edition -->
+<div class="modal fade" id="parametreModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="parametreModalTitle">
+                    <i class="fas fa-calculator"></i> Nouveau Paramètre
+                </h5>
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <form id="parametreForm">
+                {% csrf_token %}
+                <input type="hidden" id="parametre_id" name="parametre_id">
+
+                <div class="modal-body">
+                    <!-- Messages d'erreur globaux -->
+                    <div id="formErrors" class="alert alert-danger" style="display: none;">
+                        <ul id="errorList" class="mb-0"></ul>
+                    </div>
+
+                    <!-- Convention -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <strong><i class="fas fa-file-contract"></i> Convention</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="configuration">Convention collective <span class="text-danger">*</span></label>
+                                <select class="form-control" id="configuration" name="configuration" required>
+                                    <option value="">Sélectionner une convention</option>
+                                    {% for conv in conventions %}
+                                    <option value="{{ conv.id }}">{{ conv.code }} - {{ conv.nom }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Acquisition et Plafond -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <strong><i class="fas fa-calendar-check"></i> Acquisition et Plafond</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="mois_acquisition_min">Mois d'acquisition minimum <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="mois_acquisition_min"
+                                               name="mois_acquisition_min" min="0" max="12" value="1" required>
+                                        <small class="form-text text-muted">Nombre de mois minimum avant d'acquérir des congés</small>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="plafond_jours_an">Plafond jours/an <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="plafond_jours_an"
+                                               name="plafond_jours_an" min="0" max="60" value="30" required>
+                                        <small class="form-text text-muted">Maximum de jours par an</small>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Report -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <strong><i class="fas fa-calendar-plus"></i> Report de Congés</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="report_autorise" name="report_autorise">
+                                        <label class="custom-control-label" for="report_autorise">Autoriser le report des congés</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="report_fields">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="jours_report_max">Jours de report maximum</label>
+                                            <input type="number" class="form-control" id="jours_report_max"
+                                                   name="jours_report_max" min="0" max="30" value="15">
+                                            <div class="invalid-feedback"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="delai_prise_report">Délai de prise (jours)</label>
+                                            <input type="number" class="form-control" id="delai_prise_report"
+                                                   name="delai_prise_report" min="0" max="730" value="365">
+                                            <small class="form-text text-muted">Nombre de jours pour prendre les congés reportés</small>
+                                            <div class="invalid-feedback"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ancienneté -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <strong><i class="fas fa-award"></i> Jours Supplémentaires selon l'Ancienneté</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="anciennete_5_ans">Après 5 ans</label>
+                                        <input type="number" class="form-control" id="anciennete_5_ans"
+                                               name="anciennete_5_ans" min="0" max="10" value="0">
+                                        <small class="form-text text-muted">Jours supplémentaires</small>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="anciennete_10_ans">Après 10 ans</label>
+                                        <input type="number" class="form-control" id="anciennete_10_ans"
+                                               name="anciennete_10_ans" min="0" max="10" value="0">
+                                        <small class="form-text text-muted">Jours supplémentaires</small>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="anciennete_15_ans">Après 15 ans</label>
+                                        <input type="number" class="form-control" id="anciennete_15_ans"
+                                               name="anciennete_15_ans" min="0" max="10" value="0">
+                                        <small class="form-text text-muted">Jours supplémentaires</small>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="anciennete_20_ans">Après 20 ans</label>
+                                        <input type="number" class="form-control" id="anciennete_20_ans"
+                                               name="anciennete_20_ans" min="0" max="10" value="0">
+                                        <small class="form-text text-muted">Jours supplémentaires</small>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Temps Partiel -->
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <strong><i class="fas fa-clock"></i> Temps Partiel</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="prise_compte_temps_partiel"
+                                       name="prise_compte_temps_partiel" checked>
+                                <label class="custom-control-label" for="prise_compte_temps_partiel">
+                                    Prendre en compte le temps partiel dans le calcul
+                                </label>
+                            </div>
+                            <small class="form-text text-muted">
+                                Si activé, les congés seront calculés au prorata du temps de travail
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <i class="fas fa-save"></i> Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'assets/js/absence/parametres_calcul.js' %}"></script>
+{% endblock %}

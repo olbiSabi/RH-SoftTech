@@ -1,0 +1,541 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'assets/css/absence/absences.css' %}">
+<!-- FullCalendar CSS -->
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
+<!-- Flatpickr pour les dates -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+<!-- ✅ Toastr -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+{% endblock %}
+
+{% block pageContent %}
+
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-calendar-plus"></i> {{ title }}
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'absence:liste_absences' %}">Absences</a></li>
+                        <li class="breadcrumb-item active">{{ title }}</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Formulaire (gauche) -->
+            <div class="col-md-7">
+                <div class="card">
+                    <div class="card-header bg-gradient-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-wpforms"></i> Informations de l'absence
+                        </h5>
+                    </div>
+                    <form id="absenceForm" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="card-body">
+                            <!-- Messages d'erreur globaux -->
+                            {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                            {% endif %}
+
+                            <!-- ✅ CHAMP CACHÉ pour l'employé (matricule pour JS) -->
+                            <input type="hidden" id="employe_matricule" value="{{ employe.matricule }}">
+
+                            <!-- Type d'absence -->
+                            <div class="form-group">
+                                <label for="{{ form.type_absence.id_for_label }}">
+                                    Type d'absence <span class="text-danger">*</span>
+                                </label>
+                                {{ form.type_absence }}
+                                {% if form.type_absence.errors %}
+                                <div class="invalid-feedback d-block">{{ form.type_absence.errors }}</div>
+                                {% endif %}
+                                <small class="form-text text-muted" id="type-info"></small>
+                            </div>
+
+                            <!-- ✅ PÉRIODE D'ABSENCE SIMPLIFIÉE -->
+                            <div class="card bg-light mb-3">
+                                <div class="card-body">
+                                    <h6 class="card-title mb-3">
+                                        <i class="fas fa-calendar-day"></i> Période d'absence
+                                    </h6>
+
+                                    <!-- Dates -->
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="{{ form.date_debut.id_for_label }}">
+                                                    Date de début <span class="text-danger">*</span>
+                                                </label>
+                                                {{ form.date_debut }}
+                                                {% if form.date_debut.errors %}
+                                                <div class="invalid-feedback d-block">{{ form.date_debut.errors }}</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="{{ form.date_fin.id_for_label }}">
+                                                    Date de fin <span class="text-danger">*</span>
+                                                </label>
+                                                {{ form.date_fin }}
+                                                {% if form.date_fin.errors %}
+                                                <div class="invalid-feedback d-block">{{ form.date_fin.errors }}</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- ✅ UN SEUL CHAMP : Période -->
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="{{ form.periode.id_for_label }}">
+                                                    Période <span class="text-danger">*</span>
+                                                </label>
+                                                {{ form.periode }}
+                                                {% if form.periode.errors %}
+                                                <div class="invalid-feedback d-block">{{ form.periode.errors }}</div>
+                                                {% endif %}
+                                                <small class="form-text text-muted">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    Les demi-journées (Matin/Après-midi) sont uniquement pour une absence d'un seul jour
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- ✅ Message d'info dynamique -->
+                                    <div class="alert alert-info" id="periode-info" style="display: none;">
+                                        <i class="fas fa-info-circle"></i>
+                                        <strong>Info :</strong> Pour une absence de plusieurs jours, la période est automatiquement définie sur "Journée complète".
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Calcul automatique durée -->
+                            <div class="alert alert-info" id="duree-info" style="display: none;">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Durée calculée :</strong>
+                                <span id="jours-calcules">0</span> jours ouvrables
+                                <small class="d-block mt-1">
+                                    <i class="fas fa-sun"></i> Matin = 0.5j |
+                                    <i class="fas fa-cloud-sun"></i> Après-midi = 0.5j |
+                                    <i class="fas fa-calendar-day"></i> Journée complète = 1j
+                                </small>
+                            </div>
+
+                            <!-- Vérification solde -->
+                            <div class="alert alert-warning" id="solde-info" style="display: none;">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <strong>Solde disponible :</strong>
+                                <span id="solde-disponible">0</span> jours
+                                <br>
+                                <small>Année d'acquisition : <span id="annee-acquisition"></span></small>
+                            </div>
+
+                            <div class="alert alert-danger" id="solde-insuffisant" style="display: none;">
+                                <i class="fas fa-times-circle"></i>
+                                <strong>Solde insuffisant !</strong>
+                                Vous demandez <span id="jours-demandes"></span> jours mais vous n'avez que
+                                <span id="jours-disponibles"></span> jours disponibles.
+                            </div>
+
+                            <!-- Motif (OPTIONNEL) -->
+                            <div class="form-group">
+                                <label for="{{ form.motif.id_for_label }}">
+                                    Motif
+                                </label>
+                                {{ form.motif }}
+                                {% if form.motif.errors %}
+                                <div class="invalid-feedback d-block">{{ form.motif.errors }}</div>
+                                {% endif %}
+                                <small class="form-text text-muted">Optionnel</small>
+                            </div>
+
+                            <!-- Justificatif -->
+                            <div class="form-group">
+                                <label for="{{ form.justificatif.id_for_label }}">
+                                    Justificatif
+                                    <span class="text-danger" id="justificatif-obligatoire" style="display: none;">*</span>
+                                </label>
+
+                                <!-- ✅ Alerte justificatif obligatoire -->
+                                <div class="alert alert-warning" id="justificatif-required-alert" style="display: none;">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <strong>Attention :</strong> Un justificatif est obligatoire pour ce type d'absence.
+                                </div>
+
+                                {{ form.justificatif }}
+                                {% if form.justificatif.errors %}
+                                <div class="invalid-feedback d-block">{{ form.justificatif.errors }}</div>
+                                {% endif %}
+                                <small class="form-text text-muted">
+                                    Formats acceptés : PDF, JPG, PNG (max 5 Mo)
+                                </small>
+
+                                {% if absence and absence.justificatif %}
+                                <div class="mt-2">
+                                    <a href="{{ absence.justificatif.url }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-file"></i> Voir le fichier actuel
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="card-footer">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <a href="{% url 'absence:liste_absences' %}" class="btn btn-secondary btn-block">
+                                        <i class="fas fa-times"></i> Annuler
+                                    </a>
+                                </div>
+                                <div class="col-md-6">
+                                    <button type="submit" class="btn btn-success btn-block" id="submitBtn">
+                                        <i class="fas fa-save"></i> Enregistrer
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Calendrier (droite) -->
+            <div class="col-md-5">
+                <div class="card">
+                    <div class="card-header bg-gradient-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-calendar"></i> Calendrier des Congés
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Mini calendrier -->
+                        <div id="miniCalendar"></div>
+
+                        <!-- Légende -->
+                        <div class="mt-4">
+                            <h6><i class="fas fa-info-circle"></i> Légende</h6>
+                            <div class="legend">
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #28a745;"></span>
+                                    <span>Congés validés</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #ffc107;"></span>
+                                    <span>En attente de validation</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #17a2b8;"></span>
+                                    <span>Période sélectionnée</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #e9ecef;"></span>
+                                    <span>Week-end</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Info solde -->
+                        <div class="mt-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-wallet"></i> Mon Solde</h6>
+                                    <div class="solde-mini">
+                                        <div class="solde-mini-item">
+                                            <strong id="solde-acquis">-</strong>
+                                            <small>Jours acquis</small>
+                                        </div>
+                                        <div class="solde-mini-item">
+                                            <strong id="solde-pris">-</strong>
+                                            <small>Jours pris</small>
+                                        </div>
+                                        <div class="solde-mini-item">
+                                            <strong id="solde-restant" class="text-success">-</strong>
+                                            <small>Jours restants</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extrascript %}
+<!-- FullCalendar JS -->
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/locales/fr.global.min.js'></script>
+<!-- Flatpickr -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/fr.js"></script>
+<!-- Toastr -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script src="{% static 'assets/js/absence/absence_form.js' %}"></script>
+
+<script>
+// Configuration Toastr
+toastr.options = {
+    closeButton: true,
+    progressBar: true,
+    positionClass: "toast-top-right",
+    timeOut: 5000
+};
+
+// ✅ INITIALISER LE MINI CALENDRIER AVEC JOURS FÉRIÉS
+$(document).ready(function() {
+    initMiniCalendar();
+});
+
+function initMiniCalendar() {
+    const calendarEl = document.getElementById('miniCalendar');
+    if (!calendarEl) {
+        return;
+    }
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        locale: 'fr',
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next',
+            center: 'title',
+            right: 'today'
+        },
+        buttonText: {
+            today: "Aujourd'hui"
+        },
+        height: 'auto',
+        fixedWeekCount: false,
+
+        events: function(fetchInfo, successCallback, failureCallback) {
+            const startStr = fetchInfo.start.toISOString().split('T')[0];
+            const endStr = fetchInfo.end.toISOString().split('T')[0];
+
+            Promise.all([
+                fetch(`/absence/api/mes-absences-calendrier/?start=${fetchInfo.start.toISOString()}&end=${fetchInfo.end.toISOString()}`)
+                    .then(r => r.json()),
+                fetch(`/absence/api/jours-feries/?start=${startStr}&end=${endStr}`)
+                    .then(r => r.json())
+            ])
+            .then(([absencesData, joursFeriesData]) => {
+                const events = [];
+
+                if (absencesData.success && absencesData.absences) {
+                    absencesData.absences.forEach(abs => {
+                        const endDate = new Date(abs.date_fin);
+                        endDate.setDate(endDate.getDate() + 1);
+
+                        events.push({
+                            id: 'absence-' + abs.id,
+                            title: abs.type_absence,
+                            start: abs.date_debut,
+                            end: endDate.toISOString().split('T')[0],
+                            backgroundColor: getEventColor(abs.statut),
+                            borderColor: getEventColor(abs.statut),
+                            textColor: '#ffffff',
+                            allDay: true,
+                            extendedProps: {
+                                type: 'absence',
+                                absenceId: abs.id,
+                                statut: abs.statut
+                            }
+                        });
+                    });
+                }
+
+                if (joursFeriesData.success && joursFeriesData.jours_feries) {
+                    joursFeriesData.jours_feries.forEach(jf => {
+                        events.push({
+                            id: 'ferie-' + jf.id,
+                            title: '🎉 ' + jf.nom,
+                            start: jf.date,
+                            backgroundColor: '#ffe6e6',
+                            borderColor: '#ff9999',
+                            textColor: '#cc0000',
+                            allDay: true,
+                            display: 'background',
+                            extendedProps: {
+                                type: 'jour_ferie',
+                                description: jf.description || ''
+                            }
+                        });
+                    });
+                }
+
+                successCallback(events);
+            })
+            .catch(error => {
+                failureCallback(error);
+            });
+        },
+
+        eventClick: function(info) {
+            const eventType = info.event.extendedProps.type;
+
+            if (eventType === 'absence') {
+                toastr.info('Absence existante : ' + info.event.title);
+            } else if (eventType === 'jour_ferie') {
+                toastr.info('Jour férié : ' + info.event.title.replace('🎉 ', ''));
+            }
+        },
+
+        dayCellClassNames: function(arg) {
+            const classes = [];
+            const dayOfWeek = arg.date.getDay();
+
+            if (dayOfWeek === 0 || dayOfWeek === 6) {
+                classes.push('weekend-cell');
+            }
+
+            return classes;
+        }
+    });
+
+    calendar.render();
+}
+
+function getEventColor(statut) {
+    const colors = {
+        'VALIDE': '#28a745',
+        'EN_ATTENTE_MANAGER': '#ffc107',
+        'EN_ATTENTE_RH': '#17a2b8',
+        'REJETE': '#dc3545',
+        'ANNULE': '#6c757d'
+    };
+    return colors[statut] || '#6c757d';
+}
+
+// ✅ SOUMISSION DU FORMULAIRE EN AJAX
+let formModified = false;
+
+// Détecter les modifications
+$('#absenceForm input, #absenceForm select, #absenceForm textarea').on('change input', function() {
+    formModified = true;
+});
+
+// ✅ GESTION DE LA SOUMISSION
+$('#absenceForm').on('submit', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const $form = $(this);
+    const $submitBtn = $('#submitBtn');
+
+    // Forcer la période avant soumission
+    const dateDebut = $('#id_date_debut').val();
+    const dateFin = $('#id_date_fin').val();
+    const $periodeSelect = $('#id_periode');
+
+    if (dateDebut && dateFin && dateDebut !== dateFin) {
+        $periodeSelect.prop('disabled', false);
+        $periodeSelect.val('JOURNEE_COMPLETE');
+    }
+
+    // Créer FormData après avoir forcé la période
+    const formData = new FormData(this);
+
+    // Désactiver le bouton
+    $submitBtn.prop('disabled', true)
+              .html('<i class="fas fa-spinner fa-spin"></i> Enregistrement...');
+
+    // Requête AJAX
+    $.ajax({
+        url: $form.attr('action') || window.location.href,
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        timeout: 30000,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        success: function(response) {
+            if (response.success) {
+                formModified = false;
+                toastr.success(response.message || 'Enregistré avec succès');
+
+                setTimeout(function() {
+                    window.location.href = response.redirect_url;
+                }, 1000);
+            } else {
+                if (response.errors) {
+                    Object.keys(response.errors).forEach(function(field) {
+                        const errors = response.errors[field];
+                        errors.forEach(function(error) {
+                            toastr.error(error);
+                        });
+                    });
+                } else {
+                    toastr.error(response.message || 'Erreur lors de l\'enregistrement');
+                }
+
+                $submitBtn.prop('disabled', false)
+                          .html('<i class="fas fa-save"></i> Enregistrer');
+            }
+        },
+        error: function(xhr, status, error) {
+            if (status === 'timeout') {
+                toastr.error('Le serveur met trop de temps à répondre');
+            } else if (xhr.status === 400 && xhr.responseJSON) {
+                const errors = xhr.responseJSON.errors || {};
+
+                Object.keys(errors).forEach(function(field) {
+                    const errorList = errors[field];
+                    errorList.forEach(function(error) {
+                        toastr.error(error);
+                    });
+                });
+
+                if (xhr.responseJSON.message) {
+                    toastr.error(xhr.responseJSON.message);
+                }
+            } else {
+                toastr.error('Erreur de connexion au serveur');
+            }
+
+            $submitBtn.prop('disabled', false)
+                      .html('<i class="fas fa-save"></i> Enregistrer');
+        }
+    });
+
+    return false;
+});
+
+// Avertir avant de quitter si modifications non sauvegardées
+$(window).on('beforeunload', function(e) {
+    if (formModified) {
+        const message = 'Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter ?';
+        e.returnValue = message;
+        return message;
+    }
+});
+
+// Empêcher la re-soumission lors de l'actualisation
+if (window.history.replaceState) {
+    window.history.replaceState(null, null, window.location.href);
+}
+</script>
+{% endblock %}

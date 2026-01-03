@@ -4,32 +4,105 @@ from django.utils import timezone
 from .models import ZY00, ZYCO, ZYTE, ZYME, ZYAF, ZYAD, ZDPO, ZYDO, ZYFA, ZYNP, ZYPP, ZYIB
 from .pays_choices import PAYS_CHOICES
 
+
 ######################
 ###  Employe ZY00  ###
 ######################
 class ZY00Form(forms.ModelForm):
     """Formulaire pour l'employé"""
 
+    # Champ photo personnalisé pour le formulaire
+    photo = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': 'image/jpeg,image/png,image/jpg,image/gif'
+        })
+    )
+
     class Meta:
         model = ZY00
         fields = [
+            'photo',  # Nouveau champ
             'nom', 'prenoms', 'date_naissance', 'sexe',
             'ville_naissance', 'pays_naissance', 'situation_familiale',
-            'type_id', 'numero_id', 'date_validite_id', 'date_expiration_id'
+            'type_id', 'numero_id', 'date_validite_id', 'date_expiration_id',
+            'entreprise', 'convention_personnalisee',  # Nouveaux champs
+            'date_entree_entreprise',  # Nouveau champ
+            'coefficient_temps_travail'  # Nouveau champ
         ]
         widgets = {
-            'nom': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom'}),
-            'prenoms': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Prénom(s)'}),
-            'date_naissance': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'photo': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/jpeg,image/png,image/jpg,image/gif'
+            }),
+            'nom': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nom'
+            }),
+            'prenoms': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Prénom(s)'
+            }),
+            'date_naissance': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
             'sexe': forms.Select(attrs={'class': 'form-control'}),
-            'ville_naissance': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ville de naissance'}),
-            'pays_naissance': forms.Select(choices=PAYS_CHOICES, attrs={'class': 'form-control'}),
+            'ville_naissance': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ville de naissance'
+            }),
+            'pays_naissance': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Pays de naissance'
+            }),
             'situation_familiale': forms.Select(attrs={'class': 'form-control'}),
             'type_id': forms.Select(attrs={'class': 'form-control'}),
-            'numero_id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Numéro d\'identité'}),
-            'date_validite_id': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'date_expiration_id': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'numero_id': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Numéro d\'identité'
+            }),
+            'date_validite_id': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'date_expiration_id': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'entreprise': forms.Select(attrs={
+                'class': 'form-control',
+                'required': False
+            }),
+            'convention_personnalisee': forms.Select(attrs={
+                'class': 'form-control',
+                'required': False
+            }),
+            'date_entree_entreprise': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'coefficient_temps_travail': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01',
+                'min': '0',
+                'max': '1',
+                'placeholder': 'Ex: 1.00 pour temps plein'
+            }),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Personnalisation supplémentaire si nécessaire
+        if 'pays_naissance' in self.fields:
+            self.fields['pays_naissance'].widget.attrs.update({
+                'placeholder': 'Pays de naissance (ex: FRANCE)'
+            })
+
+        # Aide pour les champs
+        self.fields['coefficient_temps_travail'].help_text = "1.00 = temps plein, 0.50 = mi-temps"
+        self.fields['date_entree_entreprise'].help_text = "Date de première prise de service"
 
 
 class EmbaucheAgentForm(forms.ModelForm):
@@ -108,7 +181,12 @@ class EmbaucheAgentForm(forms.ModelForm):
         fields = [
             'nom', 'prenoms', 'date_naissance', 'sexe',
             'ville_naissance', 'pays_naissance', 'situation_familiale',
-            'type_id', 'numero_id', 'date_validite_id', 'date_expiration_id'
+            'type_id', 'numero_id', 'date_validite_id', 'date_expiration_id',
+            'photo',  # Nouveau champ
+            'entreprise',  # Nouveau champ
+            'convention_personnalisee',  # Nouveau champ
+            'date_entree_entreprise',  # Nouveau champ
+            'coefficient_temps_travail',  # Nouveau champ
         ]
         widgets = {
             'nom': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom'}),
@@ -122,7 +200,126 @@ class EmbaucheAgentForm(forms.ModelForm):
             'numero_id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Numéro d\'identité'}),
             'date_validite_id': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'date_expiration_id': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            # Nouveaux widgets pour les nouveaux champs
+            'photo': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/jpeg,image/png,image/jpg,image/gif'
+            }),
+            'entreprise': forms.Select(attrs={'class': 'form-control'}),
+            'convention_personnalisee': forms.Select(attrs={'class': 'form-control'}),
+            'date_entree_entreprise': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'coefficient_temps_travail': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01',
+                'min': '0.01',
+                'max': '1',
+                'placeholder': '1.00 pour temps plein'
+            }),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Définir les valeurs par défaut
+        self.fields['pays'].initial = "TOGO"
+        self.fields['pays_naissance'].initial = "TOGO"
+        self.fields['coefficient_temps_travail'].initial = 1.00
+        self.fields['entreprise'].required = True
+        self.fields['date_entree_entreprise'].required = True
+
+        # Filtrer les entreprises actives
+        from entreprise.models import Entreprise
+        self.fields['entreprise'].queryset = Entreprise.objects.filter(actif=True).order_by('nom')
+
+        # Filtrer les conventions personnalisées actives
+        from absence.models import ConfigurationConventionnelle
+        self.fields['convention_personnalisee'].queryset = ConfigurationConventionnelle.objects.filter(
+            actif=True,
+            type_convention='PERSONNALISEE'
+        ).order_by('nom')
+
+        # Ajouter des classes et attributs supplémentaires
+        self.fields['entreprise'].widget.attrs.update({
+            'required': 'required'
+        })
+
+        self.fields['date_entree_entreprise'].widget.attrs.update({
+            'required': 'required'
+        })
+
+        # Ajouter des help_text
+        self.fields['photo'].help_text = "Photo de profil (JPG/PNG, max 5MB)"
+        self.fields['entreprise'].help_text = "Sélectionnez l'entreprise d'affectation"
+        self.fields['convention_personnalisee'].help_text = "Optionnel - Surcharge la convention de l'entreprise"
+        self.fields['date_entree_entreprise'].help_text = "Date de première prise de service"
+        self.fields['coefficient_temps_travail'].help_text = "1.00 = temps plein, 0.50 = mi-temps"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # Validation des dates
+        date_validite = cleaned_data.get('date_validite_id')
+        date_expiration = cleaned_data.get('date_expiration_id')
+        date_entree = cleaned_data.get('date_entree_entreprise')
+        date_naissance = cleaned_data.get('date_naissance')
+
+        # Validation de la photo
+        photo = self.files.get('photo') if self.files else None
+        if photo:
+            # Vérifier l'extension
+            ext = photo.name.split('.')[-1].lower()
+            if ext not in ['jpg', 'jpeg', 'png', 'gif']:
+                self.add_error('photo', "Format de fichier non autorisé. Formats acceptés: JPG, PNG, GIF")
+
+            # Vérifier la taille
+            if photo.size > 5 * 1024 * 1024:  # 5MB
+                self.add_error('photo', "La taille de la photo ne doit pas dépasser 5 MB")
+
+        if date_validite and date_expiration:
+            if date_expiration <= date_validite:
+                self.add_error('date_expiration_id',
+                               "La date d'expiration doit être postérieure à la date de validité")
+
+        if date_entree:
+            # Vérifier que la date d'entrée n'est pas dans le futur (peut être ajustée)
+            from datetime import date
+            if date_entree > date.today():
+                self.add_error('date_entree_entreprise',
+                               "La date d'entrée ne peut pas être dans le futur")
+
+            if date_naissance and date_entree:
+                # Calculer l'âge à l'entrée
+                age_a_entree = (date_entree.year - date_naissance.year) - \
+                               ((date_entree.month, date_entree.day) < (date_naissance.month, date_naissance.day))
+
+                if age_a_entree < 16:
+                    self.add_error('date_naissance',
+                                   f"L'âge minimum est de 16 ans. Âge à l'entrée: {age_a_entree} ans")
+
+        # Validation du coefficient de travail
+        coefficient = cleaned_data.get('coefficient_temps_travail')
+        if coefficient:
+            if coefficient <= 0 or coefficient > 1:
+                self.add_error('coefficient_temps_travail',
+                               "Le coefficient doit être compris entre 0.01 et 1.00")
+
+        # Vérifier si le numéro d'identité est unique
+        numero_id = cleaned_data.get('numero_id')
+        if numero_id:
+            if ZY00.objects.filter(numero_id=numero_id).exists():
+                self.add_error('numero_id', "Ce numéro d'identité est déjà utilisé")
+
+        # Vérifier que la date de début de contrat n'est pas antérieure à la date d'entrée
+        date_debut_contrat = cleaned_data.get('date_debut_contrat')
+        if date_entree and date_debut_contrat:
+            if date_debut_contrat < date_entree:
+                self.add_error('date_debut_contrat',
+                               "La date de début de contrat ne peut pas être antérieure à la date d'entrée")
+
+        return cleaned_data
 
 ######################
 ###  Contrat ZYCO  ###
