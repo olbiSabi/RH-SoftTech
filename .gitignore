@@ -1,0 +1,292 @@
+# ========================================
+# DJANGO SPECIFIQUE
+# ========================================
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+.pytest_cache/
+
+# Environnement et configuration
+.env
+.env.local
+.env.*.local
+.env.production
+.env.staging
+.env.development
+.env.test
+.env.sample
+.env.example
+
+# Base de données
+*.sqlite3
+*.db
+db.sqlite3
+db.sqlite3-journal
+*.db.backup
+
+# Fichiers Django spécifiques
+celerybeat-schedule
+celerybeat.pid
+instance/
+.webassets-cache
+
+# ========================================
+# ENVIRONNEMENTS VIRTUELS
+# ========================================
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+virtualenv/
+.venv/
+venv*/
+.venv*/
+pythonenv*/
+.python-version
+
+# ========================================
+# FICHIERS DE CACHE & LOGS
+# ========================================
+.cache/
+.cache*/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+.tox/
+
+# Logs
+*.log
+*.log.*
+log/
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ========================================
+# FICHIERS MÉDIA & STATIQUES
+# ========================================
+media/
+uploads/
+staticfiles/
+static-collected/
+!static/
+!static/**/*.css
+!static/**/*.js
+!static/**/*.png
+!static/**/*.jpg
+!static/**/*.jpeg
+!static/**/*.gif
+!static/**/*.svg
+!static/**/*.ico
+!static/**/*.woff
+!static/**/*.woff2
+!static/**/*.ttf
+!static/**/*.eot
+
+# ========================================
+# MIGRATIONS DJANGO
+# ========================================
+# Ignorer tout le contenu des migrations SAUF __init__.py
+*/migrations/*
+!*/migrations/
+!*/migrations/__init__.py
+
+# Optionnel : ignorer les migrations spécifiques si vous voulez
+# */migrations/0*.py
+# */migrations/*.pyc
+
+# ========================================
+# IDEs & ÉDITEURS
+# ========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.idea
+.DS_Store
+.project
+.settings
+.pydevproject
+*.sublime-*
+*.sublime-project
+*.sublime-workspace
+
+# VS Code
+.history/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ========================================
+# SYSTÈME D'EXPLOITATION
+# ========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Windows
+[Tt]humbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ========================================
+# FICHIERS DE SÉCURITÉ & CONFIGURATION
+# ========================================
+secret_key.txt
+secrets.json
+secrets.yaml
+secrets.yml
+config_private.py
+local_settings.py
+my_settings.py
+
+# Configuration personnelle
+settings/local.py
+settings/dev.py
+settings/development.py
+settings/production.py
+settings/staging.py
+
+# ========================================
+# TESTS & COUVERTURE
+# ========================================
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+test-results.xml
+.coverage.xml
+*.cover
+
+# ========================================
+# DEPENDENCIES & PACKAGES
+# ========================================
+# Python packaging
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+__pycache__/
+
+# pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+.tox/
+.nojekyll
+
+# ========================================
+# AUTRES
+# ========================================
+# Django debug toolbar
+debug_toolbar_*
+
+# Celery
+celerybeat-schedule.*
+flower
+
+# Documentation
+docs/_build/
+.sass-cache/
+*.css.map
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# MkDocs
+site/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# PyCharm
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries
+.idea/vcs.xml
+.idea/jsLibraryMappings.xml
+.idea/dataSources.ids
+.idea/dataSources.xml
+.idea/dataSources.local.xml
+.idea/sqlDataSources.xml
+.idea/dynamic.xml
+.idea/uiDesigner.xml
+.idea/aws.xml
+
+# macOS
+.AppleDouble
+.LSOverride
+Icon
+.Spotlight-V100
+.Trashes
+._*
+
+# ========================================
+# FICHIERS DE VOTRE PROJET À IGNORER
+# ========================================
+# Exemple : si vous avez un dossier data/ que vous ne voulez pas versionner
+# data/
+# backups/
+
+# ========================================
+# TEMPORARY FILES
+# ========================================
+*~
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+*.orig
+*.rej
+
+# ========================================
+# COMPILED FILES
+# ========================================
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+*.pyc
+*.pyo
