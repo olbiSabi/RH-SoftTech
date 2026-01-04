@@ -2,189 +2,253 @@
 <!-- Page Content -->
 <div class="content container-fluid">
 
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="row">
-            <div class="col-sm-12">
-                <h3 class="page-title">Bienvenue user!</h3>
-                <ul class="breadcrumb">
-                    <li class="breadcrumb-item active">Tableau de board</li>
-                </ul>
+    <!-- Welcome Section -->
+    <div class="welcome-card mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2>
+                    <i class="fas fa-hand-wave"></i>
+                    Bonjour, {{ employe.prenoms|default:"Collègue" }} !
+                </h2>
+                <p class="mb-0">Bienvenue sur votre espace personnel. Consultez votre solde de congés et gérez vos absences.</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <div class="d-inline-block bg-white text-dark rounded-pill px-4 py-2">
+                    <small class="text-muted">Aujourd'hui</small>
+                    <div class="h5 mb-0">{{ date_actuelle|date:"d/m/Y" }}</div>
+                </div>
             </div>
         </div>
     </div>
-    <!-- /Page Header -->
 
-    <div class="row">
-        <div class="col-lg-8 col-md-8">
-            <section class="dash-section">
-                <h1 class="dash-sec-title">AUJOURD’HUI</h1>
-                <div class="dash-sec-content">
-                    <div class="dash-info-list">
-                        <a href="#" class="dash-card text-danger">
-                            <div class="dash-card-container">
-                                <div class="dash-card-icon">
-                                    <i class="fa fa-hourglass-o"></i>
-                                </div>
-                                <div class="dash-card-content">
-                                    <p>Richard Miles est malade aujoud'hui</p>
-                                </div>
-                                <div class="dash-card-avatars">
-                                    <div class="e-avatar"><img src="{% static 'assets/img/profiles/avatar-02.jpg' %}"
-                                                               alt=""></div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-
-                    <div class="dash-info-list">
-                        <a href="#" class="dash-card">
-                            <div class="dash-card-container">
-                                <div class="dash-card-icon">
-                                    <i class="fa fa-suitcase"></i>
-                                </div>
-                                <div class="dash-card-content">
-                                    <p>Il est absent aujourd'hui</p>
-                                </div>
-                                <div class="dash-card-avatars">
-                                    <div class="e-avatar"><img src="{% static 'assets/img/profiles/avatar-21.jpg' %}"
-                                                               alt=""></div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-
+    <!-- Stats Personnel -->
+    <div class="row g-3 mb-4">
+        <!-- Jours restants -->
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card-employe">
+                <div class="icon">
+                    <i class="fas fa-calendar-check"></i>
                 </div>
-            </section>
-
-            <section class="dash-section">
-                <h1 class="dash-sec-title">DEMAIN</h1>
-                <div class="dash-sec-content">
-                    <div class="dash-info-list">
-                        <div class="dash-card">
-                            <div class="dash-card-container">
-                                <div class="dash-card-icon">
-                                    <i class="fa fa-suitcase"></i>
-                                </div>
-                                <div class="dash-card-content">
-                                    <p>2 personne seront absentes demain</p>
-                                </div>
-                                <div class="dash-card-avatars">
-                                    <a href="#" class="e-avatar"><img
-                                            src="{% static 'assets/img/profiles/avatar-z.jpg' %}" alt=""></a>
-                                    <a href="#" class="e-avatar"><img
-                                            src="{% static 'assets/img/profiles/avatar-y.jpg' %}" alt=""></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="dash-section">
-                <h1 class="dash-sec-title">PROCHAINS JOURS</h1>
-                <div class="dash-sec-content">
-                    <div class="dash-info-list">
-                        <div class="dash-card">
-                            <div class="dash-card-container">
-                                <div class="dash-card-icon">
-                                    <i class="fa fa-suitcase"></i>
-                                </div>
-                                <div class="dash-card-content">
-                                    <p>2 Personnes vont être absentes</p>
-                                </div>
-                                <div class="dash-card-avatars">
-                                    <a href="#" class="e-avatar"><img
-                                            src="{% static 'assets/img/profiles/avatar-02.jpg' %}" alt=""></a>
-                                    <a href="#" class="e-avatar"><img
-                                            src="{% static 'assets/img/profiles/avatar-z.jpg' %}" alt=""></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dash-info-list">
-                        <div class="dash-card">
-                            <div class="dash-card-container">
-                                <div class="dash-card-icon">
-                                    <i class="fa fa-user-plus"></i>
-                                </div>
-                                <div class="dash-card-content">
-                                    <p>Dernier embaucher</p>
-                                </div>
-                                <div class="dash-card-avatars">
-                                    <div class="e-avatar"><img src="{% static 'assets/img/profiles/avatar-x.jpg' %}"
-                                                               alt=""></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dash-info-list">
-                        <a href="" class="dash-card">
-                            <div class="dash-card-container">
-                                <div class="dash-card-icon">
-                                    <i class="fa fa-calendar"></i>
-                                </div>
-                                <div class="dash-card-content">
-                                    <p>Jour férié du mois</p>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </section>
+                <div class="number">{{ solde_conges.jours_restants|default:"0" }}</div>
+                <div class="label">Jours de congés restants</div>
+                <small class="text-muted">Année {{ solde_conges.annee_reference|default:date_actuelle.year }}</small>
+            </div>
         </div>
 
-        <div class="col-lg-4 col-md-4">
-            <div class="dash-sidebar">
-                <section>
-                    <h5 class="dash-title">Projets</h5>
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="time-list">
-                                <div class="dash-stats-list">
-                                    <h4>71</h4>
-                                    <p>Nombre totale de projets</p>
-                                </div>
-                                <div class="dash-stats-list">
-                                    <h4>14</h4>
-                                    <p>projets en attente</p>
-                                </div>
-                            </div>
-                            <div class="request-btn">
-                                <div class="dash-stats-list">
-                                    <h4>2</h4>
-                                    <p>projets en cours</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                <section>
-                    <h5 class="dash-title">congé</h5>
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="time-list">
-                                <div class="dash-stats-list">
-                                    <h4>4</h4>
-                                    <p>personnes en congé</p>
-                                </div>
-                                <div class="dash-stats-list">
-                                    <h4>12</h4>
-                                    <p>restant</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+        <!-- Demandes en attente -->
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card-employe">
+                <div class="icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="number">{{ absences_en_attente|default:"0" }}</div>
+                <div class="label">Demandes en attente</div>
+                <small class="text-muted">En cours de validation</small>
+            </div>
+        </div>
 
-                <section>
-                    <h5 class="dash-title">Vacance à venir</h5>
-                    <div class="card">
-                        <div class="card-body text-center">
-                            <h4 class="holiday-title mb-0">lun 20 Mai 2019 - Ramzan</h4>
-                        </div>
+        <!-- Jours pris -->
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card-employe">
+                <div class="icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="number">{{ jours_pris_annee|default:"0" }}</div>
+                <div class="label">Jours pris cette année</div>
+                <small class="text-muted">Depuis janvier {{ date_actuelle.year }}</small>
+            </div>
+        </div>
+
+        <!-- Taux de présence -->
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card-employe">
+                <div class="icon">
+                    <i class="fas fa-percentage"></i>
+                </div>
+                <div class="number">{{ taux_presence|default:"100" }}%</div>
+                <div class="label">Taux de présence</div>
+                <small class="text-muted">Moyenne annuelle</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions Rapides -->
+    <div class="row g-3 mb-4">
+        <div class="col-12">
+            <h5 class="mb-3">
+                <i class="fas fa-bolt me-2"></i>Actions rapides
+            </h5>
+        </div>
+
+        <div class="col-lg-4 col-md-4 col-sm-6">
+            <a href="{% url 'absence:creer_absence' %}" class="quick-action-btn">
+                <i class="fas fa-plus-circle text-primary"></i>
+                <div class="mt-2">Nouvelle demande</div>
+            </a>
+        </div>
+
+        <div class="col-lg-4 col-md-4 col-sm-6">
+            <a href="{% url 'absence:liste_absences' %}" class="quick-action-btn">
+                <i class="fas fa-list text-success"></i>
+                <div class="mt-2">Mes absences</div>
+            </a>
+        </div>
+
+        <div class="col-lg-4 col-md-4 col-sm-6">
+            <a href="{% url 'employee:profil' employe.matricule %}" class="quick-action-btn">
+                <i class="fas fa-user text-info"></i>
+                <div class="mt-2">Mon profil</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Two Columns Layout -->
+    <div class="row g-4">
+        <!-- Left Column: Info personnelles -->
+        <div class="col-lg-4">
+            <!-- Informations personnelles -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-id-badge text-primary me-2"></i>Mes informations
+                    </h5>
+                    <div class="info-item mb-3">
+                        <small class="text-muted d-block">Matricule</small>
+                        <strong>{{ employe.matricule }}</strong>
                     </div>
-                </section>
+                    <div class="info-item mb-3">
+                        <small class="text-muted d-block">Poste</small>
+                        <strong>{{ employe.affectation_actuelle.poste.LIBELLE|default:"Non affecté" }}</strong>
+                    </div>
+                    <div class="info-item mb-3">
+                        <small class="text-muted d-block">Département</small>
+                        <strong>{{ employe.affectation_actuelle.poste.DEPARTEMENT.LIBELLE|default:"Non affecté" }}</strong>
+                    </div>
+                    <div class="info-item mb-3">
+                        <small class="text-muted d-block">Date d'entrée</small>
+                        <strong>{{ employe.date_entree_entreprise|date:"d/m/Y" }}</strong>
+                    </div>
+                    <div class="info-item">
+                        <small class="text-muted d-block">Ancienneté</small>
+                        <strong>{{ employe.anciennete_annees }} an{{ employe.anciennete_annees|pluralize }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Solde détaillé -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-chart-pie text-success me-2"></i>Détail du solde
+                    </h5>
+                    {% if solde_conges %}
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <small>Jours acquis</small>
+                                <strong>{{ solde_conges.jours_acquis }}</strong>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-success" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <small>Jours pris</small>
+                                <strong>{{ solde_conges.jours_pris }}</strong>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                {% widthratio solde_conges.jours_pris solde_conges.jours_acquis 100 as pris_percent %}
+                                <div class="progress-bar bg-warning" style="width: {{ pris_percent }}%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <small>Jours restants</small>
+                                <strong class="text-primary">{{ solde_conges.jours_restants }}</strong>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                {% widthratio solde_conges.jours_restants solde_conges.jours_acquis 100 as restant_percent %}
+                                <div class="progress-bar bg-primary" style="width: {{ restant_percent }}%"></div>
+                            </div>
+                        </div>
+                        {% if solde_conges.report_anterieur > 0 %}
+                        <div class="alert alert-info py-2">
+                            <small>
+                                <i class="fas fa-info-circle me-1"></i>
+                                Report année précédente : <strong>{{ solde_conges.report_anterieur }} jour{{ solde_conges.report_anterieur|pluralize }}</strong>
+                            </small>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center text-muted py-3">
+                            <i class="fas fa-info-circle fa-2x mb-2"></i>
+                            <p class="mb-0 small">Aucun solde disponible</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Absences récentes -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-clipboard-list text-success me-2"></i>Mes dernières absences
+                        </h5>
+                        <a href="{% url 'absence:liste_absences' %}" class="btn btn-sm btn-outline-primary">
+                            Voir tout <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+
+                    <!-- Absences List -->
+                    {% if mes_absences %}
+                        <div class="absence-list">
+                            {% for absence in mes_absences %}
+                                <div class="absence-item {{ absence.statut|lower }}">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">{{ absence.type_absence.libelle }}</h6>
+                                            <small class="text-muted">
+                                                <i class="far fa-calendar me-1"></i>
+                                                {{ absence.date_debut|date:"d/m/Y" }} - {{ absence.date_fin|date:"d/m/Y" }}
+                                                <span class="mx-2">•</span>
+                                                {{ absence.jours_ouvrables }} jour{{ absence.jours_ouvrables|pluralize }}
+                                            </small>
+                                        </div>
+                                        <div>
+                                            {% if absence.statut == 'VALIDE' %}
+                                                <span class="status-badge status-approved">Approuvé</span>
+                                            {% elif absence.statut == 'REJETE' %}
+                                                <span class="status-badge status-rejected">Refusé</span>
+                                            {% elif absence.statut == 'ANNULE' %}
+                                                <span class="status-badge status-rejected">Annulé</span>
+                                            {% else %}
+                                                <span class="status-badge status-pending">En attente</span>
+                                            {% endif %}
+
+                                        </div>
+                                    </div>
+                                    {% if absence.statut == 'REJETE' and absence.motif_rejet %}
+                                        <div class="mt-2 small text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>Motif: {{ absence.motif_rejet }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-calendar-check fa-3x text-muted mb-3"></i>
+                            <h5>Aucune absence enregistrée</h5>
+                            <p class="text-muted">Vous n'avez pas encore fait de demande d'absence.</p>
+                            <a href="{% url 'absence:creer_absence' %}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Faire ma première demande
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>

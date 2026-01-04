@@ -3171,4 +3171,4 @@ def dashboard(request):
         'soldes_faibles': soldes_faibles,
     }
 
-    return render(request, 'dashboard/index.html', context)
+    return render(request, 'home.html', context)

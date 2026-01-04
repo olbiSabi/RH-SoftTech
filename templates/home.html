@@ -4,16 +4,184 @@
 {% block extrastylet %}
 <!-- Chart CSS -->
 <link rel="stylesheet" href="{% static 'assets/plugins/morris/morris.css' %}">
+<style>
+/* Cartes statistiques */
+.card {
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.opacity-50 {
+    opacity: 0.5;
+}
+
+/* Badges */
+.badge {
+    font-size: 0.85em;
+}
+
+/* Liste groupée */
+.list-group-item-action:hover {
+    background-color: #f8f9fa;
+    border-left: 3px solid #1c5d5f;
+}
+</style>
+<style>
+/* Welcome Card */
+.welcome-card {
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 25px;
+}
+
+/* Stats Cards */
+.stat-card-employe {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    height: 100%;
+    border-left: 4px solid #1c5d5f;
+    transition: all 0.3s;
+}
+
+.stat-card-employe:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.stat-card-employe .icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(67, 97, 238, 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #1c5d5f;
+    margin-bottom: 15px;
+}
+
+.stat-card-employe .number {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 10px 0;
+    color: #1c5d5f;
+}
+
+.stat-card-employe .label {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+/* Quick Actions */
+.quick-action-btn {
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s;
+    color: #495057;
+    text-decoration: none;
+    display: block;
+    height: 100%;
+}
+
+.quick-action-btn:hover {
+    border-color: #1c5d5f;
+    transform: translateY(-3px);
+    text-decoration: none;
+    color: #1c5d5f;
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+}
+
+.quick-action-btn i {
+    font-size: 24px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* Absences List */
+.absence-item {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-left: 4px solid #ddd;
+}
+
+.absence-item.valide {
+    border-left-color: #28a745;
+}
+
+.absence-item.en_attente_manager,
+.absence-item.en_attente_rh,
+.absence-item.brouillon {
+    border-left-color: #ffc107;
+}
+
+.absence-item.rejete,
+.absence-item.annule {
+    border-left-color: #dc3545;
+}
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-approved {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-rejected {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.info-item {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.info-box {
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+</style>
 {% endblock %}
 
 
-<!-- Content Body (Page Body) -->
-
 {% block pageContent %}
-{% include 'base/adminDashboard.html' %}
+
+<!-- Embaucher agent : DRH/GESTION_APP/Admin uniquement -->
+{% if user.employe.peut_embaucher or user.is_superuser or user.is_staff %}
+    {% include 'base/adminDashboard.html' %}
+{% else %}
+        {% include 'base/userDashboard.html' %}
+{% endif %}
 {% endblock %}
 
 {% block extrascript %}
-
-
 {% endblock %}
