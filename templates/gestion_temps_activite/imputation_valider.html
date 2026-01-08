@@ -1,0 +1,127 @@
+<!-- gestion_temps_activite/templates/gestion_temps_activite/imputation_valider.html -->
+
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'assets/css/gta/gestion_imputation.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <h1 class="h3 mb-2 text-gray-800">
+                    <i class="fas fa-check-circle text-success"></i> Valider l'imputation
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'gestion_temps_activite:dashboard' %}">Accueil</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'gestion_temps_activite:imputation_validation' %}">Validation</a></li>
+                        <li class="breadcrumb-item active">Confirmer</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Confirmation -->
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card shadow border-success">
+                    <div class="card-header bg-success text-white py-3">
+                        <h6 class="m-0 font-weight-bold">
+                            <i class="fas fa-check-circle"></i> Confirmation de Validation
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            Vous êtes sur le point de valider l'imputation suivante :
+                        </div>
+
+                        <!-- Détails de l'imputation -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Détails de l'Imputation</h5>
+                                <table class="table table-sm">
+                                    <tbody>
+                                        <tr>
+                                            <th width="30%">Date</th>
+                                            <td>{{ imputation.date|date:"d/m/Y" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Employé</th>
+                                            <td>{{ imputation.employe.nom }} {{ imputation.employe.prenoms }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Projet</th>
+                                            <td>{{ imputation.tache.projet.nom_projet }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Tâche</th>
+                                            <td>{{ imputation.tache.titre }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Activité</th>
+                                            <td>
+                                                <span class="badge badge-{% if imputation.activite.facturable %}success{% else %}secondary{% endif %}">
+                                                    {{ imputation.activite.libelle }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Durée</th>
+                                            <td><strong class="text-primary">{{ imputation.duree }} heure(s)</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Commentaire</th>
+                                            <td>
+                                                {% if imputation.commentaire %}
+                                                {{ imputation.commentaire }}
+                                                {% else %}
+                                                <span class="text-muted">Aucun commentaire</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-check"></i> Effet de la validation</h6>
+                            <ul class="mb-0">
+                                <li>L'imputation sera marquée comme <strong>validée</strong></li>
+                                <li>Vous serez enregistré comme <strong>validateur</strong></li>
+                                <li>La date de validation sera enregistrée</li>
+                                <li>L'employé pourra voir que son temps a été validé</li>
+                                <li>L'imputation ne pourra plus être modifiée ou supprimée par l'employé</li>
+                            </ul>
+                        </div>
+
+                        <!-- Formulaire de validation -->
+                        <form method="post">
+                            {% csrf_token %}
+                            <hr>
+                            <div class="text-right">
+                                <a href="{% url 'gestion_temps_activite:imputation_validation' %}" class="btn btn-secondary btn-lg">
+                                    <i class="fas fa-arrow-left"></i> Retour
+                                </a>
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fas fa-check"></i> Valider l'imputation
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'assets/js/gta/gestion_imputation.js' %}"></script>
+{% endblock %}

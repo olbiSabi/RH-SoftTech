@@ -1,0 +1,303 @@
+<!-- gestion_temps_activite/templates/gestion_temps_activite/projet_form.html -->
+
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'assets/css/gta/gestion_projet.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h1 class="h3 mb-2 text-gray-800">
+                    <i class="fas fa-folder-open"></i> {{ title }}
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'gestion_temps_activite:dashboard' %}">Accueil</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'gestion_temps_activite:projet_liste' %}">Projets</a></li>
+                        <li class="breadcrumb-item active">{{ title }}</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-md-6 text-right">
+                <a href="{% if projet %}{% url 'gestion_temps_activite:projet_detail' pk=projet.pk %}{% else %}{% url 'gestion_temps_activite:projet_liste' %}{% endif %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Annuler
+                </a>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="row mb-3">
+            <div class="col-12">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Formulaire -->
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-edit"></i> Informations du Projet
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" novalidate id="projetForm">
+                            {% csrf_token %}
+
+                            <!-- Affichage des erreurs non liées à un champ -->
+                            {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                            {% endif %}
+
+                            <!-- Informations Générales -->
+                            <div class="border-bottom mb-4 pb-2">
+                                <h6 class="text-primary">Informations Générales</h6>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="{{ form.nom_projet.id_for_label }}">
+                                            {{ form.nom_projet.label }}
+                                        </label>
+                                        {{ form.nom_projet }}
+                                        {% if form.nom_projet.errors %}
+                                        <div class="text-danger small">{{ form.nom_projet.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="{{ form.description.id_for_label }}">
+                                            {{ form.description.label }}
+                                        </label>
+                                        {{ form.description }}
+                                        {% if form.description.errors %}
+                                        <div class="text-danger small">{{ form.description.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Client et Chef de Projet -->
+                            <div class="border-bottom mb-4 pb-2 mt-4">
+                                <h6 class="text-primary">Attribution</h6>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.client.id_for_label }}">
+                                            {{ form.client.label }}
+                                        </label>
+                                        {{ form.client }}
+                                        {% if form.client.errors %}
+                                        <div class="text-danger small">{{ form.client.errors }}</div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">
+                                            <a href="{% url 'gestion_temps_activite:client_create' %}" target="_blank">
+                                                <i class="fas fa-plus"></i> Créer un nouveau client
+                                            </a>
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.chef_projet.id_for_label }}">
+                                            {{ form.chef_projet.label }}
+                                        </label>
+                                        {{ form.chef_projet }}
+                                        {% if form.chef_projet.errors %}
+                                        <div class="text-danger small">{{ form.chef_projet.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Budget -->
+                            <div class="border-bottom mb-4 pb-2 mt-4">
+                                <h6 class="text-primary">Budget</h6>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.budget_heures.id_for_label }}">
+                                            {{ form.budget_heures.label }}
+                                        </label>
+                                        <div class="input-group">
+                                            {{ form.budget_heures }}
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">heures</span>
+                                            </div>
+                                        </div>
+                                        {% if form.budget_heures.errors %}
+                                        <div class="text-danger small">{{ form.budget_heures.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.budget_montant.id_for_label }}">
+                                            {{ form.budget_montant.label }}
+                                        </label>
+                                        <div class="input-group">
+                                            {{ form.budget_montant }}
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">FCFA</span>
+                                            </div>
+                                        </div>
+                                        {% if form.budget_montant.errors %}
+                                        <div class="text-danger small">{{ form.budget_montant.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Planification -->
+                            <div class="border-bottom mb-4 pb-2 mt-4">
+                                <h6 class="text-primary">Planification</h6>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="{{ form.date_debut.id_for_label }}">
+                                            {{ form.date_debut.label }}
+                                        </label>
+                                        {{ form.date_debut }}
+                                        {% if form.date_debut.errors %}
+                                        <div class="text-danger small">{{ form.date_debut.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="{{ form.date_fin_prevue.id_for_label }}">
+                                            {{ form.date_fin_prevue.label }}
+                                        </label>
+                                        {{ form.date_fin_prevue }}
+                                        {% if form.date_fin_prevue.errors %}
+                                        <div class="text-danger small">{{ form.date_fin_prevue.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="{{ form.date_fin_reelle.id_for_label }}">
+                                            {{ form.date_fin_reelle.label }}
+                                        </label>
+                                        {{ form.date_fin_reelle }}
+                                        {% if form.date_fin_reelle.errors %}
+                                        <div class="text-danger small">{{ form.date_fin_reelle.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Statut et Facturation -->
+                            <div class="border-bottom mb-4 pb-2 mt-4">
+                                <h6 class="text-primary">Statut et Facturation</h6>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="{{ form.statut.id_for_label }}">
+                                            {{ form.statut.label }}
+                                        </label>
+                                        {{ form.statut }}
+                                        {% if form.statut.errors %}
+                                        <div class="text-danger small">{{ form.statut.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="{{ form.priorite.id_for_label }}">
+                                            {{ form.priorite.label }}
+                                        </label>
+                                        {{ form.priorite }}
+                                        {% if form.priorite.errors %}
+                                        <div class="text-danger small">{{ form.priorite.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="{{ form.type_facturation.id_for_label }}">
+                                            {{ form.type_facturation.label }}
+                                        </label>
+                                        {{ form.type_facturation }}
+                                        {% if form.type_facturation.errors %}
+                                        <div class="text-danger small">{{ form.type_facturation.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-check">
+                                        {{ form.actif }}
+                                        <label class="form-check-label" for="{{ form.actif.id_for_label }}">
+                                            {{ form.actif.label }}
+                                        </label>
+                                        {% if form.actif.errors %}
+                                        <div class="text-danger small">{{ form.actif.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Boutons -->
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <hr>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> {{ action }}
+                                    </button>
+                                    <a href="{% if projet %}{% url 'gestion_temps_activite:projet_detail' pk=projet.pk %}{% else %}{% url 'gestion_temps_activite:projet_liste' %}{% endif %}" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Annuler
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'assets/js/gta/gestion_projet.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,156 @@
+<!-- gestion_temps_activite/templates/gestion_temps_activite/imputation_rejeter.html -->
+
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'assets/css/gta/gestion_imputation.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <h1 class="h3 mb-2 text-gray-800">
+                    <i class="fas fa-times-circle text-danger"></i> Rejeter l'imputation
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'gestion_temps_activite:dashboard' %}">Accueil</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'gestion_temps_activite:imputation_validation' %}">Validation</a></li>
+                        <li class="breadcrumb-item active">Rejeter</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Formulaire de rejet -->
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card shadow border-danger">
+                    <div class="card-header bg-danger text-white py-3">
+                        <h6 class="m-0 font-weight-bold">
+                            <i class="fas fa-times-circle"></i> Rejet d'Imputation
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Vous êtes sur le point de rejeter l'imputation suivante. Un motif est obligatoire.
+                        </div>
+
+                        <!-- Détails de l'imputation -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Détails de l'Imputation</h5>
+                                <table class="table table-sm">
+                                    <tbody>
+                                        <tr>
+                                            <th width="30%">Date</th>
+                                            <td>{{ imputation.date|date:"d/m/Y" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Employé</th>
+                                            <td>{{ imputation.employe.nom }} {{ imputation.employe.prenoms }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Projet</th>
+                                            <td>{{ imputation.tache.projet.nom_projet }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Tâche</th>
+                                            <td>{{ imputation.tache.titre }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Activité</th>
+                                            <td>
+                                                <span class="badge badge-{% if imputation.activite.facturable %}success{% else %}secondary{% endif %}">
+                                                    {{ imputation.activite.libelle }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Durée</th>
+                                            <td><strong>{{ imputation.duree }} heure(s)</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Commentaire</th>
+                                            <td>
+                                                {% if imputation.commentaire %}
+                                                {{ imputation.commentaire }}
+                                                {% else %}
+                                                <span class="text-muted">Aucun commentaire</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Formulaire -->
+                        <form method="post" id="rejetForm">
+                            {% csrf_token %}
+
+                            <div class="form-group">
+                                <label for="motif_rejet">
+                                    <i class="fas fa-comment-dots"></i> Motif du rejet <span class="text-danger">*</span>
+                                </label>
+                                <textarea name="motif_rejet" id="motif_rejet" class="form-control" rows="4" required
+                                          placeholder="Expliquez pourquoi vous rejetez cette imputation (minimum 10 caractères)"></textarea>
+                                <small class="form-text text-muted">
+                                    Ce motif sera envoyé à l'employé pour qu'il puisse corriger son imputation
+                                </small>
+                            </div>
+
+                            <div class="alert alert-danger">
+                                <h6><i class="fas fa-times"></i> Effet du rejet</h6>
+                                <ul class="mb-0">
+                                    <li>L'imputation sera <strong>supprimée</strong></li>
+                                    <li>L'employé recevra une <strong>notification</strong> avec le motif du rejet</li>
+                                    <li>L'employé devra créer une nouvelle imputation corrigée</li>
+                                </ul>
+                            </div>
+
+                            <hr>
+
+                            <div class="text-right">
+                                <a href="{% url 'gestion_temps_activite:imputation_validation' %}" class="btn btn-secondary btn-lg">
+                                    <i class="fas fa-arrow-left"></i> Annuler
+                                </a>
+                                <button type="submit" class="btn btn-danger btn-lg">
+                                    <i class="fas fa-times"></i> Rejeter l'imputation
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'assets/js/gta/gestion_imputation.js' %}"></script>
+<script>
+    // Validation du formulaire de rejet
+    document.getElementById('rejetForm').addEventListener('submit', function(e) {
+        const motif = document.getElementById('motif_rejet').value.trim();
+
+        if (motif.length < 10) {
+            e.preventDefault();
+            alert('Le motif du rejet doit contenir au moins 10 caractères.');
+            document.getElementById('motif_rejet').focus();
+            return false;
+        }
+
+        if (!confirm('Êtes-vous sûr de vouloir rejeter cette imputation ?')) {
+            e.preventDefault();
+            return false;
+        }
+    });
+</script>
+{% endblock %}

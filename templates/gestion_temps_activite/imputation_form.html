@@ -1,0 +1,284 @@
+<!-- gestion_temps_activite/templates/gestion_temps_activite/imputation_form.html -->
+
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'assets/css/gta/gestion_imputation.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h1 class="h3 mb-2 text-gray-800">
+                    <i class="fas fa-clock"></i> {{ title }}
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'gestion_temps_activite:dashboard' %}">Accueil</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'gestion_temps_activite:imputation_mes_temps' %}">Mes Temps</a></li>
+                        <li class="breadcrumb-item active">{{ title }}</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-md-6 text-right">
+                <a href="{% url 'gestion_temps_activite:imputation_mes_temps' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Annuler
+                </a>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="row mb-3">
+            <div class="col-12">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Formulaire -->
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-edit"></i> Saisie du Temps
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" novalidate id="imputationForm">
+                            {% csrf_token %}
+
+                            <!-- Affichage des erreurs non liées à un champ -->
+                            {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                            {% endif %}
+
+                            <!-- Info si modification bloquée -->
+                            {% if imputation and imputation.valide %}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <strong>Attention :</strong> Cette imputation a été validée. La modification est limitée.
+                            </div>
+                            {% endif %}
+
+                            {% if imputation and imputation.facture %}
+                            <div class="alert alert-danger">
+                                <i class="fas fa-ban"></i>
+                                <strong>Modification impossible :</strong> Cette imputation a été facturée.
+                            </div>
+                            {% endif %}
+
+                            <!-- Date et Employé -->
+                            <div class="border-bottom mb-4 pb-2">
+                                <h6 class="text-primary">Date et Employé</h6>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.date.id_for_label }}">
+                                            {{ form.date.label }}
+                                        </label>
+                                        {{ form.date }}
+                                        {% if form.date.errors %}
+                                        <div class="text-danger small">{{ form.date.errors }}</div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">
+                                            <i class="fas fa-info-circle"></i> Date de réalisation du travail
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.employe.id_for_label }}">
+                                            {{ form.employe.label }}
+                                        </label>
+                                        {{ form.employe }}
+                                        {% if form.employe.errors %}
+                                        <div class="text-danger small">{{ form.employe.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Projet et Tâche -->
+                            <div class="border-bottom mb-4 pb-2 mt-4">
+                                <h6 class="text-primary">Affectation</h6>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="projet-select">Projet</label>
+                                        <select id="projet-select" class="form-control">
+                                            <option value="">Sélectionnez un projet</option>
+                                            {% for projet in projets %}
+                                            <option value="{{ projet.id }}">{{ projet.nom_projet }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <small class="form-text text-muted">
+                                            Sélectionnez d'abord un projet pour filtrer les tâches
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.tache.id_for_label }}">
+                                            {{ form.tache.label }}
+                                        </label>
+                                        {{ form.tache }}
+                                        {% if form.tache.errors %}
+                                        <div class="text-danger small">{{ form.tache.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Activité et Durée -->
+                            <div class="border-bottom mb-4 pb-2 mt-4">
+                                <h6 class="text-primary">Activité et Durée</h6>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.activite.id_for_label }}">
+                                            {{ form.activite.label }}
+                                        </label>
+                                        {{ form.activite }}
+                                        {% if form.activite.errors %}
+                                        <div class="text-danger small">{{ form.activite.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.duree.id_for_label }}">
+                                            {{ form.duree.label }}
+                                        </label>
+                                        <div class="input-group">
+                                            {{ form.duree }}
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">heures</span>
+                                            </div>
+                                        </div>
+                                        {% if form.duree.errors %}
+                                        <div class="text-danger small">{{ form.duree.errors }}</div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">
+                                            Ex: 1.5 pour 1h30
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Aide rapide à la saisie -->
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <div class="alert alert-info">
+                                        <strong><i class="fas fa-lightbulb"></i> Saisie rapide :</strong>
+                                        <div class="btn-group mt-2" role="group">
+                                            <button type="button" class="btn btn-sm btn-outline-info" onclick="setDuree(0.5)">30 min</button>
+                                            <button type="button" class="btn btn-sm btn-outline-info" onclick="setDuree(1)">1h</button>
+                                            <button type="button" class="btn btn-sm btn-outline-info" onclick="setDuree(1.5)">1h30</button>
+                                            <button type="button" class="btn btn-sm btn-outline-info" onclick="setDuree(2)">2h</button>
+                                            <button type="button" class="btn btn-sm btn-outline-info" onclick="setDuree(4)">4h</button>
+                                            <button type="button" class="btn btn-sm btn-outline-info" onclick="setDuree(8)">Journée</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Commentaire -->
+                            <div class="border-bottom mb-4 pb-2 mt-4">
+                                <h6 class="text-primary">Détails</h6>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="{{ form.commentaire.id_for_label }}">
+                                            {{ form.commentaire.label }}
+                                        </label>
+                                        {{ form.commentaire }}
+                                        {% if form.commentaire.errors %}
+                                        <div class="text-danger small">{{ form.commentaire.errors }}</div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">
+                                            Décrivez brièvement le travail effectué
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Résumé de l'imputation -->
+                            <div id="imputation-summary" class="mt-3 p-3 border rounded bg-light" style="display: none;">
+                                <h6 class="text-muted mb-2">
+                                    <i class="fas fa-info-circle"></i> Résumé
+                                </h6>
+                                <div id="summary-content"></div>
+                            </div>
+
+                            <!-- Boutons -->
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <hr>
+                                    <button type="submit" class="btn btn-primary" {% if imputation and imputation.facture %}disabled{% endif %}>
+                                        <i class="fas fa-save"></i> {{ action }}
+                                    </button>
+                                    <button type="submit" name="save_and_new" value="1" class="btn btn-success" {% if imputation %}style="display:none"{% endif %}>
+                                        <i class="fas fa-plus"></i> Enregistrer et Nouveau
+                                    </button>
+                                    <a href="{% url 'gestion_temps_activite:imputation_mes_temps' %}" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Annuler
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Aide contextuelle -->
+                <div class="card shadow mt-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-info">
+                            <i class="fas fa-question-circle"></i> Aide
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <ul>
+                            <li>Sélectionnez d'abord un <strong>projet</strong> pour filtrer les tâches disponibles</li>
+                            <li>La <strong>date</strong> ne peut pas être dans le futur</li>
+                            <li>La <strong>durée</strong> doit être supérieure à 0 et inférieure à 24 heures</li>
+                            <li>Seules les <strong>activités en vigueur</strong> à la date sélectionnée sont disponibles</li>
+                            <li>Une fois <strong>validée</strong>, une imputation ne peut plus être modifiée</li>
+                            <li>Une fois <strong>facturée</strong>, une imputation ne peut plus être supprimée</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'assets/js/gta/gestion_imputation.js' %}"></script>
+{% endblock %}

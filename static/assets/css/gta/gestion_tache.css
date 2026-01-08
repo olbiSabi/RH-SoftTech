@@ -1,0 +1,467 @@
+/* static/assets/css/gta/gestion_tache.css */
+
+/* ============================================
+   GESTION DES TÂCHES - STYLES
+   ============================================ */
+
+/* ==================== GÉNÉRAL ==================== */
+.tache-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.tache-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ==================== TABLE DES TÂCHES ==================== */
+.tache-table thead th {
+    background-color: #f8f9fc;
+    border-bottom: 2px solid #e3e6f0;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    color: #858796;
+}
+
+.tache-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.tache-table tbody tr:hover {
+    background-color: #f8f9fc;
+}
+
+/* Styles selon le statut */
+.tache-row-termine {
+    opacity: 0.7;
+    background-color: #d4edda;
+}
+
+.tache-row-en_cours {
+    background-color: #d1ecf1;
+}
+
+.tache-row-en_attente {
+    background-color: #fff3cd;
+}
+
+.tache-row-annule {
+    opacity: 0.5;
+    background-color: #f8d7da;
+    text-decoration: line-through;
+}
+
+/* ==================== PRIORITÉS ==================== */
+.priority-badge-critique {
+    background-color: #e74a3b;
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+.priority-badge-haute {
+    background-color: #f6c23e;
+    color: white;
+}
+
+.priority-badge-normale {
+    background-color: #36b9cc;
+    color: white;
+}
+
+.priority-badge-basse {
+    background-color: #858796;
+    color: white;
+}
+
+/* ==================== BARRES DE PROGRESSION ==================== */
+.progress {
+    border-radius: 0.35rem;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition: width 0.6s ease;
+}
+
+.progress-sm {
+    height: 10px;
+}
+
+/* Couleurs selon l'avancement */
+.progress-bar.bg-success {
+    background-color: #1cc88a !important;
+}
+
+.progress-bar.bg-info {
+    background-color: #36b9cc !important;
+}
+
+.progress-bar.bg-warning {
+    background-color: #f6c23e !important;
+}
+
+/* ==================== ÉCARTS D'ESTIMATION ==================== */
+.ecart-positif {
+    color: #e74a3b;
+    font-weight: 700;
+}
+
+.ecart-negatif {
+    color: #1cc88a;
+    font-weight: 700;
+}
+
+.ecart-nul {
+    color: #858796;
+}
+
+/* ==================== DÉTAILS TÂCHE ==================== */
+.tache-info-table th {
+    width: 40%;
+    font-weight: 600;
+    color: #5a5c69;
+    padding: 0.75rem;
+}
+
+.tache-info-table td {
+    color: #3a3b45;
+    padding: 0.75rem;
+}
+
+/* Cartes de statistiques */
+.stat-card-tache {
+    border-left: 0.25rem solid #1c5d5f;
+    transition: all 0.3s ease;
+}
+
+.stat-card-tache:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* ==================== FORMULAIRE TÂCHE ==================== */
+.tache-form-section {
+    border-bottom: 2px solid #e3e6f0;
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+}
+
+.tache-form-section h6 {
+    color: #1c5d5f;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+/* Code tâche en majuscules */
+#id_code_tache {
+    text-transform: uppercase;
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+}
+
+/* Aperçu de l'avancement en temps réel */
+#avancement-preview {
+    transition: all 0.3s ease;
+}
+
+#avancement-preview .progress-bar {
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+#avancement-text {
+    font-weight: 700;
+}
+
+/* Input groups */
+.input-group-text {
+    background-color: #f8f9fc;
+    border-color: #d1d3e2;
+    color: #6e707e;
+    font-weight: 600;
+}
+
+/* ==================== SOUS-TÂCHES ==================== */
+.sous-tache-item {
+    border-left: 3px solid #36b9cc;
+    transition: all 0.2s ease;
+}
+
+.sous-tache-item:hover {
+    border-left-color: #258391;
+    background-color: #f8f9fc;
+}
+
+.sous-tache-progress {
+    height: 8px;
+    margin-top: 0.5rem;
+}
+
+/* ==================== IMPUTATIONS ==================== */
+.imputation-row {
+    transition: background-color 0.2s ease;
+}
+
+.imputation-row:hover {
+    background-color: #f8f9fc;
+}
+
+.imputation-validee {
+    background-color: #d4edda;
+}
+
+.imputation-en-attente {
+    background-color: #fff3cd;
+}
+
+/* ==================== DOCUMENTS ==================== */
+.document-icon {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+}
+
+.document-list-item {
+    transition: background-color 0.2s ease;
+    padding: 0.75rem;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.document-list-item:hover {
+    background-color: #f8f9fc;
+}
+
+/* ==================== FILTRES ET RECHERCHE ==================== */
+.search-input {
+    border-radius: 20px;
+    border-color: #d1d3e2;
+}
+
+.search-input:focus {
+    border-color: #1c5d5f;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+/* ==================== CONFIRMATION SUPPRESSION ==================== */
+.delete-impact-card {
+    background-color: #f8d7da;
+    border: 2px solid #e74a3b;
+}
+
+.delete-impact-icon {
+    color: #e74a3b;
+}
+
+/* ==================== TIMELINE (pour historique) ==================== */
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 30px;
+    width: 2px;
+    height: 100%;
+    background: #e3e6f0;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 60px;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: 22px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #1c5d5f;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 3px #e3e6f0;
+}
+
+.timeline-content {
+    background: #f8f9fc;
+    padding: 15px;
+    border-radius: 0.35rem;
+    border-left: 3px solid #1c5d5f;
+}
+
+/* ==================== BADGES STATUTS ==================== */
+.badge-statut-tache {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+    .tache-table {
+        font-size: 0.85rem;
+    }
+
+    .tache-table thead th {
+        font-size: 0.7rem;
+        padding: 0.5rem;
+    }
+
+    .tache-table tbody td {
+        padding: 0.5rem;
+    }
+
+    /* Masquer certaines colonnes sur mobile */
+    .tache-table th:nth-child(5),
+    .tache-table td:nth-child(5),
+    .tache-table th:nth-child(6),
+    .tache-table td:nth-child(6),
+    .tache-table th:nth-child(7),
+    .tache-table td:nth-child(7) {
+        display: none;
+    }
+
+    .stat-card-tache {
+        margin-bottom: 1rem;
+    }
+
+    .btn-group {
+        flex-direction: column;
+    }
+
+    .btn-group .btn {
+        width: 100%;
+        margin-bottom: 0.25rem;
+    }
+
+    .timeline::before {
+        left: 15px;
+    }
+
+    .timeline-item {
+        padding-left: 40px;
+    }
+
+    .timeline-marker {
+        left: 7px;
+    }
+}
+
+@media (max-width: 576px) {
+    .tache-info-table th,
+    .tache-info-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .tache-info-table th {
+        background-color: #f8f9fc;
+        border-bottom: 1px solid #e3e6f0;
+    }
+}
+
+/* ==================== UTILITAIRES ==================== */
+.text-critique {
+    color: #e74a3b !important;
+}
+
+.text-haute {
+    color: #f6c23e !important;
+}
+
+.text-normale {
+    color: #36b9cc !important;
+}
+
+.text-basse {
+    color: #858796 !important;
+}
+
+.bg-gradient-tache {
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+}
+
+/* ==================== IMPRESSION ==================== */
+@media print {
+    .btn,
+    .breadcrumb,
+    .no-print {
+        display: none !important;
+    }
+
+    .card {
+        border: 1px solid #000;
+        box-shadow: none;
+        page-break-inside: avoid;
+    }
+
+    .tache-table {
+        font-size: 9pt;
+    }
+
+    .badge {
+        border: 1px solid #000;
+    }
+
+    .progress {
+        border: 1px solid #000;
+    }
+}
+
+/* ==================== DRAG & DROP (pour réorganisation) ==================== */
+.tache-draggable {
+    cursor: move;
+}
+
+.tache-dragging {
+    opacity: 0.5;
+}
+
+.tache-drag-over {
+    border-top: 3px solid #1c5d5f;
+}

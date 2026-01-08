@@ -1,0 +1,285 @@
+<!-- gestion_temps_activite/templates/gestion_temps_activite/document_form.html -->
+
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'assets/css/gta/gestion_document.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h1 class="h3 mb-2 text-gray-800">
+                    <i class="fas fa-paperclip"></i> {{ title|default:"Upload Document" }}
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'gestion_temps_activite:dashboard' %}">Accueil</a></li>
+                        <li class="breadcrumb-item active">Upload Document</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-md-6 text-right">
+                <a href="javascript:history.back()" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour
+                </a>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="row mb-3">
+            <div class="col-12">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Formulaire -->
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-upload"></i> Informations du Document
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data" novalidate id="documentForm">
+                            {% csrf_token %}
+
+                            <!-- Affichage des erreurs non liées à un champ -->
+                            {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                            {% endif %}
+
+                            <!-- Type de rattachement -->
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                Sélectionnez le type de rattachement pour déterminer si ce document concerne un projet ou une tâche.
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="{{ form.type_rattachement.id_for_label }}">
+                                            {{ form.type_rattachement.label }}
+                                        </label>
+                                        {{ form.type_rattachement }}
+                                        {% if form.type_rattachement.errors %}
+                                        <div class="text-danger small">{{ form.type_rattachement.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Rattachement Projet -->
+                            <div id="projet-section" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="{{ form.projet.id_for_label }}">
+                                                {{ form.projet.label }}
+                                            </label>
+                                            {{ form.projet }}
+                                            {% if form.projet.errors %}
+                                            <div class="text-danger small">{{ form.projet.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Rattachement Tâche -->
+                            <div id="tache-section" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="{{ form.tache.id_for_label }}">
+                                                {{ form.tache.label }}
+                                            </label>
+                                            {{ form.tache }}
+                                            {% if form.tache.errors %}
+                                            <div class="text-danger small">{{ form.tache.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Informations du fichier -->
+                            <div class="border-bottom mb-4 pb-2 mt-4">
+                                <h6 class="text-primary">Informations du Fichier</h6>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="{{ form.nom_document.id_for_label }}">
+                                            {{ form.nom_document.label }}
+                                        </label>
+                                        {{ form.nom_document }}
+                                        {% if form.nom_document.errors %}
+                                        <div class="text-danger small">{{ form.nom_document.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="{{ form.description.id_for_label }}">
+                                            {{ form.description.label }}
+                                        </label>
+                                        {{ form.description }}
+                                        {% if form.description.errors %}
+                                        <div class="text-danger small">{{ form.description.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.categorie.id_for_label }}">
+                                            {{ form.categorie.label }}
+                                        </label>
+                                        {{ form.categorie }}
+                                        {% if form.categorie.errors %}
+                                        <div class="text-danger small">{{ form.categorie.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.version.id_for_label }}">
+                                            {{ form.version.label }}
+                                        </label>
+                                        {{ form.version }}
+                                        {% if form.version.errors %}
+                                        <div class="text-danger small">{{ form.version.errors }}</div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">
+                                            Ex: 1.0, 2.1, etc.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Upload du fichier -->
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="{{ form.fichier.id_for_label }}">
+                                            {{ form.fichier.label }}
+                                        </label>
+                                        <div class="custom-file">
+                                            {{ form.fichier }}
+                                            <label class="custom-file-label" for="{{ form.fichier.id_for_label }}" id="file-label">
+                                                Choisir un fichier...
+                                            </label>
+                                        </div>
+                                        {% if form.fichier.errors %}
+                                        <div class="text-danger small mt-2">{{ form.fichier.errors }}</div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">
+                                            <i class="fas fa-info-circle"></i>
+                                            Formats acceptés: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG (Max: 10 MB)
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Aperçu du fichier -->
+                            <div id="file-preview" class="mt-3 p-3 border rounded bg-light" style="display: none;">
+                                <h6 class="text-muted mb-2">
+                                    <i class="fas fa-file"></i> Aperçu
+                                </h6>
+                                <div id="file-preview-content"></div>
+                            </div>
+
+                            <!-- Version précédente (optionnel) -->
+                            {% if form.document_precedent %}
+                            <div class="row mt-3">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="{{ form.document_precedent.id_for_label }}">
+                                            {{ form.document_precedent.label }}
+                                        </label>
+                                        {{ form.document_precedent }}
+                                        {% if form.document_precedent.errors %}
+                                        <div class="text-danger small">{{ form.document_precedent.errors }}</div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">
+                                            Sélectionnez le document précédent si cet upload est une nouvelle version
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Statut -->
+                            <div class="row mt-3">
+                                <div class="col-md-12">
+                                    <div class="form-check">
+                                        {{ form.actif }}
+                                        <label class="form-check-label" for="{{ form.actif.id_for_label }}">
+                                            {{ form.actif.label }}
+                                        </label>
+                                        {% if form.actif.errors %}
+                                        <div class="text-danger small">{{ form.actif.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Boutons -->
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <hr>
+                                    <button type="submit" class="btn btn-primary" id="submit-btn">
+                                        <i class="fas fa-upload"></i> Uploader
+                                    </button>
+                                    <a href="javascript:history.back()" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Annuler
+                                    </a>
+                                    <div class="progress mt-3" id="upload-progress" style="display: none; height: 25px;">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                             role="progressbar"
+                                             style="width: 0%"
+                                             id="progress-bar">
+                                            0%
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'assets/js/gta/gestion_document.js' %}"></script>
+{% endblock %}

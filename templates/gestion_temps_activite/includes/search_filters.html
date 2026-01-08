@@ -1,0 +1,125 @@
+<!-- gestion_temps_activite/templates/gestion_temps_activite/includes/search_filters.html -->
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-filter"></i> Filtres et Recherche
+        </h6>
+        <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="collapse" data-target="#filterCollapse">
+            <i class="fas fa-chevron-down"></i>
+        </button>
+    </div>
+    <div class="card-body collapse show" id="filterCollapse">
+        <form method="get" id="filterForm">
+            <div class="row">
+                <!-- Recherche textuelle -->
+                {% if show_search %}
+                <div class="col-md-4 mb-3">
+                    <label for="search">
+                        <i class="fas fa-search"></i> Recherche
+                    </label>
+                    <input type="text"
+                           name="search"
+                           id="search"
+                           class="form-control"
+                           placeholder="{{ search_placeholder|default:'Rechercher...' }}"
+                           value="{{ request.GET.search }}">
+                </div>
+                {% endif %}
+
+                <!-- Filtres personnalisés (passés en contexte) -->
+                {% for filter in custom_filters %}
+                <div class="col-md-{{ filter.col_size|default:'4' }} mb-3">
+                    <label for="{{ filter.name }}">
+                        {% if filter.icon %}<i class="{{ filter.icon }}"></i>{% endif %}
+                        {{ filter.label }}
+                    </label>
+
+                    {% if filter.type == 'select' %}
+                    <select name="{{ filter.name }}" id="{{ filter.name }}" class="form-control filter-select">
+                        <option value="">{{ filter.empty_label|default:'Tous' }}</option>
+                        {% for option in filter.options %}
+                        <option value="{{ option.value }}" {% if request.GET|get_item:filter.name == option.value|stringformat:"s" %}selected{% endif %}>
+                            {{ option.label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+
+                    {% elif filter.type == 'date' %}
+                    <input type="date"
+                           name="{{ filter.name }}"
+                           id="{{ filter.name }}"
+                           class="form-control"
+                           value="{{ request.GET|get_item:filter.name }}">
+
+                    {% elif filter.type == 'number' %}
+                    <input type="number"
+                           name="{{ filter.name }}"
+                           id="{{ filter.name }}"
+                           class="form-control"
+                           placeholder="{{ filter.placeholder }}"
+                           value="{{ request.GET|get_item:filter.name }}">
+
+                    {% elif filter.type == 'checkbox' %}
+                    <div class="form-check mt-2">
+                        <input type="checkbox"
+                               name="{{ filter.name }}"
+                               id="{{ filter.name }}"
+                               class="form-check-input"
+                               value="True"
+                               {% if request.GET|get_item:filter.name == 'True' %}checked{% endif %}>
+                        <label class="form-check-label" for="{{ filter.name }}">
+                            {{ filter.checkbox_label }}
+                        </label>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Boutons d'action -->
+            <div class="row">
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Rechercher
+                    </button>
+                    <a href="{{ reset_url|default:request.path }}" class="btn btn-secondary">
+                        <i class="fas fa-redo"></i> Réinitialiser
+                    </a>
+
+                    {% if show_export %}
+                    <button type="button" class="btn btn-success" onclick="exportData()">
+                        <i class="fas fa-file-excel"></i> Exporter
+                    </button>
+                    {% endif %}
+
+                    {% if show_print %}
+                    <button type="button" class="btn btn-info" onclick="window.print()">
+                        <i class="fas fa-print"></i> Imprimer
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.filter-select {
+    cursor: pointer;
+}
+</style>
+
+<script>
+// Auto-submit sur changement de select (optionnel)
+document.addEventListener('DOMContentLoaded', function() {
+    const autoSubmit = {{ auto_submit|default:'false' }};
+    if (autoSubmit) {
+        document.querySelectorAll('.filter-select').forEach(select => {
+            select.addEventListener('change', function() {
+                this.form.submit();
+            });
+        });
+    }
+});
+</script>

@@ -1,0 +1,146 @@
+<!-- gestion_temps_activite/templates/gestion_temps_activite/imputation_confirm_delete.html -->
+
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'assets/css/gta/gestion_imputation.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <h1 class="h3 mb-2 text-gray-800">
+                    <i class="fas fa-exclamation-triangle text-danger"></i> Confirmer la suppression
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'gestion_temps_activite:dashboard' %}">Accueil</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'gestion_temps_activite:imputation_mes_temps' %}">Mes Temps</a></li>
+                        <li class="breadcrumb-item active">Suppression</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Confirmation -->
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card shadow border-danger">
+                    <div class="card-header bg-danger text-white py-3">
+                        <h6 class="m-0 font-weight-bold">
+                            <i class="fas fa-exclamation-triangle"></i> Attention !
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <!-- Vérification si suppression possible -->
+                        {% if imputation.valide %}
+                        <div class="alert alert-danger">
+                            <h5><i class="fas fa-ban"></i> Suppression Impossible</h5>
+                            <p class="mb-0">
+                                Cette imputation a été <strong>validée</strong> et ne peut plus être supprimée.
+                            </p>
+                            <p class="mb-0 mt-2">
+                                Validée le {{ imputation.date_validation|date:"d/m/Y à H:i" }} par {{ imputation.valide_par.nom }} {{ imputation.valide_par.prenoms }}
+                            </p>
+                        </div>
+                        <a href="{% url 'gestion_temps_activite:imputation_mes_temps' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Retour
+                        </a>
+                        {% elif imputation.facture %}
+                        <div class="alert alert-danger">
+                            <h5><i class="fas fa-ban"></i> Suppression Impossible</h5>
+                            <p class="mb-0">
+                                Cette imputation a été <strong>facturée</strong> et ne peut plus être supprimée.
+                            </p>
+                            <p class="mb-0 mt-2">
+                                Facturée le {{ imputation.date_facturation|date:"d/m/Y" }}
+                            </p>
+                        </div>
+                        <a href="{% url 'gestion_temps_activite:imputation_mes_temps' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Retour
+                        </a>
+                        {% else %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-circle"></i>
+                            Êtes-vous sûr de vouloir supprimer l'imputation suivante ?
+                        </div>
+
+                        <!-- Détails de l'imputation -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Détails de l'Imputation</h5>
+                                <table class="table table-sm">
+                                    <tbody>
+                                        <tr>
+                                            <th width="30%">Date</th>
+                                            <td>{{ imputation.date|date:"d/m/Y" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Projet</th>
+                                            <td>{{ imputation.tache.projet.nom_projet }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Tâche</th>
+                                            <td>{{ imputation.tache.titre }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Activité</th>
+                                            <td>
+                                                <span class="badge badge-{% if imputation.activite.facturable %}success{% else %}secondary{% endif %}">
+                                                    {{ imputation.activite.libelle }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Durée</th>
+                                            <td><strong class="text-danger">{{ imputation.duree }} heure(s)</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Commentaire</th>
+                                            <td>
+                                                {% if imputation.commentaire %}
+                                                {{ imputation.commentaire }}
+                                                {% else %}
+                                                <span class="text-muted">Aucun commentaire</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Cette action est irréversible !</strong> L'imputation sera définitivement supprimée.
+                        </div>
+
+                        <!-- Formulaire de suppression -->
+                        <form method="post">
+                            {% csrf_token %}
+                            <hr>
+                            <div class="text-right">
+                                <a href="{% url 'gestion_temps_activite:imputation_mes_temps' %}" class="btn btn-secondary btn-lg">
+                                    <i class="fas fa-times"></i> Non, annuler
+                                </a>
+                                <button type="submit" class="btn btn-danger btn-lg">
+                                    <i class="fas fa-trash"></i> Oui, supprimer
+                                </button>
+                            </div>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'assets/js/gta/gestion_imputation.js' %}"></script>
+{% endblock %}

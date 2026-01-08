@@ -1,0 +1,669 @@
+/* static/assets/css/gta/gestion_imputation.css */
+
+/* ============================================
+   GESTION DES IMPUTATIONS - STYLES
+   ============================================ */
+
+/* ==================== GÉNÉRAL ==================== */
+.imputation-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.imputation-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ==================== TABLE DES IMPUTATIONS ==================== */
+.imputation-table thead th {
+    background-color: #f8f9fc;
+    border-bottom: 2px solid #e3e6f0;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    color: #858796;
+}
+
+.imputation-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.imputation-table tbody tr:hover {
+    background-color: #f8f9fc;
+}
+
+/* États des imputations */
+.imputation-validee {
+    background-color: #d4edda !important;
+}
+
+.imputation-validee:hover {
+    background-color: #c3e6cb !important;
+}
+
+.imputation-facturee {
+    background-color: #d1ecf1 !important;
+}
+
+.imputation-facturee:hover {
+    background-color: #bee5eb !important;
+}
+
+.imputation-rejetee {
+    background-color: #f8d7da !important;
+    opacity: 0.7;
+}
+
+.imputation-en-attente {
+    background-color: #fff3cd !important;
+}
+
+/* ==================== BADGES STATUTS ==================== */
+.badge-imputation-status {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+}
+
+.status-validee {
+    background-color: #1cc88a;
+    color: white;
+}
+
+.status-attente {
+    background-color: #f6c23e;
+    color: white;
+}
+
+.status-facturee {
+    background-color: #36b9cc;
+    color: white;
+}
+
+.status-rejetee {
+    background-color: #e74a3b;
+    color: white;
+}
+
+/* ==================== FORMULAIRE IMPUTATION ==================== */
+.imputation-form-section {
+    border-bottom: 2px solid #e3e6f0;
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+}
+
+.imputation-form-section h6 {
+    color: #1c5d5f;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+/* Input groups */
+.input-group-text {
+    background-color: #f8f9fc;
+    border-color: #d1d3e2;
+    color: #6e707e;
+    font-weight: 600;
+}
+
+/* Durée highlight */
+#id_duree {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1c5d5f;
+    text-align: center;
+}
+
+/* ==================== RÉSUMÉ IMPUTATION ==================== */
+#imputation-summary {
+    animation: fadeIn 0.3s ease-in;
+    border-left: 4px solid #1c5d5f;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.summary-item:last-child {
+    border-bottom: none;
+}
+
+.summary-label {
+    font-weight: 600;
+    color: #5a5c69;
+}
+
+.summary-value {
+    color: #3a3b45;
+    font-weight: 500;
+}
+
+.summary-highlight {
+    font-size: 1.2rem;
+    color: #1c5d5f;
+    font-weight: 700;
+}
+
+/* ==================== SAISIE RAPIDE ==================== */
+.quick-duration-btn {
+    transition: all 0.2s ease;
+}
+
+.quick-duration-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.15);
+}
+
+.quick-duration-btn:active {
+    transform: scale(0.95);
+}
+
+/* ==================== PÉRIODE SÉLECTION ==================== */
+#periode-select {
+    font-weight: 600;
+}
+
+.periode-badge {
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.35rem;
+    font-weight: 600;
+}
+
+/* ==================== STATISTIQUES ==================== */
+.stat-card-imputation {
+    border-left: 0.25rem solid #1c5d5f;
+    transition: all 0.3s ease;
+}
+
+.stat-card-imputation:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+    font-size: 2rem;
+    opacity: 0.3;
+}
+
+/* ==================== GRAPHIQUES ==================== */
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin-top: 1rem;
+}
+
+canvas {
+    max-height: 300px;
+}
+
+/* ==================== VALIDATION ==================== */
+.validation-table {
+    font-size: 0.9rem;
+}
+
+.validation-table tbody tr {
+    cursor: pointer;
+}
+
+.validation-table .imputation-checkbox {
+    cursor: pointer;
+    transform: scale(1.2);
+}
+
+#select-all {
+    cursor: pointer;
+    transform: scale(1.3);
+}
+
+.validation-actions {
+    white-space: nowrap;
+}
+
+/* Ligne sélectionnée */
+.validation-table tbody tr.selected {
+    background-color: #e7f3ff !important;
+    border-left: 4px solid #1c5d5f;
+}
+
+/* ==================== CONFIRMATION VALIDATION ==================== */
+.validation-summary {
+    background-color: #d4edda;
+    border-left: 4px solid #1cc88a;
+    padding: 1rem;
+    border-radius: 0.35rem;
+}
+
+.validation-impact {
+    background-color: #d1ecf1;
+    border-left: 4px solid #36b9cc;
+    padding: 1rem;
+    border-radius: 0.35rem;
+}
+
+/* ==================== REJET ==================== */
+.rejet-form {
+    background-color: #fff3cd;
+    border-left: 4px solid #f6c23e;
+    padding: 1.5rem;
+    border-radius: 0.35rem;
+}
+
+#motif_rejet {
+    border: 2px solid #e3e6f0;
+    min-height: 120px;
+}
+
+#motif_rejet:focus {
+    border-color: #e74a3b;
+    box-shadow: 0 0 0 0.2rem rgba(231, 74, 59, 0.25);
+}
+
+.char-counter {
+    font-size: 0.875rem;
+    color: #858796;
+    text-align: right;
+    margin-top: 0.25rem;
+}
+
+.char-counter.warning {
+    color: #f6c23e;
+    font-weight: 600;
+}
+
+/* ==================== TIMER (optionnel) ==================== */
+.timer-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.timer-widget:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.4);
+}
+
+.timer-display {
+    font-size: 2rem;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    text-align: center;
+    margin: 0.5rem 0;
+}
+
+.timer-controls {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.timer-btn {
+    background-color: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.timer-btn:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.timer-btn:active {
+    transform: scale(0.95);
+}
+
+/* ==================== RECHERCHE AVANCÉE ==================== */
+.search-advanced {
+    background-color: #f8f9fc;
+    border: 1px solid #e3e6f0;
+    border-radius: 0.35rem;
+    padding: 1.5rem;
+}
+
+.search-field-group {
+    margin-bottom: 1rem;
+}
+
+.search-field-label {
+    font-weight: 600;
+    color: #5a5c69;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* ==================== EXPORT ==================== */
+.export-options {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.export-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ==================== AIDE CONTEXTUELLE ==================== */
+.help-box {
+    background-color: #e7f3ff;
+    border-left: 4px solid #1c5d5f;
+    padding: 1rem;
+    border-radius: 0.35rem;
+}
+
+.help-box ul {
+    margin-bottom: 0;
+    padding-left: 1.5rem;
+}
+
+.help-box li {
+    margin-bottom: 0.5rem;
+}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+}
+
+.pulse-animation {
+    animation: pulse 2s infinite;
+}
+
+/* ==================== NOTIFICATIONS ==================== */
+.notification-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: #e74a3b;
+    color: white;
+    border-radius: 50%;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    animation: pulse 2s infinite;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+    .imputation-table {
+        font-size: 0.85rem;
+    }
+
+    .imputation-table thead th {
+        font-size: 0.7rem;
+        padding: 0.5rem;
+    }
+
+    .imputation-table tbody td {
+        padding: 0.5rem;
+    }
+
+    /* Masquer certaines colonnes sur mobile */
+    .imputation-table th:nth-child(7),
+    .imputation-table td:nth-child(7) {
+        display: none;
+    }
+
+    .validation-table th:nth-child(8),
+    .validation-table td:nth-child(8) {
+        display: none;
+    }
+
+    .stat-card-imputation {
+        margin-bottom: 1rem;
+    }
+
+    .timer-widget {
+        bottom: 10px;
+        right: 10px;
+        padding: 0.75rem 1rem;
+    }
+
+    .timer-display {
+        font-size: 1.5rem;
+    }
+
+    .search-advanced {
+        padding: 1rem;
+    }
+
+    .export-options {
+        flex-direction: column;
+    }
+
+    .export-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .quick-duration-btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .btn-group {
+        flex-direction: column;
+    }
+
+    .btn-group .btn {
+        width: 100%;
+        margin-bottom: 0.25rem;
+    }
+
+    .chart-container {
+        height: 250px;
+    }
+}
+
+/* ==================== UTILITAIRES ==================== */
+.text-facturable {
+    color: #1cc88a !important;
+}
+
+.text-non-facturable {
+    color: #858796 !important;
+}
+
+.text-validee {
+    color: #1cc88a !important;
+}
+
+.text-attente {
+    color: #f6c23e !important;
+}
+
+.text-rejetee {
+    color: #e74a3b !important;
+}
+
+.bg-gradient-imputation {
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+}
+
+/* ==================== IMPRESSION ==================== */
+@media print {
+    .btn,
+    .breadcrumb,
+    .no-print,
+    .timer-widget,
+    .search-advanced,
+    .export-options {
+        display: none !important;
+    }
+
+    .card {
+        border: 1px solid #000;
+        box-shadow: none;
+        page-break-inside: avoid;
+    }
+
+    .imputation-table {
+        font-size: 9pt;
+    }
+
+    .badge {
+        border: 1px solid #000;
+    }
+
+    .imputation-validee {
+        background-color: #f0f0f0 !important;
+    }
+}
+
+/* ==================== DRAG & DROP (pour future fonctionnalité) ==================== */
+.draggable-imputation {
+    cursor: move;
+}
+
+.dragging {
+    opacity: 0.5;
+}
+
+.drop-zone {
+    border: 2px dashed #1c5d5f;
+    background-color: #f8f9fc;
+    padding: 1rem;
+    border-radius: 0.35rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.drop-zone.drag-over {
+    background-color: #e7f3ff;
+    border-color: #193f41;
+}
+
+/* ==================== LOADING STATES ==================== */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-spinner {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #1c5d5f;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ==================== TOOLTIPS PERSONNALISÉS ==================== */
+.custom-tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+}
+
+.custom-tooltip .tooltip-text {
+    visibility: hidden;
+    width: 200px;
+    background-color: #5a5c69;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 8px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 0.875rem;
+}
+
+.custom-tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* ==================== EMPTY STATES ==================== */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #858796;
+}
+
+.empty-state-icon {
+    font-size: 5rem;
+    opacity: 0.3;
+    margin-bottom: 1rem;
+}
+
+.empty-state-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state-description {
+    margin-bottom: 1.5rem;
+}

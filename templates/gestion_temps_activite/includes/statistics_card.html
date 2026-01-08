@@ -1,0 +1,98 @@
+<!-- gestion_temps_activite/templates/gestion_temps_activite/includes/statistics_card.html -->
+
+<div class="col-xl-{{ col_size|default:'3' }} col-md-6 mb-4">
+    <div class="card border-left-{{ color|default:'primary' }} shadow h-100 py-2 stat-card-hover">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-{{ color|default:'primary' }} text-uppercase mb-1">
+                        {{ title }}
+                    </div>
+
+                    {% if show_progress %}
+                    <!-- Avec barre de progression -->
+                    <div class="row no-gutters align-items-center">
+                        <div class="col-auto">
+                            <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
+                                {{ value }}{{ unit|default:'' }}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="progress progress-sm mr-2">
+                                <div class="progress-bar bg-{{ color|default:'primary' }}"
+                                     role="progressbar"
+                                     style="width: {{ progress_value }}%"
+                                     aria-valuenow="{{ progress_value }}"
+                                     aria-valuemin="0"
+                                     aria-valuemax="100">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <!-- Sans barre de progression -->
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        {{ value }}{{ unit|default:'' }}
+                    </div>
+                    {% endif %}
+
+                    {% if subtitle %}
+                    <div class="text-muted small mt-1">{{ subtitle }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="col-auto">
+                    <i class="fas fa-{{ icon|default:'chart-line' }} fa-2x text-gray-300"></i>
+                </div>
+            </div>
+
+            {% if link_url %}
+            <a href="{{ link_url }}" class="stretched-link"></a>
+            {% endif %}
+        </div>
+
+        {% if footer_text %}
+        <div class="card-footer bg-light">
+            <small class="text-muted">
+                <i class="fas fa-{{ footer_icon|default:'info-circle' }}"></i>
+                {{ footer_text }}
+            </small>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.stat-card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+
+.border-left-danger {
+    border-left: 0.25rem solid #e74a3b !important;
+}
+
+.progress-sm {
+    height: 0.5rem;
+}
+</style>

@@ -1,0 +1,340 @@
+<!-- gestion_temps_activite/templates/gestion_temps_activite/client_detail.html -->
+
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'assets/css/gta/gestion_client.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h1 class="h3 mb-2 text-gray-800">
+                    <i class="fas fa-building"></i> {{ client.raison_sociale }}
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'gestion_temps_activite:dashboard' %}">Accueil</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'gestion_temps_activite:client_liste' %}">Clients</a></li>
+                        <li class="breadcrumb-item active">{{ client.code_client }}</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-md-6 text-right">
+                <a href="{% url 'gestion_temps_activite:client_update' pk=client.pk %}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Modifier
+                </a>
+                <a href="{% url 'gestion_temps_activite:client_delete' pk=client.pk %}" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Supprimer
+                </a>
+                <a href="{% url 'gestion_temps_activite:client_liste' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour
+                </a>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="row mb-3">
+            <div class="col-12">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Statistiques du client -->
+        <div class="row mb-4">
+            <div class="col-xl-4 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Total Projets
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_projets }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-folder fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Projets Actifs
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ projets_actifs }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-folder-open fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Projets Terminés
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ projets_termines }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Informations du client -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Informations Générales</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <th width="40%">Code Client</th>
+                                    <td><strong>{{ client.code_client }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>Raison Sociale</th>
+                                    <td>{{ client.raison_sociale }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Type</th>
+                                    <td>
+                                        {% if client.type_client == 'PROSPECT' %}
+                                        <span class="badge badge-info">Prospect</span>
+                                        {% elif client.type_client == 'CLIENT' %}
+                                        <span class="badge badge-success">Client Actif</span>
+                                        {% else %}
+                                        <span class="badge badge-secondary">Client Inactif</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Secteur d'activité</th>
+                                    <td>{{ client.secteur_activite|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Statut</th>
+                                    <td>
+                                        {% if client.actif %}
+                                        <span class="badge badge-success">Actif</span>
+                                        {% else %}
+                                        <span class="badge badge-danger">Inactif</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Date de création</th>
+                                    <td>{{ client.date_creation|date:"d/m/Y à H:i" }}</td>
+                                </tr>
+                                {% if client.cree_par %}
+                                <tr>
+                                    <th>Créé par</th>
+                                    <td>{{ client.cree_par.nom }} {{ client.cree_par.prenoms }}</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coordonnées -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Coordonnées</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <th width="40%">Personne de contact</th>
+                                    <td>{{ client.personne_contact|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Fonction</th>
+                                    <td>{{ client.fonction_contact|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Téléphone</th>
+                                    <td>
+                                        {% if client.telephone %}
+                                        <i class="fas fa-phone text-primary"></i> {{ client.telephone }}
+                                        {% else %}
+                                        -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Email</th>
+                                    <td>
+                                        {% if client.email %}
+                                        <i class="fas fa-envelope text-primary"></i>
+                                        <a href="mailto:{{ client.email }}">{{ client.email }}</a>
+                                        {% else %}
+                                        -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Adresse</th>
+                                    <td>
+                                        {% if client.adresse_ligne1 or client.ville %}
+                                        {{ client.get_adresse_complete }}
+                                        {% else %}
+                                        -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes -->
+        {% if client.notes %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Notes</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">{{ client.notes|linebreaks }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Liste des projets du client -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">Projets</h6>
+                        <a href="{% url 'gestion_temps_activite:projet_create' %}?client={{ client.pk }}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus"></i> Nouveau Projet
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        {% if projets %}
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Code</th>
+                                        <th>Nom du Projet</th>
+                                        <th>Chef de Projet</th>
+                                        <th>Dates</th>
+                                        <th>Tâches</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for projet in projets %}
+                                    <tr>
+                                        <td><strong>{{ projet.code_projet }}</strong></td>
+                                        <td>
+                                            <a href="{% url 'gestion_temps_activite:projet_detail' pk=projet.pk %}">
+                                                {{ projet.nom_projet }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            {% if projet.chef_projet %}
+                                            {{ projet.chef_projet.nom }} {{ projet.chef_projet.prenoms }}
+                                            {% else %}
+                                            <span class="text-muted">Non assigné</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small>
+                                                Du {{ projet.date_debut|date:"d/m/Y" }}<br>
+                                                au {{ projet.date_fin_prevue|date:"d/m/Y" }}
+                                            </small>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge badge-primary">{{ projet.nombre_taches }}</span>
+                                            {% if projet.taches_terminees > 0 %}
+                                            <br><small class="text-success">({{ projet.taches_terminees }} terminées)</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if projet.statut == 'EN_COURS' %}
+                                            <span class="badge badge-success">En cours</span>
+                                            {% elif projet.statut == 'PLANIFIE' %}
+                                            <span class="badge badge-info">Planifié</span>
+                                            {% elif projet.statut == 'TERMINE' %}
+                                            <span class="badge badge-secondary">Terminé</span>
+                                            {% elif projet.statut == 'EN_PAUSE' %}
+                                            <span class="badge badge-warning">En pause</span>
+                                            {% elif projet.statut == 'ANNULE' %}
+                                            <span class="badge badge-danger">Annulé</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'gestion_temps_activite:projet_detail' pk=projet.pk %}"
+                                               class="btn btn-sm btn-info" title="Détails">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-folder-open fa-3x mb-3"></i>
+                            <p>Aucun projet pour ce client</p>
+                            <a href="{% url 'gestion_temps_activite:projet_create' %}?client={{ client.pk }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Créer un projet
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'assets/js/gta/gestion_client.js' %}"></script>
+{% endblock %}

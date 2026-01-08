@@ -523,24 +523,6 @@ select.form-control[multiple], select.form-control[size] {
     margin-bottom: 15px;
 }
 
-.search-input {
-    width: 100%;
-    padding: 8px 12px;
-    border-radius: 4px;
-    border: none;
-    background-color: #2a363d;
-    color: white;
-    font-size: 14px;
-}
-
-.search-input::placeholder {
-    color: #9aa8b1;
-}
-
-.search-input:focus {
-    outline: none;
-    background-color: #223038;
-}
 
 /* Tableau des employés */
 .employees-container {

@@ -1,0 +1,520 @@
+<!-- gestion_temps_activite/templates/gestion_temps_activite/projet_detail.html -->
+
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'assets/css/gta/gestion_projet.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h1 class="h3 mb-2 text-gray-800">
+                    <i class="fas fa-folder-open"></i> {{ projet.nom_projet }}
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'gestion_temps_activite:dashboard' %}">Accueil</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'gestion_temps_activite:projet_liste' %}">Projets</a></li>
+                        <li class="breadcrumb-item active">{{ projet.code_projet }}</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-md-6 text-right">
+                <a href="{% url 'gestion_temps_activite:tache_create' %}?projet={{ projet.pk }}" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Nouvelle Tâche
+                </a>
+                <a href="{% url 'gestion_temps_activite:document_upload' %}?type=PROJET&projet={{ projet.pk }}" class="btn btn-info">
+                    <i class="fas fa-paperclip"></i> Document
+                </a>
+                <a href="{% url 'gestion_temps_activite:projet_update' pk=projet.pk %}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Modifier
+                </a>
+                <a href="{% url 'gestion_temps_activite:projet_delete' pk=projet.pk %}" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Supprimer
+                </a>
+                <a href="{% url 'gestion_temps_activite:projet_liste' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour
+                </a>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="row mb-3">
+            <div class="col-12">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Cartes de statistiques -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Tâches Total
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_taches }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-tasks fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Tâches Terminées
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ taches_terminees }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Heures Totales
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ heures_totales|floatformat:2 }}h</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clock fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                    Avancement
+                                </div>
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col-auto">
+                                        <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ avancement|floatformat:0 }}%</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="progress progress-sm mr-2">
+                                            <div class="progress-bar bg-warning" role="progressbar"
+                                                 style="width: {{ avancement }}%"
+                                                 aria-valuenow="{{ avancement }}"
+                                                 aria-valuemin="0"
+                                                 aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Informations du projet -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Informations Générales</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <th width="40%">Code Projet</th>
+                                    <td><strong>{{ projet.code_projet }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>Nom du Projet</th>
+                                    <td>{{ projet.nom_projet }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Client</th>
+                                    <td>
+                                        <a href="{% url 'gestion_temps_activite:client_detail' pk=projet.client.pk %}">
+                                            {{ projet.client.raison_sociale }}
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Chef de Projet</th>
+                                    <td>
+                                        {% if projet.chef_projet %}
+                                        {{ projet.chef_projet.nom }} {{ projet.chef_projet.prenoms }}
+                                        {% else %}
+                                        <span class="text-muted">Non assigné</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Statut</th>
+                                    <td>
+                                        {% if projet.statut == 'EN_COURS' %}
+                                        <span class="badge badge-success">En cours</span>
+                                        {% elif projet.statut == 'PLANIFIE' %}
+                                        <span class="badge badge-info">Planifié</span>
+                                        {% elif projet.statut == 'TERMINE' %}
+                                        <span class="badge badge-secondary">Terminé</span>
+                                        {% elif projet.statut == 'EN_PAUSE' %}
+                                        <span class="badge badge-warning">En pause</span>
+                                        {% elif projet.statut == 'ANNULE' %}
+                                        <span class="badge badge-danger">Annulé</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Priorité</th>
+                                    <td>
+                                        {% if projet.priorite == 'CRITIQUE' %}
+                                        <span class="badge badge-danger">Critique</span>
+                                        {% elif projet.priorite == 'HAUTE' %}
+                                        <span class="badge badge-warning">Haute</span>
+                                        {% elif projet.priorite == 'NORMALE' %}
+                                        <span class="badge badge-info">Normale</span>
+                                        {% else %}
+                                        <span class="badge badge-secondary">Basse</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Type Facturation</th>
+                                    <td>{{ projet.get_type_facturation_display }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Date de création</th>
+                                    <td>{{ projet.date_creation|date:"d/m/Y à H:i" }}</td>
+                                </tr>
+                                {% if projet.cree_par %}
+                                <tr>
+                                    <th>Créé par</th>
+                                    <td>{{ projet.cree_par.nom }} {{ projet.cree_par.prenoms }}</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Planification et Budget -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Planification et Budget</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <th width="40%">Date de début</th>
+                                    <td>{{ projet.date_debut|date:"d/m/Y" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Date de fin prévue</th>
+                                    <td>{{ projet.date_fin_prevue|date:"d/m/Y" }}</td>
+                                </tr>
+                                {% if projet.date_fin_reelle %}
+                                <tr>
+                                    <th>Date de fin réelle</th>
+                                    <td>{{ projet.date_fin_reelle|date:"d/m/Y" }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <th>Budget (heures)</th>
+                                    <td>
+                                        {% if projet.budget_heures %}
+                                        {{ projet.budget_heures }} heures
+                                        {% else %}
+                                        <span class="text-muted">Non défini</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Heures consommées</th>
+                                    <td>
+                                        <strong>{{ heures_totales|floatformat:2 }} heures</strong>
+                                        {% if budget_restant != None %}
+                                        <br>
+                                        <small class="{% if budget_restant < 0 %}text-danger{% else %}text-success{% endif %}">
+                                            Reste: {{ budget_restant|floatformat:2 }}h
+                                            ({{ pourcentage_budget|floatformat:0 }}% consommé)
+                                        </small>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Budget (montant)</th>
+                                    <td>
+                                        {% if projet.budget_montant %}
+                                        {{ projet.budget_montant|floatformat:0 }} FCFA
+                                        {% else %}
+                                        <span class="text-muted">Non défini</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Barre de progression du budget -->
+                        {% if budget_restant != None %}
+                        <div class="mt-3">
+                            <label class="small mb-1">Progression du Budget</label>
+                            <div class="progress" style="height: 25px;">
+                                <div class="progress-bar {% if pourcentage_budget > 100 %}bg-danger{% elif pourcentage_budget > 80 %}bg-warning{% else %}bg-success{% endif %}"
+                                     role="progressbar"
+                                     style="width: {% if pourcentage_budget > 100 %}100{% else %}{{ pourcentage_budget }}{% endif %}%">
+                                    {{ pourcentage_budget|floatformat:0 }}%
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Description -->
+        {% if projet.description %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Description</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">{{ projet.description|linebreaks }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Tâches du projet -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">Tâches ({{ total_taches }})</h6>
+                        <a href="{% url 'gestion_temps_activite:tache_create' %}?projet={{ projet.pk }}" class="btn btn-sm btn-success">
+                            <i class="fas fa-plus"></i> Nouvelle Tâche
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        {% if taches %}
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Code</th>
+                                        <th>Titre</th>
+                                        <th>Assigné à</th>
+                                        <th>Estimation</th>
+                                        <th>Réalisé</th>
+                                        <th>Écart</th>
+                                        <th>Date Fin</th>
+                                        <th>Avancement</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for tache in taches %}
+                                    <tr>
+                                        <td><strong>{{ tache.code_tache }}</strong></td>
+                                        <td>
+                                            <a href="{% url 'gestion_temps_activite:tache_detail' pk=tache.pk %}">
+                                                {{ tache.titre }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            {% if tache.assignee %}
+                                            {{ tache.assignee.nom }} {{ tache.assignee.prenoms }}
+                                            {% else %}
+                                            <span class="text-muted">Non assigné</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if tache.estimation_heures %}
+                                            {{ tache.estimation_heures }}h
+                                            {% else %}
+                                            <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ tache.heures_realisees|floatformat:1 }}h</td>
+                                        <td>
+                                            {% with ecart=tache.get_ecart_estimation %}
+                                            {% if ecart != None %}
+                                            <span class="{% if ecart > 0 %}text-danger{% else %}text-success{% endif %}">
+                                                {% if ecart > 0 %}+{% endif %}{{ ecart|floatformat:1 }}h
+                                            </span>
+                                            {% else %}
+                                            <span class="text-muted">-</span>
+                                            {% endif %}
+                                            {% endwith %}
+                                        </td>
+                                        <td>
+                                            {% if tache.date_fin_prevue %}
+                                            {{ tache.date_fin_prevue|date:"d/m/Y" }}
+                                            {% else %}
+                                            <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar {% if tache.avancement == 100 %}bg-success{% elif tache.avancement >= 50 %}bg-info{% else %}bg-warning{% endif %}"
+                                                     role="progressbar"
+                                                     style="width: {{ tache.avancement }}%">
+                                                    {{ tache.avancement }}%
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if tache.statut == 'TERMINE' %}
+                                            <span class="badge badge-success">Terminé</span>
+                                            {% elif tache.statut == 'EN_COURS' %}
+                                            <span class="badge badge-info">En cours</span>
+                                            {% elif tache.statut == 'EN_ATTENTE' %}
+                                            <span class="badge badge-warning">En attente</span>
+                                            {% elif tache.statut == 'ANNULE' %}
+                                            <span class="badge badge-danger">Annulé</span>
+                                            {% else %}
+                                            <span class="badge badge-secondary">À faire</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'gestion_temps_activite:tache_detail' pk=tache.pk %}"
+                                               class="btn btn-sm btn-info" title="Détails">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-tasks fa-3x mb-3"></i>
+                            <p>Aucune tâche pour ce projet</p>
+                            <a href="{% url 'gestion_temps_activite:tache_create' %}?projet={{ projet.pk }}" class="btn btn-success">
+                                <i class="fas fa-plus"></i> Créer une tâche
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Documents du projet -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">Documents</h6>
+                        <a href="{% url 'gestion_temps_activite:document_upload' %}?type=PROJET&projet={{ projet.pk }}" class="btn btn-sm btn-info">
+                            <i class="fas fa-paperclip"></i> Ajouter un Document
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        {% if documents %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>Catégorie</th>
+                                        <th>Type</th>
+                                        <th>Taille</th>
+                                        <th>Uploadé par</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for document in documents %}
+                                    <tr>
+                                        <td>
+                                            <i class="fas fa-file-{% if document.type_fichier == 'pdf' %}pdf text-danger{% elif document.type_fichier in 'doc,docx' %}word text-primary{% elif document.type_fichier in 'xls,xlsx' %}excel text-success{% else %}alt{% endif %}"></i>
+                                            {{ document.nom_document }}
+                                        </td>
+                                        <td>{{ document.get_categorie_display }}</td>
+                                        <td><span class="badge badge-secondary">{{ document.type_fichier|upper }}</span></td>
+                                        <td>{{ document.get_taille_formatee }}</td>
+                                        <td>
+                                            {% if document.uploade_par %}
+                                            {{ document.uploade_par.nom }} {{ document.uploade_par.prenoms }}
+                                            {% else %}
+                                            -
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ document.date_upload|date:"d/m/Y" }}</td>
+                                        <td>
+                                            <a href="{{ document.fichier.url }}" class="btn btn-sm btn-primary" target="_blank" title="Télécharger">
+                                                <i class="fas fa-download"></i>
+                                            </a>
+                                            <a href="{% url 'gestion_temps_activite:document_delete' pk=document.pk %}"
+                                               class="btn btn-sm btn-danger" title="Supprimer">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-file fa-3x mb-3"></i>
+                            <p>Aucun document pour ce projet</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'assets/js/gta/gestion_projet.js' %}"></script>
+{% endblock %}

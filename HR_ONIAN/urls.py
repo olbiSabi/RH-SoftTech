@@ -46,13 +46,11 @@ urlpatterns = [
     # URLs des applications
     path('employe/', include('employee.urls', namespace='employee')),
     path('absence/', include('absence.urls')),
-    path('projet/', include('projet.urls')),
-    path('client/', include('client.urls')),
     path('departement/', include('departement.urls')),
-    path('vente/', include('vente.urls')),
-    path('comptabilite/', include('comptabilite.urls')),
-    path('report/', include('reports.urls')),
     path('parametre/', include('parametre.urls')),
+    # Module Gestion Temps et Activités
+    path('gestion-temps/', include('gestion_temps_activite.urls', namespace='gestion_temps_activite')),
+
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

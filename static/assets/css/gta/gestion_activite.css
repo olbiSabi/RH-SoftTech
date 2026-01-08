@@ -1,0 +1,371 @@
+/* static/assets/css/gta/gestion_activite.css */
+
+/* ============================================
+   GESTION DES ACTIVITÉS - STYLES
+   ============================================ */
+
+/* ==================== GÉNÉRAL ==================== */
+.activite-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.activite-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ==================== CODES ACTIVITÉ ==================== */
+.code-activite {
+    font-family: 'Courier New', monospace;
+    background-color: #f8f9fc;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    border: 1px solid #e3e6f0;
+    color: #1c5d5f;
+}
+
+/* ==================== TABLE DES ACTIVITÉS ==================== */
+.activite-table thead th {
+    background-color: #f8f9fc;
+    border-bottom: 2px solid #e3e6f0;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    color: #858796;
+}
+
+.activite-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.activite-table tbody tr:hover {
+    background-color: #f8f9fc;
+}
+
+.activite-row-inactive {
+    opacity: 0.5;
+    background-color: #f8f9fa;
+}
+
+.activite-row-inactive:hover {
+    opacity: 0.7;
+}
+
+/* ==================== BADGES STATUTS ==================== */
+.badge-activite-status {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+}
+
+.status-actif {
+    background-color: #1cc88a;
+    color: white;
+}
+
+.status-actif-limite {
+    background-color: #f6c23e;
+    color: white;
+}
+
+.status-a-venir {
+    background-color: #36b9cc;
+    color: white;
+}
+
+.status-expire {
+    background-color: #e74a3b;
+    color: white;
+}
+
+.status-inactif {
+    background-color: #858796;
+    color: white;
+}
+
+/* ==================== FORMULAIRE ==================== */
+.activite-form-section {
+    border-bottom: 2px solid #e3e6f0;
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+}
+
+.activite-form-section h6 {
+    color: #1c5d5f;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+/* Code activité en majuscules automatique */
+#id_code_activite {
+    text-transform: uppercase;
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+}
+
+/* Input group pour taux horaire */
+.input-group-text {
+    background-color: #f8f9fc;
+    border-color: #d1d3e2;
+    color: #6e707e;
+    font-weight: 600;
+}
+
+/* ==================== APERÇU DU STATUT ==================== */
+#status-preview {
+    animation: fadeIn 0.3s ease-in;
+}
+
+#status-preview-content {
+    font-size: 0.9rem;
+}
+
+.status-preview-badge {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    display: inline-block;
+    margin-right: 0.5rem;
+}
+
+.status-preview-details {
+    margin-top: 0.5rem;
+    color: #5a5c69;
+}
+
+/* ==================== FACTURATION ==================== */
+.facturable-icon {
+    color: #1cc88a;
+    font-size: 1.2rem;
+}
+
+.non-facturable-icon {
+    color: #858796;
+    font-size: 1.2rem;
+}
+
+.taux-horaire-display {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1cc88a;
+}
+
+/* ==================== PÉRIODE DE VALIDITÉ ==================== */
+.periode-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.35rem;
+    background-color: #f8f9fc;
+    border: 1px solid #e3e6f0;
+}
+
+.periode-indicator.active {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.periode-indicator.expired {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.periode-indicator.upcoming {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
+}
+
+/* ==================== LÉGENDE DES STATUTS ==================== */
+.legend-card {
+    border-left: 4px solid #1c5d5f;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+}
+
+.legend-badge {
+    min-width: 100px;
+}
+
+/* ==================== CONFIRMATION SUPPRESSION ==================== */
+.delete-warning-activite {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.delete-danger-activite {
+    background-color: #f8d7da;
+    border-left: 4px solid #dc3545;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.alternative-suggestion {
+    background-color: #d1ecf1;
+    border-left: 4px solid #17a2b8;
+    padding: 1rem;
+}
+
+/* ==================== FILTRES ==================== */
+.search-input {
+    border-radius: 20px;
+    border-color: #d1d3e2;
+}
+
+.search-input:focus {
+    border-color: #1c5d5f;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.pulse-animation {
+    animation: pulse 2s infinite;
+}
+
+/* ==================== INFO BULLES ==================== */
+.info-tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+}
+
+.info-tooltip .tooltip-text {
+    visibility: hidden;
+    width: 200px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.info-tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+    .activite-table {
+        font-size: 0.85rem;
+    }
+
+    .activite-table thead th {
+        font-size: 0.7rem;
+        padding: 0.5rem;
+    }
+
+    .activite-table tbody td {
+        padding: 0.5rem;
+    }
+
+    /* Masquer certaines colonnes sur mobile */
+    .activite-table th:nth-child(3),
+    .activite-table td:nth-child(3),
+    .activite-table th:nth-child(6),
+    .activite-table td:nth-child(6) {
+        display: none;
+    }
+
+    .legend-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .btn-group {
+        flex-direction: column;
+    }
+
+    .btn-group .btn {
+        width: 100%;
+        margin-bottom: 0.25rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .code-activite {
+        font-size: 0.85rem;
+        padding: 0.2rem 0.4rem;
+    }
+
+    .badge-activite-status {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.6rem;
+    }
+}
+
+/* ==================== UTILITAIRES ==================== */
+.text-facturable {
+    color: #1cc88a !important;
+}
+
+.text-non-facturable {
+    color: #858796 !important;
+}
+
+.bg-actif {
+    background-color: #d4edda !important;
+}
+
+.bg-inactif {
+    background-color: #f8d7da !important;
+}
+
+/* ==================== IMPRESSION ==================== */
+@media print {
+    .btn,
+    .breadcrumb,
+    .no-print {
+        display: none !important;
+    }
+
+    .card {
+        border: 1px solid #000;
+        box-shadow: none;
+        page-break-inside: avoid;
+    }
+
+    .activite-table {
+        font-size: 9pt;
+    }
+
+    .badge {
+        border: 1px solid #000;
+    }
+}

@@ -1,0 +1,383 @@
+/* static/assets/css/gta/gestion_document.css */
+
+/* ============================================
+   GESTION DES DOCUMENTS - STYLES
+   ============================================ */
+
+/* ==================== GÉNÉRAL ==================== */
+.document-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.document-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ==================== ICÔNES DE FICHIER ==================== */
+.file-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.file-icon.pdf {
+    color: #e74a3b;
+}
+
+.file-icon.word {
+    color: #1c5d5f;
+}
+
+.file-icon.excel {
+    color: #1cc88a;
+}
+
+.file-icon.powerpoint {
+    color: #f6c23e;
+}
+
+.file-icon.image {
+    color: #36b9cc;
+}
+
+.file-icon.default {
+    color: #858796;
+}
+
+/* ==================== CUSTOM FILE INPUT ==================== */
+.custom-file-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.custom-file-input:focus ~ .custom-file-label {
+    border-color: #193f41;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+.custom-file-label::after {
+    background-color: #193f41;
+    color: white;
+}
+
+/* ==================== APERÇU FICHIER ==================== */
+#file-preview {
+    animation: fadeIn 0.3s ease-in;
+}
+
+.file-preview-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 0.35rem;
+}
+
+.file-preview-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.file-preview-details {
+    flex-grow: 1;
+}
+
+.file-preview-name {
+    font-weight: 600;
+    color: #5a5c69;
+    margin-bottom: 0.25rem;
+}
+
+.file-preview-info {
+    font-size: 0.875rem;
+    color: #858796;
+}
+
+.file-preview-size {
+    font-weight: 600;
+    color: #193f41;
+}
+
+/* ==================== SECTIONS RATTACHEMENT ==================== */
+#projet-section,
+#tache-section {
+    animation: slideInDown 0.3s ease-out;
+    background-color: #f8f9fc;
+    padding: 1rem;
+    border-radius: 0.35rem;
+    border: 2px solid #e3e6f0;
+}
+
+/* ==================== BARRE DE PROGRESSION UPLOAD ==================== */
+#upload-progress {
+    animation: fadeIn 0.3s ease-in;
+}
+
+#upload-progress .progress-bar {
+    font-weight: 700;
+    font-size: 0.875rem;
+}
+
+/* ==================== BADGES CATÉGORIE ==================== */
+.badge-categorie {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+}
+
+.badge-contrat {
+    background-color: #193f41;
+}
+
+.badge-cahier-charges {
+    background-color: #36b9cc;
+}
+
+.badge-specification {
+    background-color: #1cc88a;
+}
+
+.badge-rapport {
+    background-color: #f6c23e;
+}
+
+.badge-facture {
+    background-color: #e74a3b;
+}
+
+.badge-livrable {
+    background-color: #858796;
+}
+
+/* ==================== LISTE DOCUMENTS ==================== */
+.document-list-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #e3e6f0;
+    transition: background-color 0.2s ease;
+}
+
+.document-list-item:hover {
+    background-color: #f8f9fc;
+}
+
+.document-list-item:last-child {
+    border-bottom: none;
+}
+
+.document-list-icon {
+    font-size: 2rem;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.document-list-content {
+    flex-grow: 1;
+}
+
+.document-list-name {
+    font-weight: 600;
+    color: #5a5c69;
+    margin-bottom: 0.25rem;
+}
+
+.document-list-meta {
+    font-size: 0.875rem;
+    color: #858796;
+}
+
+.document-list-actions {
+    flex-shrink: 0;
+}
+
+/* ==================== VERSIONING ==================== */
+.version-badge {
+    background-color: #36b9cc;
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.version-history {
+    background-color: #f8f9fc;
+    padding: 1rem;
+    border-radius: 0.35rem;
+    border-left: 3px solid #36b9cc;
+}
+
+.version-item {
+    padding: 0.5rem;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.version-item:last-child {
+    border-bottom: none;
+}
+
+/* ==================== CONFIRMATION SUPPRESSION ==================== */
+.document-preview-image {
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: 0.35rem;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+/* ==================== DRAG & DROP ZONE ==================== */
+.dropzone {
+    border: 3px dashed #d1d3e2;
+    border-radius: 0.35rem;
+    padding: 3rem 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.dropzone:hover {
+    border-color: #193f41;
+    background-color: #f8f9fc;
+}
+
+.dropzone.dragover {
+    border-color: #1cc88a;
+    background-color: #d4edda;
+}
+
+.dropzone-icon {
+    font-size: 4rem;
+    color: #d1d3e2;
+    margin-bottom: 1rem;
+}
+
+.dropzone:hover .dropzone-icon {
+    color: #193f41;
+}
+
+.dropzone.dragover .dropzone-icon {
+    color: #1cc88a;
+}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+.bounce-animation {
+    animation: bounce 2s infinite;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+    .document-list-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .document-list-icon {
+        margin-bottom: 0.5rem;
+    }
+
+    .document-list-actions {
+        margin-top: 0.5rem;
+        width: 100%;
+    }
+
+    .document-list-actions .btn {
+        width: 100%;
+        margin-bottom: 0.25rem;
+    }
+
+    .dropzone {
+        padding: 2rem 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .file-icon {
+        font-size: 2rem;
+    }
+
+    .dropzone-icon {
+        font-size: 3rem;
+    }
+}
+
+/* ==================== UTILITAIRES ==================== */
+.file-size-large {
+    color: #e74a3b;
+    font-weight: 700;
+}
+
+.file-size-medium {
+    color: #f6c23e;
+    font-weight: 600;
+}
+
+.file-size-small {
+    color: #1cc88a;
+}
+
+.upload-success {
+    background-color: #d4edda;
+    border-left: 4px solid #1cc88a;
+    padding: 1rem;
+    border-radius: 0.35rem;
+    animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ==================== IMPRESSION ==================== */
+@media print {
+    .btn,
+    .breadcrumb,
+    .no-print,
+    .document-list-actions {
+        display: none !important;
+    }
+
+    .card {
+        border: 1px solid #000;
+        box-shadow: none;
+        page-break-inside: avoid;
+    }
+}

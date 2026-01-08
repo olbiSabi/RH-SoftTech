@@ -1,0 +1,403 @@
+/* static/assets/css/gta/gestion_client.css */
+
+/* ============================================
+   GESTION DES CLIENTS - STYLES
+   ============================================ */
+
+/* ==================== GÉNÉRAL ==================== */
+.client-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.client-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ==================== BADGES ET STATUTS ==================== */
+.badge-client-type {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+}
+
+.client-status-active {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.client-status-inactive {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* ==================== LISTE DES CLIENTS ==================== */
+.client-table thead th {
+    background-color: #f8f9fc;
+    border-bottom: 2px solid #e3e6f0;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    color: #858796;
+}
+
+.client-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.client-table tbody tr:hover {
+    background-color: #f8f9fc;
+    cursor: pointer;
+}
+
+.client-row-inactive {
+    opacity: 0.6;
+    background-color: #f8f9fa;
+}
+
+/* Icônes de contact */
+.contact-icon {
+    color: #1c5d5f;
+    margin-right: 5px;
+}
+
+/* ==================== DÉTAILS CLIENT ==================== */
+.client-detail-header {
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 0.35rem;
+    margin-bottom: 2rem;
+}
+
+.client-detail-header h1 {
+    margin-bottom: 0.5rem;
+    color: white;
+}
+
+.client-detail-header .breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 0;
+}
+
+.client-detail-header .breadcrumb-item,
+.client-detail-header .breadcrumb-item a {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.client-detail-header .breadcrumb-item.active {
+    color: white;
+}
+
+.client-info-table th {
+    width: 40%;
+    font-weight: 600;
+    color: #5a5c69;
+    padding: 0.75rem;
+}
+
+.client-info-table td {
+    color: #3a3b45;
+    padding: 0.75rem;
+}
+
+/* Cartes de statistiques */
+.stat-card {
+    border-left: 0.25rem solid #1c5d5f;
+}
+
+.stat-card.success {
+    border-left-color: #1cc88a;
+}
+
+.stat-card.info {
+    border-left-color: #36b9cc;
+}
+
+.stat-card.warning {
+    border-left-color: #f6c23e;
+}
+
+/* ==================== FORMULAIRE CLIENT ==================== */
+.client-form-section {
+    border-bottom: 2px solid #e3e6f0;
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+}
+
+.client-form-section h6 {
+    color: #1c5d5f;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.form-control:focus {
+    border-color: #1c5d5f;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+.form-label-required::after {
+    content: " *";
+    color: #e74a3b;
+}
+
+/* Champs invalides */
+.form-control.is-invalid {
+    border-color: #e74a3b;
+}
+
+.text-danger.small {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Conversion automatique en majuscules */
+.text-uppercase-input {
+    text-transform: uppercase;
+}
+
+/* ==================== FILTRES ET RECHERCHE ==================== */
+.filter-card {
+    background-color: #f8f9fc;
+    border: 1px solid #e3e6f0;
+}
+
+.filter-card .card-header {
+    background-color: #1c5d5f;
+    color: white;
+}
+
+.search-input {
+    border-radius: 20px;
+}
+
+.search-btn {
+    border-radius: 20px;
+}
+
+/* ==================== PROJETS DU CLIENT ==================== */
+.projet-list-item {
+    border-left: 3px solid #1c5d5f;
+    transition: all 0.2s ease;
+}
+
+.projet-list-item:hover {
+    border-left-color: #193f41;
+    background-color: #f8f9fc;
+}
+
+.projet-status-badge {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.65rem;
+}
+
+/* ==================== CONFIRMATION SUPPRESSION ==================== */
+.delete-confirmation-card {
+    border: 2px solid #e74a3b;
+}
+
+.delete-confirmation-card .card-header {
+    background-color: #e74a3b;
+}
+
+.delete-warning {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.delete-danger {
+    background-color: #f8d7da;
+    border-left: 4px solid #dc3545;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* ==================== ACTIONS RAPIDES ==================== */
+.btn-action-group {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.btn-action {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* ==================== PAGINATION ==================== */
+.pagination {
+    margin-top: 1.5rem;
+}
+
+.pagination .page-link {
+    color: #1c5d5f;
+    border-color: #dddfeb;
+}
+
+.pagination .page-link:hover {
+    background-color: #eaecf4;
+    border-color: #dddfeb;
+    color: #193f41;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #1c5d5f;
+    border-color: #1c5d5f;
+}
+
+/* ==================== ALERTES ET NOTIFICATIONS ==================== */
+.alert-dismissible .close {
+    padding: 0.75rem 1.25rem;
+}
+
+.alert-client-info {
+    background-color: #d1ecf1;
+    border-left: 4px solid #17a2b8;
+}
+
+/* ==================== ICÔNES ==================== */
+.icon-lg {
+    font-size: 2rem;
+}
+
+.icon-xl {
+    font-size: 3rem;
+}
+
+.text-primary-custom {
+    color: #1c5d5f !important;
+}
+
+.text-success-custom {
+    color: #1cc88a !important;
+}
+
+.text-danger-custom {
+    color: #e74a3b !important;
+}
+
+.text-warning-custom {
+    color: #f6c23e !important;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+    .client-table {
+        font-size: 0.85rem;
+    }
+
+    .btn-action-group {
+        flex-direction: column;
+    }
+
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+
+    .filter-card .form-inline {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+
+    .filter-card .form-inline .form-group,
+    .filter-card .form-inline .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .client-detail-header {
+        padding: 1rem;
+    }
+
+    .client-info-table th,
+    .client-info-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .client-info-table th {
+        background-color: #f8f9fc;
+        border-bottom: 1px solid #e3e6f0;
+    }
+}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+/* ==================== UTILITAIRES ==================== */
+.no-data-message {
+    text-align: center;
+    padding: 3rem;
+    color: #858796;
+}
+
+.no-data-message i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.3;
+}
+
+.card-hover {
+    transition: all 0.2s ease;
+}
+
+.card-hover:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Bordures colorées pour les cartes */
+.border-left-primary {
+    border-left: 0.25rem solid #1c5d5f !important;
+}
+
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+
+.border-left-danger {
+    border-left: 0.25rem solid #e74a3b !important;
+}
+
+/* ==================== IMPRESSION ==================== */
+@media print {
+    .btn,
+    .breadcrumb,
+    .card-header,
+    .no-print {
+        display: none !important;
+    }
+
+    .card {
+        border: 1px solid #000;
+        box-shadow: none;
+    }
+
+    .client-table {
+        font-size: 10pt;
+    }
+}

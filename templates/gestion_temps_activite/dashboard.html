@@ -1,0 +1,227 @@
+<!-- gestion_temps_activite/templates/gestion_temps_activite/dashboard.html -->
+
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'assets/css/gta/gestion_temps_activite.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="h3 mb-2 text-gray-800">
+                    <i class="fas fa-clock"></i> Gestion des Temps et Activités
+                </h1>
+                <p class="text-muted">Tableau de bord - {{ request.user.employe.nom }} {{ request.user.employe.prenoms }}</p>
+            </div>
+        </div>
+
+        <!-- Cartes de statistiques -->
+        <div class="row mb-4">
+            <!-- Total Clients -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Clients Actifs
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_clients }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-building fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Projets -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Projets Actifs
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_projets }}</div>
+                                <small class="text-muted">{{ projets_en_cours }} en cours</small>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-folder-open fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mes Tâches -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Mes Tâches
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ mes_taches }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-tasks fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mes Heures ce mois -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                    Heures ce mois
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ mes_heures_mois|floatformat:2 }}h</div>
+                                {% if mes_imputations_attente > 0 %}
+                                <small class="text-danger">{{ mes_imputations_attente }} en attente</small>
+                                {% endif %}
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-hourglass-half fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu rapide -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Accès Rapide</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <a href="{% url 'gestion_temps_activite:imputation_mes_temps' %}" class="btn btn-outline-primary btn-block">
+                                    <i class="fas fa-clock"></i> Mes Temps
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <a href="{% url 'gestion_temps_activite:imputation_create' %}" class="btn btn-outline-success btn-block">
+                                    <i class="fas fa-plus"></i> Saisir du temps
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <a href="{% url 'gestion_temps_activite:projet_liste' %}" class="btn btn-outline-info btn-block">
+                                    <i class="fas fa-folder"></i> Projets
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <a href="{% url 'gestion_temps_activite:tache_liste' %}" class="btn btn-outline-warning btn-block">
+                                    <i class="fas fa-tasks"></i> Tâches
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Projets récents -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">Projets Récents</h6>
+                        <a href="{% url 'gestion_temps_activite:projet_liste' %}" class="btn btn-sm btn-primary">Voir tout</a>
+                    </div>
+                    <div class="card-body">
+                        {% if projets_recents %}
+                        <div class="list-group">
+                            {% for projet in projets_recents %}
+                            <a href="{% url 'gestion_temps_activite:projet_detail' pk=projet.pk %}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ projet.nom_projet }}</h6>
+                                    <small>
+                                        {% if projet.statut == 'EN_COURS' %}
+                                        <span class="badge badge-success">En cours</span>
+                                        {% elif projet.statut == 'PLANIFIE' %}
+                                        <span class="badge badge-info">Planifié</span>
+                                        {% elif projet.statut == 'TERMINE' %}
+                                        <span class="badge badge-secondary">Terminé</span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                <p class="mb-1 text-muted">
+                                    <small>
+                                        <i class="fas fa-building"></i> {{ projet.client.raison_sociale }}
+                                    </small>
+                                </p>
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center">Aucun projet récent</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tâches urgentes -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-warning">Tâches Urgentes</h6>
+                        <a href="{% url 'gestion_temps_activite:tache_liste' %}" class="btn btn-sm btn-warning">Voir tout</a>
+                    </div>
+                    <div class="card-body">
+                        {% if taches_urgentes %}
+                        <div class="list-group">
+                            {% for tache in taches_urgentes %}
+                            <a href="{% url 'gestion_temps_activite:tache_detail' pk=tache.pk %}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ tache.titre }}</h6>
+                                    <small>
+                                        {% if tache.priorite == 'CRITIQUE' %}
+                                        <span class="badge badge-danger">Critique</span>
+                                        {% elif tache.priorite == 'HAUTE' %}
+                                        <span class="badge badge-warning">Haute</span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                <p class="mb-1 text-muted">
+                                    <small>
+                                        <i class="fas fa-folder"></i> {{ tache.projet.nom_projet }}
+                                        {% if tache.date_fin_prevue %}
+                                        | <i class="fas fa-calendar"></i> {{ tache.date_fin_prevue|date:"d/m/Y" }}
+                                        {% endif %}
+                                    </small>
+                                </p>
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center">Aucune tâche urgente</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'assets/js/gta/gestion_temps_activite.js' %}"></script>
+{% endblock %}

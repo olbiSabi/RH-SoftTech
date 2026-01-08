@@ -167,7 +167,7 @@ class ZY00(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.matricule} - {self.username} {self.prenomuser}" if self.username else f"{self.matricule} - {self.nom} {self.prenoms}"
+        return f" {self.username} {self.prenomuser}" if self.username else f"{self.matricule} - {self.nom} {self.prenoms}"
 
     def clean(self):
         """Validation personnalisée"""
@@ -332,26 +332,71 @@ class ZY00(models.Model):
                 self.has_permission('absence.valider_absence_manager') or
                 self.est_manager_departement())
 
+    def fait_partie_equipe_de(self, autre_employe):
+        """
+        Vérifie si cet employé fait partie de l'équipe d'un autre employé
+        (même département ou sous la gestion du même manager)
+        """
+        if not autre_employe:
+            return False
+
+        # 1. Même département
+        if self.get_departement_actuel() == autre_employe.get_departement_actuel():
+            return True
+
+        # 2. Même manager
+        mon_manager = self.get_manager_departement()
+        son_manager = autre_employe.get_manager_departement()
+
+        if mon_manager and son_manager and mon_manager == son_manager:
+            return True
+
+        # 3. L'autre employé est mon manager
+        if mon_manager and mon_manager == autre_employe:
+            return True
+
+        # 4. Je suis le manager de l'autre employé
+        if son_manager and son_manager == self:
+            return True
+
+        return False
+
     def est_manager_de(self, autre_employe):
         """
         Vérifie si cet employé est manager d'un autre employé
-        Basé sur ZYMA (manager de département) ET vérification que l'employé est dans ce département
         """
+        if not autre_employe:
+            return False
+
         try:
             from departement.models import ZYMA
 
-            # 1. Vérifier si cet employé est manager d'un département
-            est_manager = ZYMA.objects.filter(
+            # 1. Vérifier si cet employé est manager actif d'un département
+            est_manager_actif = ZYMA.objects.filter(
                 employe=self,
                 actif=True,
                 date_fin__isnull=True
             ).exists()
 
-            if not est_manager:
-                return False  # Pas manager du tout
+            if not est_manager_actif:
+                return False
 
             # 2. Vérifier si l'autre employé est dans un département géré
-            return autre_employe.est_dans_departement_manager(self)
+            # Récupérer l'affectation active de l'autre employé
+            affectation_autre = autre_employe.affectations.filter(
+                date_fin__isnull=True
+            ).select_related('poste__DEPARTEMENT').first()
+
+            if not affectation_autre or not affectation_autre.poste.DEPARTEMENT:
+                return False
+
+            # 3. Vérifier si cet employé est manager du département de l'autre employé
+            return ZYMA.objects.filter(
+                employe=self,
+                departement=affectation_autre.poste.DEPARTEMENT,
+                actif=True,
+                date_fin__isnull=True
+            ).exists()
 
         except Exception as e:
             print(f"Erreur dans est_manager_de: {e}")
@@ -442,26 +487,58 @@ class ZY00(models.Model):
             self.adresses.filter(actif=True).update(actif=False)
 
     def get_manager_responsable(self):
-        """Retourne le manager responsable de cet employé"""
+        """
+        Retourne l'objet ZYMA du manager responsable de cet employé
+        Permet d'accéder à manager.employe, manager.departement, manager.date_debut, etc.
+        """
         try:
             from departement.models import ZYMA
-            # Récupérer l'affectation active
+
+            # Récupérer l'affectation active avec le département
             affectation_active = self.affectations.filter(
                 date_fin__isnull=True
             ).select_related('poste__DEPARTEMENT').first()
 
-            if affectation_active and affectation_active.poste.DEPARTEMENT:
-                return ZYMA.get_manager_actif(affectation_active.poste.DEPARTEMENT)
+            if not affectation_active:
+                return None
+
+            if not affectation_active.poste.DEPARTEMENT:
+                return None
+
+            # Récupérer le manager actif du département
+            manager_zyma = ZYMA.get_manager_actif(affectation_active.poste.DEPARTEMENT)
+
+            return manager_zyma  # Retourne l'objet ZYMA complet
+
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Erreur get_manager_responsable pour {self.matricule}: {e}")
             return None
-        except Exception:
+
+    def get_departement_actuel(self):
+        """Retourne le département actuel de l'employé"""
+        try:
+            affectation = self.affectations.filter(
+                date_fin__isnull=True
+            ).select_related('poste__DEPARTEMENT').first()
+
+            if affectation and affectation.poste.DEPARTEMENT:
+                return affectation.poste.DEPARTEMENT
+            return None
+
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Erreur get_departement_actuel pour {self.matricule}: {e}")
             return None
 
     def is_manager(self):
         """Vérifie si l'employé est un manager"""
         from departement.models import ZYMA
         return ZYMA.objects.filter(
-            manager=self,
-            statut='actif',
+            employe=self,
+            actif=True,
             date_fin__isnull=True
         ).exists()
 
@@ -648,6 +725,71 @@ class ZY00(models.Model):
         (DRH et GESTION_APP uniquement)
         """
         return self.has_role('DRH') or self.has_role('GESTION_APP')
+
+    def get_equipe_manager(self):
+        """
+        Retourne l'équipe complète du manager (tous les employés du département)
+        Si l'employé est manager, retourne son équipe
+        Si l'employé n'est pas manager, retourne l'équipe de son manager
+        """
+        # 1. Si l'employé est manager, retourner son équipe
+        if self.est_manager_departement():
+            return self.get_subordonnes_hierarchiques()
+
+        # 2. Sinon, trouver le manager et retourner son équipe
+        manager = self.get_manager_departement()
+        if manager:
+            return manager.get_subordonnes_hierarchiques()
+
+        return ZY00.objects.none()
+
+    def get_collaborateurs_meme_departement(self):
+        """
+        Retourne tous les collaborateurs du même département
+        """
+        # Récupérer l'affectation active
+        affectation = self.affectations.filter(
+            date_fin__isnull=True
+        ).select_related('poste__DEPARTEMENT').first()
+
+        if not affectation or not affectation.poste.DEPARTEMENT:
+            return ZY00.objects.none()
+
+        # Récupérer tous les employés du même département
+        departement = affectation.poste.DEPARTEMENT
+
+        # Chercher les affectations actives dans ce département
+        employes_ids = ZYAF.objects.filter(
+            poste__DEPARTEMENT=departement,
+            date_fin__isnull=True,
+            employe__etat='actif'
+        ).values_list('employe', flat=True).distinct()
+
+        return ZY00.objects.filter(matricule__in=employes_ids).exclude(pk=self.pk)
+
+    def fait_partie_equipe_de(self, autre_employe):
+        """
+        Vérifie si cet employé fait partie de l'équipe d'un autre employé
+        (même département)
+        """
+        # Récupérer les départements des deux employés
+        dept1 = self.get_departement_actuel()
+        dept2 = autre_employe.get_departement_actuel()
+
+        if not dept1 or not dept2:
+            return False
+
+        return dept1 == dept2
+
+    def get_departement_actuel(self):
+        """Retourne le département actuel de l'employé"""
+        affectation = self.affectations.filter(
+            date_fin__isnull=True
+        ).select_related('poste__DEPARTEMENT').first()
+
+        if affectation and affectation.poste.DEPARTEMENT:
+            return affectation.poste.DEPARTEMENT
+        return None
 
 
 ######################

@@ -1,0 +1,380 @@
+/* static/assets/css/gta/gestion_projet.css */
+
+/* ============================================
+   GESTION DES PROJETS - STYLES
+   ============================================ */
+
+/* ==================== GÉNÉRAL ==================== */
+.projet-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.projet-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ==================== BADGES ET STATUTS ==================== */
+.badge-statut-projet {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+}
+
+.badge-priorite {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+}
+
+/* ==================== LISTE DES PROJETS ==================== */
+.projet-table thead th {
+    background-color: #f8f9fc;
+    border-bottom: 2px solid #e3e6f0;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    color: #858796;
+}
+
+.projet-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.projet-table tbody tr:hover {
+    background-color: #f8f9fc;
+}
+
+.projet-row-inactive {
+    opacity: 0.6;
+    background-color: #f8f9fa;
+}
+
+/* ==================== BARRES DE PROGRESSION ==================== */
+.progress {
+    border-radius: 0.35rem;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 20px;
+    transition: width 0.6s ease;
+}
+
+/* Couleurs spécifiques pour le budget */
+.progress-bar.bg-budget-ok {
+    background-color: #1cc88a;
+}
+
+.progress-bar.bg-budget-warning {
+    background-color: #f6c23e;
+}
+
+.progress-bar.bg-budget-danger {
+    background-color: #e74a3b;
+}
+
+/* ==================== DÉTAILS PROJET ==================== */
+.projet-detail-header {
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 0.35rem;
+    margin-bottom: 2rem;
+}
+
+.projet-info-table th {
+    width: 40%;
+    font-weight: 600;
+    color: #5a5c69;
+    padding: 0.75rem;
+}
+
+.projet-info-table td {
+    color: #3a3b45;
+    padding: 0.75rem;
+}
+
+/* Cartes de statistiques */
+.stat-card-projet {
+    border-left: 0.25rem solid #1c5d5f;
+    transition: all 0.3s ease;
+}
+
+.stat-card-projet:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* ==================== FORMULAIRE PROJET ==================== */
+.projet-form-section {
+    border-bottom: 2px solid #e3e6f0;
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+}
+
+.projet-form-section h6 {
+    color: #1c5d5f;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+/* Input groups pour les unités */
+.input-group-text {
+    background-color: #f8f9fc;
+    border-color: #d1d3e2;
+    color: #6e707e;
+    font-weight: 600;
+}
+
+/* Conversion automatique en majuscules pour code projet */
+#id_code_projet {
+    text-transform: uppercase;
+}
+
+/* ==================== TÂCHES DU PROJET ==================== */
+.tache-list-item {
+    border-left: 3px solid #1c5d5f;
+    transition: all 0.2s ease;
+    margin-bottom: 0.5rem;
+}
+
+.tache-list-item:hover {
+    border-left-color: #1c5d5f;
+    background-color: #f8f9fc;
+}
+
+.tache-status-badge {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.65rem;
+}
+
+/* Table des tâches */
+.tache-table-compact {
+    font-size: 0.875rem;
+}
+
+.tache-table-compact td,
+.tache-table-compact th {
+    padding: 0.5rem;
+    vertical-align: middle;
+}
+
+/* ==================== DOCUMENTS ==================== */
+.document-icon {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+}
+
+.document-list-item {
+    transition: background-color 0.2s ease;
+    padding: 0.75rem;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.document-list-item:hover {
+    background-color: #f8f9fc;
+}
+
+/* ==================== FILTRES ET RECHERCHE ==================== */
+.filter-section {
+    background-color: #f8f9fc;
+    border: 1px solid #e3e6f0;
+    border-radius: 0.35rem;
+    padding: 1rem;
+}
+
+.search-input {
+    border-radius: 20px;
+    border-color: #d1d3e2;
+}
+
+.search-input:focus {
+    border-color: #193f41;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+/* ==================== PRIORITÉS ==================== */
+.priorite-critique {
+    color: #e74a3b;
+    font-weight: 700;
+}
+
+.priorite-haute {
+    color: #f6c23e;
+    font-weight: 700;
+}
+
+.priorite-normale {
+    color: #36b9cc;
+}
+
+.priorite-basse {
+    color: #858796;
+}
+
+/* ==================== CONFIRMATION SUPPRESSION ==================== */
+.delete-impact-card {
+    background-color: #f8d7da;
+    border: 2px solid #e74a3b;
+}
+
+.delete-impact-icon {
+    color: #e74a3b;
+}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-up {
+    animation: slideInUp 0.4s ease-out;
+}
+
+@keyframes progressAnimation {
+    from {
+        width: 0%;
+    }
+}
+
+.progress-bar {
+    animation: progressAnimation 1s ease-out;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+    .projet-table {
+        font-size: 0.85rem;
+    }
+
+    .stat-card-projet {
+        margin-bottom: 1rem;
+    }
+
+    .projet-detail-header {
+        padding: 1rem;
+    }
+
+    .filter-section .form-inline {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+
+    .filter-section .form-inline .form-group,
+    .filter-section .form-inline .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Masquer certaines colonnes sur mobile */
+    .projet-table th:nth-child(5),
+    .projet-table td:nth-child(5),
+    .projet-table th:nth-child(6),
+    .projet-table td:nth-child(6) {
+        display: none;
+    }
+}
+
+@media (max-width: 576px) {
+    .btn-group {
+        flex-direction: column;
+    }
+
+    .btn-group .btn {
+        width: 100%;
+        margin-bottom: 0.25rem;
+    }
+}
+
+/* ==================== TIMELINE (pour historique projet) ==================== */
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    width: 2px;
+    height: 100%;
+    background: #e3e6f0;
+}
+
+.timeline-item {
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #4e73df;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 3px #e3e6f0;
+}
+
+/* ==================== UTILITAIRES ==================== */
+.text-budget-ok {
+    color: #1cc88a !important;
+}
+
+.text-budget-warning {
+    color: #f6c23e !important;
+}
+
+.text-budget-danger {
+    color: #e74a3b !important;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
+}
+
+.bg-gradient-info {
+    background: linear-gradient(135deg, #36b9cc 0%, #258391 100%);
+}
+
+.bg-gradient-warning {
+    background: linear-gradient(135deg, #f6c23e 0%, #dda20a 100%);
+}
+
+/* ==================== IMPRESSION ==================== */
+@media print {
+    .btn,
+    .breadcrumb,
+    .no-print {
+        display: none !important;
+    }
+
+    .card {
+        border: 1px solid #000;
+        box-shadow: none;
+        page-break-inside: avoid;
+    }
+
+    .projet-table {
+        font-size: 9pt;
+    }
+
+    .progress {
+        border: 1px solid #000;
+    }
+}

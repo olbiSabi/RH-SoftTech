@@ -1,0 +1,350 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'assets/css/gta/gestion_tache.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h1 class="h3 mb-2 text-gray-800">
+                    <i class="fas fa-tasks"></i> {{ title }}
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'gestion_temps_activite:dashboard' %}">Accueil</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'gestion_temps_activite:tache_liste' %}">Tâches</a></li>
+                        <li class="breadcrumb-item active">{{ title }}</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-md-6 text-right">
+                <a href="{% if tache %}{% url 'gestion_temps_activite:tache_detail' pk=tache.pk %}{% else %}{% url 'gestion_temps_activite:tache_liste' %}{% endif %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Annuler
+                </a>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="row mb-3">
+            <div class="col-12">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Formulaire -->
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-edit"></i> Informations de la Tâche
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <!-- AJOUTEZ CET ATTRIBUT data-tache-id SUR LE FORM -->
+                        <form method="post" novalidate id="tacheForm" {% if tache %}data-tache-id="{{ tache.pk }}"{% endif %}>
+                            {% csrf_token %}
+
+                            <!-- Affichage des erreurs non liées à un champ -->
+                            {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                            {% endif %}
+
+                            <!-- Informations de base -->
+                            <div class="border-bottom mb-4 pb-2">
+                                <h6 class="text-primary">Informations de Base</h6>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="{{ form.titre.id_for_label }}">
+                                            {{ form.titre.label }}
+                                        </label>
+                                        {{ form.titre }}
+                                        {% if form.titre.errors %}
+                                        <div class="text-danger small">{{ form.titre.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="{{ form.description.id_for_label }}">
+                                            {{ form.description.label }}
+                                        </label>
+                                        {{ form.description }}
+                                        {% if form.description.errors %}
+                                        <div class="text-danger small">{{ form.description.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Attribution -->
+                            <div class="border-bottom mb-4 pb-2 mt-4">
+                                <h6 class="text-primary">Attribution</h6>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.projet.id_for_label }}">
+                                            {{ form.projet.label }}
+                                        </label>
+                                        <!-- AJOUTEZ L'ID AU SELECT PROJET -->
+                                        <select name="{{ form.projet.name }}"
+                                                id="id_projet"
+                                                class="form-control"
+                                                {% if form.projet.value %}data-initial-value="{{ form.projet.value }}"{% endif %}>
+                                            {% for choice in form.projet.field.choices %}
+                                                <option value="{{ choice.0 }}"
+                                                        {% if form.projet.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>
+                                                    {{ choice.1 }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                        {% if form.projet.errors %}
+                                        <div class="text-danger small">{{ form.projet.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.assignee.id_for_label }}">
+                                            {{ form.assignee.label }}
+                                        </label>
+                                        {{ form.assignee }}
+                                        {% if form.assignee.errors %}
+                                        <div class="text-danger small">{{ form.assignee.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="{{ form.tache_parente.id_for_label }}">
+                                            {{ form.tache_parente.label }}
+                                        </label>
+                                        <!-- AJOUTEZ L'ID ET data-current-value AU SELECT TACHE_PARENTE -->
+                                        <select name="{{ form.tache_parente.name }}"
+                                                id="id_tache_parente"
+                                                class="form-control"
+                                                {% if form.tache_parente.value %}data-current-value="{{ form.tache_parente.value }}"{% endif %}>
+                                            {% for choice in form.tache_parente.field.choices %}
+                                                <option value="{{ choice.0 }}"
+                                                        {% if form.tache_parente.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>
+                                                    {{ choice.1 }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                        {% if form.tache_parente.errors %}
+                                        <div class="text-danger small">{{ form.tache_parente.errors }}</div>
+                                        {% endif %}
+                                        <small class="form-text text-muted" id="tache-parente-help">
+                                            {% if form.projet.value %}
+                                            Sélectionnez une tâche parente si cette tâche est une sous-tâche
+                                            {% else %}
+                                            Sélectionnez d'abord un projet pour voir les tâches disponibles
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Planification -->
+                            <div class="border-bottom mb-4 pb-2 mt-4">
+                                <h6 class="text-primary">Planification</h6>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.estimation_heures.id_for_label }}">
+                                            {{ form.estimation_heures.label }}
+                                        </label>
+                                        <div class="input-group">
+                                            {{ form.estimation_heures }}
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">heures</span>
+                                            </div>
+                                        </div>
+                                        {% if form.estimation_heures.errors %}
+                                        <div class="text-danger small">{{ form.estimation_heures.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.avancement.id_for_label }}">
+                                            {{ form.avancement.label }}
+                                        </label>
+                                        <div class="input-group">
+                                            {{ form.avancement }}
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">%</span>
+                                            </div>
+                                        </div>
+                                        {% if form.avancement.errors %}
+                                        <div class="text-danger small">{{ form.avancement.errors }}</div>
+                                        {% endif %}
+                                        <div class="progress mt-2" style="height: 20px;" id="avancement-preview">
+                                            <div class="progress-bar" role="progressbar" style="width: {{ form.avancement.value|default:0 }}%">
+                                                <span id="avancement-text">{{ form.avancement.value|default:0 }}%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.date_debut_prevue.id_for_label }}">
+                                            {{ form.date_debut_prevue.label }}
+                                        </label>
+                                        {{ form.date_debut_prevue }}
+                                        {% if form.date_debut_prevue.errors %}
+                                        <div class="text-danger small">{{ form.date_debut_prevue.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.date_fin_prevue.id_for_label }}">
+                                            {{ form.date_fin_prevue.label }}
+                                        </label>
+                                        {{ form.date_fin_prevue }}
+                                        {% if form.date_fin_prevue.errors %}
+                                        <div class="text-danger small">{{ form.date_fin_prevue.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.date_debut_reelle.id_for_label }}">
+                                            {{ form.date_debut_reelle.label }}
+                                        </label>
+                                        {{ form.date_debut_reelle }}
+                                        {% if form.date_debut_reelle.errors %}
+                                        <div class="text-danger small">{{ form.date_debut_reelle.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.date_fin_reelle.id_for_label }}">
+                                            {{ form.date_fin_reelle.label }}
+                                        </label>
+                                        {{ form.date_fin_reelle }}
+                                        {% if form.date_fin_reelle.errors %}
+                                        <div class="text-danger small">{{ form.date_fin_reelle.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Statut et Priorité -->
+                            <div class="border-bottom mb-4 pb-2 mt-4">
+                                <h6 class="text-primary">Statut et Priorité</h6>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.statut.id_for_label }}">
+                                            {{ form.statut.label }}
+                                        </label>
+                                        {{ form.statut }}
+                                        {% if form.statut.errors %}
+                                        <div class="text-danger small">{{ form.statut.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.priorite.id_for_label }}">
+                                            {{ form.priorite.label }}
+                                        </label>
+                                        {{ form.priorite }}
+                                        {% if form.priorite.errors %}
+                                        <div class="text-danger small">{{ form.priorite.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Boutons -->
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <hr>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> {{ action }}
+                                    </button>
+                                    <a href="{% if tache %}{% url 'gestion_temps_activite:tache_detail' pk=tache.pk %}{% else %}{% url 'gestion_temps_activite:tache_liste' %}{% endif %}" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Annuler
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'assets/js/gta/gestion_tache.js' %}"></script>
+
+<!-- AJOUTEZ CE SCRIPT POUR INITIALISER LES DONNÉES -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialiser le filtre des tâches parentes si un projet est pré-sélectionné
+    const projetSelect = document.getElementById('id_projet');
+    const tacheParenteSelect = document.getElementById('id_tache_parente');
+
+    if (projetSelect && projetSelect.value && tacheParenteSelect) {
+        // Attendre que le DOM soit complètement chargé
+        setTimeout(function() {
+            // Déclencher le chargement des tâches parentes
+            const event = new Event('change');
+            projetSelect.dispatchEvent(event);
+        }, 100);
+    }
+
+    // Debug: Afficher les valeurs pour vérification
+    console.log('Projet sélectionné:', projetSelect ? projetSelect.value : 'non trouvé');
+    console.log('Valeur tâche parente:', tacheParenteSelect ? tacheParenteSelect.dataset.currentValue : 'non trouvé');
+});
+</script>
+{% endblock %}

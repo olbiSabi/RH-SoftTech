@@ -1,0 +1,134 @@
+<!-- gestion_temps_activite/templates/gestion_temps_activite/includes/sortable_table.html -->
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover sortable-table" id="{{ table_id|default:'dataTable' }}">
+        <thead class="thead-light">
+            <tr>
+                {% for column in columns %}
+                <th width="{{ column.width }}"
+                    {% if column.sortable %}class="sortable" data-column="{{ column.field }}"{% endif %}>
+                    {{ column.label }}
+                    {% if column.sortable %}
+                    <span class="sort-icon">
+                        <i class="fas fa-sort"></i>
+                    </span>
+                    {% endif %}
+                </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %}
+            <tr class="{{ row.row_class }}">
+                {% for column in columns %}
+                <td>
+                    {% if column.type == 'badge' %}
+                    <span class="badge badge-{{ row|get_badge_color:column.field }}">
+                        {{ row|get_item:column.field }}
+                    </span>
+                    {% elif column.type == 'link' %}
+                    <a href="{{ row|get_url:column.url_field }}">
+                        {{ row|get_item:column.field }}
+                    </a>
+                    {% elif column.type == 'date' %}
+                    {{ row|get_item:column.field|date:"d/m/Y" }}
+                    {% elif column.type == 'datetime' %}
+                    {{ row|get_item:column.field|date:"d/m/Y H:i" }}
+                    {% elif column.type == 'number' %}
+                    {{ row|get_item:column.field|floatformat:column.decimals|default:2 }}
+                    {% elif column.type == 'actions' %}
+                    {% include 'gestion_temps_activite/includes/action_buttons.html' with object=row %}
+                    {% else %}
+                    {{ row|get_item:column.field }}
+                    {% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="{{ columns|length }}" class="text-center text-muted">
+                    {% include 'gestion_temps_activite/includes/empty_state.html' with icon='table' title='Aucune donnée disponible' %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+        {% if show_footer %}
+        <tfoot>
+            <tr class="table-info">
+                {% for column in columns %}
+                <td>
+                    {% if column.footer %}
+                    {{ column.footer }}
+                    {% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+        </tfoot>
+        {% endif %}
+    </table>
+</div>
+
+<style>
+.sortable-table thead th.sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 2rem;
+}
+
+.sortable-table thead th.sortable:hover {
+    background-color: #e7f3ff;
+}
+
+.sort-icon {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #858796;
+}
+
+.sortable-table thead th.sort-asc .sort-icon i::before {
+    content: "\f0de";
+    color: #4e73df;
+}
+
+.sortable-table thead th.sort-desc .sort-icon i::before {
+    content: "\f0dd";
+    color: #4e73df;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sortableHeaders = document.querySelectorAll('.sortable-table th.sortable');
+
+    sortableHeaders.forEach(header => {
+        header.addEventListener('click', function() {
+            const column = this.dataset.column;
+            const currentSort = this.classList.contains('sort-asc') ? 'asc' :
+                              this.classList.contains('sort-desc') ? 'desc' : 'none';
+
+            // Retirer le tri des autres colonnes
+            sortableHeaders.forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+
+            // Appliquer le nouveau tri
+            if (currentSort === 'none' || currentSort === 'desc') {
+                this.classList.add('sort-asc');
+                sortTable(column, 'asc');
+            } else {
+                this.classList.add('sort-desc');
+                sortTable(column, 'desc');
+            }
+        });
+    });
+
+    function sortTable(column, direction) {
+        const url = new URL(window.location);
+        url.searchParams.set('sort', column);
+        url.searchParams.set('direction', direction);
+        window.location.href = url.toString();
+    }
+});
+</script>

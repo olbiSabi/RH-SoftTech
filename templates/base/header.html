@@ -119,19 +119,33 @@
                     </li>
 
                     <!-- ========================================
-                         MENU RAPPORTS
-                         Visible pour : Tout le monde
-                         ======================================== -->
+     MENU GTA - VERSION SIMPLIFIÉE
+     ======================================== -->
                     <li class="menu-item">
-                        <a href="#" class="menu-link">
-                            <i class="fas fa-chart-bar"></i>
-                            <span>Rapports</span>
+                        <a href="{% url 'gestion_temps_activite:dashboard' %}" class="menu-link">
+                            <i class="fas fa-clock"></i>
+                            <span>GTA</span>
                             <i class="fas fa-chevron-down menu-arrow"></i>
                         </a>
                         <ul class="submenu">
-                            <li><a href="#"><i class="fas fa-file-alt"></i> Rapport mensuel</a></li>
-                            <li><a href="#"><i class="fas fa-chart-pie"></i> Statistiques</a></li>
-                            <li><a href="#"><i class="fas fa-calendar-alt"></i> Rapport annuel</a></li>
+                            <!-- Clients -->
+                            <li><a href="{% url 'gestion_temps_activite:client_liste' %}"><i class="fas fa-building"></i> Clients</a></li>
+                            <!-- Activités -->
+                            <li><a href="{% url 'gestion_temps_activite:activite_liste' %}"><i class="fas fa-list-check"></i> Activités</a></li>
+                            <!-- Projets -->
+                            <li><a href="{% url 'gestion_temps_activite:projet_liste' %}"><i class="fas fa-folder-open"></i> Projets</a></li>
+                            <!-- Tâches -->
+                            <li><a href="{% url 'gestion_temps_activite:tache_liste' %}"><i class="fas fa-tasks"></i>Tâches</a></li>
+                            <!-- Mes temps -->
+                            <li><a href="{% url 'gestion_temps_activite:imputation_mes_temps' %}"><i class="fas fa-user-clock"></i> Mes temps</a></li>
+                            <!-- Toutes les imputations -->
+                            <li><a href="{% url 'gestion_temps_activite:imputation_liste' %}"><i class="fas fa-list"></i> Toutes les imputations</a></li>
+                            <!-- Nouvelle imputation -->
+                            <li><a href="{% url 'gestion_temps_activite:imputation_create' %}"><i class="fas fa-plus-circle"></i> Saisir du temps</a></li>
+                            <!-- Validation (pour managers) -->
+                            <li><a href="{% url 'gestion_temps_activite:imputation_validation' %}"><i class="fas fa-check-double"></i> Validation</a></li>
+                            <!-- Documents -->
+                            <li><a href="{% url 'gestion_temps_activite:document_upload' %}"><i class="fas fa-paperclip"></i> Documents</a></li>
                         </ul>
                     </li>
                     <!-- ========================================
