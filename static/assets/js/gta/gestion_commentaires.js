@@ -99,7 +99,7 @@
             const item = document.createElement('a');
             item.className = 'dropdown-item';
             item.href = '#';
-            item.textContent = `${mention.text} (${mention.matricule})`;
+            item.textContent = `${mention.text}`;
             item.style.cursor = 'pointer';
             item.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -146,68 +146,151 @@
     }
 
     function initEditeurPourTextarea(textarea) {
-        console.log('Initialisation éditeur pour:', textarea.id);
+    console.log('Initialisation éditeur pour:', textarea.id);
 
-        // Ajouter des boutons de formatage simple
-        const container = document.createElement('div');
-        container.className = 'commentaire-editor-toolbar mb-2';
-        container.innerHTML = `
-            <div class="btn-group btn-group-sm" role="group">
-                <button type="button" class="btn btn-outline-secondary" data-action="bold" title="Gras">
-                    <i class="fas fa-bold"></i>
-                </button>
-                <button type="button" class="btn btn-outline-secondary" data-action="italic" title="Italique">
-                    <i class="fas fa-italic"></i>
-                </button>
-                <button type="button" class="btn btn-outline-secondary" data-action="code" title="Code">
-                    <i class="fas fa-code"></i>
-                </button>
-                <button type="button" class="btn btn-outline-secondary" data-action="link" title="Lien">
-                    <i class="fas fa-link"></i>
-                </button>
-            </div>
-        `;
+    // Créer l'éditeur WYSIWYG
+    const editor = document.createElement('div');
+    editor.className = 'wysiwyg-editor border p-2 rounded bg-white';
+    editor.contentEditable = true;
+    editor.style.minHeight = textarea.rows * 24 + 'px';
+    editor.style.fontFamily = 'inherit';
+    editor.style.lineHeight = '1.5';
+    editor.innerHTML = textarea.value.replace(/\n/g, '<br>');
 
-        textarea.parentNode.insertBefore(container, textarea);
+    // Cacher le textarea original mais le garder pour le formulaire
+    textarea.style.display = 'none';
+    textarea.parentNode.insertBefore(editor, textarea.nextSibling);
 
-        // Gérer les actions
-        container.addEventListener('click', function(e) {
-            const button = e.target.closest('button');
-            if (!button) return;
+    // Synchroniser avec le textarea caché
+    function updateTextarea() {
+        // Nettoyer le HTML pour garder seulement les balises autorisées
+        const cleanHTML = editor.innerHTML
+            .replace(/<strong>(.*?)<\/strong>/g, '**$1**')
+            .replace(/<b>(.*?)<\/b>/g, '**$1**')
+            .replace(/<em>(.*?)<\/em>/g, '*$1*')
+            .replace(/<i>(.*?)<\/i>/g, '*$1*')
+            .replace(/<code>(.*?)<\/code>/g, '`$1`')
+            .replace(/<br>/g, '\n')
+            .replace(/<\/div>|<\/p>/g, '\n')
+            .replace(/<div>|<p>/g, '');
 
-            const action = button.dataset.action;
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            const selectedText = textarea.value.substring(start, end);
-
-            let insertText = '';
-            switch(action) {
-                case 'bold':
-                    insertText = `**${selectedText}**`;
-                    break;
-                case 'italic':
-                    insertText = `*${selectedText}*`;
-                    break;
-                case 'code':
-                    insertText = `\`${selectedText}\``;
-                    break;
-                case 'link':
-                    const url = prompt('Entrez l\'URL:', 'https://');
-                    if (url) {
-                        insertText = `[${selectedText || 'lien'}](${url})`;
-                    } else {
-                        return;
-                    }
-                    break;
-            }
-
-            textarea.value = textarea.value.substring(0, start) +
-                             insertText +
-                             textarea.value.substring(end);
-            textarea.focus();
-            textarea.selectionStart = textarea.selectionEnd = start + insertText.length;
-        });
+        textarea.value = cleanHTML;
     }
+
+    editor.addEventListener('input', updateTextarea);
+    editor.addEventListener('blur', updateTextarea);
+
+    // Barre d'outils
+    const container = document.createElement('div');
+    container.className = 'commentaire-editor-toolbar mb-2';
+    container.innerHTML = `
+        <div class="btn-group btn-group-sm" role="group">
+            <button type="button" class="btn btn-outline-secondary" data-command="bold" title="Gras">
+                <i class="fas fa-bold"></i>
+            </button>
+            <button type="button" class="btn btn-outline-secondary" data-command="italic" title="Italique">
+                <i class="fas fa-italic"></i>
+            </button>
+            <button type="button" class="btn btn-outline-secondary" data-command="code" title="Code">
+                <i class="fas fa-code"></i>
+            </button>
+        </div>
+    `;
+
+    textarea.parentNode.insertBefore(container, textarea);
+
+    // Fonction pour vérifier si la sélection est déjà en code
+    function isSelectionInCode() {
+        const selection = window.getSelection();
+        if (selection.rangeCount === 0) return false;
+
+        let node = selection.anchorNode;
+        while (node && node !== editor) {
+            if (node.nodeType === Node.ELEMENT_NODE &&
+                (node.tagName === 'CODE' || node.parentElement?.tagName === 'CODE')) {
+                return true;
+            }
+            node = node.parentElement;
+        }
+        return false;
+    }
+
+    // Fonction pour appliquer/enlever le code
+    function toggleCode() {
+        const selection = window.getSelection();
+        if (selection.rangeCount === 0) return;
+
+        const range = selection.getRangeAt(0);
+
+        if (isSelectionInCode()) {
+            // Si déjà en code, on enlève les balises <code>
+            const codeContent = range.commonAncestorContainer;
+            if (codeContent.parentElement?.tagName === 'CODE') {
+                const codeElement = codeContent.parentElement;
+                const parent = codeElement.parentElement;
+
+                // Remplacer <code>contenu</code> par juste "contenu"
+                const fragment = document.createDocumentFragment();
+                while (codeElement.firstChild) {
+                    fragment.appendChild(codeElement.firstChild);
+                }
+
+                parent.replaceChild(fragment, codeElement);
+                selection.selectAllChildren(fragment);
+            }
+        } else {
+            // Si pas en code, on ajoute les balises
+            if (selection.toString()) {
+                // Texte sélectionné
+                document.execCommand('insertHTML', false, `<code>${selection.toString()}</code>`);
+            } else {
+                // Aucune sélection, on insère des balises vides avec placeholder
+                document.execCommand('insertHTML', false, '<code>code</code>');
+                // Sélectionner le texte "code" pour qu'il soit facile à remplacer
+                const codeElements = editor.getElementsByTagName('code');
+                if (codeElements.length > 0) {
+                    const lastCode = codeElements[codeElements.length - 1];
+                    const range = document.createRange();
+                    range.selectNodeContents(lastCode);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
+            }
+        }
+    }
+
+    // Gestion des boutons
+    container.addEventListener('click', function(e) {
+        const button = e.target.closest('button');
+        if (!button) return;
+
+        editor.focus();
+        const command = button.dataset.command;
+
+        if (command === 'code') {
+            toggleCode();
+        } else {
+            document.execCommand(command, false, null);
+        }
+
+        updateTextarea();
+    });
+
+    // Amélioration : mettre en surbrillance les boutons actifs
+    editor.addEventListener('input', function() {
+        const buttons = container.querySelectorAll('button');
+        buttons.forEach(btn => {
+            const cmd = btn.dataset.command;
+            if (cmd === 'bold') {
+                btn.classList.toggle('active', document.queryCommandState('bold'));
+            } else if (cmd === 'italic') {
+                btn.classList.toggle('active', document.queryCommandState('italic'));
+            } else if (cmd === 'code') {
+                btn.classList.toggle('active', isSelectionInCode());
+            }
+        });
+    });
+}
 
     // Vos fonctions existantes (gardez-les)
     function initCommentaires() {

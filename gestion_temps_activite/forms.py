@@ -6,7 +6,8 @@ from django.utils import timezone
 from django.db import models
 from employee.models import ZY00
 from .models import ZDCL, ZDAC, ZDPJ, ZDTA, ZDDO, ZDIT, ZDCM
-
+from django import forms
+from django.forms import ModelChoiceField
 
 class ZDCLForm(forms.ModelForm):
     """Formulaire pour la gestion des clients"""
@@ -576,144 +577,66 @@ class ZDDOForm(forms.ModelForm):
         return cleaned_data
 
 
+class NonValidatingModelChoiceField(ModelChoiceField):
+    """Champ de sélection qui n'effectue pas de validation stricte sur le queryset"""
+
+    def validate(self, value):
+        # Sauter la validation du queryset
+        if self.required and not value:
+            raise forms.ValidationError(self.error_messages['required'], code='required')
+
+
 class ZDITForm(forms.ModelForm):
-    """Formulaire pour la saisie des imputations temps"""
+    # ✅ MODIFICATION : Utiliser le champ personnalisé pour la tâche
+    tache = NonValidatingModelChoiceField(
+        queryset=ZDTA.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=True
+    )
 
     class Meta:
         model = ZDIT
-        fields = [
-            'employe',
-            'tache',
-            'activite',
-            'date',
-            'duree',
-            'commentaire',
-            'facturable'
-        ]
-
+        fields = ['date', 'employe', 'tache', 'activite', 'duree', 'commentaire']
         widgets = {
-            'employe': forms.Select(attrs={
-                'class': 'form-select form-control'
-            }),
-            'tache': forms.Select(attrs={
-                'class': 'form-select form-control',
-                'onchange': 'updateProjetInfo()'
-            }),
-            'activite': forms.Select(attrs={
-                'class': 'form-select form-control'
-            }),
-            'date': forms.DateInput(attrs={
-                'class': 'form-control',
-                'type': 'date'
-            }),
-            'duree': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'placeholder': '0.00',
-                'step': '0.25',
-                'min': '0.25',
-                'max': '24'
-            }),
-            'commentaire': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 3,
-                'placeholder': 'Détails de l\'activité réalisée'
-            }),
-            'facturable': forms.CheckboxInput(attrs={
-                'class': 'form-check-input'
-            })
-        }
-
-        labels = {
-            'employe': 'Employé *',
-            'tache': 'Tâche *',
-            'activite': 'Type d\'Activité *',
-            'date': 'Date *',
-            'duree': 'Durée (heures) *',
-            'commentaire': 'Commentaire',
-            'facturable': 'Facturable'
+            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'employe': forms.Select(attrs={'class': 'form-control'}),
+            # tache est défini au-dessus
+            'activite': forms.Select(attrs={'class': 'form-control'}),
+            'duree': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.25', 'min': '0'}),
+            'commentaire': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
+        self.user = kwargs.pop('user', None)
+
         super().__init__(*args, **kwargs)
 
-        # Si un utilisateur est passé, le sélectionner par défaut
-        if user and hasattr(user, 'employe'):
-            self.fields['employe'].initial = user.employe
-            # Masquer le champ employé pour les utilisateurs normaux
+        # Employé
+        if self.user and hasattr(self.user, 'employe'):
+            self.fields['employe'].initial = self.user.employe
             self.fields['employe'].widget = forms.HiddenInput()
 
-        # Filtrer les employés actifs
-        self.fields['employe'].queryset = ZY00.objects.filter(etat='actif')
+        # Tâches - charger toutes les tâches
+        self.fields['tache'].queryset = ZDTA.objects.all().select_related('projet').order_by('code_tache')
 
-        # Filtrer les tâches des projets actifs et non terminés
-        self.fields['tache'].queryset = ZDTA.objects.filter(
-            projet__actif=True
-        ).exclude(statut='TERMINE').select_related('projet')
+        # Activités
+        self.fields['activite'].queryset = ZDAC.objects.filter(actif=True).order_by('libelle')
 
-        # Filtrer les activités en vigueur
-        date_actuelle = timezone.now().date()
-        self.fields['activite'].queryset = ZDAC.objects.filter(
-            actif=True,
-            date_debut__lte=date_actuelle
-        ).filter(
-            models.Q(date_fin__isnull=True) | models.Q(date_fin__gte=date_actuelle)
-        )
+        # Date
+        self.fields['date'].initial = timezone.now().date()
 
-        # Date par défaut = aujourd'hui
-        if not self.instance.pk:
-            self.fields['date'].initial = timezone.now().date()
+    def clean_tache(self):
+        """Validation personnalisée de la tâche"""
+        tache = self.cleaned_data.get('tache')
 
-    def clean_duree(self):
-        """Valider la durée"""
-        duree = self.cleaned_data.get('duree')
-        if duree:
-            if duree <= 0:
-                raise ValidationError('La durée doit être supérieure à 0.')
-            if duree > 24:
-                raise ValidationError('La durée ne peut pas dépasser 24 heures.')
-        return duree
+        if tache:
+            # Vérifier que la tâche existe
+            try:
+                tache = ZDTA.objects.get(pk=tache.pk)
+            except ZDTA.DoesNotExist:
+                raise forms.ValidationError('Tâche invalide')
 
-    def clean(self):
-        """Validation personnalisée"""
-        cleaned_data = super().clean()
-        employe = cleaned_data.get('employe')
-        tache = cleaned_data.get('tache')
-        date = cleaned_data.get('date')
-        activite = cleaned_data.get('activite')
-
-        # Vérifier que l'activité est en vigueur à la date saisie
-        if activite and date:
-            if not activite.est_en_vigueur(date):
-                raise ValidationError({
-                    'activite': f'L\'activité "{activite.libelle}" n\'est pas en vigueur à cette date.'
-                })
-
-        # Vérifier les doublons (même employé, tâche, date, activité)
-        if employe and tache and date and activite:
-            existing = ZDIT.objects.filter(
-                employe=employe,
-                tache=tache,
-                date=date,
-                activite=activite
-            )
-
-            if self.instance.pk:
-                existing = existing.exclude(pk=self.instance.pk)
-
-            if existing.exists():
-                raise ValidationError(
-                    'Une imputation existe déjà pour cet employé, cette tâche, '
-                    'cette date et ce type d\'activité.'
-                )
-
-        # Vérifier que la date n'est pas dans le futur
-        if date and date > timezone.now().date():
-            raise ValidationError({
-                'date': 'Vous ne pouvez pas saisir du temps pour une date future.'
-            })
-
-        return cleaned_data
+        return tache
 
 
 class ZDITValidationForm(forms.ModelForm):

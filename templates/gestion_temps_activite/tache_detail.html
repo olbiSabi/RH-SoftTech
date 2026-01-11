@@ -17,15 +17,6 @@
                 <h1 class="h3 mb-2 text-gray-800">
                     <i class="fas fa-tasks"></i> {{ tache.titre }}
                 </h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{% url 'gestion_temps_activite:dashboard' %}">Accueil</a>
-                        </li>
-                        <li class="breadcrumb-item"><a href="{% url 'gestion_temps_activite:tache_liste' %}">Tâches</a>
-                        </li>
-                        <li class="breadcrumb-item active">{{ tache.code_tache }}</li>
-                    </ol>
-                </nav>
             </div>
             <div class="col-md-6 text-right">
                 <a href="{% url 'gestion_temps_activite:imputation_create' %}?tache={{ tache.pk }}"
@@ -76,8 +67,7 @@
                                 </div>
                                 <div class="row no-gutters align-items-center">
                                     <div class="col-auto">
-                                        <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ tache.avancement
-                                            }}%
+                                        <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ tache.avancement }}%
                                         </div>
                                     </div>
                                     <div class="col">
@@ -129,8 +119,7 @@
                                 <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
                                     Temps Réalisé
                                 </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ heures_totales|floatformat:2
-                                    }}h
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ heures_totales|floatformat:2 }}h
                                 </div>
                             </div>
                             <div class="col-auto">
@@ -324,8 +313,7 @@
                                     {% if ecart_estimation != None %}
                                     <br>
                                     <small class="{% if ecart_estimation > 0 %}text-danger{% elif ecart_estimation < 0 %}text-success{% else %}text-muted{% endif %}">
-                                        Écart: {% if ecart_estimation > 0 %}+{% endif %}{{
-                                        ecart_estimation|floatformat:1 }}h
+                                        Écart: {% if ecart_estimation > 0 %}+{% endif %}{{ ecart_estimation|floatformat:1 }}h
                                         {% if tache.estimation_heures %}
                                         ({% widthratio heures_totales tache.estimation_heures 100 %}% de l'estimation)
                                         {% endif %}
@@ -568,7 +556,6 @@
             </div>
         </div>
 
-        <!-- Section Commentaires dans tache_detail.html -->
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card shadow">
@@ -582,7 +569,6 @@
                         </h6>
                     </div>
                     <div class="card-body">
-
                         <!-- Information sur la visibilité -->
                         {% if peut_voir_commentaires_prives and details_visibilite %}
                         <div class="alert alert-info alert-dismissible fade show mb-3" role="alert">
@@ -599,11 +585,8 @@
                             </button>
                         </div>
                         {% endif %}
-
-                        <!-- Formulaire d'ajout de commentaire -->
                         {% if user.is_authenticated and user.employe %}
                         {% if form_commentaire %}
-                        <!-- Formulaire d'ajout de commentaire -->
                         <div class="mb-4">
                             <form method="post"
                                   action="{% url 'gestion_temps_activite:commentaire_ajouter' tache_pk=tache.pk %}"
@@ -611,10 +594,9 @@
                                 {% csrf_token %}
                                 <div class="form-group">
                                     <div class="media">
-                                        <img src="{{ user.employe.get_photo_url }}"
-                                             class="mr-3 rounded-circle"
-                                             alt="{{ user.employe.nom }}"
-                                             width="40" height="40">
+                                        <img src="{{ user.employe.get_photo_url }}" class="mr-3 rounded-circle" alt="{{ user.employe.nom }}" width="40" height="40">
+
+
                                         <div class="media-body">
                                             {{ form_commentaire.contenu }}
 
@@ -630,6 +612,9 @@
                                                 </button>
                                             </div>
                                         </div>
+
+
+
                                     </div>
                                 </div>
                             </form>
@@ -731,72 +716,96 @@
                                     </div>
 
                                     <!-- Réponses -->
-                                    {% if commentaire.reponses_visibles %}
-                                    <div class="reponses ml-5 mt-3">
-                                        {% for reponse in commentaire.reponses_visibles %}
-                                        <div class="reponse mb-3 {% if reponse.prive %}border-left-3 border-left-warning pl-2{% endif %}">
-                                            <div class="media">
-                                                <img src="{{ reponse.employe.get_photo_url }}"
-                                                     class="mr-2 rounded-circle"
-                                                     alt="{{ reponse.employe.nom }}"
-                                                     width="30" height="30">
-                                                <div class="media-body">
-                                                    <div class="d-flex justify-content-between align-items-start">
-                                                        <div>
-                                                            <strong class="small">{{ reponse.employe.nom }} {{
-                                                                reponse.employe.prenoms }}</strong>
-                                                            {% if reponse.prive %}
-                                                            <span class="badge badge-warning badge-pill ml-1">
-                                                            <i class="fas fa-lock fa-xs"></i>
-                                                        </span>
+
+                                        {% if commentaire.reponses_visibles %}
+                                        <div class="reponses ml-5 mt-3">
+                                            {% for reponse in commentaire.reponses_visibles %}
+                                            <div class="reponse mb-3 {% if reponse.prive %}border-left-3 border-left-warning pl-2{% endif %}">
+                                                <div class="media">
+                                                    <img src="{{ reponse.employe.get_photo_url }}"
+                                                         class="mr-2 rounded-circle"
+                                                         alt="{{ reponse.employe.nom }}"
+                                                         width="30" height="30">
+                                                    <div class="media-body">
+                                                        <div class="d-flex justify-content-between align-items-start">
+                                                            <div>
+                                                                <strong class="small">
+                                                                    {% if reponse.employe.historique_actif %}
+                                                                    {{ reponse.employe.historique_actif.nom }} {{ reponse.employe.historique_actif.prenoms }}
+                                                                    {% else %}
+                                                                    {{ reponse.employe.nom }} {{ reponse.employe.prenoms }}
+                                                                    {% endif %}
+                                                                </strong>
+                                                                {% if reponse.prive %}
+                                                                <span class="badge badge-warning badge-pill ml-1">
+                                                                    <i class="fas fa-lock fa-xs"></i>
+                                                                </span>
+                                                                {% endif %}
+                                                                <br>
+                                                                <small class="text-muted">
+                                                                    <i class="far fa-clock"></i> {{ reponse.get_temps_ecoule }}
+                                                                    {% if reponse.edite %}
+                                                                    <span class="ml-2">
+                                                                        <i class="fas fa-edit"></i> modifié
+                                                                    </span>
+                                                                    {% endif %}
+                                                                </small>
+                                                            </div>
+
+                                                            <!-- ✅ AJOUT : Dropdown actions pour les réponses -->
+                                                            {% if reponse.peut_modifier_par or reponse.peut_supprimer_par %}
+                                                            <div class="dropdown">
+                                                                <button class="btn btn-sm btn-link text-muted p-0"
+                                                                        type="button"
+                                                                        id="dropdownMenuReponse{{ reponse.id }}"
+                                                                        data-toggle="dropdown"
+                                                                        aria-haspopup="true"
+                                                                        aria-expanded="false">
+                                                                    <i class="fas fa-ellipsis-v"></i>
+                                                                </button>
+                                                                <div class="dropdown-menu dropdown-menu-right"
+                                                                     aria-labelledby="dropdownMenuReponse{{ reponse.id }}">
+
+                                                                    {% if reponse.peut_modifier_par %}
+                                                                    <a class="dropdown-item"
+                                                                       href="javascript:void(0);"
+                                                                       onclick="ouvrirModalModifier('{{ reponse.id }}', `{{ reponse.contenu|escapejs }}`); return false;">
+                                                                        <i class="fas fa-edit text-primary"></i>
+                                                                        Modifier
+                                                                    </a>
+                                                                    {% endif %}
+
+                                                                    {% if reponse.peut_supprimer_par %}
+                                                                    <a class="dropdown-item text-danger"
+                                                                       href="javascript:void(0);"
+                                                                       onclick="ouvrirModalSupprimer('{{ reponse.id }}', `{{ reponse.contenu|escapejs }}`, 0); return false;">
+                                                                        <i class="fas fa-trash"></i> Supprimer
+                                                                    </a>
+                                                                    {% endif %}
+                                                                </div>
+                                                            </div>
                                                             {% endif %}
-                                                            <br>
-                                                            <small class="text-muted">
-                                                                <i class="far fa-clock"></i> {{
-                                                                reponse.get_temps_ecoule }}
-                                                            </small>
+                                                            <!-- FIN Dropdown actions -->
                                                         </div>
-                                                    </div>
-                                                    <div class="mt-1">
-                                                        {{ reponse.contenu|linebreaks }}
+                                                        <div class="mt-1">
+                                                            {{ reponse.contenu|linebreaks }}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
+                                            {% endfor %}
                                         </div>
-                                        {% endfor %}
-                                    </div>
-                                    {% endif %}
+                                        {% endif %}
 
                                     <!-- Bouton Répondre -->
-                                    {% if user.employe %}
-                                    <div class="mt-2">
-                                        <button type="button" class="btn btn-sm btn-link p-0"
-                                                onclick="document.getElementById('reponse-form-{{ commentaire.id }}').style.display='block'">
-                                            <i class="fas fa-reply"></i> Répondre
-                                        </button>
-                                    </div>
-
-                                    <!-- Formulaire de réponse masqué -->
-                                    <div id="reponse-form-{{ commentaire.id }}" class="mt-3" style="display: none;">
-                                        <form method="post"
-                                              action="{% url 'gestion_temps_activite:commentaire_repondre' commentaire_pk=commentaire.pk %}">
-                                            {% csrf_token %}
-                                            <div class="form-group">
-                                            <textarea name="contenu" class="form-control form-control-sm"
-                                                      rows="2" placeholder="Votre réponse..."></textarea>
-                                            </div>
-                                            <div class="d-flex justify-content-end">
-                                                <button type="button" class="btn btn-sm btn-secondary mr-2"
-                                                        onclick="document.getElementById('reponse-form-{{ commentaire.id }}').style.display='none'">
-                                                    Annuler
-                                                </button>
-                                                <button type="submit" class="btn btn-sm btn-primary">
-                                                    <i class="fas fa-paper-plane"></i> Envoyer
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                    {% endif %}
+                                        {% if user.employe %}
+                                        <div class="mt-2">
+                                            <button type="button" class="btn btn-sm btn-link p-0"
+                                                    onclick="ouvrirModalRepondre('{{ commentaire.id }}', '{{ commentaire.employe.historique_actif.nom|default:commentaire.employe.nom }} {{ commentaire.employe.historique_actif.prenoms|default:commentaire.employe.prenoms }}')">
+                                                <i class="fas fa-reply"></i> Répondre
+                                            </button>
+                                        </div>
+                                        {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -810,47 +819,41 @@
                     </div>
                     {% endif %}
                 </div>
+                </div>
             </div>
         </div>
     </div>
 </section>
+{% endblock %}
 
+{% block extramodals %}
 <!-- ==================== MODALES BOOTSTRAP 4 ==================== -->
 
 <!-- Modal Modifier Commentaire -->
-<div class="modal fade" id="modalModifierCommentaire" tabindex="-1" role="dialog"
-     aria-labelledby="modalModifierCommentaireLabel" aria-hidden="true">
+<div class="modal fade" id="modalModifierCommentaire" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="modalModifierCommentaireLabel">
+            <div class="modal-header bg-modal text-white">
+                <h5 class="modal-title">
                     <i class="fas fa-edit"></i> Modifier le commentaire
                 </h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
                 </button>
             </div>
             <form id="formModifierCommentaire" method="post">
                 {% csrf_token %}
                 <div class="modal-body">
-                    <input type="hidden" id="commentaire_id_modifier" name="commentaire_id">
-
+                    <input type="hidden" id="commentaire_id_modifier">
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle"></i>
                         Le commentaire sera marqué comme "modifié"
                     </div>
-
                     <div class="form-group">
                         <label for="commentaire_contenu_modifier">
                             <i class="fas fa-comment"></i> Contenu
                         </label>
-                        <textarea
-                                class="form-control"
-                                id="commentaire_contenu_modifier"
-                                name="contenu"
-                                rows="5"
-                                maxlength="1000"
-                                required></textarea>
+                        <textarea class="form-control" id="commentaire_contenu_modifier" name="contenu" rows="5" maxlength="1000" required></textarea>
                         <small class="form-text text-muted">
                             <span id="caracteres_restants">1000</span> caractères restants
                         </small>
@@ -870,39 +873,34 @@
 </div>
 
 <!-- Modal Supprimer Commentaire -->
-<div class="modal fade" id="modalSupprimerCommentaire" tabindex="-1" role="dialog"
-     aria-labelledby="modalSupprimerCommentaireLabel" aria-hidden="true">
+<div class="modal fade" id="modalSupprimerCommentaire" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="modalSupprimerCommentaireLabel">
+                <h5 class="modal-title">
                     <i class="fas fa-exclamation-triangle"></i> Confirmer la suppression
                 </h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
                 </button>
             </div>
             <form id="formSupprimerCommentaire" method="post">
                 {% csrf_token %}
                 <div class="modal-body">
-                    <input type="hidden" id="commentaire_id_supprimer" name="commentaire_id">
-
+                    <input type="hidden" id="commentaire_id_supprimer">
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-circle"></i>
                         <strong>Attention !</strong> Cette action est irréversible.
                     </div>
-
                     <p>Êtes-vous sûr de vouloir supprimer ce commentaire ?</p>
-
                     <div class="card bg-light">
                         <div class="card-body">
                             <p class="mb-0" id="commentaire_apercu_suppression"></p>
                         </div>
                     </div>
-
                     <p class="mt-3 mb-0 text-warning small" id="avertissement_reponses" style="display:none;">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <strong>Note :</strong> Les réponses à ce commentaire seront également supprimées.
+                        <strong>Note :</strong> Les réponses seront également supprimées.
                     </p>
                 </div>
                 <div class="modal-footer">
@@ -918,10 +916,52 @@
     </div>
 </div>
 
-
+<!-- Modal Répondre à un Commentaire -->
+<div class="modal fade" id="modalRepondreCommentaire" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-modal text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-reply"></i> Répondre au commentaire
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form id="formRepondreCommentaire" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <input type="hidden" id="commentaire_parent_id">
+                    <div class="alert alert-light">
+                        <i class="fas fa-info-circle"></i>
+                        Vous répondez au commentaire de <strong id="auteur_commentaire_parent"></strong>
+                    </div>
+                    <div class="form-group">
+                        <label for="reponse_contenu">
+                            <i class="fas fa-comment"></i> Votre réponse
+                        </label>
+                        <textarea class="form-control" id="reponse_contenu" name="contenu" rows="4" maxlength="1000" placeholder="Écrivez votre réponse..." required></textarea>
+                        <small class="form-text text-muted">
+                            <span id="reponse_caracteres_restants">1000</span> caractères restants
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times"></i> Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Envoyer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extrascript %}
+
 <script src="{% static 'assets/js/gta/gestion_tache.js' %}"></script>
 <script src="{% static 'assets/js/gta/gestion_commentaires.js' %}"></script>
 <script src="{% static 'assets/js/gta/modal-commentaires.js' %}"></script>

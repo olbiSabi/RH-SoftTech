@@ -16,13 +16,6 @@
                 <h1 class="h3 mb-2 text-gray-800">
                     <i class="fas fa-folder-open"></i> {{ projet.nom_projet }}
                 </h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{% url 'gestion_temps_activite:dashboard' %}">Accueil</a></li>
-                        <li class="breadcrumb-item"><a href="{% url 'gestion_temps_activite:projet_liste' %}">Projets</a></li>
-                        <li class="breadcrumb-item active">{{ projet.code_projet }}</li>
-                    </ol>
-                </nav>
             </div>
             <div class="col-md-6 text-right">
                 <a href="{% url 'gestion_temps_activite:tache_create' %}?projet={{ projet.pk }}" class="btn btn-success">

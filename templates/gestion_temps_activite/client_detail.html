@@ -16,13 +16,6 @@
                 <h1 class="h3 mb-2 text-gray-800">
                     <i class="fas fa-building"></i> {{ client.raison_sociale }}
                 </h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{% url 'gestion_temps_activite:dashboard' %}">Accueil</a></li>
-                        <li class="breadcrumb-item"><a href="{% url 'gestion_temps_activite:client_liste' %}">Clients</a></li>
-                        <li class="breadcrumb-item active">{{ client.code_client }}</li>
-                    </ol>
-                </nav>
             </div>
             <div class="col-md-6 text-right">
                 <a href="{% url 'gestion_temps_activite:client_update' pk=client.pk %}" class="btn btn-warning">

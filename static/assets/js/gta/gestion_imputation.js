@@ -3,7 +3,8 @@
 /**
  * ============================================
  * GESTION DES IMPUTATIONS - SCRIPTS
- * ============================================ */
+ * ============================================
+ */
 
 (function() {
     'use strict';
@@ -26,7 +27,7 @@
         initFormValidation();
 
         // Filtrage dynamique des tâches par projet
-        initProjetTacheFilter();
+       // initProjetTacheFilter();
 
         // Saisie rapide de durée
         initQuickDuration();
@@ -46,8 +47,7 @@
         // Export Excel
         initExportFunctions();
 
-        // Filtres auto-submit
-        initFilters();
+        // ❌ SUPPRIMÉ : initFilters() ne s'appelle plus ici
 
         // Tooltips
         initTooltips();
@@ -57,9 +57,6 @@
 
         // Animations
         animateElements();
-
-        // Timer optionnel
-        // initTimer();
 
         // Graphiques
         initCharts();
@@ -173,63 +170,6 @@
         field.parentNode.appendChild(errorDiv);
     }
 
-    // ==================== FILTRAGE PROJET-TÂCHE ====================
-    /**
-     * Filtre les tâches selon le projet sélectionné
-     */
-    function initProjetTacheFilter() {
-        const projetSelect = document.getElementById('projet-select');
-        const tacheSelect = document.getElementById('id_tache');
-
-        if (!projetSelect || !tacheSelect) return;
-
-        // Sauvegarder toutes les options
-        const allTaches = Array.from(tacheSelect.options);
-
-        projetSelect.addEventListener('change', function() {
-            const selectedProjet = this.value;
-
-            // Réinitialiser les tâches
-            tacheSelect.innerHTML = '<option value="">Sélectionnez une tâche</option>';
-
-            if (selectedProjet) {
-                // Appel AJAX pour charger les tâches du projet
-                fetch(`/gestion-temps/api/projet/${selectedProjet}/taches/`)
-                    .then(response => response.json())
-                    .then(data => {
-                        data.taches.forEach(tache => {
-                            const option = document.createElement('option');
-                            option.value = tache.id;
-                            option.textContent = tache.titre;
-                            tacheSelect.appendChild(option);
-                        });
-
-                        if (data.taches.length === 0) {
-                            showNotification('Aucune tâche disponible pour ce projet', 'warning');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Erreur:', error);
-                        showNotification('Erreur lors du chargement des tâches', 'error');
-                    });
-            }
-        });
-
-        // Pré-sélection si paramètre GET
-        const urlParams = new URLSearchParams(window.location.search);
-        const tacheId = urlParams.get('tache');
-        if (tacheId) {
-            // Trouver le projet de cette tâche
-            allTaches.forEach(option => {
-                if (option.value === tacheId) {
-                    // Déclencher le chargement des tâches puis sélectionner
-                    setTimeout(() => {
-                        tacheSelect.value = tacheId;
-                    }, 500);
-                }
-            });
-        }
-    }
 
     // ==================== SAISIE RAPIDE DURÉE ====================
     /**
@@ -477,72 +417,22 @@
     /**
      * Export des données en Excel
      */
-    function exportToExcel() {
-    // Récupérer les paramètres de filtres
-    const params = new URLSearchParams(window.location.search);
+    function initExportFunctions() {
+        window.exportToExcel = function() {
+            // Récupérer les paramètres de filtres
+            const params = new URLSearchParams(window.location.search);
 
-    // Construire l'URL d'export
-    let exportUrl = '{% url "gestion_temps_activite:imputation_export_excel" %}';
+            // Construire l'URL d'export
+            let exportUrl = '/gestion-temps/imputations/export-excel/';
 
-    if (params.toString()) {
-        exportUrl += '?' + params.toString();
+            if (params.toString()) {
+                exportUrl += '?' + params.toString();
+            }
+
+            // Ouvrir l'URL dans un nouvel onglet
+            window.open(exportUrl, '_blank');
+        };
     }
-
-    // Ouvrir l'URL dans un nouvel onglet
-    window.open(exportUrl, '_blank');
-}
-
-// ==================== FILTRES ====================
-/**
- * Auto-submit des filtres (UNIQUEMENT sur les pages de liste)
- */
-
-function initFilters() {
-    // Identifier les formulaires de recherche spécifiques
-    const searchForms = document.querySelectorAll('form[role="search"], form.filter-form, form[action*="liste"], form[method="get"]:not(#imputationForm):not(.form-create):not(.form-update)');
-
-    // Si aucun formulaire de recherche n'est trouvé, on ne fait rien
-    if (searchForms.length === 0) return;
-
-    searchForms.forEach(form => {
-        // Ne cibler que les formulaires qui ont des champs de filtre typiques
-        const hasFilterFields = form.querySelector('select[name], input[type="date"][name], input[name="search"], input[name="q"]');
-
-        if (hasFilterFields) {
-            const filterSelects = form.querySelectorAll('select[name]:not([name="page"]), input[type="date"][name], select[name="valide"], select[name="facture"], select[name="statut"], select[name="type_client"]');
-
-            filterSelects.forEach(select => {
-                select.addEventListener('change', function() {
-                    // Désactiver l'auto-submit si le champ est dans un formulaire non-filtre
-                    if (this.closest('#imputationForm, .form-create, .form-update')) {
-                        return;
-                    }
-
-                    // Debounce pour éviter trop de soumissions
-                    clearTimeout(this.submitTimer);
-                    this.submitTimer = setTimeout(() => {
-                        // Si c'est un champ de pagination, ne pas soumettre
-                        if (this.name === 'page') return;
-
-                        form.submit();
-                    }, 300);
-                });
-            });
-
-            // Pour les champs de recherche textuelle, ajouter un délai plus long
-            const searchInputs = form.querySelectorAll('input[name="search"], input[name="q"]');
-            searchInputs.forEach(input => {
-                let searchTimer;
-                input.addEventListener('input', function() {
-                    clearTimeout(searchTimer);
-                    searchTimer = setTimeout(() => {
-                        form.submit();
-                    }, 800); // Délai plus long pour la recherche textuelle
-                });
-            });
-        }
-    });
-}
 
     // ==================== GRAPHIQUES ====================
     /**
@@ -607,14 +497,6 @@ function initFilters() {
                 }
             });
         }
-    }
-
-    // ==================== TIMER (OPTIONNEL) ====================
-    /**
-     * Timer pour suivre le temps en direct
-     */
-    function initTimer() {
-        // À implémenter si besoin
     }
 
     // ==================== TOOLTIPS ====================
@@ -717,8 +599,152 @@ function initFilters() {
 
 })();
 
+// ==================== FONCTIONS GLOBALES (en dehors de la closure) ====================
 
- // Empêcher la re-soumission du formulaire lors de l'actualisation
-        if (window.history.replaceState) {
-            window.history.replaceState(null, null, window.location.href);
+/**
+ * Charger les tâches d'un projet via AJAX
+ */
+function initProjetTacheSelector() {
+    const projetSelect = document.getElementById('projet-select');
+    const tacheSelect = document.getElementById('id_tache');
+
+    if (!projetSelect || !tacheSelect) {
+        console.log('Selects projet/tâche non trouvés');
+        return;
+    }
+
+    console.log('Initialisation du sélecteur projet → tâches');
+
+    projetSelect.addEventListener('change', function() {
+        const projetId = this.value;
+
+        console.log('Projet sélectionné:', projetId);
+
+        // Vider le select des tâches
+        tacheSelect.innerHTML = '<option value="">Chargement...</option>';
+        tacheSelect.disabled = true;
+
+        if (!projetId) {
+            tacheSelect.innerHTML = '<option value="">Sélectionnez d\'abord un projet</option>';
+            tacheSelect.disabled = true;
+            return;
         }
+
+        // Charger les tâches via AJAX
+        fetch(`/gestion-temps/api/taches-par-projet/${projetId}/`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erreur lors du chargement des tâches');
+                }
+                return response.json();
+            })
+            .then(taches => {
+                console.log('Tâches reçues:', taches.length);
+
+                // Vider le select
+                tacheSelect.innerHTML = '<option value="">Sélectionnez une tâche</option>';
+
+                // Ajouter les tâches
+                if (taches.length === 0) {
+                    tacheSelect.innerHTML = '<option value="">Aucune tâche disponible</option>';
+                } else {
+                    taches.forEach(tache => {
+                        const option = document.createElement('option');
+                        option.value = tache.id;
+                        option.textContent = `${tache.code_tache} - ${tache.titre}`;
+                        tacheSelect.appendChild(option);
+                    });
+                }
+
+                // Réactiver le select
+                tacheSelect.disabled = false;
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                tacheSelect.innerHTML = '<option value="">Erreur lors du chargement</option>';
+                tacheSelect.disabled = false;
+            });
+    });
+
+    // Si une tâche est déjà sélectionnée (mode édition), charger le projet correspondant
+    if (tacheSelect.value) {
+        const selectedTacheId = tacheSelect.value;
+
+        // Trouver le projet de cette tâche
+        fetch(`/gestion-temps/api/tache-info/${selectedTacheId}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.projet_id) {
+                    projetSelect.value = data.projet_id;
+                    // Déclencher le changement pour charger les tâches
+                    projetSelect.dispatchEvent(new Event('change'));
+                }
+            })
+            .catch(error => console.error('Erreur chargement info tâche:', error));
+    }
+}
+
+/**
+ * Auto-submit des filtres (UNIQUEMENT sur les pages de liste)
+ */
+function initFilters() {
+    // ✅ Vérifier si on est sur une page LISTE
+    const isListePage = document.querySelector('.table-responsive, table.table-hover, .pagination, [role="search"]');
+
+    // ✅ Vérifier qu'on n'est PAS sur un formulaire d'imputation
+    const isFormImputation = document.querySelector('#imputationForm, form[action*="create"], form[action*="update"]');
+
+    // Si on est sur un formulaire d'imputation, ne rien faire
+    if (isFormImputation && !isListePage) {
+        console.log('Formulaire d\'imputation détecté - initFilters désactivé');
+        return;
+    }
+
+    // Si on n'est pas sur une page de liste, ne rien faire
+    if (!isListePage) {
+        console.log('Page de liste non détectée - initFilters désactivé');
+        return;
+    }
+
+    // ✅ On est sur une page de liste, activer les filtres
+    console.log('Page de liste détectée - initFilters activé');
+
+    const searchInput = document.querySelector('input[name="search"], input[name="q"]');
+    const filterSelects = document.querySelectorAll('select[name="statut"], select[name="valide"], select[name="facture"], select[name="employe"], select[name="projet"], select[name="activite"]');
+
+    // Auto-submit après sélection (UNIQUEMENT sur la page liste)
+    filterSelects.forEach(function(select) {
+        select.addEventListener('change', function() {
+            // Double vérification qu'on est dans un formulaire GET
+            if (this.closest('form') && this.closest('form').method === 'get') {
+                console.log('Auto-submit du filtre:', this.name);
+                this.form.submit();
+            }
+        });
+    });
+
+    // Focus sur recherche avec Ctrl+F (UNIQUEMENT sur la page liste)
+    if (searchInput) {
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                e.preventDefault();
+                searchInput.focus();
+                searchInput.select();
+            }
+        });
+    }
+}
+
+// ==================== INITIALISATION GLOBALE ====================
+
+// Appeler les fonctions globales au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM chargé - Initialisation des sélecteurs et filtres');
+    initProjetTacheSelector();
+    initFilters();
+});
+
+// Empêcher la re-soumission du formulaire lors de l'actualisation
+if (window.history.replaceState) {
+    window.history.replaceState(null, null, window.location.href);
+}

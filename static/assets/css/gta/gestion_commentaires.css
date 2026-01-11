@@ -40,3 +40,28 @@
     border-radius: 4px;
     border: 1px solid #dee2e6;
 }
+
+.wysiwyg-editor:focus {
+    outline: none;
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.commentaire-editor-toolbar .btn.active {
+    background-color: #1c5d5f;
+    color: white;
+    border-color: #1c5d5f;
+}
+
+.wysiwyg-editor code {
+    background-color: #f8f9fa;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    color: #d63384;
+}
+
+.bg-modal{
+    background-color: #13464e !important;
+}

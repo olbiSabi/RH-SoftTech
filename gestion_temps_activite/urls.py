@@ -35,6 +35,7 @@ urlpatterns = [
     path('taches/<uuid:pk>/', views.tache_detail, name='tache_detail'),
     path('taches/<uuid:pk>/modifier/', views.tache_update, name='tache_update'),
     path('taches/<uuid:pk>/supprimer/', views.tache_delete, name='tache_delete'),
+    path('api/taches-par-projet/<uuid:projet_id>/', views.api_taches_par_projet, name='api_taches_par_projet'),
 
     # ==================== DOCUMENTS (ZDDO) ====================
     path('documents/upload/', views.document_upload, name='document_upload'),

@@ -167,7 +167,7 @@ class ZY00(models.Model):
         ]
 
     def __str__(self):
-        return f" {self.username} {self.prenomuser}" if self.username else f"{self.matricule} - {self.nom} {self.prenoms}"
+        return f" {self.username} {self.prenomuser}" if self.username else f"{self.nom} {self.prenoms}"
 
     def clean(self):
         """Validation personnalisée"""
