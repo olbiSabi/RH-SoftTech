@@ -277,13 +277,23 @@ class ZY00(models.Model):
     def est_manager_departement(self):
         """
         Vérifie si l'employé est manager d'un département (via ZYMA)
+        OU s'il a le rôle MANAGER
         """
         from departement.models import ZYMA
-        return ZYMA.objects.filter(
-            employe=self,
-            actif=True,
-            date_fin__isnull=True
-        ).exists()
+
+        # 1. Vérifier via la table ZYMA (managers de département)
+        if ZYMA.objects.filter(
+                employe=self,
+                actif=True,
+                date_fin__isnull=True
+        ).exists():
+            return True
+
+        # 2. Vérifier aussi le rôle MANAGER
+        if self.has_role('MANAGER'):
+            return True
+
+        return False
 
     def get_departements_geres(self):
         """
@@ -514,23 +524,6 @@ class ZY00(models.Model):
             import logging
             logger = logging.getLogger(__name__)
             logger.error(f"Erreur get_manager_responsable pour {self.matricule}: {e}")
-            return None
-
-    def get_departement_actuel(self):
-        """Retourne le département actuel de l'employé"""
-        try:
-            affectation = self.affectations.filter(
-                date_fin__isnull=True
-            ).select_related('poste__DEPARTEMENT').first()
-
-            if affectation and affectation.poste.DEPARTEMENT:
-                return affectation.poste.DEPARTEMENT
-            return None
-
-        except Exception as e:
-            import logging
-            logger = logging.getLogger(__name__)
-            logger.error(f"Erreur get_departement_actuel pour {self.matricule}: {e}")
             return None
 
     def is_manager(self):
@@ -767,20 +760,6 @@ class ZY00(models.Model):
 
         return ZY00.objects.filter(matricule__in=employes_ids).exclude(pk=self.pk)
 
-    def fait_partie_equipe_de(self, autre_employe):
-        """
-        Vérifie si cet employé fait partie de l'équipe d'un autre employé
-        (même département)
-        """
-        # Récupérer les départements des deux employés
-        dept1 = self.get_departement_actuel()
-        dept2 = autre_employe.get_departement_actuel()
-
-        if not dept1 or not dept2:
-            return False
-
-        return dept1 == dept2
-
     def get_departement_actuel(self):
         """Retourne le département actuel de l'employé"""
         affectation = self.affectations.filter(
@@ -790,6 +769,107 @@ class ZY00(models.Model):
         if affectation and affectation.poste.DEPARTEMENT:
             return affectation.poste.DEPARTEMENT
         return None
+
+
+    # ==================== MÉTHODES GESTION TEMPS & ACTIVITÉS ====================
+    def peut_gerer_clients(self):
+        """
+        Vérifie si l'employé peut gérer les clients
+        Rôles autorisés: DRH, GESTION_APP, DIRECTEUR
+        """
+        return (
+                self.has_role('DRH') or
+                self.has_role('GESTION_APP') or
+                self.has_role('DIRECTEUR')
+        )
+
+    def peut_gerer_activites(self):
+        """
+        Vérifie si l'employé peut gérer les activités
+        Rôles autorisés: MANAGER, DRH, GESTION_APP, DIRECTEUR
+        """
+        return (
+                self.has_role('MANAGER') or
+                self.has_role('DRH') or
+                self.has_role('GESTION_APP') or
+                self.has_role('DIRECTEUR')
+                #self.est_manager_departement()
+        )
+
+    def peut_gerer_projets(self):
+        """
+        Vérifie si l'employé peut gérer les projets
+        Rôles autorisés: MANAGER, DRH, GESTION_APP, DIRECTEUR
+        """
+        return (
+                self.has_role('MANAGER') or
+                self.has_role('DRH') or
+                self.has_role('GESTION_APP') or
+                self.has_role('DIRECTEUR')
+                #self.est_manager_departement()
+        )
+
+    def peut_gerer_taches(self):
+        """
+        Vérifie si l'employé peut créer/modifier/supprimer des tâches
+        Rôles autorisés: MANAGER, DRH, GESTION_APP, DIRECTEUR
+        """
+        return (
+                self.has_role('MANAGER') or
+                self.has_role('DRH') or
+                self.has_role('GESTION_APP') or
+                self.has_role('DIRECTEUR')
+                #self.est_manager_departement()
+        )
+
+    def peut_valider_imputations(self):
+        """
+        Vérifie si l'employé peut valider les imputations de temps
+        Rôles autorisés: MANAGER, DRH, GESTION_APP, DIRECTEUR
+        """
+        return (
+                self.has_role('MANAGER') or
+                self.has_role('DRH') or
+                self.has_role('GESTION_APP') or
+                self.has_role('DIRECTEUR')
+                #self.est_manager_departement()
+        )
+
+    def peut_voir_toutes_imputations(self):
+        """
+        Vérifie si l'employé peut voir toutes les imputations
+        Rôles autorisés: MANAGER, DRH, GESTION_APP, DIRECTEUR, COMPTABLE, ASSISTANT_RH
+        """
+        return (
+                self.has_role('MANAGER') or
+                self.has_role('DRH') or
+                self.has_role('GESTION_APP') or
+                self.has_role('DIRECTEUR') or
+                self.has_role('COMPTABLE') or
+                self.has_role('ASSISTANT_RH')
+                #self.est_manager_departement()
+        )
+
+    def peut_creer_imputation(self):
+        """
+        Vérifie si l'employé peut créer des imputations de temps
+        Tous les employés peuvent créer des imputations
+        """
+        return True
+
+    def peut_voir_taches(self):
+        """
+        Vérifie si l'employé peut voir les tâches
+        Tous les employés peuvent voir les tâches
+        """
+        return True
+
+    def peut_uploader_documents(self):
+        """
+        Vérifie si l'employé peut uploader des documents
+        Tous les employés peuvent uploader des documents
+        """
+        return True
 
 
 ######################

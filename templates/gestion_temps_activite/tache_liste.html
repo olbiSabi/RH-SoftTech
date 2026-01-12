@@ -17,11 +17,13 @@
                     <i class="fas fa-tasks"></i> Tâches
                 </h1>
             </div>
+            {% if user.employe.peut_gerer_taches %}
             <div class="col-md-6 text-right">
                 <a href="{% url 'gestion_temps_activite:tache_create' %}" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Nouvelle Tâche
                 </a>
             </div>
+            {% endif %}
         </div>
 
         <!-- Messages -->
@@ -132,9 +134,13 @@
                                     {% endif %}
                                 </td>
                                 <td>
+                                    {% if user.employe.peut_gerer_taches %}
                                     <a href="{% url 'gestion_temps_activite:projet_detail' pk=tache.projet.pk %}">
                                         {{ tache.projet.nom_projet }}
                                     </a>
+                                    {% else %}
+                                    {{ tache.projet.nom_projet }}
+                                    {% endif %}
                                 </td>
                                 <td>
                                     {% if tache.assignee %}
@@ -190,6 +196,7 @@
                                            class="btn btn-sm btn-info" title="Détails">
                                             <i class="fas fa-eye"></i>
                                         </a>
+                                        {% if user.employe.peut_gerer_taches %}
                                         <a href="{% url 'gestion_temps_activite:tache_update' pk=tache.pk %}"
                                            class="btn btn-sm btn-warning" title="Modifier">
                                             <i class="fas fa-edit"></i>
@@ -198,6 +205,7 @@
                                            class="btn btn-sm btn-danger" title="Supprimer">
                                             <i class="fas fa-trash"></i>
                                         </a>
+                                        {% endif %}
                                     </div>
                                 </td>
                             </tr>

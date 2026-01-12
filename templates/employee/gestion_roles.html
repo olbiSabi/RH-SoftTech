@@ -59,23 +59,18 @@
 
     <!-- Filtres -->
     <div class="filtres-section">
-        <form method="GET">
+        <form method="GET" id="filterForm">
             <div class="filtres-grid">
                 <div class="filtre-group">
                     <label><i class="fas fa-user"></i> Employé</label>
-                    <input type="text"
-                           name="employe"
-                           value="{{ filtre_employe }}"
-                           placeholder="Matricule, nom ou prénom...">
+                    <input type="text" name="employe" value="{{ filtre_employe }}" placeholder="Matricule, nom ou prénom...">
                 </div>
-
                 <div class="filtre-group">
                     <label><i class="fas fa-shield-alt"></i> Rôle</label>
                     <select name="role">
                         <option value="">Tous les rôles</option>
                         {% for role in roles %}
-                            <option value="{{ role.pk }}" {% if filtre_role == role.pk|stringformat:"s" %}selected{% endif %}>
-                                {{ role.LIBELLE }}
+                            <option value="{{ role.pk }}" {% if filtre_role == role.pk|stringformat:"s" %}selected{% endif %}> {{ role.LIBELLE }}
                             </option>
                         {% endfor %}
                     </select>
@@ -95,11 +90,11 @@
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-search"></i> Filtrer
                 </button>
-                <button type="button" class="btn btn-secondary" onclick="window.location.href='?'">
+                <a href="?" class="btn btn-secondary" style="text-decoration: none;">
                     <i class="fas fa-redo"></i> Réinitialiser
-                </button>
+                </a>
                 <button type="button" class="btn btn-primary" onclick="ouvrirModalAttribution()">
-                    <i class="fas fa-plus"></i> Attribuer un Rôle
+                 <i class="fas fa-plus"></i> Attribuer un Rôle
                 </button>
             </div>
         </form>

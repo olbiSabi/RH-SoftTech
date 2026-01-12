@@ -65,7 +65,9 @@ function showAlert(message, type = 'success', duration = 3000) {
     alertDiv.className = `custom-alert alert alert-${type} alert-dismissible fade show`;
     alertDiv.innerHTML = `
         ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
     `;
     alertDiv.style.cssText = `
         position: fixed;
@@ -78,6 +80,14 @@ function showAlert(message, type = 'success', duration = 3000) {
 
     document.body.appendChild(alertDiv);
 
+    // Ajouter le comportement de fermeture
+    const closeBtn = alertDiv.querySelector('.close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            alertDiv.remove();
+        });
+    }
+
     setTimeout(() => {
         if (alertDiv.parentNode) {
             alertDiv.remove();
@@ -86,15 +96,17 @@ function showAlert(message, type = 'success', duration = 3000) {
 }
 
 // ============================================
-// CLASSE MANAGER MANAGER
+// CLASSE MANAGER MANAGER (Bootstrap 4)
 // ============================================
 
 class ManagerManager {
     constructor() {
-        this.modal = new bootstrap.Modal(document.getElementById('managerModal'));
-        this.deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        // Utiliser jQuery pour les modales Bootstrap 4
+        this.modal = $('#managerModal');
+        this.deleteModal = $('#deleteModal');
         this.form = document.getElementById('managerForm');
         this.currentId = null;
+        this.currentDeleteId = null;
 
         this.init();
     }
@@ -136,6 +148,26 @@ class ManagerManager {
                 this.confirmDelete(id);
             });
         });
+
+        // Configurer le bouton de suppression
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.addEventListener('click', () => {
+                if (this.currentDeleteId) {
+                    this.delete(this.currentDeleteId);
+                }
+            });
+        }
+
+        // Configurer la fermeture des modales pour réinitialiser le formulaire
+        if (this.modal.length) {
+            this.modal.on('hidden.bs.modal', () => {
+                if (this.form) {
+                    this.form.reset();
+                    this.clearErrors();
+                }
+            });
+        }
     }
 
     openAddModal() {
@@ -148,7 +180,7 @@ class ManagerManager {
             this.clearErrors();
         }
 
-        this.modal.show();
+        this.modal.modal('show');
     }
 
     openAddModalForDepartement(departementId, departementLibelle) {
@@ -179,7 +211,7 @@ class ManagerManager {
             document.getElementById('date_debut').value = data.date_debut;
             document.getElementById('date_fin').value = data.date_fin;
 
-            this.modal.show();
+            this.modal.modal('show');
         } catch (error) {
             showAlert('Erreur lors du chargement des données: ' + error.message, 'danger');
         } finally {
@@ -222,7 +254,7 @@ class ManagerManager {
                     this.currentId ? '✅ Manager modifié avec succès' : '✅ Manager ajouté avec succès',
                     'success'
                 );
-                this.modal.hide();
+                this.modal.modal('hide');
 
                 setTimeout(() => {
                     window.location.reload();
@@ -249,11 +281,7 @@ class ManagerManager {
 
     confirmDelete(id) {
         this.currentDeleteId = id;
-        const confirmBtn = document.getElementById('confirmDeleteBtn');
-        if (confirmBtn) {
-            confirmBtn.onclick = () => this.delete(id);
-        }
-        this.deleteModal.show();
+        this.deleteModal.modal('show');
     }
 
     async delete(id) {
@@ -271,7 +299,7 @@ class ManagerManager {
 
             if (response.ok) {
                 showAlert('✅ Manager supprimé avec succès', 'success');
-                this.deleteModal.hide();
+                this.deleteModal.modal('hide');
                 setTimeout(() => window.location.reload(), 1500);
             } else {
                 showAlert('❌ Erreur lors de la suppression: ' + (data.error || 'Erreur inconnue'), 'danger');
@@ -310,18 +338,32 @@ class ManagerManager {
 }
 
 // ============================================
-// INITIALISATION
+// INITIALISATION (Bootstrap 4)
 // ============================================
 
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof bootstrap === 'undefined') {
+$(document).ready(function() {
+    // Vérifier que jQuery est disponible
+    if (typeof jQuery === 'undefined') {
+        console.error('jQuery n\'est pas chargé. Assurez-vous qu\'il est inclus avant ce fichier.');
         return;
     }
 
     const modal = document.getElementById('managerModal');
     if (!modal) {
+        console.log('Modal managerModal non trouvé');
         return;
     }
 
-    new ManagerManager();
+    // Initialiser le manager
+    try {
+        new ManagerManager();
+        console.log('ManagerManager initialisé avec succès');
+    } catch (error) {
+        console.error('Erreur lors de l\'initialisation de ManagerManager:', error);
+    }
+});
+
+// Gestionnaire d'erreurs global
+window.addEventListener('error', function(e) {
+    console.error('Erreur JavaScript:', e.error);
 });

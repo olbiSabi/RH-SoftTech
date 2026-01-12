@@ -39,46 +39,46 @@
 
 </div>
 
-<!-- Modal pour les messages (erreurs de permissions, succès, etc.) -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="modal fade" id="messageModal{{ forloop.counter }}" tabindex="-1" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false">
-                <div class="modal-dialog modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header {% if message.tags == 'error' %}bg-danger text-white{% elif message.tags == 'success' %}bg-success text-white{% elif message.tags == 'warning' %}bg-warning{% else %}bg-info text-white{% endif %}">
-                            <h5 class="modal-title">
-                                {% if message.tags == 'error' %}
-                                    <i class="fas fa-ban"></i> Accès Refusé
-                                {% elif message.tags == 'success' %}
-                                    <i class="fas fa-check-circle"></i> Succès
-                                {% elif message.tags == 'warning' %}
-                                    <i class="fas fa-exclamation-triangle"></i> Attention
-                                {% else %}
-                                    <i class="fas fa-info-circle"></i> Information
-                                {% endif %}
-                            </h5>
-                            <button type="button" class="btn-close {% if message.tags == 'error' or message.tags == 'success' or message.tags == 'info' %}btn-close-white{% endif %}" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <p class="mb-0">{{ message }}</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                        </div>
+<!-- Modal pour les messages -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="modal fade" id="messageModal{{ forloop.counter }}" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header {% if message.tags == 'error' %}bg-danger text-white{% elif message.tags == 'success' %}bg-success text-white{% elif message.tags == 'warning' %}bg-warning{% else %}bg-info text-white{% endif %}">
+                        <h5 class="modal-title">
+                            {% if message.tags == 'error' %}
+                                <i class="fas fa-ban"></i> Accès Refusé
+                            {% elif message.tags == 'success' %}
+                                <i class="fas fa-check-circle"></i> Succès
+                            {% elif message.tags == 'warning' %}
+                                <i class="fas fa-exclamation-triangle"></i> Attention
+                            {% else %}
+                                <i class="fas fa-info-circle"></i> Information
+                            {% endif %}
+                        </h5>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-0">{{ message }}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
                     </div>
                 </div>
             </div>
-        {% endfor %}
+        </div>
+    {% endfor %}
 
-        <script>
-            // Afficher automatiquement les modals au chargement
-            document.addEventListener('DOMContentLoaded', function() {
-                {% for message in messages %}
-                    var modal{{ forloop.counter }} = new bootstrap.Modal(document.getElementById('messageModal{{ forloop.counter }}'));
-                    modal{{ forloop.counter }}.show();
-                {% endfor %}
-            });
-        </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            {% for message in messages %}
+                $('#messageModal{{ forloop.counter }}').modal('show');
+            {% endfor %}
+        });
+    </script>
     {% endif %}
 
 <script src="{% static 'assets/js/app.js' %}"></script>

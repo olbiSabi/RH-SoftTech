@@ -333,9 +333,11 @@
                     <span id="modalTitle">Nouveau Type d'Absence</span>
                 </h5>
                 <button type="button"
-                        class="btn-close btn-close-white"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                        class="close text-white"
+                        data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
                 <form id="typeAbsenceForm">
@@ -397,7 +399,6 @@
                             </div>
 
                             <div class="row">
-                                <!-- Modal - NE PAS CHANGER -->
                                 <div class="col-md-8">
                                     <div class="form-group mb-3">
                                         <label for="categorie" class="form-label">
@@ -496,7 +497,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
                     <i class="fas fa-times"></i> Annuler
                 </button>
                 <button type="button" class="btn btn-success" onclick="saveTypeAbsence()">

@@ -336,10 +336,12 @@
                     <span id="modalTitle">Nouveau Jour Férié</span>
                 </h5>
                 <button type="button"
-                        class="btn-close btn-close-white"
-                        data-bs-dismiss="modal"
+                        class="close text-white"
+                        data-dismiss="modal"
                         aria-label="Close"
-                        onclick="resetForm()"></button>
+                        onclick="resetForm()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
                 <form id="jourFerieForm">
@@ -444,7 +446,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
                     <i class="fas fa-times"></i> Annuler
                 </button>
                 <button type="button" class="btn btn-success" onclick="saveJourFerie()">
@@ -463,7 +465,9 @@
                 <h5 class="modal-title" id="duplicateModalLabel">
                     <i class="fas fa-copy"></i> Dupliquer les Jours Fériés
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
                 <div class="alert alert-info">
@@ -506,7 +510,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
                     <i class="fas fa-times"></i> Annuler
                 </button>
                 <button type="button" class="btn btn-info" onclick="duplicateJoursFeries()">

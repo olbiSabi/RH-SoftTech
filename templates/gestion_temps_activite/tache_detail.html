@@ -27,12 +27,14 @@
                    class="btn btn-info">
                     <i class="fas fa-paperclip"></i> Document
                 </a>
+                {% if user.employe.peut_gerer_taches %}
                 <a href="{% url 'gestion_temps_activite:tache_update' pk=tache.pk %}" class="btn btn-warning">
                     <i class="fas fa-edit"></i> Modifier
                 </a>
                 <a href="{% url 'gestion_temps_activite:tache_delete' pk=tache.pk %}" class="btn btn-danger">
                     <i class="fas fa-trash"></i> Supprimer
                 </a>
+                {% endif %}
                 <a href="{% url 'gestion_temps_activite:projet_detail' pk=tache.projet.pk %}" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i> Retour au Projet
                 </a>

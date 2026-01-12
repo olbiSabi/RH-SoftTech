@@ -16,8 +16,8 @@ function openCreateModal() {
     document.getElementById('modalTitle').textContent = 'Nouveau Jour Férié';
     document.getElementById('jourFerieId').value = '';
 
-    const modal = new bootstrap.Modal(document.getElementById('jourFerieModal'));
-    modal.show();
+    // Utiliser jQuery pour ouvrir la modal (Bootstrap 4)
+    $('#jourFerieModal').modal('show');
 }
 
 /**
@@ -28,8 +28,8 @@ function openEditModal(id) {
     document.getElementById('modalTitle').textContent = 'Modifier le Jour Férié';
     loadJourFerieData(id);
 
-    const modal = new bootstrap.Modal(document.getElementById('jourFerieModal'));
-    modal.show();
+    // Utiliser jQuery pour ouvrir la modal (Bootstrap 4)
+    $('#jourFerieModal').modal('show');
 }
 
 /**
@@ -38,8 +38,8 @@ function openEditModal(id) {
 function openDuplicateModal() {
     document.getElementById('duplicateForm').reset();
 
-    const modal = new bootstrap.Modal(document.getElementById('duplicateModal'));
-    modal.show();
+    // Utiliser jQuery pour ouvrir la modal (Bootstrap 4)
+    $('#duplicateModal').modal('show');
 }
 
 // ============================================
@@ -113,9 +113,8 @@ function saveJourFerie() {
     .then(response => response.json())
     .then(result => {
         if (result.success) {
-            const modalElement = document.getElementById('jourFerieModal');
-            const modal = bootstrap.Modal.getInstance(modalElement);
-            modal.hide();
+            // Fermer la modal avec jQuery (Bootstrap 4)
+            $('#jourFerieModal').modal('hide');
 
             showSuccessMessage(result.message);
 
@@ -286,9 +285,8 @@ function executeDuplicate(anneeSource, anneeCible) {
     .then(response => response.json())
     .then(result => {
         if (result.success) {
-            const modalElement = document.getElementById('duplicateModal');
-            const modal = bootstrap.Modal.getInstance(modalElement);
-            modal.hide();
+            // Fermer la modal avec jQuery (Bootstrap 4)
+            $('#duplicateModal').modal('hide');
 
             showSuccessMessage(result.message);
             setTimeout(() => {
@@ -416,7 +414,9 @@ function showBootstrapAlert(message, type) {
     alertDiv.innerHTML = `
         <strong>${type === 'success' ? '<i class="fas fa-check-circle"></i> Succès' : '<i class="fas fa-exclamation-circle"></i> Erreur'}</strong><br>
         ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <button type="button" class="close" data-dismiss="alert">
+            <span aria-hidden="true">&times;</span>
+        </button>
     `;
 
     document.body.appendChild(alertDiv);
@@ -452,10 +452,11 @@ function getCookie(name) {
 // ÉVÉNEMENTS
 // ============================================
 
-document.addEventListener('DOMContentLoaded', function() {
+$(document).ready(function() {
     const modalElement = document.getElementById('jourFerieModal');
     if (modalElement) {
-        modalElement.addEventListener('hidden.bs.modal', function() {
+        // Utiliser jQuery pour l'événement Bootstrap 4
+        $(modalElement).on('hidden.bs.modal', function() {
             resetForm();
         });
     }

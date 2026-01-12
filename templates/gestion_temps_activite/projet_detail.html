@@ -18,18 +18,22 @@
                 </h1>
             </div>
             <div class="col-md-6 text-right">
+                {% if user.employe.peut_gerer_taches %}
                 <a href="{% url 'gestion_temps_activite:tache_create' %}?projet={{ projet.pk }}" class="btn btn-success">
                     <i class="fas fa-plus"></i> Nouvelle Tâche
                 </a>
+                {% endif %}
                 <a href="{% url 'gestion_temps_activite:document_upload' %}?type=PROJET&projet={{ projet.pk }}" class="btn btn-info">
                     <i class="fas fa-paperclip"></i> Document
                 </a>
+                {% if user.employe.peut_gerer_projets %}
                 <a href="{% url 'gestion_temps_activite:projet_update' pk=projet.pk %}" class="btn btn-warning">
                     <i class="fas fa-edit"></i> Modifier
                 </a>
                 <a href="{% url 'gestion_temps_activite:projet_delete' pk=projet.pk %}" class="btn btn-danger">
                     <i class="fas fa-trash"></i> Supprimer
                 </a>
+                {% endif %}
                 <a href="{% url 'gestion_temps_activite:projet_liste' %}" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i> Retour
                 </a>
@@ -326,9 +330,11 @@
                 <div class="card shadow">
                     <div class="card-header py-3 d-flex justify-content-between align-items-center">
                         <h6 class="m-0 font-weight-bold text-primary">Tâches ({{ total_taches }})</h6>
+                        {% if user.employe.peut_gerer_taches %}
                         <a href="{% url 'gestion_temps_activite:tache_create' %}?projet={{ projet.pk }}" class="btn btn-sm btn-success">
                             <i class="fas fa-plus"></i> Nouvelle Tâche
                         </a>
+                        {% endif %}
                     </div>
                     <div class="card-body">
                         {% if taches %}
@@ -427,9 +433,11 @@
                         <div class="text-center text-muted py-4">
                             <i class="fas fa-tasks fa-3x mb-3"></i>
                             <p>Aucune tâche pour ce projet</p>
+                            {% if user.employe.peut_gerer_taches %}
                             <a href="{% url 'gestion_temps_activite:tache_create' %}?projet={{ projet.pk }}" class="btn btn-success">
                                 <i class="fas fa-plus"></i> Créer une tâche
                             </a>
+                            {% endif %}
                         </div>
                         {% endif %}
                     </div>

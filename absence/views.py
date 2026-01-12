@@ -1143,7 +1143,6 @@ def api_type_absence_toggle(request, id):
         }, status=500)
 
 
-
 # ===== VUES PARAMÈTRES CALCUL CONGÉS =====
 @login_required
 @drh_or_admin_required
@@ -1585,9 +1584,8 @@ def api_acquisition_delete(request, id):
 def api_calculer_acquisitions(request):
     """
     Calcule automatiquement les acquisitions pour une année donnée
-    ✅ BLOCAGE : Impossible de recalculer les années passées après
-                 la fin de la période de référence + 2 jours
-
+    BLOCAGE : Impossible de recalculer les années passées après
+    la fin de la période de référence + 2 jours
     Exemple :
     - Période convention: 01/05/N → 30/04/N+1
     - Blocage à partir de: 02/05/N+1
@@ -2026,7 +2024,7 @@ def liste_absences(request):
 def validation_manager(request):
     """
     Liste des absences à valider pour le manager connecté
-    ✅ Basé sur ZYMA (managers de départements) et ZYAF (affectations)
+    Basé sur ZYMA (managers de départements) et ZYAF (affectations)
     """
     user_employe = request.user.employe
 
@@ -2128,7 +2126,7 @@ def validation_manager(request):
 def validation_rh(request):
     """
     Liste des absences à valider pour les RH
-    ✅ Basé sur le système de rôles ZYRO/ZYRE
+    Basé sur le système de rôles ZYRO/ZYRE
     """
     user_employe = request.user.employe
 
@@ -2189,7 +2187,7 @@ def creer_absence(request):
     user_employe = request.user.employe
 
     if request.method == 'POST':
-        # ✅ Détecter si c'est une requête AJAX
+        # Détecter si c'est une requête AJAX
         is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
         form = AbsenceForm(request.POST, request.FILES, user=user_employe)
@@ -2201,7 +2199,7 @@ def creer_absence(request):
             absence.statut = 'EN_ATTENTE_MANAGER'
             absence.save()
 
-            # ✅ Réponse JSON pour AJAX
+            # Réponse JSON pour AJAX
             if is_ajax:
                 return JsonResponse({
                     'success': True,
@@ -2253,7 +2251,7 @@ def modifier_absence(request, id):
         return redirect('absence:liste_absences')
 
     if request.method == 'POST':
-        # ✅ Détecter si c'est une requête AJAX
+        # Détecter si c'est une requête AJAX
         is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
         form = AbsenceForm(request.POST, request.FILES, instance=absence, user=user_employe)
@@ -2515,7 +2513,7 @@ def api_absence_detail(request, id):
         absence = get_object_or_404(Absence, id=id)
         user_employe = request.user.employe
 
-        # ✅ Vérifier les permissions (AJOUT DE ASSISTANT_RH)
+        # Vérifier les permissions (AJOUT DE ASSISTANT_RH)
         if not (absence.employe == user_employe or
                 user_employe.has_role('DRH') or
                 user_employe.has_role('RH_VALIDATION_ABS') or
@@ -2724,7 +2722,6 @@ def api_historique_validation(request, id):
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
-
 @require_http_methods(["GET"])
 @login_required
 def api_type_detail(request, id):
@@ -2751,7 +2748,6 @@ def api_type_detail(request, id):
         import traceback
         traceback.print_exc()
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
-
 
 
 @require_http_methods(["GET"])
@@ -2818,7 +2814,6 @@ def notification_detail(request, id):
 
     # Marquer comme lue
     notification.marquer_comme_lue()
-
     contexte = notification.contexte
 
     # ========================================
@@ -2849,7 +2844,7 @@ def marquer_toutes_lues(request):
         lue=False
     ).update(lue=True, date_lecture=timezone.now())
 
-    # ✅ Pas de message - redirection silencieuse
+    # Pas de message - redirection silencieuse
     referer = request.META.get('HTTP_REFERER', '/')
     return redirect(referer)
 

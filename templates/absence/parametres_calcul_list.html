@@ -179,7 +179,7 @@
     </div>
 </section>
 
-<!-- Modal Création/Edition -->
+<!-- Modal Création/Édition -->
 <div class="modal fade" id="parametreModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -188,9 +188,11 @@
                     <i class="fas fa-calculator"></i> Nouveau Paramètre
                 </h5>
                 <button type="button"
-                        class="btn-close btn-close-white"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                        class="close text-white"
+                        data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <form id="parametreForm">
                 {% csrf_token %}
@@ -358,7 +360,7 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
                         <i class="fas fa-times"></i> Annuler
                     </button>
                     <button type="submit" class="btn btn-primary" id="submitBtn">

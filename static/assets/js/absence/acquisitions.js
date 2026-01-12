@@ -38,14 +38,16 @@ function initEventHandlers() {
     // Réinitialiser à la fermeture des modals
     const detailModal = document.getElementById('detailModal');
     if (detailModal) {
-        detailModal.addEventListener('hidden.bs.modal', function () {
+        // Utiliser jQuery pour l'événement Bootstrap 4
+        $(detailModal).on('hidden.bs.modal', function() {
             $('#detailContent').html('<div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i></div>');
         });
     }
 
     const editModal = document.getElementById('editModal');
     if (editModal) {
-        editModal.addEventListener('hidden.bs.modal', function () {
+        // Utiliser jQuery pour l'événement Bootstrap 4
+        $(editModal).on('hidden.bs.modal', function() {
             resetEditForm();
         });
     }
@@ -146,9 +148,8 @@ function openDetailModal(acquisitionId) {
     // Charger les données
     loadAcquisitionDetails(acquisitionId);
 
-    // Afficher le modal
-    const modal = new bootstrap.Modal(document.getElementById('detailModal'));
-    modal.show();
+    // Afficher le modal avec jQuery (Bootstrap 4)
+    $('#detailModal').modal('show');
 }
 
 /**
@@ -287,9 +288,8 @@ function openEditModal(acquisitionId) {
                 currentAcquisitionData = response.data;
                 populateEditForm(response.data);
 
-                // Afficher le modal
-                const modal = new bootstrap.Modal(document.getElementById('editModal'));
-                modal.show();
+                // Afficher le modal avec jQuery (Bootstrap 4)
+                $('#editModal').modal('show');
             } else {
                 showErrorMessage(response.error);
             }
@@ -350,12 +350,8 @@ function saveEdit() {
         contentType: false,
         success: function(response) {
             if (response.success) {
-                // Fermer le modal
-                const modalElement = document.getElementById('editModal');
-                const modal = bootstrap.Modal.getInstance(modalElement);
-                if (modal) {
-                    modal.hide();
-                }
+                // Fermer le modal avec jQuery (Bootstrap 4)
+                $('#editModal').modal('hide');
 
                 // Recharger la page
                 window.location.reload();

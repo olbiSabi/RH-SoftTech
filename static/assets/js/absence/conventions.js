@@ -24,7 +24,8 @@ function initEventHandlers() {
 
     const modalElement = document.getElementById('conventionModal');
     if (modalElement) {
-        modalElement.addEventListener('hidden.bs.modal', function () {
+        // Utiliser jQuery pour l'événement Bootstrap 4
+        $(modalElement).on('hidden.bs.modal', function () {
             if (!isEditMode) {
                 resetForm();
             }
@@ -43,8 +44,8 @@ function openCreateModal() {
     $('#conventionModalTitle').html('<i class="fas fa-plus"></i> Nouvelle Convention');
     $('#submitBtn').html('<i class="fas fa-save"></i> Créer');
 
-    const modal = new bootstrap.Modal(document.getElementById('conventionModal'));
-    modal.show();
+    // Utiliser jQuery pour ouvrir la modal (Bootstrap 4)
+    $('#conventionModal').modal('show');
 }
 
 function openEditModal(conventionId) {
@@ -58,8 +59,8 @@ function openEditModal(conventionId) {
 
     loadConventionData(conventionId);
 
-    const modal = new bootstrap.Modal(document.getElementById('conventionModal'));
-    modal.show();
+    // Utiliser jQuery pour ouvrir la modal (Bootstrap 4)
+    $('#conventionModal').modal('show');
 }
 
 // ===== CHARGEMENT DES DONNÉES =====
@@ -174,11 +175,8 @@ function saveConvention() {
         processData: false,
         contentType: false,
         success: function(response) {
-            const modalElement = document.getElementById('conventionModal');
-            const modal = bootstrap.Modal.getInstance(modalElement);
-            if (modal) {
-                modal.hide();
-            }
+            // Fermer la modal avec jQuery (Bootstrap 4)
+            $('#conventionModal').modal('hide');
             window.location.reload();
         },
         error: function(xhr) {

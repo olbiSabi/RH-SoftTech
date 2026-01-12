@@ -37,13 +37,12 @@ function openCreateModal() {
     document.getElementById('actif').checked = true;
 
     // Retourner au premier onglet
-    const firstTab = new bootstrap.Tab(document.getElementById('general-tab'));
-    firstTab.show();
+    $('#general-tab').tab('show');
 
     clearFormErrors();
 
-    const modal = new bootstrap.Modal(document.getElementById('entrepriseModal'));
-    modal.show();
+    // Ouvrir la modal avec jQuery (Bootstrap 4)
+    $('#entrepriseModal').modal('show');
 }
 
 /**
@@ -54,8 +53,8 @@ function openEditModal(uuid) {
     clearFormErrors();
     loadEntrepriseData(uuid);
 
-    const modal = new bootstrap.Modal(document.getElementById('entrepriseModal'));
-    modal.show();
+    // Ouvrir la modal avec jQuery (Bootstrap 4)
+    $('#entrepriseModal').modal('show');
 }
 
 // ============================================
@@ -178,9 +177,9 @@ function saveEntreprise() {
     .then(result => {
         if (result.success) {
             const modalElement = document.getElementById('entrepriseModal');
-            document.activeElement.blur();
-            const modal = bootstrap.Modal.getInstance(modalElement);
-            modal.hide();
+
+            // Fermer la modal avec jQuery (Bootstrap 4)
+            $('#entrepriseModal').modal('hide');
 
             showSuccessMessage(result.message);
 
@@ -362,7 +361,9 @@ function showBootstrapAlert(message, type) {
     alertDiv.innerHTML = `
         <strong>${type === 'success' ? '<i class="fas fa-check-circle"></i> Succès' : '<i class="fas fa-exclamation-circle"></i> Erreur'}</strong><br>
         ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <button type="button" class="close" data-dismiss="alert">
+            <span aria-hidden="true">&times;</span>
+        </button>
     `;
 
     document.body.appendChild(alertDiv);
@@ -398,10 +399,11 @@ function getCookie(name) {
 // ÉVÉNEMENTS
 // ============================================
 
-document.addEventListener('DOMContentLoaded', function() {
+$(document).ready(function() {
     const modalElement = document.getElementById('entrepriseModal');
     if (modalElement) {
-        modalElement.addEventListener('hidden.bs.modal', function() {
+        // Utiliser l'événement jQuery pour Bootstrap 4
+        $(modalElement).on('hidden.bs.modal', function() {
             clearFormErrors();
             document.getElementById('entrepriseUuid').value = '';
         });

@@ -23,8 +23,9 @@ roles_a_creer = [
     {
         'CODE': 'GESTION_APP',
         'LIBELLE': 'Gestionnaire Application',
-        'DESCRIPTION': 'Accès complet au paramétrage de l\'application (absences, entreprise, types d\'absence, jours fériés, conventions)',
-        'PERMISSIONS': {
+        'DESCRIPTION': 'Accès complet au paramétrage de l\'application (absences, entreprise, types d\'absence, jours fériés, conventions, temps et activités)',
+        'PERMISSIONS_CUSTOM': {
+            # Absences
             'can_manage_absence_settings': True,
             'can_manage_entreprise_settings': True,
             'can_manage_types_absence': True,
@@ -37,13 +38,21 @@ roles_a_creer = [
             'can_validate_manager': True,
             'can_view_all_absences': True,
             'can_manage_employees': True,
+            # Gestion Temps et Activités - ACCÈS COMPLET
+            'can_view_all_imputations': True,
+            'can_validate_imputations': True,
+            'can_manage_projets': True,
+            'can_manage_clients': True,
+            'can_manage_activites': True,
+            'can_manage_taches': True,
+            'can_view_all_projets': True,
         }
     },
     {
         'CODE': 'RH_VALIDATION_ABS',
         'LIBELLE': 'RH - Validation absences',
         'DESCRIPTION': 'Validation finale des absences au niveau RH',
-        'PERMISSIONS': {
+        'PERMISSIONS_CUSTOM': {
             'can_validate_rh': True,
             'can_view_all_absences': True,
             'absence.valider_absence_rh': True,
@@ -53,7 +62,7 @@ roles_a_creer = [
         'CODE': 'MANAGER_ABS',
         'LIBELLE': 'Manager - Validation absences',
         'DESCRIPTION': 'Validation des absences de ses subordonnés (niveau 1)',
-        'PERMISSIONS': {
+        'PERMISSIONS_CUSTOM': {
             'can_validate_manager': True,
             'can_view_team_absences': True,
         }
@@ -61,17 +70,21 @@ roles_a_creer = [
     {
         'CODE': 'EMPLOYE_STD',
         'LIBELLE': 'Employé standard',
-        'DESCRIPTION': 'Peut déclarer et voir ses propres absences',
-        'PERMISSIONS': {
+        'DESCRIPTION': 'Peut déclarer et voir ses propres absences et imputations',
+        'PERMISSIONS_CUSTOM': {
             'can_create_absence': True,
             'can_view_own_absences': True,
+            # Gestion Temps et Activités - Employé standard
+            'can_create_imputation': True,
+            'can_view_own_imputations': True,
         }
     },
     {
         'CODE': 'DRH',
         'LIBELLE': 'Direction des Ressources Humaines',
-        'DESCRIPTION': 'Accès complet à la gestion RH et validation finale des demandes d\'absence',
-        'PERMISSIONS': {
+        'DESCRIPTION': 'Accès complet à la gestion RH, validation finale des demandes d\'absence et accès total à la gestion des temps',
+        'PERMISSIONS_CUSTOM': {
+            # Absences
             'can_validate_rh': True,
             'can_validate_manager': True,
             'can_manage_employees': True,
@@ -79,33 +92,51 @@ roles_a_creer = [
             'can_manage_roles': True,
             'can_view_payroll': True,
             'absence.valider_absence_rh': True,
+            # Gestion Temps et Activités - ACCÈS COMPLET
+            'can_view_all_imputations': True,
+            'can_validate_imputations': True,
+            'can_manage_projets': True,
+            'can_manage_clients': True,
+            'can_manage_activites': True,
+            'can_manage_taches': True,
+            'can_view_all_projets': True,
         }
     },
     {
         'CODE': 'MANAGER',
         'LIBELLE': 'Manager de département',
-        'DESCRIPTION': 'Validation des demandes d\'absence de son équipe',
-        'PERMISSIONS': {
+        'DESCRIPTION': 'Validation des demandes d\'absence de son équipe et validation des imputations de temps',
+        'PERMISSIONS_CUSTOM': {
+            # Absences
             'can_validate_manager': True,
             'can_view_team_absences': True,
-            'can_manage_team': True
+            'can_manage_team': True,
+            # Gestion Temps et Activités - Manager
+            'can_validate_imputations': True,
+            'can_view_team_imputations': True,
+            'can_manage_projets': True,
+            'can_view_all_projets': True,
         }
     },
     {
         'CODE': 'COMPTABLE',
         'LIBELLE': 'Comptable',
-        'DESCRIPTION': 'Accès à la comptabilité et à la paie',
-        'PERMISSIONS': {
+        'DESCRIPTION': 'Accès à la comptabilité, à la paie et aux imputations facturables',
+        'PERMISSIONS_CUSTOM': {
             'can_view_payroll': True,
             'can_manage_contracts': True,
-            'can_view_reports': True
+            'can_view_reports': True,
+            # Gestion Temps et Activités - Comptable
+            'can_view_all_imputations': True,
+            'can_view_facturables': True,
         }
     },
     {
         'CODE': 'DIRECTEUR',
-        'LIBELLE': 'Directeur',
+        'LIBELLE': 'Directeur / Président',
         'DESCRIPTION': 'Accès complet à toutes les fonctionnalités',
-        'PERMISSIONS': {
+        'PERMISSIONS_CUSTOM': {
+            # Absences
             'can_validate_rh': True,
             'can_validate_manager': True,
             'can_manage_employees': True,
@@ -113,16 +144,26 @@ roles_a_creer = [
             'can_manage_roles': True,
             'can_view_payroll': True,
             'can_view_dashboard': True,
-            'can_manage_company': True
+            'can_manage_company': True,
+            # Gestion Temps et Activités - ACCÈS COMPLET
+            'can_view_all_imputations': True,
+            'can_validate_imputations': True,
+            'can_manage_projets': True,
+            'can_manage_clients': True,
+            'can_manage_activites': True,
+            'can_manage_taches': True,
+            'can_view_all_projets': True,
         }
     },
     {
         'CODE': 'ASSISTANT_RH',
         'LIBELLE': 'Assistant RH',
-        'DESCRIPTION': 'Accès en lecture à la gestion RH',
-        'PERMISSIONS': {
+        'DESCRIPTION': 'Accès en lecture à la gestion RH et aux imputations',
+        'PERMISSIONS_CUSTOM': {
             'can_view_all_absences': True,
-            'can_view_employees': True
+            'can_view_employees': True,
+            # Gestion Temps et Activités - Lecture seule
+            'can_view_all_imputations': True,
         }
     }
 ]
@@ -136,7 +177,7 @@ for role_data in roles_a_creer:
         defaults={
             'LIBELLE': role_data['LIBELLE'],
             'DESCRIPTION': role_data['DESCRIPTION'],
-            'PERMISSIONS': role_data['PERMISSIONS'],
+            'PERMISSIONS_CUSTOM': role_data['PERMISSIONS_CUSTOM'],
             'actif': True
         }
     )
@@ -145,7 +186,7 @@ for role_data in roles_a_creer:
         roles_crees += 1
     else:
         # Mettre à jour les permissions si le rôle existe déjà
-        role.PERMISSIONS = role_data['PERMISSIONS']
+        role.PERMISSIONS_CUSTOM = role_data['PERMISSIONS_CUSTOM']
         role.DESCRIPTION = role_data['DESCRIPTION']
         role.save()
         print(f"  🔄 Rôle mis à jour: {role.CODE}")
@@ -168,15 +209,19 @@ print("2. RH_VALIDATION_ABS - RH Validation absences")
 print("3. MANAGER_ABS - Manager Validation absences")
 print("4. EMPLOYE_STD - Employé standard")
 print("5. DRH - Direction des Ressources Humaines")
+print("6. MANAGER - Manager de département")
+print("7. DIRECTEUR - Directeur/Président")
 
-choix_role = input("\nQuel rôle voulez-vous attribuer ? (1-5) : ")
+choix_role = input("\nQuel rôle voulez-vous attribuer ? (1-7) : ")
 
 role_map = {
     '1': 'GESTION_APP',
     '2': 'RH_VALIDATION_ABS',
     '3': 'MANAGER_ABS',
     '4': 'EMPLOYE_STD',
-    '5': 'DRH'
+    '5': 'DRH',
+    '6': 'MANAGER',
+    '7': 'DIRECTEUR'
 }
 
 role_code = role_map.get(choix_role)
@@ -201,7 +246,7 @@ else:
         try:
             if hasattr(u, 'employe') and u.employe:
                 roles_actuels = []
-                for code in ['GESTION_APP', 'DRH', 'RH_VALIDATION_ABS', 'MANAGER_ABS', 'EMPLOYE_STD']:
+                for code in ['GESTION_APP', 'DRH', 'RH_VALIDATION_ABS', 'MANAGER_ABS', 'EMPLOYE_STD', 'MANAGER', 'DIRECTEUR']:
                     if u.employe.has_role(code):
                         roles_actuels.append(code)
                 if roles_actuels:
@@ -259,7 +304,7 @@ else:
 
                 # Afficher les permissions
                 print("\n📋 Permissions accordées:")
-                for perm, value in role.PERMISSIONS.items():
+                for perm, value in role.PERMISSIONS_CUSTOM.items():
                     if value:
                         print(f"  ✓ {perm}")
 
@@ -270,7 +315,6 @@ else:
     except Exception as e:
         print(f"❌ Erreur: {e}")
         import traceback
-
         traceback.print_exc()
 
 # ============================================================================
@@ -303,121 +347,46 @@ else:
     print("  Aucune attribution active")
 
 print("\n" + "=" * 80)
-print("PROCHAINES ÉTAPES")
+print("📚 PERMISSIONS GESTION TEMPS ET ACTIVITÉS")
 print("=" * 80)
 
 print("""
-1. 🔍 Vérifier l'admin Django:
-   → http://127.0.0.1:8000/admin/employee/zyro/
-   → http://127.0.0.1:8000/admin/employee/zyre/
+🎯 ACCÈS PAR RÔLE:
 
-2. 🧪 Tester les accès selon le rôle attribué:
+1. 👔 MANAGER (Manager de département)
+   ✓ Validation des imputations de temps de son équipe
+   ✓ Gestion des projets
+   ✓ Consultation de tous les projets
+   → Accès: /gestion-temps/imputations/validation/
+   → Accès: /gestion-temps/projets/
 
-   GESTION_APP:
-   → Se déconnecter/reconnecter
-   → Accéder aux paramètres (types d'absence, jours fériés, etc.)
-   → ✅ Tous les menus de paramétrage doivent être visibles
+2. 🛡️ DRH (Direction des Ressources Humaines)
+   ✓ ACCÈS COMPLET à toutes les fonctionnalités
+   ✓ Validation des imputations
+   ✓ Gestion projets, clients, activités, tâches
+   → Accès: Tous les menus
 
-   RH_VALIDATION_ABS:
-   → Se déconnecter/reconnecter
-   → Aller sur /absence/validation-rh/
-   → ✅ La page de validation RH doit s'afficher
+3. 🔧 GESTION_APP (Gestionnaire Application)
+   ✓ ACCÈS COMPLET à toutes les fonctionnalités
+   → Accès: Tous les menus
 
-   MANAGER_ABS:
-   → Se déconnecter/reconnecter
-   → Aller sur /absence/validation-manager/
-   → ✅ La page de validation manager doit s'afficher
+4. 🏢 DIRECTEUR (Président / Directeur)
+   ✓ ACCÈS COMPLET à toutes les fonctionnalités
+   → Accès: Tous les menus
 
-   EMPLOYE_STD:
-   → Se déconnecter/reconnecter
-   → Aller sur /absence/
-   → ✅ Créer une demande d'absence
+5. 👤 EMPLOYE_STD (Employé Standard)
+   ✓ Création de ses imputations de temps
+   ✓ Consultation de ses propres imputations
+   → Accès: /gestion-temps/imputations/mes-temps/
 
-3. 🔔 Vérifier les notifications:
-   → Le badge correspondant au rôle doit apparaître
-   → Les notifications doivent rediriger correctement selon le contexte
+6. 💰 COMPTABLE
+   ✓ Consultation de toutes les imputations (facturation)
+   ✓ Consultation des imputations facturables
+   → Accès: /gestion-temps/imputations/ (lecture)
 
-4. ➕ Créer d'autres attributions si nécessaire:
-   → Dans l'admin Django
-   → Ou via le shell Python: 
-
-     from employee.models import ZY00, ZYRO, ZYRE
-     from datetime import date
-
-     employe = ZY00.objects.get(matricule='MT000001')
-     role = ZYRO.objects.get(CODE='GESTION_APP')
-
-     ZYRE.objects.create(
-         employe=employe,
-         role=role,
-         date_debut=date.today(),
-         actif=True
-     )
-
-5. ⚙️ Personnaliser les permissions:
-   → Modifier ZYRO.PERMISSIONS dans l'admin
-   → Ajouter vos propres permissions personnalisées
-
-6. 🔗 Tester le cumul de rôles:
-   → Un employé peut avoir plusieurs rôles simultanément
-   → Exemple: EMPLOYE_STD + MANAGER_ABS + RH_VALIDATION_ABS
-   → Le système gérera automatiquement les redirections
-   → Chaque rôle générera des notifications avec son propre contexte
-""")
-
-print("\n" + "=" * 80)
-print("📚 RÔLES SPÉCIFIQUES AU MODULE ABSENCE")
-print("=" * 80)
-
-print("""
-Le système de gestion des absences utilise 4 rôles principaux:
-
-1. 🔧 GESTION_APP (Gestionnaire Application)
-   ✓ Paramétrage complet de l'application
-   ✓ Configuration des types d'absence
-   ✓ Gestion des jours fériés
-   ✓ Configuration des conventions de congés
-   ✓ Paramètres de calcul
-   ✓ Paramètres de l'entreprise
-   → Accès: Menus Paramètres (types, jours fériés, conventions, etc.)
-
-2. 🛡️ RH_VALIDATION_ABS (RH Validation)
-   ✓ Validation finale des absences (niveau 2)
-   ✓ Consultation de toutes les absences de l'entreprise
-   ✓ Export des données d'absence
-   ✓ Consultation des acquisitions de congés
-   → Accès: /absence/validation-rh/
-
-3. 👔 MANAGER_ABS (Manager Validation)
-   ✓ Validation des absences de l'équipe (niveau 1)
-   ✓ Consultation des absences du département
-   ✓ Gestion de son équipe
-   → Accès: /absence/validation-manager/
-
-4. 👤 EMPLOYE_STD (Employé Standard)
-   ✓ Création de demandes d'absence
-   ✓ Consultation de ses propres absences
-   ✓ Modification de ses absences (brouillon)
-   ✓ Annulation de ses demandes
-   → Accès: /absence/
-
-📋 Workflow typique:
-
-  Employé (EMPLOYE_STD)
-    ↓ Crée demande
-  Manager (MANAGER_ABS)
-    ↓ Valide niveau 1
-  RH (RH_VALIDATION_ABS)
-    ↓ Valide niveau 2
-  ✅ Confirmé
-
-🔔 Système de notifications:
-  • Chaque action génère des notifications contextuelles
-  • Un employé avec plusieurs rôles reçoit plusieurs notifications
-  • Chaque notification redirige vers la page appropriée
-
-⚡ Pour créer tous ces rôles avec les permissions Django:
-  → python manage.py create_absence_roles
+7. 📋 ASSISTANT_RH
+   ✓ Consultation de toutes les imputations (lecture seule)
+   → Accès: /gestion-temps/imputations/ (lecture)
 """)
 
 print("=" * 80)

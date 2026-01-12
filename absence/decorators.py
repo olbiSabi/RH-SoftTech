@@ -332,3 +332,40 @@ def role_required(*required_roles):
         return wrapper
 
     return decorator
+
+
+def manager_or_admin_required(view_func):
+    """
+    Décorateur pour autoriser :
+    - MANAGER (validation équipe)
+    - DRH (accès complet RH)
+    - GESTION_APP (accès complet paramétrage)
+    - DIRECTEUR (accès complet direction)
+
+    Usage : Gestion projets, validation imputations, gestion tâches
+    """
+    return role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')(view_func)
+
+
+def admin_only_required(view_func):
+    """
+    Décorateur pour autoriser uniquement :
+    - DRH (accès complet RH)
+    - GESTION_APP (accès complet paramétrage)
+    - DIRECTEUR (accès complet direction)
+
+    Usage : Gestion clients, activités, paramètres sensibles
+    """
+    return role_required('DRH', 'GESTION_APP', 'DIRECTEUR')(view_func)
+
+
+def can_view_all_data(view_func):
+    """
+    Décorateur pour autoriser la consultation (lecture seule) :
+    - DRH, GESTION_APP, DIRECTEUR (accès complet)
+    - COMPTABLE (pour facturation)
+    - ASSISTANT_RH (pour consultation RH)
+
+    Usage : Consultation de toutes les imputations, rapports
+    """
+    return role_required('DRH', 'GESTION_APP', 'DIRECTEUR', 'COMPTABLE', 'ASSISTANT_RH')(view_func)

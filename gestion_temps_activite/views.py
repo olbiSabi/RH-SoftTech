@@ -10,18 +10,18 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from datetime import datetime, timedelta
 from employee.models import ZY00
-
 from .models import ZDCL, ZDAC, ZDPJ, ZDTA, ZDDO, ZDIT, ZDCM
 from .forms import (
     ZDCLForm, ZDACForm, ZDPJForm, ZDTAForm, ZDDOForm,
     ZDITForm, ZDITValidationForm, TimerForm, RechercheImputationForm, ZDCMForm
 )
-from absence.decorators import drh_or_admin_required, gestion_app_required
+from absence.decorators import drh_or_admin_required, gestion_app_required, manager_or_rh_required, manager_required, \
+    role_required
 import pandas as pd
 from io import BytesIO
 
 # ==================== VUES CLIENTS (ZDCL) ====================
-
+@role_required('DRH', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def client_liste(request):
     """Liste des clients avec recherche et filtrage"""
@@ -69,7 +69,7 @@ def client_liste(request):
 
     return render(request, 'gestion_temps_activite/client_liste.html', context)
 
-
+@role_required('DRH', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def client_detail(request, pk):
     """Détails d'un client"""
@@ -96,7 +96,7 @@ def client_detail(request, pk):
 
     return render(request, 'gestion_temps_activite/client_detail.html', context)
 
-
+@role_required('DRH', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def client_create(request):
     """Créer un nouveau client"""
@@ -122,7 +122,7 @@ def client_create(request):
 
     return render(request, 'gestion_temps_activite/client_form.html', context)
 
-
+@role_required('DRH', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def client_update(request, pk):
     """Modifier un client"""
@@ -148,7 +148,7 @@ def client_update(request, pk):
 
     return render(request, 'gestion_temps_activite/client_form.html', context)
 
-
+@role_required('DRH', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def client_delete(request, pk):
     """Supprimer un client"""
@@ -173,7 +173,7 @@ def client_delete(request, pk):
 
 
 # ==================== VUES ACTIVITÉS (ZDAC) ====================
-
+@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def activite_liste(request):
     """Liste des types d'activités"""
@@ -210,7 +210,7 @@ def activite_liste(request):
 
     return render(request, 'gestion_temps_activite/activite_liste.html', context)
 
-
+@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def activite_create(request):
     """Créer un nouveau type d'activité"""
@@ -234,7 +234,7 @@ def activite_create(request):
 
     return render(request, 'gestion_temps_activite/activite_form.html', context)
 
-
+@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def activite_update(request, pk):
     """Modifier un type d'activité"""
@@ -260,7 +260,7 @@ def activite_update(request, pk):
 
     return render(request, 'gestion_temps_activite/activite_form.html', context)
 
-
+@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def activite_delete(request, pk):
     """Supprimer un type d'activité"""
@@ -285,7 +285,6 @@ def activite_delete(request, pk):
 
 
 # ==================== VUES PROJETS (ZDPJ) ====================
-
 @login_required
 def projet_liste(request):
     """Liste des projets"""
@@ -391,7 +390,7 @@ def projet_detail(request, pk):
 
     return render(request, 'gestion_temps_activite/projet_detail.html', context)
 
-
+@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def projet_create(request):
     """Créer un nouveau projet"""
@@ -417,7 +416,7 @@ def projet_create(request):
 
     return render(request, 'gestion_temps_activite/projet_form.html', context)
 
-
+@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def projet_update(request, pk):
     """Modifier un projet"""
@@ -443,7 +442,7 @@ def projet_update(request, pk):
 
     return render(request, 'gestion_temps_activite/projet_form.html', context)
 
-
+@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def projet_delete(request, pk):
     """Supprimer un projet"""
@@ -647,7 +646,7 @@ def tache_detail(request, pk):
 
     return render(request, 'gestion_temps_activite/tache_detail.html', context)
 
-
+@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def tache_create(request):
     """Créer une nouvelle tâche"""
@@ -677,7 +676,7 @@ def tache_create(request):
 
     return render(request, 'gestion_temps_activite/tache_form.html', context)
 
-
+@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def tache_update(request, pk):
     """Modifier une tâche"""
@@ -703,7 +702,7 @@ def tache_update(request, pk):
 
     return render(request, 'gestion_temps_activite/tache_form.html', context)
 
-
+@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def tache_delete(request, pk):
     """Supprimer une tâche"""
@@ -800,7 +799,7 @@ def document_delete(request, pk):
 
 
 # ==================== VUES IMPUTATIONS TEMPS (ZDIT) ====================
-
+@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def imputation_liste(request):
     """Liste des imputations avec recherche et filtrage"""
@@ -1028,7 +1027,7 @@ def imputation_delete(request, pk):
     return render(request, 'gestion_temps_activite/imputation_confirm_delete.html', context)
 
 
-@drh_or_admin_required
+@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def imputation_validation(request):
     """Validation des imputations (pour managers et RH)"""
@@ -1055,14 +1054,9 @@ def imputation_validation(request):
 
     return render(request, 'gestion_temps_activite/imputation_validation.html', context)
 
-
+@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def imputation_valider(request, pk):
-    """Valider une imputation"""
-    if not request.user.is_staff:
-        messages.error(request, 'Accès non autorisé.')
-        return redirect('gestion_temps_activite:dashboard')
-
     imputation = get_object_or_404(ZDIT, pk=pk)
 
     if request.method == 'POST':
@@ -1112,7 +1106,7 @@ def imputation_rejeter(request, pk):
 
     return render(request, 'gestion_temps_activite/imputation_rejeter.html', context)
 
-
+@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def imputation_export_excel(request):
     """Export des imputations en format Excel avec pandas"""
@@ -1195,7 +1189,7 @@ def imputation_export_excel(request):
 
 
 # ==================== VUE DASHBOARD ====================
-
+@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def dashboard(request):
     """Tableau de bord principal"""

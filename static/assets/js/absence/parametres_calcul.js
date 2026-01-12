@@ -33,7 +33,8 @@ function initEventHandlers() {
     // Réinitialiser le formulaire à la fermeture du modal
     const modalElement = document.getElementById('parametreModal');
     if (modalElement) {
-        modalElement.addEventListener('hidden.bs.modal', function () {
+        // Utiliser jQuery pour l'événement Bootstrap 4
+        $(modalElement).on('hidden.bs.modal', function() {
             if (!isEditMode) {
                 resetForm();
             }
@@ -72,9 +73,8 @@ function openCreateModal() {
     $('#parametreModalTitle').html('<i class="fas fa-plus"></i> Nouveau Paramètre');
     $('#submitBtn').html('<i class="fas fa-save"></i> Créer');
 
-    // Afficher le modal
-    const modal = new bootstrap.Modal(document.getElementById('parametreModal'));
-    modal.show();
+    // Afficher le modal avec jQuery (Bootstrap 4)
+    $('#parametreModal').modal('show');
 }
 
 /**
@@ -94,9 +94,8 @@ function openEditModal(parametreId) {
     // Charger les données
     loadParametreData(parametreId);
 
-    // Afficher le modal
-    const modal = new bootstrap.Modal(document.getElementById('parametreModal'));
-    modal.show();
+    // Afficher le modal avec jQuery (Bootstrap 4)
+    $('#parametreModal').modal('show');
 }
 
 // ===== CHARGEMENT DES DONNÉES =====
@@ -174,12 +173,8 @@ function saveParametre() {
         contentType: false,
         success: function(response) {
             if (response.success) {
-                // Fermer le modal
-                const modalElement = document.getElementById('parametreModal');
-                const modal = bootstrap.Modal.getInstance(modalElement);
-                if (modal) {
-                    modal.hide();
-                }
+                // Fermer le modal avec jQuery (Bootstrap 4)
+                $('#parametreModal').modal('hide');
 
                 // Recharger la page
                 window.location.reload();

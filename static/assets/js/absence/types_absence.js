@@ -27,8 +27,8 @@ function openCreateModal() {
 
     clearFormErrors();
 
-    const modal = new bootstrap.Modal(document.getElementById('typeAbsenceModal'));
-    modal.show();
+    // Ouvrir la modal avec jQuery (Bootstrap 4)
+    $('#typeAbsenceModal').modal('show');
 }
 
 /**
@@ -39,8 +39,8 @@ function openEditModal(id) {
     clearFormErrors();
     loadTypeAbsenceData(id);
 
-    const modal = new bootstrap.Modal(document.getElementById('typeAbsenceModal'));
-    modal.show();
+    // Ouvrir la modal avec jQuery (Bootstrap 4)
+    $('#typeAbsenceModal').modal('show');
 }
 
 // ============================================
@@ -143,11 +143,8 @@ function saveTypeAbsence() {
     .then(response => response.json())
     .then(result => {
         if (result.success) {
-            const modalElement = document.getElementById('typeAbsenceModal');
-            document.activeElement.blur();
-
-            const modal = bootstrap.Modal.getInstance(modalElement);
-            modal.hide();
+            // Fermer la modal avec jQuery (Bootstrap 4)
+            $('#typeAbsenceModal').modal('hide');
 
             showSuccessMessage(result.message);
 
@@ -360,7 +357,9 @@ function showBootstrapAlert(message, type) {
     alertDiv.innerHTML = `
         <strong>${type === 'success' ? '<i class="fas fa-check-circle"></i> Succès' : '<i class="fas fa-exclamation-circle"></i> Erreur'}</strong><br>
         ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <button type="button" class="close" data-dismiss="alert">
+            <span aria-hidden="true">&times;</span>
+        </button>
     `;
 
     document.body.appendChild(alertDiv);
@@ -396,10 +395,11 @@ function getCookie(name) {
 // ÉVÉNEMENTS
 // ============================================
 
-document.addEventListener('DOMContentLoaded', function() {
+$(document).ready(function() {
     const modalElement = document.getElementById('typeAbsenceModal');
     if (modalElement) {
-        modalElement.addEventListener('hidden.bs.modal', function() {
+        // Utiliser l'événement jQuery pour Bootstrap 4
+        $(modalElement).on('hidden.bs.modal', function() {
             clearFormErrors();
             document.getElementById('typeAbsenceId').value = '';
         });

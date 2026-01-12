@@ -333,9 +333,11 @@
                     <span id="modalTitle">Nouvelle Entreprise</span>
                 </h5>
                 <button type="button"
-                        class="btn-close btn-close-white"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                        class="close text-white"
+                        data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
                 <form id="entrepriseForm" enctype="multipart/form-data">
@@ -345,20 +347,20 @@
                     <!-- Onglets -->
                     <ul class="nav nav-tabs mb-3" id="entrepriseTab" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="general-tab" data-bs-toggle="tab"
-                                    data-bs-target="#general" type="button" role="tab">
+                            <button class="nav-link active" id="general-tab" data-toggle="tab"
+                                    data-target="#general" type="button" role="tab">
                                 <i class="fas fa-info-circle"></i> Informations générales
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="legal-tab" data-bs-toggle="tab"
-                                    data-bs-target="#legal" type="button" role="tab">
+                            <button class="nav-link" id="legal-tab" data-toggle="tab"
+                                    data-target="#legal" type="button" role="tab">
                                 <i class="fas fa-gavel"></i> Informations légales
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="convention-tab" data-bs-toggle="tab"
-                                    data-bs-target="#convention" type="button" role="tab">
+                            <button class="nav-link" id="convention-tab" data-toggle="tab"
+                                    data-target="#convention" type="button" role="tab">
                                 <i class="fas fa-file-contract"></i> Convention collective
                             </button>
                         </li>
@@ -677,7 +679,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
                     <i class="fas fa-times"></i> Annuler
                 </button>
                 <button type="button" class="btn btn-success" onclick="saveEntreprise()">
@@ -687,7 +689,6 @@
         </div>
     </div>
 </div>
-
 
 {% endblock %}
 

@@ -3,9 +3,8 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
-from django.db.models import Sum
 from .models import ZDCL, ZDAC, ZDPJ, ZDTA, ZDDO, ZDIT
-
+from django.contrib.humanize.templatetags.humanize import intcomma
 
 @admin.register(ZDCL)
 class ZDCLAdmin(admin.ModelAdmin):
@@ -372,13 +371,23 @@ class ZDPJAdmin(admin.ModelAdmin):
     def avancement_bar(self, obj):
         """Barre de progression pour l'avancement"""
         pourcentage = obj.get_avancement_pourcentage()
-        color = '#28a745' if pourcentage == 100 else '#17a2b8' if pourcentage >= 50 else '#ffc107'
+
+        # Couleur selon l'avancement
+        if pourcentage >= 100:
+            color = '#28a745'  # Vert
+        elif pourcentage >= 75:
+            color = '#8BC34A'  # Vert clair
+        elif pourcentage >= 50:
+            color = '#FFC107'  # Orange
+        else:
+            color = '#FF5722'  # Rouge
 
         return format_html(
-            '<div style="width: 100px; background-color: #e9ecef; border-radius: 3px;">'
-            '<div style="width: {}%; background-color: {}; color: white; text-align: center; '
-            'padding: 2px 0; border-radius: 3px; font-size: 11px;">{:.0f}%</div></div>',
-            pourcentage, color, pourcentage
+            '<div style="width:100px; background:#f0f0f0; border-radius:5px;">'
+            '<div style="width:{}%; background:{}; height:20px; border-radius:5px; text-align:center; color:white; line-height:20px;">'
+            '{}%'
+            '</div></div>',
+            pourcentage, color, pourcentage  # ✅ CORRECTION
         )
 
     avancement_bar.short_description = 'Avancement'
@@ -530,13 +539,23 @@ class ZDTAAdmin(admin.ModelAdmin):
 
     def avancement_bar(self, obj):
         """Barre de progression"""
-        pourcentage = obj.avancement
-        color = '#28a745' if pourcentage == 100 else '#17a2b8' if pourcentage >= 50 else '#ffc107'
+        pourcentage = obj.avancement  # ✅ C'est correct pour ZDTA car c'est un champ direct
+
+        # Couleur selon l'avancement
+        if pourcentage >= 100:
+            color = '#28a745'  # Vert
+        elif pourcentage >= 75:
+            color = '#8BC34A'  # Vert clair
+        elif pourcentage >= 50:
+            color = '#FFC107'  # Orange
+        else:
+            color = '#FF5722'  # Rouge
 
         return format_html(
-            '<div style="width: 100px; background-color: #e9ecef; border-radius: 3px;">'
-            '<div style="width: {}%; background-color: {}; color: white; text-align: center; '
-            'padding: 2px 0; border-radius: 3px; font-size: 11px;">{}%</div></div>',
+            '<div style="width:100px; background:#f0f0f0; border-radius:5px;">'
+            '<div style="width:{}%; background:{}; height:20px; border-radius:5px; text-align:center; color:white; line-height:20px;">'
+            '{}%'
+            '</div></div>',
             pourcentage, color, pourcentage
         )
 
@@ -545,22 +564,26 @@ class ZDTAAdmin(admin.ModelAdmin):
     def heures_realisees(self, obj):
         """Heures réalisées"""
         heures = obj.get_heures_realisees()
-        return format_html('<strong>{:.2f}h</strong>', heures)
+        heures_formate = f"{heures:.2f}"
+        return format_html('<strong>{}h</strong>', heures_formate)
 
     heures_realisees.short_description = 'Réalisé'
 
     def ecart(self, obj):
         """Écart estimation/réalisé"""
-        ecart = obj.get_ecart_estimation()
-        if ecart is None:
+        ecart_value = obj.get_ecart_estimation()
+        if ecart_value is None:
             return "N/A"
 
-        color = 'red' if ecart > 0 else 'green'
-        signe = '+' if ecart > 0 else ''
+        color = 'red' if ecart_value > 0 else 'green'
+        signe = '+' if ecart_value > 0 else ''
+        ecart_formate = f"{ecart_value:.2f}"
         return format_html(
-            '<span style="color: {}; font-weight: bold;">{}{:.2f}h</span>',
-            color, signe, ecart
+            '<span style="color: {}; font-weight: bold;">{}{}h</span>',
+            color, signe, ecart_formate
         )
+
+    ecart.short_description = 'Écart'
 
     ecart.short_description = 'Écart'
 
@@ -844,9 +867,11 @@ class ZDITAdmin(admin.ModelAdmin):
         """Montant facturable"""
         montant = obj.get_montant_facturable()
         if montant > 0:
+            # Utiliser intcomma pour le formatage avec séparateurs
+            montant_formate = intcomma(int(montant))
             return format_html(
-                '<strong style="color: green;">{:,.0f} FCFA</strong>',
-                montant
+                '<strong style="color: green;">{} FCFA</strong>',
+                montant_formate
             )
         return "0 FCFA"
 

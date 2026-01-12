@@ -97,14 +97,14 @@
                         </form>
                     </div>
                     <div class="col-md-4 text-right">
-                        <button type="button"
-                                class="btn btn-success btn-sm"
-                                data-toggle="modal"
-                                data-target="#conventionModal"
-                                onclick="openCreateModal()">
-                            <i class="fas fa-plus"></i> Nouvelle Convention
-                        </button>
-                    </div>
+                    <button type="button"
+                            class="btn btn-success btn-sm"
+                            data-toggle="modal"
+                            data-target="#conventionModal"
+                            onclick="openCreateModal()">
+                        <i class="fas fa-plus"></i> Nouvelle Convention
+                    </button>
+                </div>
                 </div>
             </div>
 
@@ -217,7 +217,6 @@
     </div>
 </section>
 
-
 <!-- Modal Création/Edition -->
 <div class="modal fade" id="conventionModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
@@ -227,10 +226,12 @@
                     <i class="fas fa-file-contract"></i> Nouvelle Convention
                 </h5>
                 <button type="button"
-                        class="btn-close btn-close-white"
-                        data-bs-dismiss="modal"
+                        class="close text-white"
+                        data-dismiss="modal"
                         aria-label="Close"
-                        onclick="resetForm()"></button>
+                        onclick="resetForm()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <form id="conventionForm">
                 {% csrf_token %}
@@ -497,7 +498,7 @@
                 <div class="modal-footer">
                     <button type="button"
                         class="btn btn-secondary"
-                        data-bs-dismiss="modal">
+                        data-dismiss="modal">
                     <i class="fas fa-times"></i> Annuler
                 </button>
                     <button type="submit" class="btn btn-primary" id="submitBtn">
