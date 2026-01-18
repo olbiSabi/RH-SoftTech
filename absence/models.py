@@ -1339,9 +1339,10 @@ class Absence(models.Model):
 # ========================================
 
 class NotificationAbsence(models.Model):
-    """Notifications pour le workflow des absences"""
+    """Notifications pour le workflow des absences ET des tâches GTA"""
 
     TYPE_CHOICES = [
+        # Absences
         ('DEMANDE_CREEE', 'Nouvelle demande d\'absence'),
         ('DEMANDE_VALIDEE_MANAGER', 'Demande validée par le manager'),
         ('VALIDATION_MANAGER', 'Validation manager'),
@@ -1349,12 +1350,22 @@ class NotificationAbsence(models.Model):
         ('VALIDATION_RH', 'Validation RH'),
         ('REJET_RH', 'Rejet RH'),
         ('ABSENCE_ANNULEE', 'Absence annulée'),
+
+        # ✅ NOUVEAU : Tâches GTA
+        ('TACHE_ASSIGNEE', 'Tâche assignée'),
+        ('TACHE_REASSIGNEE', 'Tâche réassignée'),
+        ('TACHE_MODIFIEE', 'Tâche modifiée'),
+        ('STATUT_TACHE_CHANGE', 'Statut de tâche modifié'),
+        ('ECHEANCE_TACHE_PROCHE', 'Échéance de tâche proche'),
+        ('TACHE_TERMINEE', 'Tâche terminée'),
+        ('COMMENTAIRE_TACHE', 'Nouveau commentaire sur tâche'),
     ]
 
     CONTEXTE_CHOICES = [
         ('EMPLOYE', 'En tant qu\'employé'),
         ('MANAGER', 'En tant que manager'),
         ('RH', 'En tant que RH'),
+        ('GTA', 'Gestion Temps et Activités'),  # ✅ NOUVEAU
     ]
 
     destinataire = models.ForeignKey(
@@ -1363,35 +1374,54 @@ class NotificationAbsence(models.Model):
         related_name='notifications_absences',
         verbose_name="Destinataire"
     )
+
+    # ✅ MODIFIER : Rendre absence optionnelle
     absence = models.ForeignKey(
         'Absence',
         on_delete=models.CASCADE,
         related_name='notifications',
-        verbose_name="Absence"
+        verbose_name="Absence",
+        null=True,  # ✅ NOUVEAU
+        blank=True  # ✅ NOUVEAU
     )
+
+    # ✅ NOUVEAU : Référence vers la tâche
+    tache = models.ForeignKey(
+        'gestion_temps_activite.ZDTA',
+        on_delete=models.CASCADE,
+        related_name='notifications',
+        verbose_name="Tâche",
+        null=True,
+        blank=True
+    )
+
     type_notification = models.CharField(
         max_length=30,
         choices=TYPE_CHOICES,
         verbose_name="Type de notification"
     )
-    # ✅ NOUVEAU CHAMP
+
     contexte = models.CharField(
         max_length=20,
         choices=CONTEXTE_CHOICES,
         default='EMPLOYE',
         verbose_name="Contexte de la notification"
     )
+
     message = models.TextField(
         verbose_name="Message"
     )
+
     lue = models.BooleanField(
         default=False,
         verbose_name="Notification lue"
     )
+
     date_creation = models.DateTimeField(
         auto_now_add=True,
         verbose_name="Date de création"
     )
+
     date_lecture = models.DateTimeField(
         null=True,
         blank=True,
@@ -1399,14 +1429,15 @@ class NotificationAbsence(models.Model):
     )
 
     class Meta:
-        db_table = 'notification_absence'
-        verbose_name = "Notification d'absence"
-        verbose_name_plural = "Notifications d'absence"
+        db_table = 'notification_absence'  # Garder le même nom de table
+        verbose_name = "Notification"
+        verbose_name_plural = "Notifications"
         ordering = ['-date_creation']
         indexes = [
             models.Index(fields=['destinataire', 'lue']),
             models.Index(fields=['-date_creation']),
-            models.Index(fields=['contexte']),  # ✅ NOUVEL INDEX
+            models.Index(fields=['contexte']),
+            models.Index(fields=['tache']),  # ✅ NOUVEL INDEX
         ]
 
     def __str__(self):
@@ -1419,12 +1450,43 @@ class NotificationAbsence(models.Model):
             self.date_lecture = timezone.now()
             self.save(update_fields=['lue', 'date_lecture'])
 
+    # ✅ NOUVEAU : Méthode pour obtenir l'objet lié (absence ou tâche)
+    def get_objet_lie(self):
+        """Retourne l'objet lié (absence ou tâche)"""
+        if self.absence:
+            return self.absence
+        elif self.tache:
+            return self.tache
+        return None
+
+    # ✅ NOUVEAU : Méthode pour obtenir l'URL de l'objet lié
+    def get_url(self):
+        """Retourne l'URL vers l'objet concerné"""
+        if self.absence:
+            from django.urls import reverse
+            return reverse('absence:notification_detail', args=[self.id])
+        elif self.tache:
+            from django.urls import reverse
+            return reverse('gestion_temps_activite:notification_tache_detail', args=[self.id])
+        return '#'
+
     @classmethod
-    def creer_notification(cls, destinataire, absence, type_notif, message, contexte='EMPLOYE'):
-        """Créer une nouvelle notification avec contexte"""
+    def creer_notification(cls, destinataire, type_notif, message, contexte='EMPLOYE', absence=None, tache=None):
+        """
+        Créer une nouvelle notification (absence OU tâche)
+
+        Args:
+            destinataire: Employé destinataire
+            type_notif: Type de notification
+            message: Message de la notification
+            contexte: Contexte (EMPLOYE, MANAGER, RH, GTA)
+            absence: Instance d'Absence (optionnel)
+            tache: Instance de ZDTA (optionnel)
+        """
         return cls.objects.create(
             destinataire=destinataire,
             absence=absence,
+            tache=tache,
             type_notification=type_notif,
             contexte=contexte,
             message=message
@@ -1436,7 +1498,7 @@ class NotificationAbsence(models.Model):
         return cls.objects.filter(
             destinataire=employe,
             lue=False
-        ).select_related('absence', 'absence__employe', 'absence__type_absence')
+        ).select_related('absence', 'tache', 'absence__employe', 'absence__type_absence', 'tache__projet')
 
     @classmethod
     def count_non_lues(cls, employe):
@@ -1446,6 +1508,22 @@ class NotificationAbsence(models.Model):
             lue=False
         ).count()
 
+    # ✅ NOUVEAU : Filtrer par type (absence ou tâche)
+    @classmethod
+    def get_notifications_absences(cls, employe):
+        """Notifications d'absences uniquement"""
+        return cls.objects.filter(
+            destinataire=employe,
+            absence__isnull=False
+        ).select_related('absence', 'absence__employe', 'absence__type_absence')
+
+    @classmethod
+    def get_notifications_taches(cls, employe):
+        """Notifications de tâches uniquement"""
+        return cls.objects.filter(
+            destinataire=employe,
+            tache__isnull=False
+        ).select_related('tache', 'tache__projet', 'tache__assignee')
 
 
 # 7. ValidationAbsence (Optionnel - pour traçabilité détaillée)

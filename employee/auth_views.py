@@ -1,20 +1,29 @@
+import logging
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm, PasswordResetForm
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import PasswordResetConfirmView
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
-from django.contrib import messages
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
-from .models import ZY00
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.conf import settings
 from .models import UserSecurity
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.db.models import Q, Count, Sum
+from django.utils import timezone
+from datetime import timedelta
+from employee.models import ZY00, ZYCO
+from absence.models import Absence, AcquisitionConges
+from departement.models import ZDDE
 
+# Configuration du logger
+logger = logging.getLogger(__name__)
 
 def login_view(request):
     """Vue de connexion pour les employés avec sécurité renforcée"""
@@ -26,7 +35,7 @@ def login_view(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        print(f"🔐 TENTATIVE DE CONNEXION pour {username}")
+        logger.info("🔐 TENTATIVE DE CONNEXION pour {username}")
 
         # Vérifier d'abord si l'utilisateur existe
         try:
@@ -34,16 +43,16 @@ def login_view(request):
             security, created = UserSecurity.objects.get_or_create(user=user)
 
             # DEBUG: Afficher l'état du compte
-            print(f"🔍 ÉTAT DU COMPTE:")
-            print(f"   - Username: {user.username}")
-            print(f"   - Login attempts: {security.login_attempts}")
-            print(f"   - Is locked: {security.is_locked}")
-            print(f"   - Locked until: {security.locked_until}")
-            print(f"   - is_account_locked(): {security.is_account_locked()}")
+            logger.debug("🔍 ÉTAT DU COMPTE:")
+            logger.debug("   - Username: {user.username}")
+            logger.info("   - Login attempts: {security.login_attempts}")
+            logger.debug("   - Is locked: {security.is_locked}")
+            logger.debug("   - Locked until: {security.locked_until}")
+            logger.debug("   - is_account_locked(): {security.is_account_locked()}")
 
             # Vérifier si le compte est bloqué
             if security.is_account_locked():
-                print(f"❌ COMPTE BLOQUÉ DÉTECTÉ")
+                logger.error("❌ COMPTE BLOQUÉ DÉTECTÉ")
                 messages.error(
                     request,
                     "❌ Votre compte est temporairement bloqué suite à trop de tentatives de connexion. "
@@ -53,10 +62,10 @@ def login_view(request):
                 send_lock_notification_email(user, request)
                 return redirect('login')
             else:
-                print(f"✅ COMPTE NON BLOQUÉ - Procéder à l'authentification")
+                logger.info("✅ COMPTE NON BLOQUÉ - Procéder à l'authentification")
 
         except User.DoesNotExist:
-            print(f"❌ UTILISATEUR NON TROUVÉ: {username}")
+            logger.error("❌ UTILISATEUR NON TROUVÉ: {username}")
             messages.error(request, "❌ Nom d'utilisateur ou mot de passe incorrect.")
             return redirect('login')
 
@@ -64,10 +73,10 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            print(f"✅ AUTHENTIFICATION RÉUSSIE pour {username}")
+            logger.info("✅ AUTHENTIFICATION RÉUSSIE pour {username}")
             # Réinitialiser les tentatives en cas de succès
             security.reset_attempts()
-            print(f"✅ Tentatives réinitialisées pour {username}")
+            logger.info("✅ Tentatives réinitialisées pour {username}")
 
             # Vérifier si l'employé existe et est actif
             try:
@@ -78,7 +87,7 @@ def login_view(request):
 
                 # Connexion réussie
                 login(request, user)
-                print(f"✅ CONNEXION RÉUSSIE - Redirection vers dashboard")
+                logger.info("✅ CONNEXION RÉUSSIE - Redirection vers dashboard")
                 # Rediriger vers la page demandée ou le dashboard
                 next_url = request.GET.get('next', 'dashboard')
                 return redirect(next_url)
@@ -89,7 +98,7 @@ def login_view(request):
                 return redirect('dashboard')
 
         else:
-            print(f"❌ AUTHENTIFICATION ÉCHOUÉE pour {username}")
+            logger.error("❌ AUTHENTIFICATION ÉCHOUÉE pour {username}")
             # Authentification échouée - incrémenter les tentatives
             try:
                 user = User.objects.get(username=username)
@@ -97,12 +106,12 @@ def login_view(request):
 
                 # Incrémenter et vérifier le blocage
                 is_now_locked = security.increment_attempts()
-                print(f"📈 Tentative incrémentée: {security.login_attempts}/3")
+                logger.info("📈 Tentative incrémentée: {security.login_attempts}/3")
 
                 remaining_attempts = 3 - security.login_attempts
 
                 if is_now_locked:
-                    print(f"🔒 COMPTE BLOQUÉ après 3 tentatives")
+                    logger.info("🔒 COMPTE BLOQUÉ après 3 tentatives")
                     messages.error(
                         request,
                         "❌ Votre compte a été bloqué suite à 3 tentatives de connexion échouées. "
@@ -121,7 +130,7 @@ def login_view(request):
                 messages.error(request, "❌ Nom d'utilisateur ou mot de passe incorrect.")
 
     else:
-        print(f"📝 AFFICHAGE PAGE LOGIN (GET request)")
+        logger.info("📝 AFFICHAGE PAGE LOGIN (GET request)")
 
     return render(request, 'employee/login.html')
 
@@ -180,9 +189,9 @@ def send_lock_notification_email(user, request):
             html_message=html_message,
             fail_silently=False,
         )
-        print(f"✅ Email de blocage envoyé à {user.email}")
+        logger.info("✅ Email de blocage envoyé à {user.email}")
     except Exception as e:
-        print(f"❌ Erreur envoi email blocage: {e}")
+        logger.error("❌ Erreur envoi email blocage: {e}")
 
 def logout_view(request):
     """Vue de déconnexion"""
@@ -197,53 +206,6 @@ def logout_view(request):
     return redirect('login')
 
 
-# employee/auth_views.py
-
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.db.models import Q, Count, Sum
-from django.utils import timezone
-from datetime import timedelta
-from employee.models import ZY00, ZYCO
-from absence.models import Absence, AcquisitionConges
-from departement.models import ZDDE
-
-# employee/auth_views.py
-
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.db.models import Q, Count, Sum
-from django.utils import timezone
-from datetime import timedelta
-from employee.models import ZY00, ZYCO
-from absence.models import Absence, AcquisitionConges
-from departement.models import ZDDE
-
-# employee/auth_views.py
-
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.db.models import Q, Count, Sum
-from django.utils import timezone
-from datetime import timedelta
-from employee.models import ZY00, ZYCO
-from absence.models import Absence, AcquisitionConges
-from departement.models import ZDDE
-
-# employee/auth_views.py
-
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.db.models import Q, Count, Sum
-from django.utils import timezone
-from datetime import timedelta
-from employee.models import ZY00, ZYCO
-from absence.models import Absence, AcquisitionConges
-from departement.models import ZDDE
 
 
 @login_required
@@ -486,53 +448,53 @@ def password_reset_request(request):
     if request.method == 'POST':
         form = PasswordResetForm(request.POST)
 
-        print("=" * 80)
-        print("🔍 DÉBUT PASSWORD RESET REQUEST")
-        print("=" * 80)
+        logger.debug("=" * 80)
+        logger.debug("🔍 DÉBUT PASSWORD RESET REQUEST")
+        logger.debug("=" * 80)
 
         if form.is_valid():
             email = form.cleaned_data['email']
-            print(f"📧 Email saisi: {email}")
+            logger.debug("📧 Email saisi: {email}")
 
             try:
                 user = User.objects.get(email=email)
-                print(f"✅ Utilisateur trouvé: {user.username}")
-                print(f"   - Email: {user.email}")
-                print(f"   - ID: {user.pk}")
+                logger.info("✅ Utilisateur trouvé: {user.username}")
+                logger.debug("   - Email: {user.email}")
+                logger.debug("   - ID: {user.pk}")
 
                 try:
                     employe = user.employe
-                    print(f"   - Employé: {employe.nom} {employe.prenoms}")
+                    logger.debug("   - Employé: {employe.nom} {employe.prenoms}")
                 except:
-                    print("   - Pas de profil employé associé")
+                    logger.debug("   - Pas de profil employé associé")
 
                 # ✅ DÉBLOQUER LE COMPTE SI IL ÉTAIT BLOQUÉ (UNIQUEMENT ICI)
                 try:
                     security = UserSecurity.objects.get(user=user)
                     if security.is_locked:
-                        print(f"🔓 Déblocage du compte {user.username}")
+                        logger.debug("🔓 Déblocage du compte {user.username}")
                         security.reset_attempts()  # Réinitialiser complètement
                         messages.info(request,
                                       "Votre compte a été débloqué. Vous pouvez maintenant réinitialiser votre mot de passe.")
                     else:
-                        print(f"ℹ️ Compte {user.username} n'était pas bloqué")
+                        logger.debug("ℹ️ Compte {user.username} n'était pas bloqué")
                 except UserSecurity.DoesNotExist:
                     # Créer le profil de sécurité s'il n'existe pas
                     UserSecurity.objects.create(user=user)
-                    print(f"✅ Profil de sécurité créé pour {user.username}")
+                    logger.info("✅ Profil de sécurité créé pour {user.username}")
 
                 # Générer le token
                 token = default_token_generator.make_token(user)
                 uid = urlsafe_base64_encode(force_bytes(user.pk))
 
-                print(f"\n🔐 Token généré: {token}")
-                print(f"🆔 UID généré: {uid}")
+                logger.info("\n🔐 Token généré: {token}")
+                logger.debug("🆔 UID généré: {uid}")
 
                 # Construire l'URL - CORRECTION DU CHEMIN
                 reset_url = request.build_absolute_uri(
                     f'/employe/password-reset-confirm/{uid}/{token}/'  # ← AJOUTEZ 'employe/'
                 )
-                print(f"🔗 URL de réinitialisation: {reset_url}")
+                logger.debug("🔗 URL de réinitialisation: {reset_url}")
 
                 # Préparer le contexte de l'email
                 employe = None
@@ -552,12 +514,12 @@ def password_reset_request(request):
                 subject = "Réinitialisation de votre mot de passe - ONIAN-EasyM"
                 message = render_to_string('employee/password/password_reset_email.html', email_context)
 
-                print(f"\n📨 Sujet: {subject}")
-                print(f"📄 Message généré (longueur: {len(message)} caractères)")
+                logger.debug("\n📨 Sujet: {subject}")
+                logger.debug("📄 Message généré (longueur: {len(message)} caractères)")
 
                 # ✅ CRÉER UNE CONNEXION EMAIL CONSOLE FORCÉE
                 try:
-                    print("\n🚀 TENTATIVE D'ENVOI DE L'EMAIL AVEC BACKEND CONSOLE FORCÉ...")
+                    logger.info("\n🚀 TENTATIVE D'ENVOI DE L'EMAIL AVEC BACKEND CONSOLE FORCÉ...")
 
                     # Importer le backend console directement
                     from django.core.mail.backends.console import EmailBackend as ConsoleBackend
@@ -580,9 +542,9 @@ def password_reset_request(request):
                     # Envoyer
                     email_message.send()
 
-                    print("✅ EMAIL ENVOYÉ AVEC SUCCÈS VIA CONSOLE!")
-                    print("📧 Vérifiez la console ci-dessus pour voir l'email")
-                    print("=" * 80)
+                    logger.info("✅ EMAIL ENVOYÉ AVEC SUCCÈS VIA CONSOLE!")
+                    logger.debug("📧 Vérifiez la console ci-dessus pour voir l'email")
+                    logger.debug("=" * 80)
 
                     messages.success(
                         request,
@@ -592,14 +554,14 @@ def password_reset_request(request):
                     return redirect('login')
 
                 except Exception as e:
-                    print(f"\n💥 ERREUR LORS DE L'ENVOI:")
-                    print(f"   Type: {type(e).__name__}")
-                    print(f"   Message: {str(e)}")
+                    logger.error("\n💥 ERREUR LORS DE L'ENVOI:")
+                    logger.debug("   Type: {type(e).__name__}")
+                    logger.debug("   Message: {str(e)}")
 
                     import traceback
-                    print("\n🔍 TRACEBACK COMPLET:")
-                    print(traceback.format_exc())
-                    print("=" * 80)
+                    logger.debug("\n🔍 TRACEBACK COMPLET:")
+                    logger.exception("Traceback complet:")
+                    logger.debug("=" * 80)
 
                     messages.error(
                         request,
@@ -609,7 +571,7 @@ def password_reset_request(request):
                     return redirect('login')
 
             except User.DoesNotExist:
-                print(f"❌ AUCUN utilisateur trouvé avec l'email: {email}")
+                logger.error("❌ AUCUN utilisateur trouvé avec l'email: {email}")
                 messages.success(
                     request,
                     '✅ Si un compte existe avec cet email, vous recevrez un lien de réinitialisation.'
@@ -617,7 +579,7 @@ def password_reset_request(request):
                 return redirect('login')
 
         else:
-            print(f"❌ Formulaire invalide: {form.errors}")
+            logger.error("❌ Formulaire invalide: {form.errors}")
             messages.error(request, '❌ Veuillez corriger les erreurs ci-dessous.')
 
     else:
@@ -633,14 +595,14 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
         # Récupérer l'utilisateur AVANT la réinitialisation
         user = form.user  # ← Utiliser form.user au lieu de form.save()
 
-        print(f"🔄 RÉINITIALISATION MOT DE PASSE pour {user.username}")
+        logger.debug("🔄 RÉINITIALISATION MOT DE PASSE pour {user.username}")
 
         # ✅ DÉBLOQUER LE COMPTE AVANT la réinitialisation
         try:
             security = UserSecurity.objects.get(user=user)
-            print(f"🔍 ÉTAT AVANT DÉBLOCAGE:")
-            print(f"   - attempts: {security.login_attempts}")
-            print(f"   - locked: {security.is_locked}")
+            logger.debug("🔍 ÉTAT AVANT DÉBLOCAGE:")
+            logger.info("   - attempts: {security.login_attempts}")
+            logger.debug("   - locked: {security.is_locked}")
 
             # Réinitialisation FORCÉE
             security.login_attempts = 0
@@ -651,13 +613,13 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
 
             # Recharger pour vérifier
             security.refresh_from_db()
-            print(f"✅ ÉTAT APRÈS DÉBLOCAGE:")
-            print(f"   - attempts: {security.login_attempts}")
-            print(f"   - locked: {security.is_locked}")
+            logger.info("✅ ÉTAT APRÈS DÉBLOCAGE:")
+            logger.info("   - attempts: {security.login_attempts}")
+            logger.debug("   - locked: {security.is_locked}")
 
         except UserSecurity.DoesNotExist:
             UserSecurity.objects.create(user=user)
-            print(f"✅ Profil sécurité créé pour {user.username}")
+            logger.info("✅ Profil sécurité créé pour {user.username}")
 
         # Maintenant sauvegarder le nouveau mot de passe
         response = super().form_valid(form)
@@ -678,13 +640,13 @@ def test_reset_account(request, username):
         user = User.objects.get(username=username)
         security, created = UserSecurity.objects.get_or_create(user=user)
 
-        print("=" * 50)
-        print(f"🧪 TEST RÉINITIALISATION MANUELLE")
-        print(f"Compte: {user.username}")
-        print(f"AVANT reset_attempts():")
-        print(f"  - login_attempts: {security.login_attempts}")
-        print(f"  - is_locked: {security.is_locked}")
-        print(f"  - locked_until: {security.locked_until}")
+        logger.debug("=" * 50)
+        logger.debug("🧪 TEST RÉINITIALISATION MANUELLE")
+        logger.debug("Compte: {user.username}")
+        logger.debug("AVANT reset_attempts():")
+        logger.info("  - login_attempts: {security.login_attempts}")
+        logger.debug("  - is_locked: {security.is_locked}")
+        logger.debug("  - locked_until: {security.locked_until}")
 
         # Appel de la méthode
         security.reset_attempts()
@@ -692,11 +654,11 @@ def test_reset_account(request, username):
         # Recharger depuis la base de données
         security.refresh_from_db()
 
-        print(f"APRÈS reset_attempts():")
-        print(f"  - login_attempts: {security.login_attempts}")
-        print(f"  - is_locked: {security.is_locked}")
-        print(f"  - locked_until: {security.locked_until}")
-        print("=" * 50)
+        logger.debug("APRÈS reset_attempts():")
+        logger.info("  - login_attempts: {security.login_attempts}")
+        logger.debug("  - is_locked: {security.is_locked}")
+        logger.debug("  - locked_until: {security.locked_until}")
+        logger.debug("=" * 50)
 
         return HttpResponse(f"""
         <h1>Test réinitialisation - {user.username}</h1>

@@ -1,4 +1,5 @@
 # absence/views.py
+import logging
 from django.core.exceptions import ValidationError
 from datetime import datetime
 from django.contrib import messages
@@ -41,6 +42,9 @@ from .forms import (
     CalculAcquisitionForm
 )
 from employee.models import ZY00
+
+# Configuration du logger
+logger = logging.getLogger(__name__)
 
 # ===============================
 # VUES POUR CONFIGURATIONCONVENTIONNELLE
@@ -162,6 +166,7 @@ def api_convention_detail(request, id):
         }
         return JsonResponse(data)
     except Exception as e:
+        logger.exception("Erreur lors de la récupération des détails de la convention:")
         return JsonResponse({'error': str(e)}, status=400)
 
 
@@ -295,8 +300,7 @@ def api_convention_create(request):
         })
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
+        logger.exception("Erreur lors de la création de la convention:")
         return JsonResponse({'error': str(e)}, status=500)
 
 
@@ -428,8 +432,7 @@ def api_convention_update(request, id):
         })
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
+        logger.exception("Erreur lors de la modification de la convention:")
         return JsonResponse({'error': str(e)}, status=500)
 
 
@@ -466,6 +469,7 @@ def api_convention_delete(request, id):
         })
 
     except Exception as e:
+        logger.exception("Erreur lors de la suppression de la convention:")
         return JsonResponse({'error': str(e)}, status=400)
 
 
@@ -499,6 +503,7 @@ def api_convention_toggle_actif(request, id):
         })
 
     except Exception as e:
+        logger.exception("Erreur lors du changement de statut de la convention:")
         return JsonResponse({'error': str(e)}, status=400)
 
 # ============================================
@@ -605,6 +610,7 @@ def api_jour_ferie_detail(request, id):
         return JsonResponse({'success': True, 'data': data})
 
     except Exception as e:
+        logger.exception("Erreur lors de la récupération du jour férié:")
         return JsonResponse({
             'success': False,
             'error': str(e)
@@ -655,6 +661,7 @@ def api_jour_ferie_create(request):
             }, status=400)
 
     except Exception as e:
+        logger.exception("Erreur lors de la création du jour férié:")
         return JsonResponse({
             'success': False,
             'error': str(e)
@@ -974,10 +981,10 @@ def api_type_absence_create(request):
     """
     try:
         # DEBUG : Afficher les données reçues
-        print("=" * 50)
-        print("DONNÉES REÇUES:")
-        print("POST:", request.POST)
-        print("=" * 50)
+        logger.debug("=" * 50)
+        logger.debug("DONNÉES REÇUES:")
+        logger.debug("POST: %s", request.POST)
+        logger.debug("=" * 50)
 
         form = TypeAbsenceForm(request.POST)
 
@@ -996,9 +1003,9 @@ def api_type_absence_create(request):
             })
         else:
             # Afficher les erreurs du formulaire
-            print("ERREURS DU FORMULAIRE:")
-            print(form.errors)
-            print("=" * 50)
+            logger.error("ERREURS DU FORMULAIRE:")
+            logger.error("Erreurs: %s", form.errors)
+            logger.error("=" * 50)
 
             errors = {}
             for field, error_list in form.errors.items():
@@ -1011,9 +1018,8 @@ def api_type_absence_create(request):
 
     except Exception as e:
         # Afficher l'exception
-        print("EXCEPTION:")
-        print(str(e))
-        print("=" * 50)
+        logger.exception("EXCEPTION lors de la création du type d'absence:")
+        logger.error("=" * 50)
 
         return JsonResponse({
             'success': False,
@@ -1226,8 +1232,6 @@ def api_parametre_calcul_detail(request, id):
         return JsonResponse({'success': True, 'data': data})
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
@@ -1278,8 +1282,6 @@ def api_parametre_calcul_create(request):
             return JsonResponse({'success': False, 'errors': errors}, status=400)
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
@@ -1316,8 +1318,6 @@ def api_parametre_calcul_update(request, id):
             return JsonResponse({'success': False, 'errors': errors}, status=400)
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
@@ -1343,8 +1343,6 @@ def api_parametre_calcul_delete(request, id):
         })
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
@@ -1440,7 +1438,7 @@ def liste_acquisitions(request):
                 dans_delai_grace = True
 
     except Exception as e:
-        print(f"Erreur lors du calcul de verrouillage: {e}")
+        logger.error("Erreur lors du calcul de verrouillage: %s", e)
 
     # Enrichir chaque acquisition avec son statut de verrouillage
     acquisitions_enrichies = []
@@ -1510,8 +1508,6 @@ def api_acquisition_detail(request, id):
         return JsonResponse({'success': True, 'data': data})
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
@@ -1546,8 +1542,6 @@ def api_acquisition_update(request, id):
             }, status=400)
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
@@ -1572,8 +1566,6 @@ def api_acquisition_delete(request, id):
         })
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
@@ -1594,12 +1586,12 @@ def api_calculer_acquisitions(request):
     from datetime import timedelta
 
     try:
-        print("📥 POST data:", request.POST)
+        logger.debug("📥 POST data: %s", request.POST)
 
         form = CalculAcquisitionForm(request.POST)
 
         if not form.is_valid():
-            print("❌ Formulaire invalide:", form.errors)
+            logger.error("❌ Formulaire invalide: %s", form.errors)
             return JsonResponse({
                 'success': False,
                 'errors': {field: errors[0] for field, errors in form.errors.items()}
@@ -1647,30 +1639,30 @@ def api_calculer_acquisitions(request):
 
             # Afficher un avertissement si on est dans les 2 derniers jours
             if date_actuelle > fin_periode and date_actuelle <= date_limite_recalcul:
-                print(f"⚠️  AVERTISSEMENT: Vous êtes dans les 2 derniers jours de recalcul pour l'année {annee}")
-                print(f"   Date limite: {date_limite_recalcul.strftime('%d/%m/%Y')}")
+                logger.warning("⚠️  AVERTISSEMENT: Vous êtes dans les 2 derniers jours de recalcul pour l'année %s", annee)
+                logger.warning("   Date limite: %s", date_limite_recalcul.strftime('%d/%m/%Y'))
 
         except Exception as e:
-            print(f"❌ Erreur lors de la vérification de la convention: {e}")
+            logger.error("❌ Erreur lors de la vérification de la convention: %s", e)
             return JsonResponse({
                 'success': False,
                 'error': f'Erreur lors de la vérification de la période de référence: {str(e)}'
             }, status=500)
 
-        print(f"✅ Formulaire valide - Année: {annee}, Recalculer: {recalculer}")
-        print(f"📅 Période de référence: {fin_periode.strftime('%d/%m/%Y')}")
-        print(f"🔓 Date limite de recalcul: {date_limite_recalcul.strftime('%d/%m/%Y')}")
+        logger.info("✅ Formulaire valide - Année: %s, Recalculer: %s", annee, recalculer)
+        logger.info("📅 Période de référence: %s", fin_periode.strftime('%d/%m/%Y'))
+        logger.info("🔓 Date limite de recalcul: %s", date_limite_recalcul.strftime('%d/%m/%Y'))
 
         # Déterminer les employés à traiter
         if employes_selection is not None and employes_selection.exists():
             employes = employes_selection
-            print(f"📋 Employés sélectionnés: {employes.count()}")
+            logger.info("📋 Employés sélectionnés: %s", employes.count())
         else:
             employes = ZY00.objects.filter(
                 etat='actif',
                 entreprise__isnull=False
             )
-            print(f"📋 Tous les employés actifs: {employes.count()}")
+            logger.info("📋 Tous les employés actifs: %s", employes.count())
 
         if not employes.exists():
             return JsonResponse({
@@ -1689,11 +1681,11 @@ def api_calculer_acquisitions(request):
 
         for employe in employes:
             resultats['total'] += 1
-            print(f"\n🔄 Traitement: {employe} (ID: {employe.matricule})")
+            logger.info("🔄 Traitement: %s (ID: %s)", employe, employe.matricule)
 
             try:
                 if not employe.convention_applicable:
-                    print(f"Pas de convention pour {employe}")
+                    logger.warning("Pas de convention pour %s", employe)
                     resultats['erreurs'] += 1
                     resultats['details_erreurs'].append({
                         'employe': str(employe),
@@ -1713,12 +1705,12 @@ def api_calculer_acquisitions(request):
                     }
                 )
 
-                print(f"  {'✨ Créée' if created else '📝 Existante'}")
+                logger.info("  %s", '✨ Créée' if created else '📝 Existante')
 
                 if created or recalculer:
-                    print(f"  🧮 Calcul des jours...")
+                    logger.debug("  🧮 Calcul des jours...")
                     jours = calculer_jours_acquis(employe, annee)
-                    print(f"  ✅ Jours calculés: {jours}")
+                    logger.info("  ✅ Jours calculés: %s", jours)
 
                     acquisition.jours_acquis = jours
                     acquisition.save()
@@ -1728,13 +1720,13 @@ def api_calculer_acquisitions(request):
                     else:
                         resultats['mis_a_jour'] += 1
                 else:
-                    print(f"  ⏭️  Ignorée (déjà existe)")
+                    logger.info("  ⏭️  Ignorée (déjà existe)")
                     resultats['ignores'] += 1
 
             except Exception as e:
                 import traceback
                 error_msg = traceback.format_exc()
-                print(f"  ❌ ERREUR: {error_msg}")
+                logger.error("  ❌ ERREUR: %s", error_msg)
 
                 resultats['erreurs'] += 1
                 resultats['details_erreurs'].append({
@@ -1742,7 +1734,7 @@ def api_calculer_acquisitions(request):
                     'erreur': str(e)
                 })
 
-        print(f"\n📊 RÉSULTATS FINAUX: {resultats}")
+        logger.info("📊 RÉSULTATS FINAUX: %s", resultats)
 
         return JsonResponse({
             'success': True,
@@ -1756,7 +1748,7 @@ def api_calculer_acquisitions(request):
     except Exception as e:
         import traceback
         error_msg = traceback.format_exc()
-        print(f"❌ ERREUR GLOBALE: {error_msg}")
+        logger.exception("❌ ERREUR GLOBALE: %s", error_msg)
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
@@ -1786,8 +1778,6 @@ def api_recalculer_acquisition(request, id):
         })
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
@@ -2325,7 +2315,7 @@ def api_absence_delete(request, id):
         with transaction.atomic():
             absence.delete()
 
-        print(f"✅ Absence supprimée: {type_absence}")
+        logger.info("✅ Absence supprimée: %s", type_absence)
 
         return JsonResponse({
             'success': True,
@@ -2333,9 +2323,7 @@ def api_absence_delete(request, id):
         })
 
     except Exception as e:
-        import traceback
-        print(f"❌ ERREUR lors de la suppression:")
-        traceback.print_exc()
+        logger.exception("❌ ERREUR lors de la suppression:")
         return JsonResponse({
             'success': False,
             'error': str(e)
@@ -2352,7 +2340,7 @@ def api_absence_annuler(request, id):
 
         # Vérification propriétaire
         if absence.employe != user_employe:
-            print(f"❌ Employé différent")
+            logger.warning("❌ Employé différent: %s tenté d'annuler l'absence de %s", user_employe, absence.employe)
             return JsonResponse({
                 'success': False,
                 'error': 'Vous ne pouvez annuler que vos propres absences'
@@ -2360,7 +2348,7 @@ def api_absence_annuler(request, id):
 
         # Vérifier si l'absence peut être annulée
         if not absence.peut_annuler:
-            print(f"❌ L'absence ne peut pas être annulée (statut: {absence.statut})")
+            logger.warning("❌ L'absence ne peut pas être annulée (statut: %s)", absence.statut)
             return JsonResponse({
                 'success': False,
                 'error': f'Impossible d\'annuler une absence avec le statut "{absence.get_statut_display()}"'
@@ -2370,7 +2358,7 @@ def api_absence_annuler(request, id):
         with transaction.atomic():
             absence.annuler(user_employe)
 
-        print(f"✅ Absence annulée avec succès")
+        logger.info("✅ Absence annulée avec succès par %s", user_employe)
 
         return JsonResponse({
             'success': True,
@@ -2378,15 +2366,13 @@ def api_absence_annuler(request, id):
         })
 
     except ValidationError as e:
-        print(f"❌ ValidationError: {e}")
+        logger.error("❌ ValidationError: %s", e)
         return JsonResponse({
             'success': False,
             'error': str(e)
         }, status=400)
     except Exception as e:
-        import traceback
-        print(f"❌ ERREUR lors de l'annulation:")
-        traceback.print_exc()
+        logger.exception("❌ ERREUR lors de l'annulation:")
         return JsonResponse({
             'success': False,
             'error': str(e)
@@ -2402,8 +2388,8 @@ def api_mes_absences_calendrier(request):
         start = request.GET.get('start')
         end = request.GET.get('end')
 
-        print(f"📅 API Calendrier appelée - Employé: {user_employe}")
-        print(f"📅 Start: {start}, End: {end}")
+        logger.debug("📅 API Calendrier appelée - Employé: %s", user_employe)
+        logger.debug("📅 Start: %s, End: %s", start, end)
 
         # Convertir les dates
         if start:
@@ -2416,7 +2402,7 @@ def api_mes_absences_calendrier(request):
         else:
             end_date = start_date + timedelta(days=30)
 
-        print(f"📅 Dates traitées: {start_date} -> {end_date}")
+        logger.debug("📅 Dates traitées: %s -> %s", start_date, end_date)
 
         # Récupérer les absences
         absences = Absence.objects.filter(
@@ -2425,7 +2411,7 @@ def api_mes_absences_calendrier(request):
             date_fin__gte=start_date
         ).select_related('type_absence')
 
-        print(f"📅 Nombre d'absences trouvées: {absences.count()}")
+        logger.debug("📅 Nombre d'absences trouvées: %s", absences.count())
 
         data = []
         for abs in absences:
@@ -2440,7 +2426,7 @@ def api_mes_absences_calendrier(request):
                 'employe': str(abs.employe)
             })
 
-        print(f"📅 Données retournées: {len(data)} éléments")
+        logger.debug("📅 Données retournées: %s éléments", len(data))
 
         return JsonResponse({
             'success': True,
@@ -2448,9 +2434,7 @@ def api_mes_absences_calendrier(request):
         })
 
     except Exception as e:
-        import traceback
-        print(f"❌ ERREUR API Calendrier:")
-        traceback.print_exc()
+        logger.exception("❌ ERREUR API Calendrier:")
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
@@ -2500,8 +2484,6 @@ def api_acquisition_employe_annee(request, employe_id, annee):
             'error': 'Aucune acquisition trouvée pour cette année'
         }, status=404)
     except Exception as e:
-        import traceback
-        traceback.print_exc()
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
@@ -2564,8 +2546,6 @@ def api_absence_detail(request, id):
         return JsonResponse({'success': True, 'data': data})
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 @require_POST
@@ -2582,10 +2562,10 @@ def api_valider_absence(request, id):
         decision = request.POST.get('decision')
         commentaire = request.POST.get('commentaire', '').strip()
 
-        print(f"📋 Validation demandée par {user_employe}")
-        print(f"   - Absence ID: {id}")
-        print(f"   - Décision: {decision}")
-        print(f"   - Commentaire: {commentaire}")
+        logger.info("📋 Validation demandée par %s", user_employe)
+        logger.info("   - Absence ID: %s", id)
+        logger.info("   - Décision: %s", decision)
+        logger.info("   - Commentaire: %s", commentaire)
 
         # Déterminer si c'est une validation manager ou RH
         if absence.statut == 'EN_ATTENTE_MANAGER':
@@ -2610,16 +2590,14 @@ def api_valider_absence(request, id):
         })
 
     except ValidationError as e:
-        print(f"❌ Erreur de validation: {e}")
+        logger.error("❌ Erreur de validation: %s", e)
         return JsonResponse({
             'success': False,
             'error': str(e)
         }, status=400)
 
     except Exception as e:
-        import traceback
-        print(f"❌ Erreur serveur:")
-        traceback.print_exc()
+        logger.exception("❌ Erreur serveur:")
         return JsonResponse({
             'success': False,
             'error': str(e)
@@ -2679,8 +2657,6 @@ def api_verifier_solde(request):
         })
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
@@ -2717,8 +2693,6 @@ def api_historique_validation(request, id):
         })
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
@@ -2745,8 +2719,6 @@ def api_type_detail(request, id):
         })
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
@@ -2795,9 +2767,7 @@ def api_jours_feries(request):
         })
 
     except Exception as e:
-        import traceback
-        print(f"❌ ERREUR API Jours Fériés:")
-        traceback.print_exc()
+        logger.exception("❌ ERREUR API Jours Fériés:")
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 

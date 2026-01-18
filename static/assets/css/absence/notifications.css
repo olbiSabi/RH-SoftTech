@@ -41,7 +41,7 @@
     position: absolute;
     top: calc(100% + 10px);
     right: 0;
-    width: 380px;
+    width: 400px; /* Légèrement augmenté pour les onglets */
     max-height: 500px;
     background: white;
     border-radius: 8px;
@@ -83,21 +83,93 @@
     font-weight: 600;
 }
 
+.mark-all-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: flex-end;
+}
+
 .mark-all-read {
-    color: white;
-    font-size: 0.85rem;
+    color: #c5e3e4;
+    font-size: 0.75rem;
     text-decoration: none;
     opacity: 0.9;
     transition: opacity 0.2s;
+    padding: 3px 8px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .mark-all-read:hover {
     opacity: 1;
-    text-decoration: underline;
+    background: rgba(255, 255, 255, 0.2);
 }
 
+/* ========================================
+   ONGLETS DE NOTIFICATIONS
+   ======================================== */
+
+.notifications-tabs {
+    display: flex;
+    border-bottom: 1px solid #e9ecef;
+    background: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+.notification-tab {
+    flex: 1;
+    padding: 12px 5px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.notification-tab:hover:not(.active) {
+    color: #495057;
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.notification-tab.active {
+    color: #1c5d5f;
+    border-bottom-color: #1c5d5f;
+    font-weight: 600;
+    background: white;
+}
+
+.tab-count {
+    background: #dee2e6;
+    color: #495057;
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 11px;
+    min-width: 24px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.notification-tab.active .tab-count {
+    background: #1c5d5f;
+    color: white;
+}
+
+/* ========================================
+   LISTE DES NOTIFICATIONS
+   ======================================== */
+
 .notifications-list {
-    max-height: 400px;
+    max-height: 350px;
     overflow-y: auto;
 }
 
@@ -109,6 +181,7 @@
     color: #333;
     transition: background-color 0.2s;
     position: relative;
+    align-items: flex-start;
 }
 
 .notification-item:hover {
@@ -133,22 +206,100 @@
     flex-shrink: 0;
     margin-right: 12px;
     font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+
+/* Icônes spécifiques GTA */
+.notification-item[data-type="gta"] .notification-icon {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+.notification-item[data-type="absence"] .notification-icon {
+    background: rgba(28, 93, 95, 0.1);
+}
+
+/* Icônes de notification */
+.notification-icon i.fa-user-tie { color: #f57c00 !important; }
+.notification-icon i.fa-user-shield { color: #388e3c !important; }
+.notification-icon i.fa-user-plus { color: #1c5d5f !important; }
+.notification-icon i.fa-exchange-alt { color: #ff9800 !important; }
+.notification-icon i.fa-edit { color: #2196f3 !important; }
+.notification-icon i.fa-sync-alt { color: #4caf50 !important; }
+.notification-icon i.fa-clock { color: #ff9800 !important; }
+.notification-icon i.fa-check-circle { color: #4caf50 !important; }
+.notification-icon i.fa-comment { color: #9c27b0 !important; }
+.notification-icon i.fa-tasks { color: #1c5d5f !important; }
+.notification-icon i.fa-plus-circle { color: #2196f3 !important; }
+.notification-icon i.fa-user-check { color: #4caf50 !important; }
+.notification-icon i.fa-times-circle { color: #f44336 !important; }
+.notification-icon i.fa-ban { color: #ff9800 !important; }
 
 .notification-content {
     flex: 1;
+    min-width: 0; /* Pour éviter les débordements */
 }
 
 .notification-message {
     font-size: 0.9rem;
     line-height: 1.4;
     margin-bottom: 5px;
+    word-wrap: break-word;
 }
 
 .notification-time {
     font-size: 0.75rem;
     color: #999;
+    font-style: italic;
 }
+
+/* ========================================
+   BADGES DE CONTEXTE
+   ======================================== */
+
+.context-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-right: 8px;
+    margin-bottom: 4px;
+    vertical-align: middle;
+}
+
+.context-employe {
+    background: #e3f2fd;
+    color: #1976d2;
+    border: 1px solid #bbdefb;
+}
+
+.context-manager {
+    background: #fff3e0;
+    color: #f57c00;
+    border: 1px solid #ffe0b2;
+}
+
+.context-rh {
+    background: #e8f5e9;
+    color: #388e3c;
+    border: 1px solid #c8e6c9;
+}
+
+.context-gta {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: 1px solid #5a67d8;
+}
+
+/* ========================================
+   ÉTAT VIDE
+   ======================================== */
 
 .notification-empty {
     padding: 40px 20px;
@@ -164,69 +315,7 @@
 
 .notification-empty p {
     margin: 0;
-}
-
-.notification-see-all {
-    display: block;
-    padding: 12px 20px;
-    text-align: center;
-    background: #f8f9fa;
-    color: #1c5d5f;
-    text-decoration: none;
-    font-weight: 500;
-    border-top: 1px solid #e0e0e0;
-    transition: background-color 0.2s;
-}
-
-.notification-see-all:hover {
-    background-color: #e9ecef;
-}
-
-/* ✅ Responsive */
-@media (max-width: 768px) {
-    .notifications-menu {
-        width: 320px;
-        right: -10px;
-    }
-}
-
-/* ========================================
-   BADGES DE CONTEXTE
-   ======================================== */
-
-.context-badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    margin-right: 5px;
-    vertical-align: middle;
-}
-
-.context-employe {
-    background: #e3f2fd;
-    color: #1976d2;
-}
-
-.context-manager {
-    background: #fff3e0;
-    color: #f57c00;
-}
-
-.context-rh {
-    background: #e8f5e9;
-    color: #388e3c;
-}
-
-/* Icônes selon le contexte */
-.notification-icon i.fa-user-tie {
-    color: #f57c00 !important;
-}
-
-.notification-icon i.fa-user-shield {
-    color: #388e3c !important;
+    font-size: 0.9rem;
 }
 
 /* ========================================
@@ -255,4 +344,121 @@
 
 .notification-see-all i {
     margin-right: 5px;
+}
+
+/* ========================================
+   FILTRAGE PAR ONGLETS
+   ======================================== */
+
+/* Par défaut, tout est visible */
+.notifications-list .notification-item {
+    display: flex !important;
+}
+
+/* Quand on filtre par type, masquer les autres */
+.notifications-list.filter-gta .notification-item[data-type="absence"] {
+    display: none !important;
+}
+
+.notifications-list.filter-absence .notification-item[data-type="gta"] {
+    display: none !important;
+}
+
+/* Indicateur de filtre actif */
+.notifications-list.filter-gta::before,
+.notifications-list.filter-absence::before {
+    content: '';
+    display: block;
+    height: 2px;
+    background: #1c5d5f;
+    margin: 0 20px;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from { width: 0; }
+    to { width: calc(100% - 40px); }
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 768px) {
+    .notifications-menu {
+        width: 320px;
+        right: -10px;
+    }
+
+    .notifications-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
+        text-align: center;
+    }
+
+    .mark-all-container {
+        align-items: stretch;
+    }
+
+    .mark-all-read {
+        text-align: center;
+        padding: 8px;
+    }
+
+    .notifications-tabs {
+        flex-direction: column;
+    }
+
+    .notification-tab {
+        padding: 10px;
+        justify-content: flex-start;
+        padding-left: 20px;
+    }
+
+    .tab-count {
+        margin-left: auto;
+    }
+}
+
+/* ========================================
+   ANIMATIONS DE NOTIFICATION
+   ======================================== */
+
+@keyframes notificationPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.notifications-btn.has-new {
+    animation: notificationPulse 2s infinite;
+}
+
+/* ========================================
+   MARQUER COMME LU
+   ======================================== */
+
+.notification-mark-read {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 5px;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s, background 0.2s;
+}
+
+.notification-item:hover .notification-mark-read {
+    opacity: 1;
+}
+
+.notification-mark-read:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #1c5d5f;
 }

@@ -76,6 +76,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'absence.context_processors.notifications_absences',
+                'core.context_processors.notifications_unifiees',
             ],
         },
     },

@@ -803,7 +803,7 @@ class ZY00(models.Model):
         """
         return (
                 self.has_role('MANAGER') or
-                self.has_role('DRH') or
+                #self.has_role('DRH') or
                 self.has_role('GESTION_APP') or
                 self.has_role('DIRECTEUR')
                 #self.est_manager_departement()
@@ -816,7 +816,7 @@ class ZY00(models.Model):
         """
         return (
                 self.has_role('MANAGER') or
-                self.has_role('DRH') or
+                #self.has_role('DRH') or
                 self.has_role('GESTION_APP') or
                 self.has_role('DIRECTEUR')
                 #self.est_manager_departement()
@@ -829,7 +829,7 @@ class ZY00(models.Model):
         """
         return (
                 self.has_role('MANAGER') or
-                self.has_role('DRH') or
+                #self.has_role('DRH') or
                 self.has_role('GESTION_APP') or
                 self.has_role('DIRECTEUR')
                 #self.est_manager_departement()

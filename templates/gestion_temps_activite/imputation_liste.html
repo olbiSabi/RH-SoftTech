@@ -18,9 +18,11 @@
                 </h1>
             </div>
             <div class="col-md-6 text-right">
+                {% if user.employe.peut_valider_imputations %}
                 <a href="{% url 'gestion_temps_activite:imputation_validation' %}" class="btn btn-warning">
                     <i class="fas fa-check-circle"></i> Validation
                 </a>
+                {% endif %}
                 <a href="{% url 'gestion_temps_activite:imputation_create' %}" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Nouvelle Imputation
                 </a>
@@ -241,7 +243,9 @@
                                 <th width="8%">Durée</th>
                                 <th width="15%">Commentaire</th>
                                 <th width="8%">Validation</th>
+                                {% if user.employe.peut_valider_imputations %}
                                 <th width="7%">Actions</th>
+                                {% endif %}
                             </tr>
                         </thead>
                         <tbody>
@@ -287,6 +291,7 @@
                                     </span>
                                     {% endif %}
                                 </td>
+                                {% if user.employe.peut_valider_imputations %}
                                 <td>
                                     <div class="btn-group" role="group">
                                         {% if not imputation.facture %}
@@ -303,6 +308,7 @@
                                         {% endif %}
                                     </div>
                                 </td>
+                                {% endif %}
                             </tr>
                             {% empty %}
                             <tr>

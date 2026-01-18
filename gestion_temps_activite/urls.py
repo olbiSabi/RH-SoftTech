@@ -66,4 +66,11 @@ urlpatterns = [
     path('api/commentaires/mentions/', views.commentaire_mentions, name='commentaire_mentions'),
     # gestion_temps_activite/urls.py
     path('commentaires/<uuid:tache_pk>/ajouter/', views.commentaire_ajouter, name='commentaire_ajouter'),
+
+
+    # Notifications GTA
+    path('notification/<int:notification_id>/', views.notification_tache_detail, name='notification_tache_detail'),
+    path('notifications/toutes/', views.toutes_notifications_gta, name='toutes_notifications_gta'),
+    path('notification/<int:notification_id>/marquer-lue/', views.marquer_notification_gta_lue, name='marquer_notification_gta_lue'),
+    path('notifications/marquer-toutes-lues/', views.marquer_toutes_notifications_gta_lues, name='marquer_toutes_notifications_gta_lues'),
 ]

@@ -1,18 +1,20 @@
-from .models import NotificationAbsence
+# absence/context_processors.py
+from absence.models import NotificationAbsence
 
 
 def notifications_absences(request):
     """
-    Context processor pour ajouter les notifications d'absence
-    dans tous les templates
+    Context processor pour les notifications d'absence (version compatible)
     """
     if request.user.is_authenticated and hasattr(request.user, 'employe'):
-        notifications_non_lues = NotificationAbsence.get_non_lues(request.user.employe)
-        count_non_lues = notifications_non_lues.count()
+        notifications_non_lues = NotificationAbsence.get_notifications_absences(
+            request.user.employe
+        ).filter(lue=False)
 
         return {
-            'notifications_absences': notifications_non_lues[:5],  # 5 dernières
-            'notifications_absences_count': count_non_lues
+            'notifications_absences': notifications_non_lues[:5],
+            'notifications_absences_count': notifications_non_lues.count(),
+            # ⚠️ Ces clés ne seront utilisées que si le context processor unifié n'est pas activé
         }
 
     return {

@@ -247,66 +247,130 @@
         <div class="header-right">
             <!-- ✅ NOTIFICATIONS -->
             {% if user.is_authenticated %}
+            <!-- Dans votre header template -->
             <div class="notifications-dropdown">
                 <button class="notifications-btn" id="notificationsBtn">
                     <i class="fas fa-bell"></i>
-                    {% if notifications_absences_count > 0 %}
-                    <span class="notifications-badge">{{ notifications_absences_count }}</span>
+                    {% if notifications_total_count > 0 %}
+                    <span class="notifications-badge">{{ notifications_total_count }}</span>
                     {% endif %}
                 </button>
 
                 <div class="notifications-menu" id="notificationsMenu">
                     <div class="notifications-header">
                         <h4>Notifications</h4>
-                        {% if notifications_absences_count > 0 %}
-                        <a href="{% url 'absence:marquer_toutes_lues' %}" class="mark-all-read">
-                            Tout marquer comme lu
-                        </a>
+                        {% if notifications_total_count > 0 %}
+                        <div class="mark-all-container">
+                            <a href="{% url 'absence:marquer_toutes_lues' %}" class="mark-all-read">
+                                Marquer absences lues
+                            </a>
+                            <a href="{% url 'gestion_temps_activite:marquer_toutes_notifications_gta_lues' %}"
+                               class="mark-all-read">
+                                Marquer tâches lues
+                            </a>
+                        </div>
                         {% endif %}
                     </div>
 
+                    <!-- ✅ ONGLETS -->
+                    <div class="notifications-tabs">
+                        <button class="notification-tab active" data-tab="all">
+                            <i class="fas fa-layer-group"></i> Toutes
+                            <span class="tab-count">{{ notifications_total_count }}</span>
+                        </button>
+                        <button class="notification-tab" data-tab="absence">
+                            <i class="fas fa-calendar-alt"></i> Absences
+                            <span class="tab-count">{{ notifications_absences_count }}</span>
+                        </button>
+                        <button class="notification-tab" data-tab="gta">
+                            <i class="fas fa-tasks"></i> Tâches
+                            <span class="tab-count">{{ notifications_gta_count }}</span>
+                        </button>
+                    </div>
+
+                    <!-- ✅ LISTE DES NOTIFICATIONS -->
                     <div class="notifications-list">
-                        {% if notifications_absences %}
+                        <!-- Notifications d'absence -->
                         {% for notif in notifications_absences %}
                         <a href="{% url 'absence:notification_detail' notif.id %}"
-                           class="notification-item {% if not notif.lue %}unread{% endif %}">
+                           class="notification-item {% if not notif.lue %}unread{% endif %}"
+                           data-type="absence"
+                           data-notification-id="{{ notif.id }}">
                             <div class="notification-icon">
+                                <!-- Icône selon le type -->
                                 {% if notif.contexte == 'MANAGER' %}
-                                <i class="fas fa-user-tie text-primary"></i>
+                                <i class="fas fa-user-tie"></i>
                                 {% elif notif.contexte == 'RH' %}
-                                <i class="fas fa-user-shield text-success"></i>
+                                <i class="fas fa-user-shield"></i>
                                 {% else %}
-                                {% if notif.type_notification == 'DEMANDE_CREEE' %}
-                                <i class="fas fa-plus-circle text-info"></i>
-                                {% elif notif.type_notification == 'DEMANDE_VALIDEE_MANAGER' %}
-                                <i class="fas fa-user-check text-info"></i>
-                                {% elif notif.type_notification == 'VALIDATION_MANAGER' %}
-                                <i class="fas fa-check-circle text-success"></i>
-                                {% elif notif.type_notification == 'VALIDATION_RH' %}
-                                <i class="fas fa-check-double text-success"></i>
-                                {% elif 'REJET' in notif.type_notification %}
-                                <i class="fas fa-times-circle text-danger"></i>
-                                {% elif notif.type_notification == 'ABSENCE_ANNULEE' %}
-                                <i class="fas fa-ban text-warning"></i>
-                                {% endif %}
+                                <i class="fas fa-user"></i>
                                 {% endif %}
                             </div>
                             <div class="notification-content">
                                 <div class="notification-message">
-                                    {% if notif.contexte %}
-                                    <span class="context-badge context-{{ notif.contexte|lower }}">
-                                        {{ notif.get_contexte_display }}
-                                    </span>
-                                    {% endif %}
+                        <span class="context-badge context-{{ notif.contexte|lower }}">
+                            {{ notif.get_contexte_display }}
+                        </span>
                                     {{ notif.message }}
                                 </div>
                                 <div class="notification-time">
                                     {{ notif.date_creation|timesince }}
                                 </div>
                             </div>
+                            {% if not notif.lue %}
+                            <button class="notification-mark-read" title="Marquer comme lu">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            {% endif %}
                         </a>
                         {% endfor %}
-                        {% else %}
+
+                        <!-- Notifications GTA -->
+                        {% for notif in notifications_gta %}
+                        <a href="{% url 'gestion_temps_activite:notification_tache_detail' notif.id %}"
+                           class="notification-item {% if not notif.lue %}unread{% endif %}"
+                           data-type="gta"
+                           data-notification-id="{{ notif.id }}">
+                            <div class="notification-icon">
+                                <!-- Icône selon le type de notification GTA -->
+                                {% if notif.type_notification == 'TACHE_ASSIGNEE' %}
+                                <i class="fas fa-user-plus"></i>
+                                {% elif notif.type_notification == 'TACHE_REASSIGNEE' %}
+                                <i class="fas fa-exchange-alt"></i>
+                                {% elif notif.type_notification == 'TACHE_MODIFIEE' %}
+                                <i class="fas fa-edit"></i>
+                                {% elif notif.type_notification == 'STATUT_TACHE_CHANGE' %}
+                                <i class="fas fa-sync-alt"></i>
+                                {% elif notif.type_notification == 'ECHEANCE_TACHE_PROCHE' %}
+                                <i class="fas fa-clock"></i>
+                                {% elif notif.type_notification == 'TACHE_TERMINEE' %}
+                                <i class="fas fa-check-circle"></i>
+                                {% elif notif.type_notification == 'COMMENTAIRE_TACHE' %}
+                                <i class="fas fa-comment"></i>
+                                {% else %}
+                                <i class="fas fa-tasks"></i>
+                                {% endif %}
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-message">
+                        <span class="context-badge context-gta">
+                            GTA
+                        </span>
+                                    {{ notif.message }}
+                                </div>
+                                <div class="notification-time">
+                                    {{ notif.date_creation|timesince }}
+                                </div>
+                            </div>
+                            {% if not notif.lue %}
+                            <button class="notification-mark-read" title="Marquer comme lu">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            {% endif %}
+                        </a>
+                        {% endfor %}
+
+                        {% if notifications_total_count == 0 %}
                         <div class="notification-empty">
                             <i class="fas fa-bell-slash"></i>
                             <p>Aucune notification</p>
@@ -316,10 +380,7 @@
 
                     <div class="notifications-footer">
                         <a href="{% url 'absence:toutes_notifications' %}" class="notification-see-all">
-                            <i class="fas fa-history"></i> Voir toutes les notifications
-                            {% if notifications_absences_count > 5 %}
-                            ({{ notifications_absences_count }})
-                            {% endif %}
+                            <i class="fas fa-history"></i> Historique complet
                         </a>
                     </div>
                 </div>

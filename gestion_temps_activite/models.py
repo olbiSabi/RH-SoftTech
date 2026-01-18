@@ -1268,6 +1268,7 @@ class ZDCM(models.Model):
             self.extract_mentions()
         super().save(*args, **kwargs)
 
+
     def extract_mentions(self):
         """Extrait les mentions du contenu"""
         import re

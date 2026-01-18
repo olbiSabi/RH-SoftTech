@@ -19,6 +19,7 @@ from absence.decorators import drh_or_admin_required, gestion_app_required, mana
     role_required
 import pandas as pd
 from io import BytesIO
+from absence.models import NotificationAbsence
 
 # ==================== VUES CLIENTS (ZDCL) ====================
 @role_required('DRH', 'GESTION_APP', 'DIRECTEUR')
@@ -390,7 +391,7 @@ def projet_detail(request, pk):
 
     return render(request, 'gestion_temps_activite/projet_detail.html', context)
 
-@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
+@role_required('MANAGER', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def projet_create(request):
     """Créer un nouveau projet"""
@@ -416,7 +417,7 @@ def projet_create(request):
 
     return render(request, 'gestion_temps_activite/projet_form.html', context)
 
-@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
+@role_required('MANAGER', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def projet_update(request, pk):
     """Modifier un projet"""
@@ -442,7 +443,7 @@ def projet_update(request, pk):
 
     return render(request, 'gestion_temps_activite/projet_form.html', context)
 
-@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
+@role_required('MANAGER', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def projet_delete(request, pk):
     """Supprimer un projet"""
@@ -646,10 +647,11 @@ def tache_detail(request, pk):
 
     return render(request, 'gestion_temps_activite/tache_detail.html', context)
 
-@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
+
+@role_required('MANAGER', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def tache_create(request):
-    """Créer une nouvelle tâche"""
+    """Créer une nouvelle tâche avec notification"""
     if request.method == 'POST':
         form = ZDTAForm(request.POST)
         if form.is_valid():
@@ -658,6 +660,10 @@ def tache_create(request):
                 tache.cree_par = request.user.employe
             tache.save()
 
+            # ✅ NOTIFICATION NOUVELLE TÂCHE
+            notifier_nouvelle_tache(tache, request.user.employe)
+
+            messages.success(request, "✅ Tâche créée avec succès")
             return redirect('gestion_temps_activite:tache_detail', pk=tache.pk)
         else:
             messages.error(request, 'Erreur lors de la création de la tâche.')
@@ -676,17 +682,39 @@ def tache_create(request):
 
     return render(request, 'gestion_temps_activite/tache_form.html', context)
 
-@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
+
+@role_required('MANAGER', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def tache_update(request, pk):
-    """Modifier une tâche"""
+    """Modifier une tâche avec notifications"""
     tache = get_object_or_404(ZDTA, pk=pk)
+
+    # ✅ SAUVEGARDER les anciennes valeurs AVANT modification
+    ancien_assignee = tache.assignee
+    ancien_statut = tache.statut
 
     if request.method == 'POST':
         form = ZDTAForm(request.POST, instance=tache)
         if form.is_valid():
-            form.save()
+            tache = form.save()
 
+            nouvel_assignee = tache.assignee
+            nouveau_statut = tache.statut
+
+            # ✅ NOTIFICATION RÉASSIGNATION
+            if ancien_assignee != nouvel_assignee:
+                notifier_reassignation_tache(tache, ancien_assignee, nouvel_assignee)
+
+            # ✅ NOTIFICATION MODIFICATION
+            changements = detecter_changements(form, tache, ['titre', 'description', 'priorite', 'date_fin_prevue'])
+            if changements:
+                notifier_modification_tache(tache, request.user.employe, changements)
+
+            # ✅ NOTIFICATION CHANGEMENT DE STATUT
+            if ancien_statut != nouveau_statut:
+                notifier_changement_statut_tache(tache, ancien_statut, nouveau_statut)
+
+            messages.success(request, "✅ Tâche modifiée avec succès")
             return redirect('gestion_temps_activite:tache_detail', pk=tache.pk)
         else:
             messages.error(request, 'Erreur lors de la modification.')
@@ -702,7 +730,17 @@ def tache_update(request, pk):
 
     return render(request, 'gestion_temps_activite/tache_form.html', context)
 
-@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
+
+def detecter_changements(form, tache, champs_a_surveiller):
+    """Détecter les changements dans un formulaire"""
+    changements = []
+    for champ in champs_a_surveiller:
+        if champ in form.changed_data:
+            changements.append(form.fields[champ].label or champ)
+    return changements
+
+
+@role_required('MANAGER', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def tache_delete(request, pk):
     """Supprimer une tâche"""
@@ -1027,7 +1065,7 @@ def imputation_delete(request, pk):
     return render(request, 'gestion_temps_activite/imputation_confirm_delete.html', context)
 
 
-@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
+@role_required('MANAGER', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def imputation_validation(request):
     """Validation des imputations (pour managers et RH)"""
@@ -1054,7 +1092,7 @@ def imputation_validation(request):
 
     return render(request, 'gestion_temps_activite/imputation_validation.html', context)
 
-@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
+@role_required('MANAGER', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def imputation_valider(request, pk):
     imputation = get_object_or_404(ZDIT, pk=pk)
@@ -1189,7 +1227,7 @@ def imputation_export_excel(request):
 
 
 # ==================== VUE DASHBOARD ====================
-@role_required('MANAGER', 'DRH', 'GESTION_APP', 'DIRECTEUR')
+@role_required('MANAGER', 'GESTION_APP', 'DIRECTEUR')
 @login_required
 def dashboard(request):
     """Tableau de bord principal"""
@@ -1267,9 +1305,10 @@ def api_activites_en_vigueur(request):
     return JsonResponse(list(activites), safe=False)
 
 
+
 @login_required
 def commentaire_ajouter(request, tache_pk):
-    """Ajouter un commentaire"""
+    """Ajouter un commentaire avec notifications"""
     tache = get_object_or_404(ZDTA, pk=tache_pk)
 
     if not hasattr(request.user, 'employe'):
@@ -1286,8 +1325,40 @@ def commentaire_ajouter(request, tache_pk):
                 commentaire.employe = request.user.employe
                 commentaire.prive = False
                 commentaire.save()
-                form.save_m2m()
+                form.save_m2m()  # Pour sauvegarder les mentions
 
+                # ✅ NOTIFICATION : Notifier l'assigné de la tâche
+                if tache.assignee and tache.assignee != request.user.employe:
+                    NotificationAbsence.creer_notification(
+                        destinataire=tache.assignee,
+                        type_notif='COMMENTAIRE_TACHE',
+                        message=f"💬 Nouveau commentaire sur votre tâche '{tache.titre}'",
+                        contexte='GTA',
+                        tache=tache
+                    )
+
+                # ✅ NOTIFICATION : Notifier les personnes mentionnées
+                for mentionne in commentaire.mentions.all():
+                    if mentionne != request.user.employe:
+                        NotificationAbsence.creer_notification(
+                            destinataire=mentionne,
+                            type_notif='COMMENTAIRE_TACHE',
+                            message=f"💬 Vous avez été mentionné dans un commentaire sur la tâche '{tache.titre}'",
+                            contexte='GTA',
+                            tache=tache
+                        )
+
+                # ✅ NOTIFICATION : Notifier le chef de projet (s'il n'est pas l'auteur ou l'assigné)
+                if tache.projet.chef_projet and tache.projet.chef_projet != request.user.employe and tache.projet.chef_projet != tache.assignee:
+                    NotificationAbsence.creer_notification(
+                        destinataire=tache.projet.chef_projet,
+                        type_notif='COMMENTAIRE_TACHE',
+                        message=f"💬 Nouveau commentaire sur la tâche '{tache.titre}' de votre projet",
+                        contexte='GTA',
+                        tache=tache
+                    )
+
+                messages.success(request, '✅ Commentaire ajouté avec succès')
                 return redirect('gestion_temps_activite:tache_detail', pk=tache.pk)
 
             except Exception as e:
@@ -1302,7 +1373,7 @@ def commentaire_ajouter(request, tache_pk):
 
 @login_required
 def commentaire_repondre(request, commentaire_pk):
-    """Répondre à un commentaire - Version AJAX"""
+    """Répondre à un commentaire avec notifications"""
     commentaire_parent = get_object_or_404(ZDCM, pk=commentaire_pk)
     tache = commentaire_parent.tache
 
@@ -1338,9 +1409,51 @@ def commentaire_repondre(request, commentaire_pk):
                     prive=commentaire_parent.prive  # Hérite de la visibilité
                 )
 
+                # ✅ NOTIFICATION : Notifier l'auteur du commentaire parent
+                if commentaire_parent.employe and commentaire_parent.employe != request.user.employe:
+                    NotificationAbsence.creer_notification(
+                        destinataire=commentaire_parent.employe,
+                        type_notif='COMMENTAIRE_TACHE',
+                        message=f"💬 Quelqu'un a répondu à votre commentaire sur la tâche '{tache.titre}'",
+                        contexte='GTA',
+                        tache=tache
+                    )
+
+                # ✅ NOTIFICATION : Notifier l'assigné de la tâche (si différent)
+                if tache.assignee and tache.assignee != request.user.employe and tache.assignee != commentaire_parent.employe:
+                    NotificationAbsence.creer_notification(
+                        destinataire=tache.assignee,
+                        type_notif='COMMENTAIRE_TACHE',
+                        message=f"💬 Nouvelle réponse sur la tâche '{tache.titre}'",
+                        contexte='GTA',
+                        tache=tache
+                    )
+
+                # ✅ NOTIFICATION : Notifier les personnes mentionnées dans la réponse
+                # (Pour cela, vous devez extraire les mentions du contenu)
+                import re
+                mentions_trouvees = re.findall(r'@([A-Za-zÀ-ÖØ-öø-ÿ\s]+)', contenu)
+                if mentions_trouvees:
+                    for mention in mentions_trouvees:
+                        employes = ZY00.objects.filter(
+                            Q(nom__icontains=mention) | Q(prenoms__icontains=mention),
+                            etat='actif'
+                        ).exclude(pk=request.user.employe.pk)
+
+                        for employe in employes:
+                            if employe != commentaire_parent.employe and employe != tache.assignee:
+                                NotificationAbsence.creer_notification(
+                                    destinataire=employe,
+                                    type_notif='COMMENTAIRE_TACHE',
+                                    message=f"💬 Vous avez été mentionné dans une réponse sur la tâche '{tache.titre}'",
+                                    contexte='GTA',
+                                    tache=tache
+                                )
+
                 return JsonResponse({
                     'success': True,
-                    'message': 'Réponse ajoutée avec succès.'
+                    'message': 'Réponse ajoutée avec succès.',
+                    'reponse_id': str(reponse.id)
                 })
 
             except Exception as e:
@@ -1348,19 +1461,6 @@ def commentaire_repondre(request, commentaire_pk):
                     'success': False,
                     'error': str(e)
                 })
-
-        # Requête normale (fallback)
-        else:
-            form = ZDCMForm(request.POST, tache=tache, employe=request.user.employe, parent=commentaire_parent)
-            if form.is_valid():
-                reponse = form.save(commit=False)
-                reponse.tache = tache
-                reponse.employe = request.user.employe
-                reponse.reponse_a = commentaire_parent
-                reponse.save()
-                form.save_m2m()
-
-                return redirect('gestion_temps_activite:tache_detail', pk=tache.pk)
 
     return redirect('gestion_temps_activite:tache_detail', pk=tache.pk)
 
@@ -1511,3 +1611,264 @@ def commentaire_mentions(request):
     ]
 
     return JsonResponse(result, safe=False)
+
+
+# ==================== VUES NOTIFICATIONS GTA ====================
+def notifier_changement_statut(tache, ancien_statut, nouveau_statut, request):
+    """Notifier l'assigné du changement de statut"""
+    if not tache.assignee:
+        return
+
+    # Ne notifier que pour certains changements importants
+    notifications_importantes = {
+        ('A_FAIRE', 'EN_COURS'): "🚀 Votre tâche '{titre}' est maintenant en cours",
+        ('EN_COURS', 'TERMINE'): "✅ La tâche '{titre}' a été marquée comme terminée",
+        ('EN_COURS', 'EN_ATTENTE'): "⏸️ La tâche '{titre}' est en attente",
+        ('EN_ATTENTE', 'EN_COURS'): "▶️ La tâche '{titre}' a repris",
+    }
+
+    cle = (ancien_statut, nouveau_statut)
+    if cle in notifications_importantes:
+        message = notifications_importantes[cle].format(titre=tache.titre)
+
+        NotificationAbsence.creer_notification(
+            destinataire=tache.assignee,
+            type_notif='STATUT_TACHE_CHANGE',
+            message=message,
+            contexte='GTA',
+            tache=tache
+        )
+
+
+@login_required
+def notification_tache_detail(request, notification_id):
+    """Détail d'une notification de tâche GTA"""
+    notification = get_object_or_404(
+        NotificationAbsence.objects.select_related('tache', 'tache__projet'),
+        pk=notification_id,
+        destinataire=request.user.employe if hasattr(request.user, 'employe') else None
+    )
+
+    # Marquer comme lue
+    if not notification.lue:
+        notification.marquer_comme_lue()
+
+    # Rediriger vers la tâche concernée
+    if notification.tache:
+        return redirect('gestion_temps_activite:tache_detail', pk=notification.tache.pk)
+
+    # Fallback vers le dashboard
+    messages.info(request, "Notification traitée")
+    return redirect('gestion_temps_activite:dashboard')
+
+
+@login_required
+def toutes_notifications_gta(request):
+    """Toutes les notifications GTA de l'utilisateur"""
+    if not hasattr(request.user, 'employe'):
+        messages.error(request, 'Vous devez être associé à un employé.')
+        return redirect('gestion_temps_activite:dashboard')
+
+    employe = request.user.employe
+
+    notifications_gta = NotificationAbsence.objects.filter(
+        destinataire=employe,
+        tache__isnull=False
+    ).select_related(
+        'tache', 'tache__projet', 'tache__assignee'
+    ).order_by('-date_creation')
+
+    context = {
+        'notifications': notifications_gta,
+        'page_title': 'Toutes mes notifications GTA'
+    }
+
+    return render(request, 'gestion_temps_activite/notifications_liste.html', context)
+
+
+@login_required
+def marquer_notification_gta_lue(request, notification_id):
+    """Marquer une notification GTA comme lue (AJAX)"""
+    if not request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'success': False, 'error': 'Requête invalide'}, status=400)
+
+    try:
+        notification = NotificationAbsence.objects.get(
+            pk=notification_id,
+            destinataire=request.user.employe if hasattr(request.user, 'employe') else None,
+            tache__isnull=False  # Uniquement les notifications GTA
+        )
+
+        if not notification.lue:
+            notification.marquer_comme_lue()
+
+        return JsonResponse({'success': True})
+
+    except NotificationAbsence.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Notification non trouvée'}, status=404)
+
+
+@login_required
+def marquer_toutes_notifications_gta_lues(request):
+    """Marquer toutes les notifications GTA comme lues"""
+    if not hasattr(request.user, 'employe'):
+        messages.error(request, 'Vous devez être associé à un employé.')
+        return redirect('gestion_temps_activite:dashboard')
+
+    count = NotificationAbsence.objects.filter(
+        destinataire=request.user.employe,
+        tache__isnull=False,
+        lue=False
+    ).update(lue=True, date_lecture=timezone.now())
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'success': True, 'count': count})
+
+    messages.success(request, f'{count} notification(s) GTA marquée(s) comme lue(s).')
+    return redirect(request.META.get('HTTP_REFERER', 'gestion_temps_activite:dashboard'))
+
+
+def notifier_nouvelle_tache(tache, createur):
+    """Notifier l'assigné d'une nouvelle tâche"""
+    if not tache.assignee:
+        return None
+
+    return NotificationAbsence.creer_notification(
+        destinataire=tache.assignee,
+        type_notif='TACHE_ASSIGNEE',
+        message=f"📋 Nouvelle tâche assignée : {tache.titre}",
+        contexte='GTA',
+        tache=tache
+    )
+
+
+def notifier_reassignation_tache(tache, ancien_assignee, nouvel_assignee):
+    """Notifier l'ancien et le nouvel assigné lors d'une réassignation"""
+    notifications = []
+
+    if nouvel_assignee:
+        notifications.append(
+            NotificationAbsence.creer_notification(
+                destinataire=nouvel_assignee,
+                type_notif='TACHE_REASSIGNEE',
+                message=f"📋 Tâche réassignée : {tache.titre}",
+                contexte='GTA',
+                tache=tache
+            )
+        )
+
+    if ancien_assignee and ancien_assignee != nouvel_assignee:
+        notifications.append(
+            NotificationAbsence.creer_notification(
+                destinataire=ancien_assignee,
+                type_notif='TACHE_REASSIGNEE',
+                message=f"ℹ️ La tâche '{tache.titre}' a été réassignée à {nouvel_assignee.nom if nouvel_assignee else 'un autre employé'}",
+                contexte='GTA',
+                tache=tache
+            )
+        )
+
+    return notifications
+
+
+def notifier_modification_tache(tache, employe_modifiant, changements):
+    """Notifier l'assigné d'une modification de tâche"""
+    if not tache.assignee or tache.assignee == employe_modifiant:
+        return None
+
+    message = f"✏️ Votre tâche '{tache.titre}' a été modifiée"
+    if changements:
+        message += f" : {', '.join(changements)}"
+
+    return NotificationAbsence.creer_notification(
+        destinataire=tache.assignee,
+        type_notif='TACHE_MODIFIEE',
+        message=message,
+        contexte='GTA',
+        tache=tache
+    )
+
+
+def notifier_changement_statut_tache(tache, ancien_statut, nouveau_statut):
+    """Notifier le changement de statut d'une tâche"""
+    if not tache.assignee:
+        return None
+
+    messages_statut = {
+        ('A_FAIRE', 'EN_COURS'): "🚀 Votre tâche '{titre}' est maintenant en cours",
+        ('EN_COURS', 'TERMINE'): "✅ La tâche '{titre}' a été marquée comme terminée",
+        ('EN_COURS', 'EN_ATTENTE'): "⏸️ La tâche '{titre}' est en attente",
+        ('EN_ATTENTE', 'EN_COURS'): "▶️ La tâche '{titre}' a repris",
+        ('EN_COURS', 'A_FAIRE'): "↩️ La tâche '{titre}' est revenue à 'À faire'",
+    }
+
+    cle = (ancien_statut, nouveau_statut)
+    if cle in messages_statut:
+        message = messages_statut[cle].format(titre=tache.titre)
+
+        return NotificationAbsence.creer_notification(
+            destinataire=tache.assignee,
+            type_notif='STATUT_TACHE_CHANGE',
+            message=message,
+            contexte='GTA',
+            tache=tache
+        )
+
+    return None
+
+
+def notifier_nouveau_commentaire(commentaire):
+    """Notifier les personnes mentionnées dans un commentaire"""
+    if not commentaire.tache.assignee:
+        return []
+
+    notifications = []
+
+    # Notifier l'assigné de la tâche (si différent de l'auteur)
+    if commentaire.tache.assignee != commentaire.employe:
+        notifications.append(
+            NotificationAbsence.creer_notification(
+                destinataire=commentaire.tache.assignee,
+                type_notif='COMMENTAIRE_TACHE',
+                message=f"💬 Nouveau commentaire sur votre tâche '{commentaire.tache.titre}'",
+                contexte='GTA',
+                tache=commentaire.tache
+            )
+        )
+
+    # Notifier les personnes mentionnées
+    for mentionne in commentaire.mentions.all():
+        if mentionne != commentaire.employe:
+            notifications.append(
+                NotificationAbsence.creer_notification(
+                    destinataire=mentionne,
+                    type_notif='COMMENTAIRE_TACHE',
+                    message=f"💬 Vous avez été mentionné dans un commentaire sur la tâche '{commentaire.tache.titre}'",
+                    contexte='GTA',
+                    tache=commentaire.tache
+                )
+            )
+
+    return notifications
+
+
+def notifier_echeance_tache_proche(tache):
+    """Notifier que l'échéance d'une tâche approche"""
+    if not tache.assignee or not tache.date_fin_prevue:
+        return None
+
+    aujourdhui = timezone.now().date()
+    jours_restants = (tache.date_fin_prevue - aujourdhui).days
+
+    if 0 <= jours_restants <= 2:  # Dans les 2 prochains jours
+        message = f"⏳ Échéance proche ({jours_restants} jour(s)) : {tache.titre}"
+
+        return NotificationAbsence.creer_notification(
+            destinataire=tache.assignee,
+            type_notif='ECHEANCE_TACHE_PROCHE',
+            message=message,
+            contexte='GTA',
+            tache=tache
+        )
+
+    return None
