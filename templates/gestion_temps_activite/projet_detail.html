@@ -145,6 +145,7 @@
             </div>
         </div>
 
+        <!-- Informations générales et planification -->
         <div class="row">
             <!-- Informations du projet -->
             <div class="col-lg-6 mb-4">
@@ -308,21 +309,89 @@
             </div>
         </div>
 
-        <!-- Description -->
-        {% if projet.description %}
+        <!-- ✅ NOUVEAU : Description et Documents sur 2 colonnes -->
         <div class="row mb-4">
-            <div class="col-12">
-                <div class="card shadow">
+            <!-- Description -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow h-100">
                     <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Description</h6>
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-align-left"></i> Description
+                        </h6>
                     </div>
                     <div class="card-body">
-                        <p class="text-muted">{{ projet.description|linebreaks }}</p>
+                        {% if projet.description %}
+                        <p class="text-muted mb-0">{{ projet.description|linebreaks }}</p>
+                        {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-file-alt fa-2x mb-2"></i>
+                            <p class="mb-0">Aucune description</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documents -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-paperclip"></i> Documents
+                            {% if documents %}
+                            <span class="badge badge-primary badge-pill ml-2">{{ documents.count }}</span>
+                            {% endif %}
+                        </h6>
+                        <a href="{% url 'gestion_temps_activite:document_upload' %}?type=PROJET&projet={{ projet.pk %}"
+                           class="btn btn-sm btn-info">
+                            <i class="fas fa-plus"></i> Ajouter
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        {% if documents %}
+                        <div class="list-group list-group-flush">
+                            {% for document in documents %}
+                            <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center mb-1">
+                                        <i class="fas fa-file-{% if document.type_fichier == 'pdf' %}pdf text-danger{% elif document.type_fichier in 'doc,docx' %}word text-primary{% elif document.type_fichier in 'xls,xlsx' %}excel text-success{% else %}alt{% endif %} mr-2"></i>
+                                        <strong class="small">{{ document.nom_document }}</strong>
+                                    </div>
+                                    <div class="small text-muted">
+                                        <span class="badge badge-secondary mr-1">{{ document.type_fichier|upper }}</span>
+                                        {{ document.get_taille_formatee }}
+                                        {% if document.uploade_par %}
+                                        • {{ document.uploade_par.nom }}
+                                        {% endif %}
+                                        • {{ document.date_upload|date:"d/m/Y" }}
+                                    </div>
+                                </div>
+                                <div class="btn-group btn-group-sm ml-2">
+                                    <a href="{{ document.fichier.url }}"
+                                       class="btn btn-outline-primary"
+                                       target="_blank"
+                                       title="Télécharger">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                    <a href="{% url 'gestion_temps_activite:document_delete' pk=document.pk %}"
+                                       class="btn btn-outline-danger"
+                                       title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-file fa-2x mb-2"></i>
+                            <p class="mb-0">Aucun document</p>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
-        {% endif %}
 
         <!-- Tâches du projet -->
         <div class="row mb-4">
@@ -434,78 +503,10 @@
                             <i class="fas fa-tasks fa-3x mb-3"></i>
                             <p>Aucune tâche pour ce projet</p>
                             {% if user.employe.peut_gerer_taches %}
-                            <a href="{% url 'gestion_temps_activite:tache_create' %}?projet={{ projet.pk }}" class="btn btn-success">
+                            <a href="{% url 'gestion_temps_activite:tache_create' %}?projet={{ projet.pk %}" class="btn btn-success">
                                 <i class="fas fa-plus"></i> Créer une tâche
                             </a>
                             {% endif %}
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Documents du projet -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card shadow">
-                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                        <h6 class="m-0 font-weight-bold text-primary">Documents</h6>
-                        <a href="{% url 'gestion_temps_activite:document_upload' %}?type=PROJET&projet={{ projet.pk }}" class="btn btn-sm btn-info">
-                            <i class="fas fa-paperclip"></i> Ajouter un Document
-                        </a>
-                    </div>
-                    <div class="card-body">
-                        {% if documents %}
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th>Nom</th>
-                                        <th>Catégorie</th>
-                                        <th>Type</th>
-                                        <th>Taille</th>
-                                        <th>Uploadé par</th>
-                                        <th>Date</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for document in documents %}
-                                    <tr>
-                                        <td>
-                                            <i class="fas fa-file-{% if document.type_fichier == 'pdf' %}pdf text-danger{% elif document.type_fichier in 'doc,docx' %}word text-primary{% elif document.type_fichier in 'xls,xlsx' %}excel text-success{% else %}alt{% endif %}"></i>
-                                            {{ document.nom_document }}
-                                        </td>
-                                        <td>{{ document.get_categorie_display }}</td>
-                                        <td><span class="badge badge-secondary">{{ document.type_fichier|upper }}</span></td>
-                                        <td>{{ document.get_taille_formatee }}</td>
-                                        <td>
-                                            {% if document.uploade_par %}
-                                            {{ document.uploade_par.nom }} {{ document.uploade_par.prenoms }}
-                                            {% else %}
-                                            -
-                                            {% endif %}
-                                        </td>
-                                        <td>{{ document.date_upload|date:"d/m/Y" }}</td>
-                                        <td>
-                                            <a href="{{ document.fichier.url }}" class="btn btn-sm btn-primary" target="_blank" title="Télécharger">
-                                                <i class="fas fa-download"></i>
-                                            </a>
-                                            <a href="{% url 'gestion_temps_activite:document_delete' pk=document.pk %}"
-                                               class="btn btn-sm btn-danger" title="Supprimer">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                        {% else %}
-                        <div class="text-center text-muted py-4">
-                            <i class="fas fa-file fa-3x mb-3"></i>
-                            <p>Aucun document pour ce projet</p>
                         </div>
                         {% endif %}
                     </div>

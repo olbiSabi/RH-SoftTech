@@ -70,8 +70,7 @@
                                 </div>
                                 <div class="row no-gutters align-items-center">
                                     <div class="col-auto">
-                                        <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ tache.avancement }}%
-                                        </div>
+                                        <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ tache.avancement }}%</div>
                                     </div>
                                     <div class="col">
                                         <div class="progress progress-sm mr-2">
@@ -122,8 +121,7 @@
                                 <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
                                     Temps Réalisé
                                 </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ heures_totales|floatformat:2 }}h
-                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ heures_totales|floatformat:2 }}h</div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-clock fa-2x text-gray-300"></i>
@@ -158,6 +156,7 @@
             </div>
         </div>
 
+        <!-- Informations générales et planification -->
         <div class="row">
             <!-- Informations de la tâche -->
             <div class="col-lg-6 mb-4">
@@ -343,21 +342,89 @@
             </div>
         </div>
 
-        <!-- Description -->
-        {% if tache.description %}
+        <!-- ✅ NOUVEAU : Description et Documents sur 2 colonnes -->
         <div class="row mb-4">
-            <div class="col-12">
-                <div class="card shadow">
+            <!-- Description -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow h-100">
                     <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Description</h6>
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-align-left"></i> Description
+                        </h6>
                     </div>
                     <div class="card-body">
-                        <p class="text-muted">{{ tache.description|linebreaks }}</p>
+                        {% if tache.description %}
+                        <p class="text-muted mb-0">{{ tache.description|linebreaks }}</p>
+                        {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-file-alt fa-2x mb-2"></i>
+                            <p class="mb-0">Aucune description</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documents -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-paperclip"></i> Documents
+                            {% if documents %}
+                            <span class="badge badge-primary badge-pill ml-2">{{ documents.count }}</span>
+                            {% endif %}
+                        </h6>
+                        <a href="{% url 'gestion_temps_activite:document_upload' %}?type=TACHE&tache={{ tache.pk }}"
+                           class="btn btn-sm btn-info">
+                            <i class="fas fa-plus"></i> Ajouter
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        {% if documents %}
+                        <div class="list-group list-group-flush">
+                            {% for document in documents %}
+                            <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center mb-1">
+                                        <i class="fas fa-file-{% if document.type_fichier == 'pdf' %}pdf text-danger{% elif document.type_fichier in 'doc,docx' %}word text-primary{% elif document.type_fichier in 'xls,xlsx' %}excel text-success{% else %}alt{% endif %} mr-2"></i>
+                                        <strong class="small">{{ document.nom_document }}</strong>
+                                    </div>
+                                    <div class="small text-muted">
+                                        <span class="badge badge-secondary mr-1">{{ document.type_fichier|upper }}</span>
+                                        {{ document.get_taille_formatee }}
+                                        {% if document.uploade_par %}
+                                        • {{ document.uploade_par.nom }}
+                                        {% endif %}
+                                        • {{ document.date_upload|date:"d/m/Y" }}
+                                    </div>
+                                </div>
+                                <div class="btn-group btn-group-sm ml-2">
+                                    <a href="{{ document.fichier.url }}"
+                                       class="btn btn-outline-primary"
+                                       target="_blank"
+                                       title="Télécharger">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                    <a href="{% url 'gestion_temps_activite:document_delete' pk=document.pk %}"
+                                       class="btn btn-outline-danger"
+                                       title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-file fa-2x mb-2"></i>
+                            <p class="mb-0">Aucun document</p>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
-        {% endif %}
 
         <!-- Sous-tâches -->
         {% if sous_taches %}
@@ -432,9 +499,9 @@
                                     <td>{{ imputation.date|date:"d/m/Y" }}</td>
                                     <td>{{ imputation.employe.nom }} {{ imputation.employe.prenoms }}</td>
                                     <td>
-                                            <span class="badge badge-{% if imputation.activite.facturable %}success{% else %}secondary{% endif %}">
-                                                {{ imputation.activite.libelle }}
-                                            </span>
+                                        <span class="badge badge-{% if imputation.activite.facturable %}success{% else %}secondary{% endif %}">
+                                            {{ imputation.activite.libelle }}
+                                        </span>
                                     </td>
                                     <td><strong>{{ imputation.duree }}h</strong></td>
                                     <td>
@@ -447,12 +514,12 @@
                                     <td>
                                         {% if imputation.valide %}
                                         <span class="badge badge-success">
-                                                <i class="fas fa-check"></i> Validé
-                                            </span>
+                                            <i class="fas fa-check"></i> Validé
+                                        </span>
                                         {% else %}
                                         <span class="badge badge-warning">
-                                                <i class="fas fa-clock"></i> En attente
-                                            </span>
+                                            <i class="fas fa-clock"></i> En attente
+                                        </span>
                                         {% endif %}
                                     </td>
                                     <td>
@@ -488,77 +555,7 @@
             </div>
         </div>
 
-        <!-- Documents -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card shadow">
-                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                        <h6 class="m-0 font-weight-bold text-primary">Documents</h6>
-                        <a href="{% url 'gestion_temps_activite:document_upload' %}?type=TACHE&tache={{ tache.pk }}"
-                           class="btn btn-sm btn-info">
-                            <i class="fas fa-paperclip"></i> Ajouter un Document
-                        </a>
-                    </div>
-                    <div class="card-body">
-                        {% if documents %}
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="thead-light">
-                                <tr>
-                                    <th>Nom</th>
-                                    <th>Catégorie</th>
-                                    <th>Type</th>
-                                    <th>Taille</th>
-                                    <th>Uploadé par</th>
-                                    <th>Date</th>
-                                    <th>Actions</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for document in documents %}
-                                <tr>
-                                    <td>
-                                        <i class="fas fa-file-{% if document.type_fichier == 'pdf' %}pdf text-danger{% elif document.type_fichier in 'doc,docx' %}word text-primary{% elif document.type_fichier in 'xls,xlsx' %}excel text-success{% else %}alt{% endif %}"></i>
-                                        {{ document.nom_document }}
-                                    </td>
-                                    <td>{{ document.get_categorie_display }}</td>
-                                    <td><span class="badge badge-secondary">{{ document.type_fichier|upper }}</span>
-                                    </td>
-                                    <td>{{ document.get_taille_formatee }}</td>
-                                    <td>
-                                        {% if document.uploade_par %}
-                                        {{ document.uploade_par.nom }} {{ document.uploade_par.prenoms }}
-                                        {% else %}
-                                        -
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ document.date_upload|date:"d/m/Y" }}</td>
-                                    <td>
-                                        <a href="{{ document.fichier.url }}" class="btn btn-sm btn-primary"
-                                           target="_blank" title="Télécharger">
-                                            <i class="fas fa-download"></i>
-                                        </a>
-                                        <a href="{% url 'gestion_temps_activite:document_delete' pk=document.pk %}"
-                                           class="btn btn-sm btn-danger" title="Supprimer">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                        {% else %}
-                        <div class="text-center text-muted py-4">
-                            <i class="fas fa-file fa-3x mb-3"></i>
-                            <p>Aucun document pour cette tâche</p>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-
+        <!-- Discussions (commentaires) -->
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card shadow">
@@ -588,6 +585,7 @@
                             </button>
                         </div>
                         {% endif %}
+
                         {% if user.is_authenticated and user.employe %}
                         {% if form_commentaire %}
                         <div class="mb-4">
@@ -598,17 +596,13 @@
                                 <div class="form-group">
                                     <div class="media">
                                         <img src="{{ user.employe.get_photo_url }}" class="mr-3 rounded-circle" alt="{{ user.employe.nom }}" width="40" height="40">
-
-
                                         <div class="media-body">
                                             {{ form_commentaire.contenu }}
-
                                             {% if form_commentaire.contenu.errors %}
                                             <div class="text-danger small mt-1">
                                                 {{ form_commentaire.contenu.errors }}
                                             </div>
                                             {% endif %}
-
                                             <div class="d-flex justify-content-between align-items-center mt-2">
                                                 <button type="submit" class="btn btn-primary btn-sm">
                                                     <i class="fas fa-paper-plane"></i> Commenter
@@ -620,13 +614,10 @@
                             </form>
                         </div>
                         {% else %}
-                        <!-- ✅ Message si pas de permission -->
                         <div class="alert alert-warning mb-4">
                             <i class="fas fa-exclamation-triangle"></i>
                             <strong>Vous ne pouvez pas commenter sur cette tâche</strong>
-                            <p class="mb-0 mt-2 small">
-                                Vous devez être :
-                            </p>
+                            <p class="mb-0 mt-2 small">Vous devez être :</p>
                             <ul class="small mb-0">
                                 <li>Assigné à cette tâche</li>
                                 <li>Chef du projet</li>
@@ -660,63 +651,54 @@
                                                     {{ commentaire.employe.nom }} {{ commentaire.employe.prenoms }}
                                                     {% if commentaire.prive %}
                                                     <span class="badge badge-warning badge-pill ml-1">
-                                                <i class="fas fa-lock"></i> Privé
-                                            </span>
+                                                        <i class="fas fa-lock"></i> Privé
+                                                    </span>
                                                     {% else %}
                                                     <span class="badge badge-light badge-pill ml-1">
-                                                <i class="fas fa-globe"></i> Public
-                                            </span>
+                                                        <i class="fas fa-globe"></i> Public
+                                                    </span>
                                                     {% endif %}
                                                     {% if commentaire.employe == tache.assignee %}
-                                                    <span class="badge badge-info badge-pill ml-1">
-                                                Assigné
-                                            </span>
+                                                    <span class="badge badge-info badge-pill ml-1">Assigné</span>
                                                     {% endif %}
                                                     {% if commentaire.employe == tache.projet.chef_projet %}
-                                                    <span class="badge badge-primary badge-pill ml-1">
-                                                Chef Projet
-                                            </span>
+                                                    <span class="badge badge-primary badge-pill ml-1">Chef Projet</span>
                                                     {% endif %}
                                                 </h6>
                                                 <small class="text-muted">
                                                     <i class="far fa-clock"></i> {{ commentaire.get_temps_ecoule }}
                                                     {% if commentaire.edite %}
-                                                    <span class="ml-2">
-                                                <i class="fas fa-edit"></i> modifié
-                                            </span>
+                                                    <span class="ml-2"><i class="fas fa-edit"></i> modifié</span>
                                                     {% endif %}
                                                 </small>
                                             </div>
-                                            <!-- Dropdown actions commentaire - VERSION AVEC MODALES -->
-                                            <!-- Dropdown Bootstrap 4 -->
+
                                             {% if commentaire.peut_modifier_par or commentaire.peut_supprimer_par %}
                                             <div class="dropdown">
                                                 <button class="btn btn-sm btn-link text-muted" type="button" id="dropdownMenuComment{{ commentaire.id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                     <i class="fas fa-ellipsis-v"></i>
                                                 </button>
                                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuComment{{ commentaire.id }}">
-                                                {% if commentaire.peut_modifier_par %}
-                                                <a class="dropdown-item" href="javascript:void(0);" onclick="ouvrirModalModifier('{{ commentaire.id }}', `{{ commentaire.contenu|escapejs }}`); return false;">
-                                                    <i class="fas fa-edit text-primary"></i> Modifier
-                                                </a>
-                                                {% endif %}
-
-                                                {% if commentaire.peut_supprimer_par %}
-                                                <a class="dropdown-item text-danger" href="javascript:void(0);" onclick="ouvrirModalSupprimer('{{ commentaire.id }}', `{{ commentaire.contenu|escapejs }}`, {{ commentaire.reponses_visibles|length }}); return false;">
-                                                    <i class="fas fa-trash"></i> Supprimer
-                                                </a>
-                                                {% endif %}
+                                                    {% if commentaire.peut_modifier_par %}
+                                                    <a class="dropdown-item" href="javascript:void(0);" onclick="ouvrirModalModifier('{{ commentaire.id }}', `{{ commentaire.contenu|escapejs }}`); return false;">
+                                                        <i class="fas fa-edit text-primary"></i> Modifier
+                                                    </a>
+                                                    {% endif %}
+                                                    {% if commentaire.peut_supprimer_par %}
+                                                    <a class="dropdown-item text-danger" href="javascript:void(0);" onclick="ouvrirModalSupprimer('{{ commentaire.id }}', `{{ commentaire.contenu|escapejs }}`, {{ commentaire.reponses_visibles|length }}); return false;">
+                                                        <i class="fas fa-trash"></i> Supprimer
+                                                    </a>
+                                                    {% endif %}
+                                                </div>
                                             </div>
+                                            {% endif %}
                                         </div>
-                                        {% endif %}
-                                    </div>
 
-                                    <div class="commentaire-contenu mt-2">
-                                        {{ commentaire.contenu|linebreaks }}
-                                    </div>
+                                        <div class="commentaire-contenu mt-2">
+                                            {{ commentaire.contenu|linebreaks }}
+                                        </div>
 
-                                    <!-- Réponses -->
-
+                                        <!-- Réponses -->
                                         {% if commentaire.reponses_visibles %}
                                         <div class="reponses ml-5 mt-3">
                                             {% for reponse in commentaire.reponses_visibles %}
@@ -745,14 +727,11 @@
                                                                 <small class="text-muted">
                                                                     <i class="far fa-clock"></i> {{ reponse.get_temps_ecoule }}
                                                                     {% if reponse.edite %}
-                                                                    <span class="ml-2">
-                                                                        <i class="fas fa-edit"></i> modifié
-                                                                    </span>
+                                                                    <span class="ml-2"><i class="fas fa-edit"></i> modifié</span>
                                                                     {% endif %}
                                                                 </small>
                                                             </div>
 
-                                                            <!-- ✅ AJOUT : Dropdown actions pour les réponses -->
                                                             {% if reponse.peut_modifier_par or reponse.peut_supprimer_par %}
                                                             <div class="dropdown">
                                                                 <button class="btn btn-sm btn-link text-muted p-0"
@@ -765,16 +744,13 @@
                                                                 </button>
                                                                 <div class="dropdown-menu dropdown-menu-right"
                                                                      aria-labelledby="dropdownMenuReponse{{ reponse.id }}">
-
                                                                     {% if reponse.peut_modifier_par %}
                                                                     <a class="dropdown-item"
                                                                        href="javascript:void(0);"
                                                                        onclick="ouvrirModalModifier('{{ reponse.id }}', `{{ reponse.contenu|escapejs }}`); return false;">
-                                                                        <i class="fas fa-edit text-primary"></i>
-                                                                        Modifier
+                                                                        <i class="fas fa-edit text-primary"></i> Modifier
                                                                     </a>
                                                                     {% endif %}
-
                                                                     {% if reponse.peut_supprimer_par %}
                                                                     <a class="dropdown-item text-danger"
                                                                        href="javascript:void(0);"
@@ -785,7 +761,6 @@
                                                                 </div>
                                                             </div>
                                                             {% endif %}
-                                                            <!-- FIN Dropdown actions -->
                                                         </div>
                                                         <div class="mt-1">
                                                             {{ reponse.contenu|linebreaks }}
@@ -797,7 +772,7 @@
                                         </div>
                                         {% endif %}
 
-                                    <!-- Bouton Répondre -->
+                                        <!-- Bouton Répondre -->
                                         {% if user.employe %}
                                         <div class="mt-2">
                                             <button type="button" class="btn btn-sm btn-link p-0"
@@ -806,19 +781,19 @@
                                             </button>
                                         </div>
                                         {% endif %}
+                                    </div>
                                 </div>
                             </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
+                        {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="far fa-comments fa-3x mb-3"></i>
+                            <p>Aucune discussion pour cette tâche</p>
+                            <p class="small">Soyez le premier à commenter !</p>
+                        </div>
+                        {% endif %}
                     </div>
-                    {% else %}
-                    <div class="text-center text-muted py-4">
-                        <i class="far fa-comments fa-3x mb-3"></i>
-                        <p>Aucune discussion pour cette tâche</p>
-                        <p class="small">Soyez le premier à commenter !</p>
-                    </div>
-                    {% endif %}
-                </div>
                 </div>
             </div>
         </div>
@@ -961,7 +936,6 @@
 {% endblock %}
 
 {% block extrascript %}
-
 <script src="{% static 'assets/js/gta/gestion_tache.js' %}"></script>
 <script src="{% static 'assets/js/gta/gestion_commentaires.js' %}"></script>
 <script src="{% static 'assets/js/gta/modal-commentaires.js' %}"></script>

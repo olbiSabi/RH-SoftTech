@@ -73,4 +73,5 @@ urlpatterns = [
     path('notifications/toutes/', views.toutes_notifications_gta, name='toutes_notifications_gta'),
     path('notification/<int:notification_id>/marquer-lue/', views.marquer_notification_gta_lue, name='marquer_notification_gta_lue'),
     path('notifications/marquer-toutes-lues/', views.marquer_toutes_notifications_gta_lues, name='marquer_toutes_notifications_gta_lues'),
+
 ]

@@ -882,7 +882,6 @@ def imputation_liste(request):
     page_number = request.GET.get('page')
     imputations_page = paginator.get_page(page_number)
 
-    # ✅ AJOUT : Récupérer les données pour les filtres
     employes = ZY00.objects.filter(etat='actif').order_by('nom', 'prenoms')
     projets = ZDPJ.objects.filter(actif=True).order_by('nom_projet')
     taches = ZDTA.objects.filter(statut__in=['A_FAIRE', 'EN_COURS', 'EN_ATTENTE']).select_related('projet').order_by('code_tache')
@@ -895,7 +894,6 @@ def imputation_liste(request):
         'heures_validees': heures_validees,
         'heures_facturables': heures_facturables,
         'total_imputations': imputations.count(),
-        # ✅ AJOUT : Passer les données des filtres au template
         'employes': employes,
         'projets': projets,
         'taches': taches,
@@ -917,7 +915,21 @@ def imputation_mes_temps(request):
     periode = request.GET.get('periode', 'mois')
     date_actuelle = timezone.now().date()
 
-    if periode == 'semaine':
+    # Gestion période personnalisée
+    if periode == 'personnalisee':
+        date_debut_str = request.GET.get('date_debut')
+        date_fin_str = request.GET.get('date_fin')
+        if date_debut_str and date_fin_str:
+            date_debut = datetime.strptime(date_debut_str, '%Y-%m-%d').date()
+            date_fin = datetime.strptime(date_fin_str, '%Y-%m-%d').date()
+        else:
+            # Par défaut, utiliser le mois en cours
+            date_debut = date_actuelle.replace(day=1)
+            if date_actuelle.month == 12:
+                date_fin = date_actuelle.replace(day=31)
+            else:
+                date_fin = (date_actuelle.replace(month=date_actuelle.month + 1, day=1) - timedelta(days=1))
+    elif periode == 'semaine':
         date_debut = date_actuelle - timedelta(days=date_actuelle.weekday())
         date_fin = date_debut + timedelta(days=6)
     elif periode == 'mois':
@@ -926,9 +938,16 @@ def imputation_mes_temps(request):
             date_fin = date_actuelle.replace(day=31)
         else:
             date_fin = (date_actuelle.replace(month=date_actuelle.month + 1, day=1) - timedelta(days=1))
-    else:  # année
+    elif periode == 'annee':
         date_debut = date_actuelle.replace(month=1, day=1)
         date_fin = date_actuelle.replace(month=12, day=31)
+    else:
+        # Par défaut : mois
+        date_debut = date_actuelle.replace(day=1)
+        if date_actuelle.month == 12:
+            date_fin = date_actuelle.replace(day=31)
+        else:
+            date_fin = (date_actuelle.replace(month=date_actuelle.month + 1, day=1) - timedelta(days=1))
 
     imputations = ZDIT.objects.filter(
         employe=employe,
@@ -936,9 +955,14 @@ def imputation_mes_temps(request):
         date__lte=date_fin
     ).select_related('tache__projet', 'activite').order_by('-date')
 
+    # ✅ STATISTIQUES CORRIGÉES
     total_heures = imputations.aggregate(total=Sum('duree'))['total'] or 0
     heures_validees = imputations.filter(valide=True).aggregate(total=Sum('duree'))['total'] or 0
-    heures_en_attente = imputations.filter(valide=False).aggregate(total=Sum('duree'))['total'] or 0
+    heures_attente = total_heures - heures_validees
+
+    # ✅ AJOUT : Calcul de la moyenne par jour
+    jours_travailles = imputations.values('date').distinct().count()
+    moyenne_jour = (total_heures / jours_travailles) if jours_travailles > 0 else 0
 
     par_projet = imputations.values(
         'tache__projet__nom_projet'
@@ -953,7 +977,8 @@ def imputation_mes_temps(request):
         'date_fin': date_fin,
         'total_heures': total_heures,
         'heures_validees': heures_validees,
-        'heures_en_attente': heures_en_attente,
+        'heures_attente': heures_attente,
+        'moyenne_jour': moyenne_jour,
         'par_projet': par_projet
     }
 
@@ -1305,10 +1330,9 @@ def api_activites_en_vigueur(request):
     return JsonResponse(list(activites), safe=False)
 
 
-
 @login_required
 def commentaire_ajouter(request, tache_pk):
-    """Ajouter un commentaire avec notifications"""
+    """Ajouter un commentaire avec notifications optimisées"""
     tache = get_object_or_404(ZDTA, pk=tache_pk)
 
     if not hasattr(request.user, 'employe'):
@@ -1327,36 +1351,33 @@ def commentaire_ajouter(request, tache_pk):
                 commentaire.save()
                 form.save_m2m()  # Pour sauvegarder les mentions
 
-                # ✅ NOTIFICATION : Notifier l'assigné de la tâche
-                if tache.assignee and tache.assignee != request.user.employe:
+                # ✅ NOTIFICATIONS OPTIMISÉES
+                destinataires = commentaire.get_destinataires_notification()
+
+                print(f"\n[DEBUG commentaire_ajouter] 📧 Envoi notifications")
+                print(f"[DEBUG] Auteur: {request.user.employe}")
+                print(f"[DEBUG] Destinataires ({len(destinataires)}): {[str(d) for d in destinataires]}")
+
+                for destinataire in destinataires:
+                    # Déterminer le message personnalisé
+                    if destinataire == tache.assignee:
+                        message = f"💬 Nouveau commentaire sur votre tâche '{tache.titre}'"
+                    elif destinataire in commentaire.mentions.all():
+                        message = f"💬 Vous avez été mentionné dans un commentaire sur la tâche '{tache.titre}'"
+                    elif destinataire == tache.projet.chef_projet:
+                        message = f"💬 Nouveau commentaire sur la tâche '{tache.titre}' de votre projet"
+                    else:
+                        # Manager ou membre d'équipe
+                        message = f"💬 Nouveau commentaire sur la tâche '{tache.titre}'"
+
                     NotificationAbsence.creer_notification(
-                        destinataire=tache.assignee,
+                        destinataire=destinataire,
                         type_notif='COMMENTAIRE_TACHE',
-                        message=f"💬 Nouveau commentaire sur votre tâche '{tache.titre}'",
+                        message=message,
                         contexte='GTA',
                         tache=tache
                     )
-
-                # ✅ NOTIFICATION : Notifier les personnes mentionnées
-                for mentionne in commentaire.mentions.all():
-                    if mentionne != request.user.employe:
-                        NotificationAbsence.creer_notification(
-                            destinataire=mentionne,
-                            type_notif='COMMENTAIRE_TACHE',
-                            message=f"💬 Vous avez été mentionné dans un commentaire sur la tâche '{tache.titre}'",
-                            contexte='GTA',
-                            tache=tache
-                        )
-
-                # ✅ NOTIFICATION : Notifier le chef de projet (s'il n'est pas l'auteur ou l'assigné)
-                if tache.projet.chef_projet and tache.projet.chef_projet != request.user.employe and tache.projet.chef_projet != tache.assignee:
-                    NotificationAbsence.creer_notification(
-                        destinataire=tache.projet.chef_projet,
-                        type_notif='COMMENTAIRE_TACHE',
-                        message=f"💬 Nouveau commentaire sur la tâche '{tache.titre}' de votre projet",
-                        contexte='GTA',
-                        tache=tache
-                    )
+                    print(f"[DEBUG] ✅ Notification envoyée à {destinataire}")
 
                 messages.success(request, '✅ Commentaire ajouté avec succès')
                 return redirect('gestion_temps_activite:tache_detail', pk=tache.pk)
@@ -1373,7 +1394,7 @@ def commentaire_ajouter(request, tache_pk):
 
 @login_required
 def commentaire_repondre(request, commentaire_pk):
-    """Répondre à un commentaire avec notifications"""
+    """Répondre à un commentaire avec notifications optimisées"""
     commentaire_parent = get_object_or_404(ZDCM, pk=commentaire_pk)
     tache = commentaire_parent.tache
 
@@ -1409,28 +1430,22 @@ def commentaire_repondre(request, commentaire_pk):
                     prive=commentaire_parent.prive  # Hérite de la visibilité
                 )
 
-                # ✅ NOTIFICATION : Notifier l'auteur du commentaire parent
+                # ✅ NOTIFICATIONS OPTIMISÉES POUR RÉPONSES
+                destinataires = set()
+
+                # 1. L'auteur du commentaire parent (prioritaire)
                 if commentaire_parent.employe and commentaire_parent.employe != request.user.employe:
-                    NotificationAbsence.creer_notification(
-                        destinataire=commentaire_parent.employe,
-                        type_notif='COMMENTAIRE_TACHE',
-                        message=f"💬 Quelqu'un a répondu à votre commentaire sur la tâche '{tache.titre}'",
-                        contexte='GTA',
-                        tache=tache
-                    )
+                    destinataires.add(commentaire_parent.employe)
 
-                # ✅ NOTIFICATION : Notifier l'assigné de la tâche (si différent)
-                if tache.assignee and tache.assignee != request.user.employe and tache.assignee != commentaire_parent.employe:
-                    NotificationAbsence.creer_notification(
-                        destinataire=tache.assignee,
-                        type_notif='COMMENTAIRE_TACHE',
-                        message=f"💬 Nouvelle réponse sur la tâche '{tache.titre}'",
-                        contexte='GTA',
-                        tache=tache
-                    )
+                # 2. L'assigné de la tâche
+                if tache.assignee and tache.assignee != request.user.employe:
+                    destinataires.add(tache.assignee)
 
-                # ✅ NOTIFICATION : Notifier les personnes mentionnées dans la réponse
-                # (Pour cela, vous devez extraire les mentions du contenu)
+                # 3. Le chef de projet
+                if tache.projet.chef_projet and tache.projet.chef_projet != request.user.employe:
+                    destinataires.add(tache.projet.chef_projet)
+
+                # 4. Extraire les mentions de la réponse
                 import re
                 mentions_trouvees = re.findall(r'@([A-Za-zÀ-ÖØ-öø-ÿ\s]+)', contenu)
                 if mentions_trouvees:
@@ -1441,14 +1456,69 @@ def commentaire_repondre(request, commentaire_pk):
                         ).exclude(pk=request.user.employe.pk)
 
                         for employe in employes:
-                            if employe != commentaire_parent.employe and employe != tache.assignee:
-                                NotificationAbsence.creer_notification(
-                                    destinataire=employe,
-                                    type_notif='COMMENTAIRE_TACHE',
-                                    message=f"💬 Vous avez été mentionné dans une réponse sur la tâche '{tache.titre}'",
-                                    contexte='GTA',
-                                    tache=tache
-                                )
+                            destinataires.add(employe)
+
+                # 5. Le manager du département de l'assigné
+                if tache.assignee:
+                    try:
+                        from departement.models import ZYMA
+                        manager_dept = ZYMA.objects.filter(
+                            departement=tache.assignee.get_departement_actuel(),
+                            actif=True,
+                            date_fin__isnull=True
+                        ).first()
+
+                        if manager_dept and manager_dept.employe != request.user.employe:
+                            destinataires.add(manager_dept.employe)
+                    except:
+                        pass
+
+                # 6. Les membres de l'équipe (avec vérification visibilité)
+                if tache.assignee:
+                    try:
+                        from employee.models import ZYAF
+                        dept_assignee = tache.assignee.get_departement_actuel()
+
+                        if dept_assignee:
+                            membres_equipe = ZYAF.objects.filter(
+                                poste__DEPARTEMENT=dept_assignee,
+                                date_fin__isnull=True,
+                                employe__etat='actif'
+                            ).values_list('employe', flat=True).distinct()
+
+                            for employe_id in membres_equipe:
+                                employe = ZY00.objects.filter(pk=employe_id).first()
+                                if employe and employe != request.user.employe:
+                                    if reponse.peut_voir(employe):
+                                        destinataires.add(employe)
+                    except:
+                        pass
+
+                # Envoyer les notifications
+                print(f"\n[DEBUG commentaire_repondre] 📧 Envoi notifications")
+                print(f"[DEBUG] Auteur: {request.user.employe}")
+                print(f"[DEBUG] Destinataires ({len(destinataires)}): {[str(d) for d in destinataires]}")
+
+                for destinataire in destinataires:
+                    # Message personnalisé
+                    if destinataire == commentaire_parent.employe:
+                        message = f"💬 Quelqu'un a répondu à votre commentaire sur la tâche '{tache.titre}'"
+                    elif destinataire in [emp for mention in mentions_trouvees
+                                          for emp in ZY00.objects.filter(
+                            Q(nom__icontains=mention) | Q(prenoms__icontains=mention),
+                            etat='actif')]:
+                        message = f"💬 Vous avez été mentionné dans une réponse sur la tâche '{tache.titre}'"
+                    else:
+                        message = f"💬 Nouvelle réponse sur la tâche '{tache.titre}'"
+
+                    NotificationAbsence.creer_notification(
+                        destinataire=destinataire,
+                        type_notif='COMMENTAIRE_TACHE',
+                        message=message,
+                        contexte='GTA',
+                        tache=tache
+                    )
+                    print(f"[DEBUG] ✅ Notification envoyée à {destinataire}")
 
                 return JsonResponse({
                     'success': True,
@@ -1457,6 +1527,9 @@ def commentaire_repondre(request, commentaire_pk):
                 })
 
             except Exception as e:
+                print(f"[DEBUG] ❌ Erreur: {e}")
+                import traceback
+                traceback.print_exc()
                 return JsonResponse({
                     'success': False,
                     'error': str(e)

@@ -1495,4 +1495,65 @@ class ZDCM(models.Model):
 
         return False
 
+    def get_destinataires_notification(self):
+        """
+        Retourne la liste des destinataires pour les notifications
+        en évitant les doublons et en respectant la visibilité
+        """
+        destinataires = set()
+
+        # 1. L'assigné de la tâche (toujours notifié sauf si c'est l'auteur)
+        if self.tache.assignee and self.tache.assignee != self.employe:
+            destinataires.add(self.tache.assignee)
+
+        # 2. Le chef de projet (sauf si c'est l'auteur)
+        if self.tache.projet.chef_projet and self.tache.projet.chef_projet != self.employe:
+            destinataires.add(self.tache.projet.chef_projet)
+
+        # 3. Les personnes mentionnées (sauf l'auteur)
+        for mentionne in self.mentions.all():
+            if mentionne != self.employe:
+                destinataires.add(mentionne)
+
+        # 4. Le manager du département de l'assigné
+        if self.tache.assignee:
+            try:
+                from departement.models import ZYMA
+                manager_dept = ZYMA.objects.filter(
+                    departement=self.tache.assignee.get_departement_actuel(),
+                    actif=True,
+                    date_fin__isnull=True
+                ).first()
+
+                if manager_dept and manager_dept.employe != self.employe:
+                    destinataires.add(manager_dept.employe)
+            except Exception as e:
+                print(f"[DEBUG get_destinataires] Erreur récupération manager: {e}")
+
+        # 5. Les membres de la même équipe/département que l'assigné
+        if self.tache.assignee:
+            try:
+                from employee.models import ZYAF
+                dept_assignee = self.tache.assignee.get_departement_actuel()
+
+                if dept_assignee:
+                    # Récupérer tous les employés du même département
+                    membres_equipe = ZYAF.objects.filter(
+                        poste__DEPARTEMENT=dept_assignee,
+                        date_fin__isnull=True,
+                        employe__etat='actif'
+                    ).values_list('employe', flat=True).distinct()
+
+                    for employe_id in membres_equipe:
+                        from employee.models import ZY00
+                        employe = ZY00.objects.filter(pk=employe_id).first()
+                        if employe and employe != self.employe:
+                            # Vérifier que l'employé peut voir ce commentaire
+                            if self.peut_voir(employe):
+                                destinataires.add(employe)
+            except Exception as e:
+                print(f"[DEBUG get_destinataires] Erreur récupération équipe: {e}")
+
+        return list(destinataires)
+
     objects = ZDCMQuerySet.as_manager()
