@@ -1362,32 +1362,36 @@ def liste_acquisitions(request):
     annee_filter = request.GET.get('annee', timezone.now().year)
     employe_filter = request.GET.get('employe', '')
 
-    # ✅ CORRECTION : Base queryset avec filtre sur employés ACTIFS
-    acquisitions = AcquisitionConges.objects.select_related(
-        'employe',
-        'employe__entreprise'
-    ).filter(
-        employe__etat='actif'  # ✅ AJOUTER CE FILTRE
+    # ✅ MODIFICATION : Récupérer TOUS les employés actifs
+    employes_actifs = ZY00.objects.filter(
+        etat='actif',
+        entreprise__isnull=False
     )
 
-    # Appliquer les autres filtres
+    # Appliquer filtres de recherche sur les employés
     if search:
-        acquisitions = acquisitions.filter(
-            Q(employe__nom__icontains=search) |
-            Q(employe__prenoms__icontains=search) |
-            Q(employe__matricule__icontains=search)
+        employes_actifs = employes_actifs.filter(
+            Q(nom__icontains=search) |
+            Q(prenoms__icontains=search) |
+            Q(matricule__icontains=search)
         )
 
-    if annee_filter:
-        acquisitions = acquisitions.filter(annee_reference=annee_filter)
-
     if employe_filter:
-        acquisitions = acquisitions.filter(employe_id=employe_filter)
+        employes_actifs = employes_actifs.filter(matricule=employe_filter)
 
-    acquisitions = acquisitions.order_by('employe__nom', 'employe__prenoms')
+    employes_actifs = employes_actifs.order_by('nom', 'prenoms')
+
+    # Récupérer les acquisitions existantes pour l'année
+    acquisitions_existantes = AcquisitionConges.objects.filter(
+        annee_reference=annee_filter,
+        employe__in=employes_actifs
+    ).select_related('employe', 'employe__entreprise')
+
+    # Créer un dictionnaire des acquisitions par employé
+    acquisitions_dict = {acq.employe.uuid: acq for acq in acquisitions_existantes}
 
     # Statistiques
-    stats = acquisitions.aggregate(
+    stats = acquisitions_existantes.aggregate(
         total_employes=Count('employe', distinct=True),
         total_jours_acquis=Sum('jours_acquis'),
         total_jours_pris=Sum('jours_pris'),
@@ -1399,7 +1403,7 @@ def liste_acquisitions(request):
         'annee_reference', flat=True
     ).distinct().order_by('-annee_reference')
 
-    # ✅ Employés pour le filtre (ACTIFS UNIQUEMENT)
+    # Tous les employés pour le filtre
     employes = ZY00.objects.filter(
         etat='actif',
         entreprise__isnull=False
@@ -1408,7 +1412,7 @@ def liste_acquisitions(request):
     # Formulaire de calcul
     calcul_form = CalculAcquisitionForm(initial={'annee_reference': annee_filter})
 
-    # Calculer le statut de verrouillage pour l'année filtrée
+    # Calculer le statut de verrouillage
     date_actuelle = timezone.now().date()
     annee_verrouille = False
     date_limite_recalcul = None
@@ -1425,46 +1429,68 @@ def liste_acquisitions(request):
         ).first()
 
         if convention_entreprise and annee_filter:
-            # Calculer la date de fin de période pour l'année filtrée
             _, fin_periode = convention_entreprise.get_periode_acquisition(int(annee_filter))
-
-            # Date limite = fin de période + 2 jours
             date_limite_recalcul = fin_periode + timedelta(days=2)
 
-            # Vérifier si l'année est verrouillée
             if date_actuelle > date_limite_recalcul:
                 annee_verrouille = True
                 message_verrouillage = f"Le délai de recalcul a expiré le {date_limite_recalcul.strftime('%d/%m/%Y')}"
-
-            # Vérifier si on est dans le délai de grâce
             elif date_actuelle > fin_periode and date_actuelle <= date_limite_recalcul:
                 dans_delai_grace = True
 
     except Exception as e:
         logger.error("Erreur lors du calcul de verrouillage: %s", e)
 
-    # Enrichir chaque acquisition avec son statut de verrouillage
+    # ✅ NOUVEAU : Créer une liste combinée employés + acquisitions
     acquisitions_enrichies = []
-    for acq in acquisitions:
-        try:
-            conv = acq.employe.convention_applicable
-            if conv:
-                _, fin_periode_acq = conv.get_periode_acquisition(acq.annee_reference)
-                date_limite_acq = fin_periode_acq + timedelta(days=2)
+    for emp in employes_actifs:
+        # Vérifier si l'employé a une acquisition
+        acq = acquisitions_dict.get(emp.uuid)
 
-                acq.est_verrouille_cache = date_actuelle > date_limite_acq
-                acq.date_limite_modification_cache = date_limite_acq
-                acq.est_dans_delai_grace_cache = (date_actuelle > fin_periode_acq and date_actuelle <= date_limite_acq)
-            else:
+        if acq:
+            # Enrichir l'acquisition existante
+            try:
+                conv = emp.convention_applicable
+                if conv:
+                    _, fin_periode_acq = conv.get_periode_acquisition(int(annee_filter))
+                    date_limite_acq = fin_periode_acq + timedelta(days=2)
+
+                    acq.est_verrouille_cache = date_actuelle > date_limite_acq
+                    acq.date_limite_modification_cache = date_limite_acq
+                    acq.est_dans_delai_grace_cache = (
+                                date_actuelle > fin_periode_acq and date_actuelle <= date_limite_acq)
+                else:
+                    acq.est_verrouille_cache = True
+                    acq.date_limite_modification_cache = None
+                    acq.est_dans_delai_grace_cache = False
+            except:
                 acq.est_verrouille_cache = True
                 acq.date_limite_modification_cache = None
                 acq.est_dans_delai_grace_cache = False
-        except:
-            acq.est_verrouille_cache = True
-            acq.date_limite_modification_cache = None
-            acq.est_dans_delai_grace_cache = False
 
-        acquisitions_enrichies.append(acq)
+            acquisitions_enrichies.append(acq)
+        else:
+            # ✅ Créer une acquisition "vide" pour l'affichage
+            # (Vous pouvez adapter selon vos besoins)
+            from decimal import Decimal
+
+            acq_vide = type('AcquisitionVide', (), {
+                'employe': emp,
+                'annee_reference': annee_filter,
+                'jours_acquis': Decimal('0.00'),
+                'jours_pris': Decimal('0.00'),
+                'jours_restants': Decimal('0.00'),
+                'jours_report_anterieur': Decimal('0.00'),
+                'jours_report_nouveau': Decimal('0.00'),
+                'date_maj': None,
+                'id': None,
+                'est_verrouille_cache': False,
+                'date_limite_modification_cache': None,
+                'est_dans_delai_grace_cache': False,
+                'a_calculer': True  # Flag pour le template
+            })()
+
+            acquisitions_enrichies.append(acq_vide)
 
     context = {
         'acquisitions': acquisitions_enrichies,
@@ -1480,7 +1506,7 @@ def liste_acquisitions(request):
         'message_verrouillage': message_verrouillage,
         'dans_delai_grace': dans_delai_grace,
         'fin_periode': fin_periode,
-        'today': timezone.now().date(),  # ✅ Ajouter pour le simulateur
+        'today': timezone.now().date(),
     }
 
     return render(request, 'absence/acquisitions_list.html', context)
