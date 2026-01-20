@@ -69,7 +69,7 @@
                 <h1 class="employee-title">{{ employe.username }} {{ employe.prenomuser }}</h1>
                 <p class="employee-subtitle">
                     Matricule: {{ employe.matricule }} |
-                    {% if employe.etat == 'actif' %}
+                    {% if employe.est_actif %}
                     <span class="badge badge-success">Actif</span>
                     {% else %}
                     <span class="badge badge-danger">Inactif</span>

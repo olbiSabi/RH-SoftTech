@@ -1,5 +1,6 @@
 // static/assets/js/absence/acquisitions.js
 
+
 /**
  * Gestion des acquisitions de congés
  */
@@ -11,10 +12,30 @@ window.showSuccessMessage = function() { return; };
 let currentAcquisitionId = null;
 let currentAcquisitionData = null;
 
+// ===== FONCTION HELPER CSRF TOKEN =====
+/**
+ * Récupérer le CSRF token depuis les cookies
+ */
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 // ===== INITIALISATION =====
 $(document).ready(function() {
     initEventHandlers();
 });
+
 
 // ===== GESTION DES ÉVÉNEMENTS =====
 function initEventHandlers() {
@@ -383,29 +404,146 @@ function resetEditForm() {
  * Recalculer une acquisition spécifique
  */
 function recalculerAcquisition(acquisitionId) {
-    if (!confirm('Recalculer cette acquisition ?\n\nLes jours acquis seront recalculés selon la convention applicable.')) {
+    // Vérifier que SweetAlert est disponible
+    if (typeof Swal === 'undefined') {
+        if (!confirm('Recalculer cette acquisition ?\n\nLes jours acquis seront recalculés selon la convention applicable.')) {
+            return;
+        }
+    } else {
+        Swal.fire({
+            title: 'Recalculer cette acquisition ?',
+            text: 'Les jours acquis seront recalculés selon la convention applicable',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Oui, recalculer',
+            cancelButtonText: 'Annuler'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                executeRecalcul(acquisitionId);
+            }
+        });
         return;
+    }
+
+    executeRecalcul(acquisitionId);
+}
+
+/**
+ * Exécuter le recalcul (fonction helper)
+ */
+function executeRecalcul(acquisitionId) {
+    // Afficher un loader
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'Recalcul en cours...',
+            text: 'Veuillez patienter...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
     }
 
     $.ajax({
         url: `/absence/api/acquisition/${acquisitionId}/recalculer/`,
         type: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        },
         data: {
-            csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
+            csrfmiddlewaretoken: getCookie('csrftoken')
         },
         success: function(response) {
+            if (typeof Swal !== 'undefined') {
+                Swal.close();
+            }
+
             if (response.success) {
-                // Recharger la page
-                window.location.reload();
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Succès !',
+                        html: `
+                            <p>${response.message}</p>
+                            <div class="mt-3 text-left">
+                                <strong>Jours acquis :</strong> ${response.jours_acquis}<br>
+                                <strong>Jours restants :</strong> ${response.jours_restants}
+                                ${response.mois_travailles ? `<br><strong>Mois travaillés :</strong> ${response.mois_travailles}` : ''}
+                            </div>
+                        `,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    alert('Acquisition recalculée avec succès');
+                    window.location.reload();
+                }
             } else {
-                showErrorMessage(response.error || 'Erreur lors du recalcul');
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erreur',
+                        text: response.error || 'Erreur lors du recalcul'
+                    });
+                } else {
+                    alert('Erreur: ' + (response.error || 'Erreur lors du recalcul'));
+                }
             }
         },
         error: function(xhr) {
-            showErrorMessage(xhr.responseJSON?.error || 'Erreur lors du recalcul');
+            if (typeof Swal !== 'undefined') {
+                Swal.close();
+            }
+
+            // Log détaillé dans la console
+            console.error('❌ ERREUR RECALCUL - Détails complets:');
+            console.error('Status:', xhr.status);
+            console.error('Status Text:', xhr.statusText);
+            console.error('Response Text:', xhr.responseText);
+            console.error('Response JSON:', xhr.responseJSON);
+            console.error('Full XHR:', xhr);
+
+            let errorMsg = 'Erreur lors du recalcul';
+            let errorDetails = '';
+
+            if (xhr.responseJSON) {
+                errorMsg = xhr.responseJSON.error || errorMsg;
+            } else if (xhr.responseText) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    errorMsg = response.error || errorMsg;
+                } catch (e) {
+                    errorDetails = xhr.responseText.substring(0, 200); // Limiter la taille
+                }
+            }
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur de recalcul',
+                    html: `
+                        <p><strong>${errorMsg}</strong></p>
+                        ${errorDetails ? `<hr><small class="text-muted">Détails: ${errorDetails}</small>` : ''}
+                        <hr>
+                        <small class="text-muted">
+                            Code HTTP: ${xhr.status}<br>
+                            Consultez la console (F12) pour plus de détails
+                        </small>
+                    `,
+                    width: 600
+                });
+            } else {
+                alert(`Erreur: ${errorMsg}\n\nCode HTTP: ${xhr.status}\n\nConsultez la console (F12) pour plus de détails`);
+            }
         }
     });
 }
+
 
 // ===== SUPPRESSION =====
 
@@ -517,4 +655,239 @@ function showErrorMessage(message) {
     } else {
         alert('Erreur: ' + message);
     }
+}
+
+
+
+
+
+
+// ========================================
+// SOLUTION ALTERNATIVE - Force la récupération
+// ========================================
+
+$('#simulationForm').on('submit', function(e) {
+    e.preventDefault();
+
+    // ✅ MÉTHODE ALTERNATIVE : Récupérer via l'option sélectionnée
+    let employeId = '';
+
+    // Méthode 1 : Via l'option sélectionnée
+    const selectedOption = $('#sim_employe option:selected');
+    employeId = selectedOption.val() || selectedOption.attr('value');
+
+    console.log('Méthode 1 (option:selected):', employeId);
+
+    // Si toujours vide, essayer via selectedIndex
+    if (!employeId || employeId === '') {
+        const selectElement = document.getElementById('sim_employe');
+        const selectedIndex = selectElement.selectedIndex;
+        if (selectedIndex > 0) {  // > 0 pour ignorer "-- Sélectionner --"
+            employeId = selectElement.options[selectedIndex].value ||
+                       selectElement.options[selectedIndex].getAttribute('value');
+            console.log('Méthode 2 (selectedIndex):', employeId);
+        }
+    }
+
+    // Si toujours vide, essayer via data-id
+    if (!employeId || employeId === '') {
+        employeId = $('#sim_employe option:selected').data('id');
+        console.log('Méthode 3 (data-id):', employeId);
+    }
+
+    // Récupérer année et date (ceux-ci fonctionnent)
+    const annee = $.trim($('#sim_annee').val());
+    const date = $.trim($('#sim_date').val());
+
+    console.log('Valeurs récupérées:', {
+        employeId: employeId,
+        annee: annee,
+        date: date
+    });
+
+    // Validation
+    if (!employeId || employeId === '' || employeId === '0') {
+        showMessage('Veuillez sélectionner un employé', 'error');
+
+        // Debug : Afficher le HTML du select
+        console.error('DEBUG - HTML du select:', $('#sim_employe')[0].outerHTML);
+        console.error('DEBUG - Options:');
+        $('#sim_employe option').each(function() {
+            console.log('  -', $(this).text(), '| value=', $(this).attr('value'));
+        });
+
+        return;
+    }
+
+    if (!annee || annee === '') {
+        showMessage('Veuillez sélectionner une année', 'error');
+        return;
+    }
+
+    if (!date || date === '') {
+        showMessage('Veuillez sélectionner une date', 'error');
+        return;
+    }
+
+    // Loader
+    const submitBtn = $(this).find('button[type="submit"]');
+    const originalText = submitBtn.html();
+    submitBtn.prop('disabled', true);
+    submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Calcul en cours...');
+
+    // AJAX
+    $.ajax({
+        url: '/absence/api/calculer-acquis-a-date/',
+        method: 'GET',
+        data: {
+            employe_id: employeId,
+            annee: annee,
+            date: date
+        },
+        success: function(response) {
+            console.log('Réponse API:', response);
+
+            submitBtn.prop('disabled', false);
+            submitBtn.html(originalText);
+
+            if (response.success) {
+                $('#result_employe').text(response.data.employe);
+                $('#result_date').text(response.data.date_reference);
+                $('#result_mois').text(response.data.mois_travailles);
+                $('#result_jours').text(response.data.jours_acquis + ' jours');
+
+                if (response.data.detail) {
+                    afficherDetailMois(response.data.detail);
+                }
+
+                $('#simulationResult').slideDown();
+                showMessage('Simulation effectuée avec succès', 'success');
+            } else {
+                showMessage(response.error, 'error');
+            }
+        },
+        error: function(xhr) {
+            console.error('Erreur AJAX:', xhr);
+
+            submitBtn.prop('disabled', false);
+            submitBtn.html(originalText);
+
+            const error = xhr.responseJSON?.error || 'Erreur lors du calcul';
+            showMessage(error, 'error');
+        }
+    });
+});
+
+// ========================================
+// FONCTION : Afficher message
+// ========================================
+function showMessage(message, type) {
+    const colors = {
+        success: '#28a745',
+        error: '#dc3545',
+        warning: '#ffc107',
+        info: '#17a2b8'
+    };
+
+    const icons = {
+        success: 'fa-check-circle',
+        error: 'fa-exclamation-circle',
+        warning: 'fa-exclamation-triangle',
+        info: 'fa-info-circle'
+    };
+
+    const messageHtml = `
+        <div class="custom-message ${type}" style="
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-left: 4px solid ${colors[type]};
+            z-index: 9999;
+            max-width: 400px;
+            animation: slideInRight 0.3s ease;
+        ">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i class="fas ${icons[type]}" style="color: ${colors[type]}; font-size: 20px;"></i>
+                <span style="flex: 1; color: #333; font-size: 14px;">${message}</span>
+                <button onclick="$(this).closest('.custom-message').remove();" style="
+                    background: none;
+                    border: none;
+                    color: #999;
+                    cursor: pointer;
+                    font-size: 18px;
+                    padding: 0;
+                ">&times;</button>
+            </div>
+        </div>
+    `;
+
+    $('body').append(messageHtml);
+
+    setTimeout(function() {
+        $('.custom-message').fadeOut(300, function() {
+            $(this).remove();
+        });
+    }, 3000);
+}
+
+// ========================================
+// FONCTION : Afficher détail mois
+// ========================================
+function afficherDetailMois(detail) {
+    let container = $('#detail_mois_container');
+
+    if (container.length === 0) {
+        $('#simulationResult .table').after('<div id="detail_mois_container"></div>');
+        container = $('#detail_mois_container');
+    }
+
+    let html = `
+        <div class="mt-3 pt-3" style="border-top: 1px solid #e0e0e0;">
+            <h6 class="mb-3">
+                <i class="fas fa-calendar-alt"></i> Détail par mois
+            </h6>
+            <div class="row">
+    `;
+
+    for (const [mois, info] of Object.entries(detail)) {
+        const badgeClass = info.actif ? 'badge-success' : 'badge-secondary';
+        const icon = info.actif ? 'fa-check' : 'fa-times';
+        const joursText = parseFloat(info.jours).toFixed(2);
+
+        html += `
+            <div class="col-6 col-md-3 mb-2">
+                <div class="badge ${badgeClass} d-block p-2" style="font-size: 0.9em;">
+                    <i class="fas ${icon}"></i>
+                    ${mois.charAt(0).toUpperCase() + mois.slice(1)} : <strong>${joursText}</strong> j
+                </div>
+            </div>
+        `;
+    }
+
+    html += '</div></div>';
+    container.html(html);
+}
+
+// ========================================
+// CSS Animation
+// ========================================
+if (!$('head').find('#custom-message-styles').length) {
+    $('head').append(`
+        <style id="custom-message-styles">
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        </style>
+    `);
 }

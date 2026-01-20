@@ -5,6 +5,8 @@ from django.utils import timezone
 from decimal import Decimal
 from datetime import date
 from django.db import transaction
+from django.utils import timezone
+from .utils import calculer_jours_acquis_au
 import os
 
 
@@ -556,6 +558,14 @@ class AcquisitionConges(models.Model):
     )
     annee_reference = models.IntegerField(verbose_name="Année de référence")
 
+    # ✅ NOUVEAU : Cache JSON pour historique mensuel (optionnel pour l'instant)
+    detail_mensuel = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name="Détail mensuel",
+        help_text="Cache des acquisitions mensuelles figées"
+    )
+
     jours_acquis = models.DecimalField(
         max_digits=6,
         decimal_places=2,
@@ -616,6 +626,83 @@ class AcquisitionConges(models.Model):
                 self.jours_pris
         )
         super().save(*args, **kwargs)
+
+    # ✅ NOUVELLE MÉTHODE : Calculer à une date donnée
+    def calculer_acquis_au(self, date_reference=None):
+        """
+        Calcule les jours acquis jusqu'à une date donnée
+
+        Args:
+            date_reference (date): Date jusqu'à laquelle calculer
+                                  Si None, utilise la date actuelle
+
+        Returns:
+            dict: {
+                'jours_acquis': Decimal,
+                'mois_travailles': Decimal,
+                'date_reference': date,
+                'detail': {...}
+            }
+        """
+
+        if date_reference is None:
+            date_reference = timezone.now().date()
+
+        return calculer_jours_acquis_au(
+            self.employe,
+            self.annee_reference,
+            date_reference
+        )
+
+    # ✅ NOUVELLE MÉTHODE : Figer un mois
+    def figer_mois(self, mois, jours_acquis=None):
+        """
+        Fige les acquisitions pour un mois donné
+        Utile pour générer les bulletins de paie
+
+        Args:
+            mois (int): Mois à figer (1-12)
+            jours_acquis (Decimal): Si None, calcule automatiquement
+        """
+        from django.utils import timezone
+        import calendar
+
+        if jours_acquis is None:
+            # Calculer automatiquement
+            dernier_jour = calendar.monthrange(self.annee_reference, mois)[1]
+            date_fin_mois = date(self.annee_reference, mois, dernier_jour)
+            resultat = self.calculer_acquis_au(date_fin_mois)
+            jours_acquis = resultat['jours_acquis']
+
+        mois_key = f"{mois:02d}"
+
+        if mois_key not in self.detail_mensuel:
+            self.detail_mensuel[mois_key] = {}
+
+        self.detail_mensuel[mois_key].update({
+            'jours_acquis': str(jours_acquis),
+            'date_figement': timezone.now().isoformat(),
+            'fige': True
+        })
+
+        self.save(update_fields=['detail_mensuel'])
+
+    # ✅ NOUVELLE MÉTHODE : Obtenir jours d'un mois figé
+    def get_jours_mois(self, mois):
+        """
+        Retourne les jours acquis pour un mois donné
+
+        Returns:
+            dict ou None si mois pas figé
+        """
+        mois_key = f"{mois:02d}"
+        return self.detail_mensuel.get(mois_key)
+
+    # ✅ NOUVELLE PROPRIÉTÉ : Vérifier si mois figé
+    def est_mois_fige(self, mois):
+        """Vérifie si un mois est figé"""
+        mois_data = self.get_jours_mois(mois)
+        return mois_data and mois_data.get('fige', False)
 
 
 # ========================================

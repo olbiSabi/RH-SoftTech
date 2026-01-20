@@ -42,6 +42,7 @@ from .forms import (
     CalculAcquisitionForm
 )
 from employee.models import ZY00
+from .utils import calculer_jours_acquis_au
 
 # Configuration du logger
 logger = logging.getLogger(__name__)
@@ -1361,13 +1362,15 @@ def liste_acquisitions(request):
     annee_filter = request.GET.get('annee', timezone.now().year)
     employe_filter = request.GET.get('employe', '')
 
-    # Base queryset
+    # ✅ CORRECTION : Base queryset avec filtre sur employés ACTIFS
     acquisitions = AcquisitionConges.objects.select_related(
         'employe',
         'employe__entreprise'
-    ).all()
+    ).filter(
+        employe__etat='actif'  # ✅ AJOUTER CE FILTRE
+    )
 
-    # Appliquer les filtres
+    # Appliquer les autres filtres
     if search:
         acquisitions = acquisitions.filter(
             Q(employe__nom__icontains=search) |
@@ -1396,7 +1399,7 @@ def liste_acquisitions(request):
         'annee_reference', flat=True
     ).distinct().order_by('-annee_reference')
 
-    # Employés pour le filtre
+    # ✅ Employés pour le filtre (ACTIFS UNIQUEMENT)
     employes = ZY00.objects.filter(
         etat='actif',
         entreprise__isnull=False
@@ -1477,6 +1480,7 @@ def liste_acquisitions(request):
         'message_verrouillage': message_verrouillage,
         'dans_delai_grace': dans_delai_grace,
         'fin_periode': fin_periode,
+        'today': timezone.now().date(),  # ✅ Ajouter pour le simulateur
     }
 
     return render(request, 'absence/acquisitions_list.html', context)
@@ -1576,14 +1580,11 @@ def api_acquisition_delete(request, id):
 def api_calculer_acquisitions(request):
     """
     Calcule automatiquement les acquisitions pour une année donnée
-    BLOCAGE : Impossible de recalculer les années passées après
-    la fin de la période de référence + 2 jours
-    Exemple :
-    - Période convention: 01/05/N → 30/04/N+1
-    - Blocage à partir de: 02/05/N+1
+    ✅ Exclut automatiquement les employés inactifs
     """
     from django.utils import timezone
     from datetime import timedelta
+    from .utils import calculer_jours_acquis_au
 
     try:
         logger.debug("📥 POST data: %s", request.POST)
@@ -1601,10 +1602,17 @@ def api_calculer_acquisitions(request):
         recalculer = form.cleaned_data['recalculer_existantes']
         employes_selection = form.cleaned_data.get('employes')
 
-        # Vérification basée sur la période de convention
+        # ✅ Récupérer date_reference optionnelle
+        date_reference_str = request.POST.get('date_reference')
+        if date_reference_str:
+            from datetime import datetime
+            date_reference = datetime.strptime(date_reference_str, '%Y-%m-%d').date()
+        else:
+            date_reference = timezone.now().date()
+
+        # Vérification du blocage
         date_actuelle = timezone.now().date()
 
-        # Récupérer la convention d'entreprise active
         try:
             from absence.models import ConfigurationConventionnelle
             convention_entreprise = ConfigurationConventionnelle.objects.filter(
@@ -1615,49 +1623,48 @@ def api_calculer_acquisitions(request):
             if not convention_entreprise:
                 return JsonResponse({
                     'success': False,
-                    'error': 'Aucune convention d\'entreprise active trouvée. '
-                             'Veuillez configurer une convention avant de calculer les acquisitions.'
+                    'error': 'Aucune convention d\'entreprise active trouvée.'
                 }, status=400)
 
-            # Calculer la date de fin de période pour l'année de référence
             _, fin_periode = convention_entreprise.get_periode_acquisition(annee)
-
-            # Date limite de recalcul = fin de période + 2 jours
             date_limite_recalcul = fin_periode + timedelta(days=2)
 
-            # Si on est après la date limite, bloquer le recalcul
             if date_actuelle > date_limite_recalcul:
                 return JsonResponse({
                     'success': False,
                     'error': f'Impossible de recalculer l\'année {annee}.\n'
-                             f'Période de référence: {convention_entreprise.periode_prise_debut.strftime("%d/%m")} → '
-                             f'{convention_entreprise.periode_prise_fin.strftime("%d/%m")}\n'
-                             f'Fin de période pour {annee}: {fin_periode.strftime("%d/%m/%Y")}\n'
-                             f'Le délai de recalcul a expiré le {date_limite_recalcul.strftime("%d/%m/%Y")}.\n'
-                             f'Contactez votre administrateur système pour toute modification.'
+                             f'Le délai a expiré le {date_limite_recalcul.strftime("%d/%m/%Y")}.'
                 }, status=403)
 
-            # Afficher un avertissement si on est dans les 2 derniers jours
             if date_actuelle > fin_periode and date_actuelle <= date_limite_recalcul:
-                logger.warning("⚠️  AVERTISSEMENT: Vous êtes dans les 2 derniers jours de recalcul pour l'année %s", annee)
-                logger.warning("   Date limite: %s", date_limite_recalcul.strftime('%d/%m/%Y'))
+                logger.warning("⚠️ Dans les 2 derniers jours de recalcul pour %s", annee)
 
         except Exception as e:
-            logger.error("❌ Erreur lors de la vérification de la convention: %s", e)
+            logger.error("❌ Erreur vérification convention: %s", e)
             return JsonResponse({
                 'success': False,
-                'error': f'Erreur lors de la vérification de la période de référence: {str(e)}'
+                'error': f'Erreur vérification: {str(e)}'
             }, status=500)
 
-        logger.info("✅ Formulaire valide - Année: %s, Recalculer: %s", annee, recalculer)
-        logger.info("📅 Période de référence: %s", fin_periode.strftime('%d/%m/%Y'))
-        logger.info("🔓 Date limite de recalcul: %s", date_limite_recalcul.strftime('%d/%m/%Y'))
+        # ✅ CORRECTION : Déterminer les employés (ACTIFS UNIQUEMENT)
+        inactifs_exclus = 0
 
-        # Déterminer les employés à traiter
         if employes_selection is not None and employes_selection.exists():
-            employes = employes_selection
-            logger.info("📋 Employés sélectionnés: %s", employes.count())
+            # Compter les inactifs dans la sélection AVANT filtrage
+            inactifs_exclus = employes_selection.exclude(etat='actif').count()
+
+            # Filtrer pour ne garder que les actifs
+            employes = employes_selection.filter(
+                etat='actif',
+                entreprise__isnull=False
+            )
+
+            logger.info("📋 Employés sélectionnés: %s (actifs uniquement)", employes.count())
+
+            if inactifs_exclus > 0:
+                logger.warning("⚠️  %s employé(s) inactif(s) exclu(s) de la sélection", inactifs_exclus)
         else:
+            # Tous les employés actifs
             employes = ZY00.objects.filter(
                 etat='actif',
                 entreprise__isnull=False
@@ -1667,9 +1674,10 @@ def api_calculer_acquisitions(request):
         if not employes.exists():
             return JsonResponse({
                 'success': False,
-                'error': 'Aucun employé à traiter'
+                'error': 'Aucun employé actif à traiter'
             }, status=400)
 
+        # Initialisation des résultats
         resultats = {
             'total': 0,
             'crees': 0,
@@ -1679,13 +1687,13 @@ def api_calculer_acquisitions(request):
             'details_erreurs': []
         }
 
+        # Traitement de chaque employé
         for employe in employes:
             resultats['total'] += 1
-            logger.info("🔄 Traitement: %s (ID: %s)", employe, employe.matricule)
 
             try:
+                # Vérifier la convention
                 if not employe.convention_applicable:
-                    logger.warning("Pas de convention pour %s", employe)
                     resultats['erreurs'] += 1
                     resultats['details_erreurs'].append({
                         'employe': str(employe),
@@ -1693,6 +1701,7 @@ def api_calculer_acquisitions(request):
                     })
                     continue
 
+                # Récupérer ou créer l'acquisition
                 acquisition, created = AcquisitionConges.objects.get_or_create(
                     employe=employe,
                     annee_reference=annee,
@@ -1705,50 +1714,60 @@ def api_calculer_acquisitions(request):
                     }
                 )
 
-                logger.info("  %s", '✨ Créée' if created else '📝 Existante')
-
+                # Calculer si création ou recalcul demandé
                 if created or recalculer:
-                    logger.debug("  🧮 Calcul des jours...")
-                    jours = calculer_jours_acquis(employe, annee)
-                    logger.info("  ✅ Jours calculés: %s", jours)
+                    resultat = calculer_jours_acquis_au(
+                        employe,
+                        annee,
+                        date_reference
+                    )
 
-                    acquisition.jours_acquis = jours
+                    acquisition.jours_acquis = resultat['jours_acquis']
                     acquisition.save()
 
                     if created:
                         resultats['crees'] += 1
                     else:
                         resultats['mis_a_jour'] += 1
+
+                    logger.info("✅ %s: %s jours (calculé au %s)",
+                                employe,
+                                resultat['jours_acquis'],
+                                date_reference.strftime('%d/%m/%Y'))
                 else:
-                    logger.info("  ⏭️  Ignorée (déjà existe)")
                     resultats['ignores'] += 1
 
             except Exception as e:
                 import traceback
-                error_msg = traceback.format_exc()
-                logger.error("  ❌ ERREUR: %s", error_msg)
-
+                logger.error("❌ Erreur %s: %s", employe, traceback.format_exc())
                 resultats['erreurs'] += 1
                 resultats['details_erreurs'].append({
                     'employe': str(employe),
                     'erreur': str(e)
                 })
 
-        logger.info("📊 RÉSULTATS FINAUX: %s", resultats)
+        # ✅ CORRECTION : Message de retour avec info sur les exclusions
+        message_parts = [
+            f'{resultats["crees"]} créées',
+            f'{resultats["mis_a_jour"]} mises à jour',
+            f'{resultats["ignores"]} ignorées'
+        ]
+
+        if resultats['erreurs'] > 0:
+            message_parts.append(f'{resultats["erreurs"]} erreurs')
+
+        if inactifs_exclus > 0:
+            message_parts.append(f'{inactifs_exclus} inactif(s) exclu(s)')
 
         return JsonResponse({
             'success': True,
-            'message': f'{resultats["crees"]} acquisitions créées, '
-                       f'{resultats["mis_a_jour"]} mises à jour, '
-                       f'{resultats["ignores"]} ignorées, '
-                       f'{resultats["erreurs"]} erreurs',
+            'message': ', '.join(message_parts),
             'resultats': resultats
         })
 
     except Exception as e:
         import traceback
-        error_msg = traceback.format_exc()
-        logger.exception("❌ ERREUR GLOBALE: %s", error_msg)
+        logger.exception("❌ ERREUR GLOBALE: %s", traceback.format_exc())
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
@@ -1757,173 +1776,286 @@ def api_calculer_acquisitions(request):
 @drh_or_admin_required
 @gestion_app_required
 def api_recalculer_acquisition(request, id):
-    """
-    Recalcule une acquisition spécifique
-    """
+    """Recalcule une acquisition spécifique"""
+    from django.utils import timezone
+
     try:
         acquisition = get_object_or_404(AcquisitionConges, id=id)
 
-        # Recalculer les jours acquis
-        jours = calculer_jours_acquis(acquisition.employe, acquisition.annee_reference)
+        # ✅ LOG pour debug
+        logger.info("=" * 80)
+        logger.info("RECALCUL DEMANDÉ")
+        logger.info("=" * 80)
+        logger.info("Acquisition ID: %s", id)
+        logger.info("Employé: %s", acquisition.employe)
+        logger.info("Année: %s", acquisition.annee_reference)
+
+        # Calculer
+        date_reference = timezone.now().date()
+
+        resultat = calculer_jours_acquis_au(
+            acquisition.employe,
+            acquisition.annee_reference,
+            date_reference
+        )
+
+        logger.info("Résultat calcul: %s jours", resultat['jours_acquis'])
 
         with transaction.atomic():
-            acquisition.jours_acquis = jours
+            acquisition.jours_acquis = resultat['jours_acquis']
             acquisition.save()
+
+        logger.info("✅ Sauvegarde OK")
 
         return JsonResponse({
             'success': True,
             'message': 'Acquisition recalculée avec succès',
             'jours_acquis': str(acquisition.jours_acquis),
-            'jours_restants': str(acquisition.jours_restants)
+            'jours_restants': str(acquisition.jours_restants),
+            'mois_travailles': str(resultat['mois_travailles'])
         })
 
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+        import traceback
+        error_trace = traceback.format_exc()
+        logger.error("❌ ERREUR recalcul: %s", error_trace)
+
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=400)
 
 
-# ===== FONCTIONS UTILITAIRES =====
+@require_http_methods(["GET"])
+@gestion_app_required
+@login_required
+@gestion_app_required
+def api_calculer_acquis_a_date(request):
+    try:
+        employe_id = request.GET.get('employe_id')
+        annee = request.GET.get('annee')
+        date_str = request.GET.get('date')
 
-def calculer_jours_acquis(employe, annee_reference):
+        if not employe_id or not annee:
+            return JsonResponse({
+                'success': False,
+                'error': 'Paramètres manquants'
+            }, status=400)
+
+        # ✅ CORRECTION : uuid au lieu de id
+        try:
+            employe = ZY00.objects.get(uuid=employe_id)
+        except ZY00.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Employé non trouvé'
+            }, status=404)
+        except ValueError:
+            return JsonResponse({
+                'success': False,
+                'error': 'Format d\'UUID invalide'
+            }, status=400)
+
+        annee = int(annee)
+
+        if date_str:
+            date_reference = datetime.strptime(date_str, '%Y-%m-%d').date()
+        else:
+            date_reference = timezone.now().date()
+
+        if date_reference.year != annee:
+            return JsonResponse({
+                'success': False,
+                'error': f'La date de référence doit être dans l\'année {annee}'
+            }, status=400)
+
+        if not employe.convention_applicable:
+            return JsonResponse({
+                'success': False,
+                'error': f'Aucune convention applicable pour {employe}'
+            }, status=400)
+
+        # Calculer avec le système mensuel progressif
+        resultat = calculer_jours_acquis_au_mensuel(employe, annee, date_reference)
+
+        return JsonResponse({
+            'success': True,
+            'data': {
+                'employe': str(employe),
+                'matricule': employe.matricule,
+                'annee_reference': annee,
+                'date_reference': date_reference.strftime('%d/%m/%Y'),
+                'jours_acquis': str(resultat['jours_acquis']),
+                'mois_travailles': resultat['mois_travailles'],
+                'detail': resultat['detail'],
+                'convention': str(employe.convention_applicable),
+                'jours_par_mois': float(employe.convention_applicable.jours_acquis_par_mois)
+            }
+        })
+
+    except ValueError as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=400)
+
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Erreur api_calculer_acquis_a_date: {str(e)}")
+
+        return JsonResponse({
+            'success': False,
+            'error': f'Erreur lors du calcul: {str(e)}'
+        }, status=500)
+
+
+"""
+FONCTION À AJOUTER dans absence/views.py
+Calcul mensuel progressif - Fonction de base
+"""
+"""
+VERSION FINALE - Avec les vrais noms de champs de votre modèle ZY00
+Remplacez calculer_jours_acquis_mois par cette version
+"""
+
+def calculer_jours_acquis_mois(employe, annee, mois):
     """
-    Calcule le nombre de jours de congés acquis pour un employé sur une année
+    Calcule les jours de congés acquis pour UN MOIS spécifique
+
+    ✅ VERSION FINALE avec les vrais champs de ZY00 :
+    - date_entree_entreprise (au lieu de date_embauche)
+    - Pas de date_depart (on vérifie juste l'état)
 
     Args:
         employe (ZY00): L'employé
-        annee_reference (int): L'année de référence
+        annee (int): Année de référence
+        mois (int): Mois (1-12)
 
     Returns:
-        Decimal: Nombre de jours acquis
+        Decimal: Nombre de jours acquis pour ce mois
     """
-    # 1. Récupérer la convention applicable
-    convention = employe.convention_applicable
-    if not convention:
-        raise ValueError(f"Aucune convention applicable pour {employe}")
+    from employee.models import ZY00
+    from absence.models import ConfigurationConventionnelle
 
-    # 2. Récupérer les paramètres de calcul
-    try:
-        parametres = convention.parametres_calcul
-    except ParametreCalculConges.DoesNotExist:
-        # Créer des paramètres par défaut
-        parametres = ParametreCalculConges.objects.create(
-            configuration=convention
-        )
-
-    # 3. Calculer les mois travaillés dans l'année
-    mois_travailles = calculer_mois_travailles(employe, annee_reference)
-
-    if mois_travailles < parametres.mois_acquisition_min:
-        return Decimal('0.00')
-
-    # 4. Calcul de base : jours_acquis_par_mois × mois_travailles
-    jours_base = convention.jours_acquis_par_mois * Decimal(str(mois_travailles))
-
-    # 5. Appliquer le plafond
-    if jours_base > parametres.plafond_jours_an:
-        jours_base = Decimal(str(parametres.plafond_jours_an))
-
-    # 6. Ajouter les jours supplémentaires d'ancienneté
-    jours_anciennete = calculer_jours_anciennete(employe, parametres)
-    jours_total = jours_base + jours_anciennete
-
-    # 7. Appliquer le coefficient temps partiel
-    if parametres.prise_compte_temps_partiel:
-        jours_total = jours_total * employe.coefficient_temps_travail
-
-    return jours_total.quantize(Decimal('0.01'))
-
-
-def calculer_mois_travailles(employe, annee_reference):
-    """
-    Calcule le nombre de mois travaillés par l'employé dans l'année de référence
-    """
-    from django.utils import timezone
-
-    if not employe.date_entree_entreprise:
-        return Decimal('0.00')
-
-    # Récupérer la convention
+    # Vérifier que l'employé a une convention
     convention = employe.convention_applicable
     if not convention:
         return Decimal('0.00')
 
-    # ✅ Utiliser la méthode helper pour obtenir la période
-    debut_annee, fin_annee = convention.get_periode_acquisition(annee_reference)
+    # Jours de base par mois selon la convention
+    jours_base_mois = convention.jours_acquis_par_mois or Decimal('2.5')
 
-    # Déterminer la date limite
-    date_actuelle = timezone.now().date()
+    # Calculer le premier et dernier jour du mois
+    premier_jour_mois = date(annee, mois, 1)
+    dernier_jour_mois = date(annee, mois, calendar.monthrange(annee, mois)[1])
 
-    if debut_annee > date_actuelle:
+    # ✅ Vérifier la présence de l'employé ce mois
+    # Date d'entrée dans l'entreprise
+    if employe.date_entree_entreprise and employe.date_entree_entreprise > dernier_jour_mois:
+        # Pas encore embauché ce mois
         return Decimal('0.00')
 
-    if date_actuelle >= debut_annee and date_actuelle <= fin_annee:
-        date_limite_calcul = date_actuelle
-    elif date_actuelle > fin_annee:
-        date_limite_calcul = fin_annee
+    # Si l'employé n'est plus actif (etat != 'actif'), on considère qu'il est parti
+    # Vous pouvez adapter cette logique selon vos besoins
+    if hasattr(employe, 'etat') and employe.etat != 'actif':
+        # L'employé n'est plus actif
+        # Si vous avez une date de départ quelque part, utilisez-la ici
+        # Sinon, on suppose qu'il était encore là ce mois
+        pass
+
+    # Calculer le prorata si présence partielle
+    jours_mois = calendar.monthrange(annee, mois)[1]  # Nombre de jours dans le mois
+
+    # Date de début effective dans le mois
+    if employe.date_entree_entreprise and employe.date_entree_entreprise > premier_jour_mois:
+        debut_effectif = employe.date_entree_entreprise
     else:
-        return Decimal('0.00')
+        debut_effectif = premier_jour_mois
 
-    # Calculer la période de travail
-    date_debut = max(employe.date_entree_entreprise, debut_annee)
-    date_fin = min(date_limite_calcul, fin_annee)
+    # Date de fin effective dans le mois
+    # Note : Vous n'avez pas de date_depart, donc on prend toujours la fin du mois
+    fin_effective = dernier_jour_mois
 
-    if date_debut > date_fin:
-        return Decimal('0.00')
+    # Calculer le nombre de jours travaillés
+    jours_travailles = (fin_effective - debut_effectif).days + 1
 
-    # Calculer mois par mois
-    mois_total = Decimal('0.00')
-    current_date = date(date_debut.year, date_debut.month, 1)
+    # Calculer le prorata
+    if jours_travailles >= jours_mois:
+        # Présent tout le mois
+        jours_acquis = jours_base_mois
+    else:
+        # Présence partielle (embauche en cours de mois)
+        jours_acquis = (jours_base_mois * jours_travailles) / jours_mois
 
-    while current_date <= date_fin:
-        mois = current_date.month
-        annee = current_date.year
+    # Appliquer le coefficient temps partiel si nécessaire
+    try:
+        if convention.parametres and convention.parametres.prise_compte_temps_partiel:
+            coefficient = employe.coefficient_temps_travail or Decimal('1.00')
+            jours_acquis = jours_acquis * coefficient
+    except AttributeError:
+        # Si parametres n'existe pas, on ignore
+        pass
 
-        premier_jour = date(annee, mois, 1)
-        dernier_jour = date(annee, mois, calendar.monthrange(annee, mois)[1])
-
-        debut_effectif = max(date_debut, premier_jour)
-        fin_effective = min(date_fin, dernier_jour)
-
-        if debut_effectif <= fin_effective:
-            jours_calendaires = (fin_effective - debut_effectif).days + 1
-
-            if jours_calendaires >= 25:
-                mois_total += Decimal('1.00')
-            elif jours_calendaires >= 15:
-                mois_total += Decimal('0.50')
-
-        if mois == 12:
-            current_date = date(annee + 1, 1, 1)
-        else:
-            current_date = date(annee, mois + 1, 1)
-
-    return mois_total
+    # Arrondir à 2 décimales
+    return Decimal(str(round(float(jours_acquis), 2)))
 
 
-def calculer_jours_anciennete(employe, parametres):
+def calculer_jours_acquis_au_mensuel(employe, annee, date_reference):
     """
-    Calcule les jours supplémentaires selon l'ancienneté
+    Calcule les jours acquis jusqu'à une date de référence
+    en utilisant le système mensuel progressif
+
+    Args:
+        employe (ZY00): L'employé
+        annee (int): L'année de référence
+        date_reference (date): Date jusqu'à laquelle calculer
 
     Returns:
-        Decimal: Nombre de jours supplémentaires
+        dict: {
+            'jours_acquis': Decimal,
+            'mois_travailles': int,
+            'detail': dict
+        }
+
+    Exemple:
+        resultat = calculer_jours_acquis_au_mensuel(martin, 2026, date(2026, 3, 31))
+        # {
+        #     'jours_acquis': Decimal('7.5'),
+        #     'mois_travailles': 3,
+        #     'detail': {
+        #         'janvier': {'jours': 2.5, 'actif': True},
+        #         'février': {'jours': 2.5, 'actif': True},
+        #         'mars': {'jours': 2.5, 'actif': True}
+        #     }
+        # }
     """
-    if not parametres.jours_supp_anciennete:
-        return Decimal('0.00')
+    # Noms des mois
+    mois_noms = [
+        'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+        'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+    ]
 
-    anciennete = employe.anciennete_annees
-    jours_supp = Decimal('0.00')
+    # Initialiser
+    total_acquis = Decimal('0.00')
+    detail = {}
 
-    # Parcourir les paliers d'ancienneté (trié décroissant)
-    paliers = sorted(
-        [(int(k), v) for k, v in parametres.jours_supp_anciennete.items()],
-        reverse=True
-    )
+    # Calculer mois par mois jusqu'à la date de référence
+    for mois in range(1, date_reference.month + 1):
+        jours_mois = calculer_jours_acquis_mois(employe, annee, mois)
+        total_acquis += jours_mois
 
-    for annees, jours in paliers:
-        if anciennete >= annees:
-            jours_supp = Decimal(str(jours))
-            break
+        # Ajouter au détail
+        detail[mois_noms[mois - 1]] = {
+            'jours': float(jours_mois),
+            'actif': jours_mois > 0  # True si l'employé était présent ce mois
+        }
 
-    return jours_supp
+    return {
+        'jours_acquis': total_acquis,
+        'mois_travailles': date_reference.month,
+        'detail': detail
+    }
 
 
 # ===== VUES PRINCIPALES =====
@@ -2926,3 +3058,60 @@ def consultation_absences(request):
     }
 
     return render(request, 'absence/consultation_absences.html', context)
+
+
+@login_required
+def notification_counts(request):
+    """
+    Version simplifiée - retourne uniquement le compte des notifications non lues
+    """
+    try:
+        user_employe = request.user.employe
+
+        # Compter simplement les notifications non lues
+        notifications_non_lues = NotificationAbsence.objects.filter(
+            destinataire=user_employe,
+            lue=False
+        ).count()
+
+        # Retourner les données au format attendu par votre JavaScript
+        return JsonResponse({
+            'all': notifications_non_lues,
+            'pending': notifications_non_lues,
+            'approved': 0,
+            'rejected': 0,
+            'total': notifications_non_lues
+        })
+
+    except Exception as e:
+        # En cas d'erreur, retourner des zéros
+        return JsonResponse({
+            'all': 0,
+            'pending': 0,
+            'approved': 0,
+            'rejected': 0,
+            'total': 0
+        })
+
+
+@login_required
+def marquer_notification_lue(request, notification_id):
+    """
+    Marque une notification comme lue via AJAX
+    """
+    try:
+        notification = NotificationAbsence.objects.get(
+            id=notification_id,
+            destinataire=request.user.employe
+        )
+
+        # Marquer comme lue
+        notification.marquer_comme_lue()
+
+        return JsonResponse({'success': True})
+
+    except NotificationAbsence.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Notification non trouvée'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+

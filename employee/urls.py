@@ -16,9 +16,7 @@ urlpatterns = [
     # URLs pour la gestion des mots de passe
     path('change-password/', change_password_view, name='change_password'),
     path('password-reset-request/', password_reset_request, name='password_reset_request'),  # ← CORRIGÉ
-    path('password-reset-confirm/<uidb64>/<token>/',
-         CustomPasswordResetConfirmView.as_view(),
-         name='password_reset_confirm'),
+    path('password-reset-confirm/<uidb64>/<token>/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     #path('test-reset/<str:username>/', test_reset_account, name='test_reset'),
 
 
@@ -71,10 +69,8 @@ urlpatterns = [
     # API Affectations (pour modales)
     path('api/affectation/<int:id>/', views.api_affectation_detail, name='api_affectation_detail_modal'),
     path('api/affectation/create/', views.api_affectation_create_modal, name='api_affectation_create_modal'),
-    path('api/affectation/<int:id>/update/', views.api_affectation_update_modal,
-         name='api_affectation_update_modal'),
-    path('api/affectation/<int:id>/delete/', views.api_affectation_delete_modal,
-         name='api_affectation_delete_modal'),
+    path('api/affectation/<int:id>/update/', views.api_affectation_update_modal, name='api_affectation_update_modal'),
+    path('api/affectation/<int:id>/delete/', views.api_affectation_delete_modal, name='api_affectation_delete_modal'),
 
     # API Helper
     path('api/postes/', views.api_postes_by_departement, name='api_postes_by_departement'),

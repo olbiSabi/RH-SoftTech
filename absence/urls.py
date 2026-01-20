@@ -32,6 +32,7 @@ urlpatterns = [
     path('api/acquisition/<int:id>/delete/', views.api_acquisition_delete, name='api_acquisition_delete'),
     path('api/acquisition/<int:id>/recalculer/', views.api_recalculer_acquisition, name='api_recalculer_acquisition'),
     path('api/acquisitions/calculer/', views.api_calculer_acquisitions, name='api_calculer_acquisitions'),
+    path('api/calculer-acquis-a-date/', views.api_calculer_acquis_a_date, name='api_calculer_acquis_a_date'),
 
     # ===== CONFIGURATION CONVENTIONNELLE =====
     path('conventions/', views.liste_conventions, name='liste_conventions'),
@@ -62,14 +63,14 @@ urlpatterns = [
     path('parametres-calcul/', views.liste_parametres_calcul, name='liste_parametres_calcul'),
     path('api/parametre-calcul/<int:id>/', views.api_parametre_calcul_detail, name='api_parametre_calcul_detail'),
     path('api/parametre-calcul/create/', views.api_parametre_calcul_create, name='api_parametre_calcul_create'),
-    path('api/parametre-calcul/<int:id>/update/', views.api_parametre_calcul_update,
-         name='api_parametre_calcul_update'),
-    path('api/parametre-calcul/<int:id>/delete/', views.api_parametre_calcul_delete,
-         name='api_parametre_calcul_delete'),
+    path('api/parametre-calcul/<int:id>/update/', views.api_parametre_calcul_update, name='api_parametre_calcul_update'),
+    path('api/parametre-calcul/<int:id>/delete/', views.api_parametre_calcul_delete, name='api_parametre_calcul_delete'),
     path('api/jours-feries/', views.api_jours_feries, name='api_jours_feries'),
 
     # Notifications
     path('notification/<int:id>/', views.notification_detail, name='notification_detail'),
     path('notifications/marquer-toutes-lues/', views.marquer_toutes_lues, name='marquer_toutes_lues'),
     path('notifications/toutes/', views.toutes_notifications, name='toutes_notifications'),
+    path('notification/counts/', views.notification_counts, name='notification_counts'),
+    path('notification/<int:notification_id>/marquer-lue/',views.marquer_notification_lue,name='marquer_notification_lue'),
 ]

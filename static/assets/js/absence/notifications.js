@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Mettre à jour les compteurs de notifications
     function updateNotificationCounts() {
         // Récupérer les nouvelles données via AJAX
-        fetch('/absences/notification/counts/')
+        fetch('/absence/notification/counts/')
             .then(response => response.json())
             .then(data => {
                 // Mettre à jour les badges

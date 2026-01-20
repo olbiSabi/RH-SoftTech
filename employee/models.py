@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.contrib.auth.models import Group, Permission
 import uuid
+from django.db.models import Q
 import os
 
 # Import du modèle ZDPO depuis l'application departement
@@ -15,6 +16,69 @@ def employee_photo_path(instance, filename):
     ext = filename.split('.')[-1]
     filename = f"{instance.matricule}_photo.{ext}"
     return os.path.join('photos/employes/', filename)
+
+
+######################
+### QuerySet Personnalisé
+######################
+class ZY00QuerySet(models.QuerySet):
+    def actifs(self):
+        """Retourne les employés avec AU MOINS UN contrat actif"""
+        aujourdhui = timezone.now().date()
+
+        # Note: ZYCO sera défini plus tard, mais c'est OK dans une méthode
+        return self.filter(
+            contrats__actif=True,
+        ).filter(
+            Q(contrats__date_fin__isnull=True) |
+            Q(contrats__date_fin__gte=aujourdhui)
+        ).distinct()
+
+    def actifs_v2(self):
+        """Version alternative plus explicite"""
+        aujourdhui = timezone.now().date()
+
+        return self.filter(
+            Q(contrats__actif=True) & (
+                    Q(contrats__date_fin__isnull=True) |
+                    Q(contrats__date_fin__gte=aujourdhui)
+            )
+        ).distinct()
+
+    def inactifs(self):
+        """Retourne les employés SANS contrat actif"""
+        aujourdhui = timezone.now().date()
+
+        # L'import doit être à l'intérieur de la méthode
+        from django.db.models import Exists, OuterRef
+
+        # Nous utiliserons une référence en string pour éviter l'import circulaire
+        from django.apps import apps
+        ZYCO = apps.get_model('employee', 'ZYCO')
+
+        contrats_actifs = ZYCO.objects.filter(
+            employe=OuterRef('pk'),
+            actif=True
+        ).filter(
+            Q(date_fin__isnull=True) | Q(date_fin__gte=aujourdhui)
+        )
+
+        return self.exclude(Exists(contrats_actifs))
+
+
+######################
+###  Manager personnalisé ###
+######################
+class ZY00Manager(models.Manager):
+    def get_queryset(self):
+        return ZY00QuerySet(self.model, using=self._db)
+
+    def actifs(self):
+        return self.get_queryset().actifs()
+
+    def inactifs(self):
+        return self.get_queryset().inactifs()
+
 
 ######################
 ###  Employe ZY00  ###
@@ -158,6 +222,8 @@ class ZY00(models.Model):
         help_text="1.00 = temps plein, 0.50 = mi-temps, etc."
     )
 
+    objects = ZY00Manager()
+
     class Meta:
         db_table = 'ZY00'
         verbose_name = "Employé"
@@ -251,6 +317,39 @@ class ZY00(models.Model):
 
         self.full_clean()
         super().save(*args, **kwargs)
+
+    @property
+    def est_actif(self):
+        """
+        Calcule dynamiquement si l'employé est actif basé sur les contrats
+        C'est LA VÉRITÉ MÉTIER
+        """
+        aujourdhui = timezone.now().date()
+        # Un employé est actif s'il a AU MOINS UN contrat actif
+        contrats_actifs = self.contrats.filter(
+            Q(date_fin__isnull=True) | Q(date_fin__gte=aujourdhui),
+            actif=True
+        )
+
+        return contrats_actifs.exists()
+
+    def synchroniser_etat(self):
+        """
+        Synchronise le champ `etat` avec la réalité métier
+        """
+        if self.est_actif:
+            nouvel_etat = 'actif'
+        else:
+            if self.type_dossier == 'PRE':
+                nouvel_etat = 'actif'
+            else:
+                nouvel_etat = 'inactif'
+
+        if self.etat != nouvel_etat:
+            self.etat = nouvel_etat
+            self.save(update_fields=['etat'])
+            return True
+        return False
 
     @property
     def convention_applicable(self):
@@ -872,6 +971,7 @@ class ZY00(models.Model):
         return True
 
 
+
 ######################
 ###  Security  ###
 ######################
@@ -1070,7 +1170,6 @@ class ZYNP(models.Model):
                 employe.username = employe.nom
                 employe.prenomuser = employe.prenoms
                 employe.save(update_fields=['username', 'prenomuser'])
-
 
 
 ######################
@@ -2092,4 +2191,5 @@ class ZYRE(models.Model):
             else:
                 if self.role.django_group:
                     self.employe.user.groups.remove(self.role.django_group)
+
 
