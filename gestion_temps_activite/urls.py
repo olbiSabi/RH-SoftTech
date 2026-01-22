@@ -35,7 +35,6 @@ urlpatterns = [
     path('taches/<uuid:pk>/', views.tache_detail, name='tache_detail'),
     path('taches/<uuid:pk>/modifier/', views.tache_update, name='tache_update'),
     path('taches/<uuid:pk>/supprimer/', views.tache_delete, name='tache_delete'),
-    path('api/taches-par-projet/<uuid:projet_id>/', views.api_taches_par_projet, name='api_taches_par_projet'),
 
     # ==================== DOCUMENTS (ZDDO) ====================
     path('documents/upload/', views.document_upload, name='document_upload'),
@@ -55,17 +54,15 @@ urlpatterns = [
     path('imputations/<uuid:pk>/rejeter/', views.imputation_rejeter, name='imputation_rejeter'),
 
     # ==================== API/AJAX ====================
-    path('api/projet/<uuid:projet_id>/taches/', views.api_taches_par_projet, name='api_taches_par_projet'),
+    path('api/taches-par-projet/<uuid:projet_id>/', views.api_taches_par_projet, name='api_taches_par_projet'),
     path('api/activites/en-vigueur/', views.api_activites_en_vigueur, name='api_activites_en_vigueur'),
+    path('api/commentaires/mentions/', views.commentaire_mentions, name='commentaire_mentions'),
 
-    # Commentaires
+    # ==================== COMMENTAIRES ====================
     path('commentaires/<uuid:tache_pk>/ajouter/', views.commentaire_ajouter, name='commentaire_ajouter'),
     path('commentaires/<uuid:commentaire_pk>/repondre/', views.commentaire_repondre, name='commentaire_repondre'),
     path('commentaires/<uuid:pk>/modifier/', views.commentaire_modifier, name='commentaire_modifier'),
     path('commentaires/<uuid:pk>/supprimer/', views.commentaire_supprimer, name='commentaire_supprimer'),
-    path('api/commentaires/mentions/', views.commentaire_mentions, name='commentaire_mentions'),
-    # gestion_temps_activite/urls.py
-    path('commentaires/<uuid:tache_pk>/ajouter/', views.commentaire_ajouter, name='commentaire_ajouter'),
 
 
     # Notifications GTA

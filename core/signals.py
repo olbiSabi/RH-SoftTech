@@ -1,32 +1,32 @@
+# core/signals.py
+"""
+Système d'audit centralisé pour le projet HR_ONIAN.
+
+Ce module utilise une approche générique pour logger automatiquement
+toutes les opérations CRUD sur les modèles configurés.
+"""
 from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
 from threading import local
-from parametre.models import ZDAB
-from employee.models import ZY00, ZYNP, ZYCO, ZYTE, ZYME, ZYAF, ZYAD, ZYDO, ZYFA, ZYPP, ZYIB
-from .models import ZDLOG
-from departement.models import ZDDE, ZDPO, ZYMA
-from absence.models import (
-    ConfigurationConventionnelle,
-    TypeAbsence,
-    JourFerie,
-    ParametreCalculConges,
-    AcquisitionConges,
-    Absence,
-    ValidationAbsence,
-    NotificationAbsence
-)
-from entreprise.models import Entreprise
 
-# Thread-local storage
+from .models import ZDLOG
+
+# Thread-local storage pour la requête courante
 _thread_locals = local()
 _old_values = {}
 
 
+# ==============================================================================
+# FONCTIONS UTILITAIRES
+# ==============================================================================
+
 def get_current_request():
+    """Récupère la requête HTTP courante depuis le thread-local storage."""
     return getattr(_thread_locals, 'request', None)
 
 
 def get_current_user():
+    """Récupère l'utilisateur courant depuis la requête."""
     request = get_current_request()
     if request and hasattr(request, 'user'):
         return request.user
@@ -34,10 +34,21 @@ def get_current_user():
 
 
 def set_current_request(request):
+    """Définit la requête courante dans le thread-local storage."""
     _thread_locals.request = request
 
 
 def model_to_dict(instance, exclude_fields=None):
+    """
+    Convertit une instance de modèle en dictionnaire sérialisable.
+
+    Args:
+        instance: Instance du modèle Django
+        exclude_fields: Liste des champs à exclure
+
+    Returns:
+        dict: Données du modèle sérialisées
+    """
     if exclude_fields is None:
         exclude_fields = ['id']
 
@@ -53,1834 +64,349 @@ def model_to_dict(instance, exclude_fields=None):
     return data
 
 
-# ========================================
-# SIGNALS POUR ZDDE (Départements)
-# ========================================
+# ==============================================================================
+# CONFIGURATION DES MODÈLES À AUDITER
+# ==============================================================================
 
-@receiver(pre_save, sender=ZDDE)
-def store_old_values_zdde(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'ZDDE_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
+# Configuration: (model_class, table_name, description_func)
+# description_func(instance, created) -> str
+
+def _get_description_zdde(instance, created):
+    action = "Création" if created else "Modification"
+    return f"{action} du département {instance.CODE} - {instance.LIBELLE}"
 
 
-@receiver(post_save, sender=ZDDE)
-def log_zdde_save(sender, instance, created, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
+def _get_description_zdpo(instance, created):
+    action = "Création" if created else "Modification"
+    return f"{action} du poste {instance.CODE} - {instance.LIBELLE}"
 
+
+def _get_description_zy00(instance, created):
+    action = "Création" if created else "Modification"
+    return f"{action} de l'employé {instance.matricule} - {instance.nom} {instance.prenoms}"
+
+
+def _get_description_zynp(instance, created):
+    action = "Ajout" if created else "Modification"
+    return f"{action} historique nom/prénom pour {instance.employe.matricule}: {instance.nom} {instance.prenoms}"
+
+
+def _get_description_zyco(instance, created):
+    action = "Création" if created else "Modification"
+    return f"{action} contrat {instance.type_contrat} pour {instance.employe.matricule}"
+
+
+def _get_description_zyte(instance, created):
+    action = "Ajout" if created else "Modification"
+    return f"{action} téléphone {instance.numero} pour {instance.employe.matricule}"
+
+
+def _get_description_zyme(instance, created):
+    action = "Ajout" if created else "Modification"
+    return f"{action} email {instance.email} pour {instance.employe.matricule}"
+
+
+def _get_description_zyaf(instance, created):
+    action = "Affectation" if created else "Modification affectation"
+    return f"{action} de {instance.employe.matricule} au poste {instance.poste.CODE}"
+
+
+def _get_description_zyad(instance, created):
+    action = "Ajout" if created else "Modification"
+    return f"{action} adresse {instance.type_adresse} pour {instance.employe.matricule}: {instance.ville}"
+
+
+def _get_description_zydo(instance, created):
+    action = "Ajout" if created else "Modification"
+    return f"{action} document {instance.get_type_document_display()} pour {instance.employe.matricule}"
+
+
+def _get_description_zyfa(instance, created):
+    action = "Ajout" if created else "Modification"
+    return f"{action} personne à charge {instance.prenom} {instance.nom} ({instance.get_personne_charge_display()}) pour {instance.employe.matricule}"
+
+
+def _get_description_zypp(instance, created):
+    action = "Ajout" if created else "Modification"
+    return f"{action} personne à prévenir {instance.prenom} {instance.nom} (Priorité {instance.ordre_priorite}) pour {instance.employe.matricule}"
+
+
+def _get_description_zyib(instance, created):
+    action = "Ajout" if created else "Modification"
+    return f"{action} identité bancaire {instance.nom_banque} pour {instance.employe.matricule}"
+
+
+def _get_description_zyma(instance, created):
     if created:
+        return f"Nomination de {instance.employe.nom} {instance.employe.prenoms} ({instance.employe.matricule}) comme manager du département {instance.departement.CODE} - {instance.departement.LIBELLE}"
+    return f"Modification du management de {instance.employe.nom} {instance.employe.prenoms} pour le département {instance.departement.CODE}"
+
+
+def _get_description_config_conv(instance, created):
+    action = "Création" if created else "Modification"
+    return f"{action} de la convention {instance.code} - {instance.nom} ({instance.annee_reference})"
+
+
+def _get_description_type_absence(instance, created):
+    action = "Création" if created else "Modification"
+    return f"{action} du type d'absence {instance.code} - {instance.libelle}"
+
+
+def _get_description_jour_ferie(instance, created):
+    action = "Création" if created else "Modification"
+    return f"{action} du jour férié {instance.nom} - {instance.date.strftime('%d/%m/%Y')}"
+
+
+def _get_description_param_calcul(instance, created):
+    action = "Création" if created else "Modification"
+    return f"{action} des paramètres de calcul pour {instance.configuration.nom}"
+
+
+def _get_description_acquisition(instance, created):
+    action = "Création" if created else "Modification"
+    return f"{action} acquisition congés {instance.employe.matricule} - Année {instance.annee_reference}: {instance.jours_acquis} jours acquis"
+
+
+def _get_description_absence(instance, created):
+    if created:
+        return f"Création demande d'absence {instance.type_absence.libelle} pour {instance.employe.matricule} du {instance.date_debut.strftime('%d/%m/%Y')} au {instance.date_fin.strftime('%d/%m/%Y')} ({instance.jours_ouvrables} jours)"
+    return f"Modification absence {instance.employe.matricule} - {instance.type_absence.libelle}"
+
+
+def _get_description_validation(instance, created):
+    if created:
+        return f"Validation {instance.get_etape_display()} par {instance.validateur.nom} {instance.validateur.prenoms} - Décision: {instance.get_decision_display()}"
+    return f"Modification validation {instance.get_etape_display()}"
+
+
+def _get_description_notification(instance, created):
+    if created:
+        return f"Création notification {instance.get_type_notification_display()} pour {instance.destinataire.matricule} - Contexte: {instance.get_contexte_display()}"
+    return f"Modification notification pour {instance.destinataire.matricule}"
+
+
+def _get_description_entreprise(instance, created):
+    action = "Création" if created else "Modification"
+    return f"{action} de l'entreprise {instance.code} - {instance.nom}"
+
+
+# ==============================================================================
+# DESCRIPTIONS POUR GESTION TEMPS ET ACTIVITÉS
+# ==============================================================================
+
+def _get_description_zdcl(instance, created):
+    """Client"""
+    action = "Création" if created else "Modification"
+    return f"{action} du client {instance.code_client} - {instance.raison_sociale}"
+
+
+def _get_description_zdac(instance, created):
+    """Type d'activité"""
+    action = "Création" if created else "Modification"
+    return f"{action} du type d'activité {instance.code_activite} - {instance.libelle}"
+
+
+def _get_description_zdpj(instance, created):
+    """Projet"""
+    action = "Création" if created else "Modification"
+    client_info = f" (Client: {instance.client.raison_sociale})" if instance.client else ""
+    return f"{action} du projet {instance.code_projet} - {instance.nom_projet}{client_info}"
+
+
+def _get_description_zdta(instance, created):
+    """Tâche"""
+    action = "Création" if created else "Modification"
+    projet_info = f" (Projet: {instance.projet.nom_projet})" if instance.projet else ""
+    return f"{action} de la tâche {instance.code_tache} - {instance.titre}{projet_info}"
+
+
+def _get_description_zddo_gta(instance, created):
+    """Document GTA"""
+    action = "Ajout" if created else "Modification"
+    rattachement = f"projet {instance.projet.nom_projet}" if instance.projet else f"tâche {instance.tache.titre}" if instance.tache else "non rattaché"
+    return f"{action} du document {instance.nom_document} au {rattachement}"
+
+
+def _get_description_zdit(instance, created):
+    """Imputation temps"""
+    action = "Création" if created else "Modification"
+    employe_info = f"{instance.employe.nom} {instance.employe.prenoms}" if instance.employe else "Employé inconnu"
+    return f"{action} imputation {instance.duree}h pour {employe_info} - Tâche: {instance.tache.titre if instance.tache else 'N/A'}"
+
+
+def _get_description_zdcm(instance, created):
+    """Commentaire"""
+    action = "Ajout" if created else "Modification"
+    auteur = f"{instance.employe.nom} {instance.employe.prenoms}" if instance.employe else "Anonyme"
+    return f"{action} commentaire par {auteur} sur la tâche {instance.tache.titre if instance.tache else 'N/A'}"
+
+
+# ==============================================================================
+# FACTORY POUR CRÉER LES HANDLERS DE SIGNALS
+# ==============================================================================
+
+def create_audit_handlers(model_class, table_name, get_description_func):
+    """
+    Crée et enregistre les handlers de signals pour un modèle.
+
+    Args:
+        model_class: Classe du modèle Django
+        table_name: Nom de la table pour les logs
+        get_description_func: Fonction (instance, created) -> str
+    """
+
+    def store_old_values(sender, instance, **kwargs):
+        """Handler pre_save: stocke les anciennes valeurs."""
+        if instance.pk:
+            try:
+                old_instance = sender.objects.get(pk=instance.pk)
+                _old_values[f'{table_name}_{instance.pk}'] = model_to_dict(old_instance)
+            except sender.DoesNotExist:
+                pass
+
+    def log_save(sender, instance, created, **kwargs):
+        """Handler post_save: log la création ou modification."""
+        request = get_current_request()
+        user = get_current_user()
+        nouvelle_valeur = model_to_dict(instance)
+
+        if created:
+            ZDLOG.log_action(
+                table_name=table_name,
+                record_id=instance.pk,
+                type_mouvement=ZDLOG.TYPE_CREATION,
+                user=user,
+                request=request,
+                nouvelle_valeur=nouvelle_valeur,
+                description=get_description_func(instance, True)
+            )
+        else:
+            old_key = f'{table_name}_{instance.pk}'
+            ancienne_valeur = _old_values.get(old_key, {})
+
+            # Calculer les changements
+            changes = []
+            for key, new_val in nouvelle_valeur.items():
+                old_val = ancienne_valeur.get(key)
+                if old_val != new_val:
+                    changes.append(f"{key}: {old_val} → {new_val}")
+
+            description = get_description_func(instance, False)
+            if changes:
+                description += ": " + ", ".join(changes)
+
+            ZDLOG.log_action(
+                table_name=table_name,
+                record_id=instance.pk,
+                type_mouvement=ZDLOG.TYPE_MODIFICATION,
+                user=user,
+                request=request,
+                ancienne_valeur=ancienne_valeur,
+                nouvelle_valeur=nouvelle_valeur,
+                description=description
+            )
+
+            # Nettoyer le cache
+            if old_key in _old_values:
+                del _old_values[old_key]
+
+    def log_delete(sender, instance, **kwargs):
+        """Handler post_delete: log la suppression."""
+        request = get_current_request()
+        user = get_current_user()
+        ancienne_valeur = model_to_dict(instance)
+
+        # Description de suppression
+        base_desc = get_description_func(instance, True)
+        description = base_desc.replace("Création", "Suppression").replace("Ajout", "Suppression").replace("Affectation", "Suppression affectation").replace("Nomination", "Suppression du rôle de manager")
+
         ZDLOG.log_action(
-            table_name='ZDDE',
+            table_name=table_name,
             record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Création du département {instance.CODE} - {instance.LIBELLE}"
-        )
-    else:
-        old_key = f'ZDDE_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification du département {instance.CODE}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='ZDDE',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
+            type_mouvement=ZDLOG.TYPE_SUPPRESSION,
             user=user,
             request=request,
             ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
             description=description
         )
 
-        if old_key in _old_values:
-            del _old_values[old_key]
+    # Enregistrer les signals
+    pre_save.connect(store_old_values, sender=model_class, weak=False)
+    post_save.connect(log_save, sender=model_class, weak=False)
+    post_delete.connect(log_delete, sender=model_class, weak=False)
 
 
-@receiver(post_delete, sender=ZDDE)
-def log_zdde_delete(sender, instance, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
+# ==============================================================================
+# ENREGISTREMENT DES MODÈLES À AUDITER
+# ==============================================================================
 
-    ZDLOG.log_action(
-        table_name='ZDDE',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression du département {instance.CODE} - {instance.LIBELLE}"
+def register_all_audit_signals():
+    """
+    Enregistre les signals d'audit pour tous les modèles configurés.
+    Appelé lors du chargement de l'application.
+    """
+    # Import des modèles ici pour éviter les imports circulaires
+    from employee.models import ZY00, ZYNP, ZYCO, ZYTE, ZYME, ZYAF, ZYAD, ZYDO, ZYFA, ZYPP, ZYIB
+    from departement.models import ZDDE, ZDPO, ZYMA
+    from absence.models import (
+        ConfigurationConventionnelle,
+        TypeAbsence,
+        JourFerie,
+        ParametreCalculConges,
+        AcquisitionConges,
+        Absence,
+        ValidationAbsence,
+        NotificationAbsence
     )
-
-
-# ========================================
-# SIGNALS POUR ZDPO (Postes)
-# ========================================
-
-@receiver(pre_save, sender=ZDPO)
-def store_old_values_zdpo(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'ZDPO_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=ZDPO)
-def log_zdpo_save(sender, instance, created, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
-
-    if created:
-        ZDLOG.log_action(
-            table_name='ZDPO',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Création du poste {instance.CODE} - {instance.LIBELLE}"
-        )
-    else:
-        old_key = f'ZDPO_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification du poste {instance.CODE}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='ZDPO',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
-            user=user,
-            request=request,
-            ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
-            description=description
-        )
-
-        if old_key in _old_values:
-            del _old_values[old_key]
-
-
-@receiver(post_delete, sender=ZDPO)
-def log_zdpo_delete(sender, instance, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
-
-    ZDLOG.log_action(
-        table_name='ZDPO',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression du poste {instance.CODE} - {instance.LIBELLE}"
-    )
-
-
-# ========================================
-# SIGNALS POUR ZDAB
-# ========================================
-
-@receiver(pre_save, sender=ZDAB)
-def store_old_values_zdab(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'ZDAB_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=ZDAB)
-def log_zdab_save(sender, instance, created, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
-
-    if created:
-        ZDLOG.log_action(
-            table_name='ZDAB',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Création du paramètre {instance.CODE} - {instance.LIBELLE}"
-        )
-    else:
-        old_key = f'ZDAB_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification du paramètre {instance.CODE}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='ZDAB',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
-            user=user,
-            request=request,
-            ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
-            description=description
-        )
-
-        if old_key in _old_values:
-            del _old_values[old_key]
-
-
-@receiver(post_delete, sender=ZDAB)
-def log_zdab_delete(sender, instance, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
-
-    ZDLOG.log_action(
-        table_name='ZDAB',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression du paramètre {instance.CODE} - {instance.LIBELLE}"
-    )
-
-
-# ========================================
-# SIGNALS POUR ZY00 (Employés)
-# ========================================
-
-@receiver(pre_save, sender=ZY00)
-def store_old_values_zy00(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'ZY00_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=ZY00)
-def log_zy00_save(sender, instance, created, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
-
-    if created:
-        ZDLOG.log_action(
-            table_name='ZY00',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Création de l'employé {instance.matricule} - {instance.nom} {instance.prenoms}"
-        )
-    else:
-        old_key = f'ZY00_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification de l'employé {instance.matricule}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='ZY00',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
-            user=user,
-            request=request,
-            ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
-            description=description
-        )
-
-        if old_key in _old_values:
-            del _old_values[old_key]
-
-
-@receiver(post_delete, sender=ZY00)
-def log_zy00_delete(sender, instance, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
-
-    ZDLOG.log_action(
-        table_name='ZY00',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression de l'employé {instance.matricule} - {instance.nom} {instance.prenoms}"
-    )
-
-
-# ========================================
-# SIGNALS POUR ZYNP (Historique Nom/Prénom)
-# ========================================
-
-@receiver(pre_save, sender=ZYNP)
-def store_old_values_zynp(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'ZYNP_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=ZYNP)
-def log_zynp_save(sender, instance, created, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
-
-    if created:
-        ZDLOG.log_action(
-            table_name='ZYNP',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Ajout historique nom/prénom pour {instance.employe.matricule}: {instance.nom} {instance.prenoms}"
-        )
-    else:
-        old_key = f'ZYNP_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification historique nom/prénom {instance.employe.matricule}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='ZYNP',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
-            user=user,
-            request=request,
-            ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
-            description=description
-        )
-
-        if old_key in _old_values:
-            del _old_values[old_key]
-
-
-@receiver(post_delete, sender=ZYNP)
-def log_zynp_delete(sender, instance, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
-
-    ZDLOG.log_action(
-        table_name='ZYNP',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression historique nom/prénom pour {instance.employe.matricule}"
-    )
-
-
-# ========================================
-# SIGNALS POUR ZYCO (Contrats)
-# ========================================
-
-@receiver(pre_save, sender=ZYCO)
-def store_old_values_zyco(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'ZYCO_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=ZYCO)
-def log_zyco_save(sender, instance, created, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
-
-    if created:
-        ZDLOG.log_action(
-            table_name='ZYCO',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Création contrat {instance.type_contrat} pour {instance.employe.matricule}"
-        )
-    else:
-        old_key = f'ZYCO_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification contrat {instance.employe.matricule}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='ZYCO',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
-            user=user,
-            request=request,
-            ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
-            description=description
-        )
-
-        if old_key in _old_values:
-            del _old_values[old_key]
-
-
-@receiver(post_delete, sender=ZYCO)
-def log_zyco_delete(sender, instance, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
-
-    ZDLOG.log_action(
-        table_name='ZYCO',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression contrat {instance.type_contrat} de {instance.employe.matricule}"
-    )
-
-
-# ========================================
-# SIGNALS POUR ZYTE (Téléphones)
-# ========================================
-
-@receiver(pre_save, sender=ZYTE)
-def store_old_values_zyte(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'ZYTE_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=ZYTE)
-def log_zyte_save(sender, instance, created, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
-
-    if created:
-        ZDLOG.log_action(
-            table_name='ZYTE',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Ajout téléphone {instance.numero} pour {instance.employe.matricule}"
-        )
-    else:
-        old_key = f'ZYTE_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification téléphone {instance.employe.matricule}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='ZYTE',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
-            user=user,
-            request=request,
-            ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
-            description=description
-        )
-
-        if old_key in _old_values:
-            del _old_values[old_key]
-
-
-@receiver(post_delete, sender=ZYTE)
-def log_zyte_delete(sender, instance, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
-
-    ZDLOG.log_action(
-        table_name='ZYTE',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression téléphone {instance.numero} de {instance.employe.matricule}"
-    )
-
-
-# ========================================
-# SIGNALS POUR ZYME (Emails)
-# ========================================
-
-@receiver(pre_save, sender=ZYME)
-def store_old_values_zyme(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'ZYME_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=ZYME)
-def log_zyme_save(sender, instance, created, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
-
-    if created:
-        ZDLOG.log_action(
-            table_name='ZYME',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Ajout email {instance.email} pour {instance.employe.matricule}"
-        )
-    else:
-        old_key = f'ZYME_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification email {instance.employe.matricule}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='ZYME',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
-            user=user,
-            request=request,
-            ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
-            description=description
-        )
-
-        if old_key in _old_values:
-            del _old_values[old_key]
-
-
-@receiver(post_delete, sender=ZYME)
-def log_zyme_delete(sender, instance, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
-
-    ZDLOG.log_action(
-        table_name='ZYME',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression email {instance.email} de {instance.employe.matricule}"
-    )
-
-
-# ========================================
-# SIGNALS POUR ZYAF (Affectations)
-# ========================================
-
-@receiver(pre_save, sender=ZYAF)
-def store_old_values_zyaf(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'ZYAF_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=ZYAF)
-def log_zyaf_save(sender, instance, created, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
-
-    if created:
-        ZDLOG.log_action(
-            table_name='ZYAF',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Affectation de {instance.employe.matricule} au poste {instance.poste.CODE}"
-        )
-    else:
-        old_key = f'ZYAF_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification affectation {instance.employe.matricule}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='ZYAF',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
-            user=user,
-            request=request,
-            ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
-            description=description
-        )
-
-        if old_key in _old_values:
-            del _old_values[old_key]
-
-
-@receiver(post_delete, sender=ZYAF)
-def log_zyaf_delete(sender, instance, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
-
-    ZDLOG.log_action(
-        table_name='ZYAF',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression affectation de {instance.employe.matricule}"
-    )
-
-
-# ========================================
-# SIGNALS POUR ZYAD (Adresses)
-# ========================================
-
-@receiver(pre_save, sender=ZYAD)
-def store_old_values_zyad(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'ZYAD_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=ZYAD)
-def log_zyad_save(sender, instance, created, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
-
-    if created:
-        ZDLOG.log_action(
-            table_name='ZYAD',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Ajout adresse {instance.type_adresse} pour {instance.employe.matricule}: {instance.ville}"
-        )
-    else:
-        old_key = f'ZYAD_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification adresse {instance.employe.matricule}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='ZYAD',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
-            user=user,
-            request=request,
-            ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
-            description=description
-        )
-
-        if old_key in _old_values:
-            del _old_values[old_key]
-
-
-@receiver(post_delete, sender=ZYAD)
-def log_zyad_delete(sender, instance, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
-
-    ZDLOG.log_action(
-        table_name='ZYAD',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression adresse {instance.type_adresse} de {instance.employe.matricule}"
-    )
-
-
-# ========================================
-# SIGNALS POUR ZYDO (Documents)
-# ========================================
-
-@receiver(pre_save, sender=ZYDO)
-def store_old_values_zydo(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'ZYDO_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=ZYDO)
-def log_zydo_save(sender, instance, created, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
-
-    if created:
-        ZDLOG.log_action(
-            table_name='ZYDO',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Ajout document {instance.get_type_document_display()} pour {instance.employe.matricule}"
-        )
-    else:
-        old_key = f'ZYDO_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification document {instance.employe.matricule}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='ZYDO',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
-            user=user,
-            request=request,
-            ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
-            description=description
-        )
-
-        if old_key in _old_values:
-            del _old_values[old_key]
-
-
-@receiver(post_delete, sender=ZYDO)
-def log_zydo_delete(sender, instance, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
-
-    ZDLOG.log_action(
-        table_name='ZYDO',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression document {instance.get_type_document_display()} de {instance.employe.matricule}"
-    )
-
-
-# ========================================
-# SIGNALS POUR ZYFA (Famille)
-# ========================================
-
-@receiver(pre_save, sender=ZYFA)
-def store_old_values_zyfa(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'ZYFA_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=ZYFA)
-def log_zyfa_save(sender, instance, created, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
-
-    if created:
-        ZDLOG.log_action(
-            table_name='ZYFA',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Ajout personne à charge {instance.prenom} {instance.nom} ({instance.get_personne_charge_display()}) pour {instance.employe.matricule}"
-        )
-    else:
-        old_key = f'ZYFA_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification personne à charge {instance.employe.matricule}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='ZYFA',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
-            user=user,
-            request=request,
-            ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
-            description=description
-        )
-
-        if old_key in _old_values:
-            del _old_values[old_key]
-
-
-@receiver(post_delete, sender=ZYFA)
-def log_zyfa_delete(sender, instance, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
-
-    ZDLOG.log_action(
-        table_name='ZYFA',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression personne à charge {instance.prenom} {instance.nom} de {instance.employe.matricule}"
-    )
-
-
-# ========================================
-# SIGNALS POUR ZYPP (Personnes à Prévenir)
-# ========================================
-
-@receiver(pre_save, sender=ZYPP)
-def store_old_values_zypp(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'ZYPP_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=ZYPP)
-def log_zypp_save(sender, instance, created, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
-
-    if created:
-        ZDLOG.log_action(
-            table_name='ZYPP',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Ajout personne à prévenir {instance.prenom} {instance.nom} (Priorité {instance.ordre_priorite}) pour {instance.employe.matricule}"
-        )
-    else:
-        old_key = f'ZYPP_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification personne à prévenir {instance.employe.matricule}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='ZYPP',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
-            user=user,
-            request=request,
-            ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
-            description=description
-        )
-
-        if old_key in _old_values:
-            del _old_values[old_key]
-
-
-@receiver(post_delete, sender=ZYPP)
-def log_zypp_delete(sender, instance, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
-
-    ZDLOG.log_action(
-        table_name='ZYPP',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression personne à prévenir {instance.prenom} {instance.nom} de {instance.employe.matricule}"
-    )
-
-
-# ========================================
-# SIGNALS POUR ZYIB (Identités Bancaires)
-# ========================================
-
-@receiver(pre_save, sender=ZYIB)
-def store_old_values_zyib(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'ZYIB_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=ZYIB)
-def log_zyib_save(sender, instance, created, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
-
-    if created:
-        ZDLOG.log_action(
-            table_name='ZYIB',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Ajout identité bancaire {instance.nom_banque} pour {instance.employe.matricule}"
-        )
-    else:
-        old_key = f'ZYIB_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification identité bancaire {instance.employe.matricule}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='ZYIB',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
-            user=user,
-            request=request,
-            ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
-            description=description
-        )
-
-        if old_key in _old_values:
-            del _old_values[old_key]
-
-
-@receiver(post_delete, sender=ZYIB)
-def log_zyib_delete(sender, instance, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
-
-    ZDLOG.log_action(
-        table_name='ZYIB',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression identité bancaire {instance.nom_banque} de {instance.employe.matricule}"
-    )
-
-
-# ========================================
-# SIGNALS POUR ZYMA (Managers)
-# ========================================
-
-@receiver(pre_save, sender=ZYMA)
-def store_old_values_zyma(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'ZYMA_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=ZYMA)
-def log_zyma_save(sender, instance, created, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
-
-    if created:
-        ZDLOG.log_action(
-            table_name='ZYMA',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Nomination de {instance.employe.nom} {instance.employe.prenoms} ({instance.employe.matricule}) comme manager du département {instance.departement.CODE} - {instance.departement.LIBELLE}"
-        )
-    else:
-        old_key = f'ZYMA_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification du management de {instance.employe.nom} {instance.employe.prenoms} pour le département {instance.departement.CODE}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='ZYMA',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
-            user=user,
-            request=request,
-            ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
-            description=description
-        )
-
-        if old_key in _old_values:
-            del _old_values[old_key]
-
-
-@receiver(post_delete, sender=ZYMA)
-def log_zyma_delete(sender, instance, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
-
-    ZDLOG.log_action(
-        table_name='ZYMA',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression du rôle de manager de {instance.employe.nom} {instance.employe.prenoms} ({instance.employe.matricule}) pour le département {instance.departement.CODE} - {instance.departement.LIBELLE}"
-    )
-
-
-# ========================================
-# SIGNALS POUR LES MODÈLES ABSENCE
-# ========================================
-# ========================================
-# SIGNALS POUR ConfigurationConventionnelle
-# ========================================
-
-@receiver(pre_save, sender=ConfigurationConventionnelle)
-def store_old_values_configuration_conventionnelle(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'ConfigurationConventionnelle_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=ConfigurationConventionnelle)
-def log_configuration_conventionnelle_save(sender, instance, created, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
-
-    if created:
-        ZDLOG.log_action(
-            table_name='ConfigurationConventionnelle',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Création de la convention {instance.code} - {instance.nom} ({instance.annee_reference})"
-        )
-    else:
-        old_key = f'ConfigurationConventionnelle_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification de la convention {instance.code}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='ConfigurationConventionnelle',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
-            user=user,
-            request=request,
-            ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
-            description=description
-        )
-
-        if old_key in _old_values:
-            del _old_values[old_key]
-
-
-@receiver(post_delete, sender=ConfigurationConventionnelle)
-def log_configuration_conventionnelle_delete(sender, instance, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
-
-    ZDLOG.log_action(
-        table_name='ConfigurationConventionnelle',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression de la convention {instance.code} - {instance.nom}"
-    )
-
-
-# ========================================
-# SIGNALS POUR TypeAbsence
-# ========================================
-
-@receiver(pre_save, sender=TypeAbsence)
-def store_old_values_type_absence(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'TypeAbsence_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=TypeAbsence)
-def log_type_absence_save(sender, instance, created, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
-
-    if created:
-        ZDLOG.log_action(
-            table_name='TypeAbsence',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Création du type d'absence {instance.code} - {instance.libelle}"
-        )
-    else:
-        old_key = f'TypeAbsence_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification du type d'absence {instance.code}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='TypeAbsence',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
-            user=user,
-            request=request,
-            ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
-            description=description
-        )
-
-        if old_key in _old_values:
-            del _old_values[old_key]
-
-
-@receiver(post_delete, sender=TypeAbsence)
-def log_type_absence_delete(sender, instance, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
-
-    ZDLOG.log_action(
-        table_name='TypeAbsence',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression du type d'absence {instance.code} - {instance.libelle}"
-    )
-
-
-# ========================================
-# SIGNALS POUR JourFerie
-# ========================================
-
-@receiver(pre_save, sender=JourFerie)
-def store_old_values_jour_ferie(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'JourFerie_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=JourFerie)
-def log_jour_ferie_save(sender, instance, created, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
-
-    if created:
-        ZDLOG.log_action(
-            table_name='JourFerie',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Création du jour férié {instance.nom} - {instance.date.strftime('%d/%m/%Y')}"
-        )
-    else:
-        old_key = f'JourFerie_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification du jour férié {instance.nom}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='JourFerie',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
-            user=user,
-            request=request,
-            ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
-            description=description
-        )
-
-        if old_key in _old_values:
-            del _old_values[old_key]
-
-
-@receiver(post_delete, sender=JourFerie)
-def log_jour_ferie_delete(sender, instance, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
-
-    ZDLOG.log_action(
-        table_name='JourFerie',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression du jour férié {instance.nom} - {instance.date.strftime('%d/%m/%Y')}"
-    )
-
-
-# ========================================
-# SIGNALS POUR ParametreCalculConges
-# ========================================
-
-@receiver(pre_save, sender=ParametreCalculConges)
-def store_old_values_parametre_calcul(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'ParametreCalculConges_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=ParametreCalculConges)
-def log_parametre_calcul_save(sender, instance, created, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
-
-    if created:
-        ZDLOG.log_action(
-            table_name='ParametreCalculConges',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Création des paramètres de calcul pour {instance.configuration.nom}"
-        )
-    else:
-        old_key = f'ParametreCalculConges_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification des paramètres de calcul pour {instance.configuration.nom}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='ParametreCalculConges',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
-            user=user,
-            request=request,
-            ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
-            description=description
-        )
-
-        if old_key in _old_values:
-            del _old_values[old_key]
-
-
-@receiver(post_delete, sender=ParametreCalculConges)
-def log_parametre_calcul_delete(sender, instance, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
-
-    ZDLOG.log_action(
-        table_name='ParametreCalculConges',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression des paramètres de calcul pour {instance.configuration.nom}"
-    )
-
-
-# ========================================
-# SIGNALS POUR AcquisitionConges
-# ========================================
-
-@receiver(pre_save, sender=AcquisitionConges)
-def store_old_values_acquisition_conges(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'AcquisitionConges_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=AcquisitionConges)
-def log_acquisition_conges_save(sender, instance, created, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
-
-    if created:
-        ZDLOG.log_action(
-            table_name='AcquisitionConges',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Création acquisition congés {instance.employe.matricule} - Année {instance.annee_reference}: {instance.jours_acquis} jours acquis"
-        )
-    else:
-        old_key = f'AcquisitionConges_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification acquisition congés {instance.employe.matricule} - Année {instance.annee_reference}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='AcquisitionConges',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
-            user=user,
-            request=request,
-            ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
-            description=description
-        )
-
-        if old_key in _old_values:
-            del _old_values[old_key]
-
-
-@receiver(post_delete, sender=AcquisitionConges)
-def log_acquisition_conges_delete(sender, instance, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
-
-    ZDLOG.log_action(
-        table_name='AcquisitionConges',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression acquisition congés {instance.employe.matricule} - Année {instance.annee_reference}"
-    )
-
-
-# ========================================
-# SIGNALS POUR Absence (Demandes d'absence)
-# ========================================
-
-@receiver(pre_save, sender=Absence)
-def store_old_values_absence(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'Absence_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=Absence)
-def log_absence_save(sender, instance, created, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
-
-    if created:
-        ZDLOG.log_action(
-            table_name='Absence',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Création demande d'absence {instance.type_absence.libelle} pour {instance.employe.matricule} du {instance.date_debut.strftime('%d/%m/%Y')} au {instance.date_fin.strftime('%d/%m/%Y')} ({instance.jours_ouvrables} jours)"
-        )
-    else:
-        old_key = f'Absence_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification absence {instance.employe.matricule} - {instance.type_absence.libelle}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='Absence',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
-            user=user,
-            request=request,
-            ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
-            description=description
-        )
-
-        if old_key in _old_values:
-            del _old_values[old_key]
-
-
-@receiver(post_delete, sender=Absence)
-def log_absence_delete(sender, instance, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
-
-    ZDLOG.log_action(
-        table_name='Absence',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression demande d'absence {instance.type_absence.libelle} de {instance.employe.matricule}"
-    )
-
-
-# ========================================
-# SIGNALS POUR ValidationAbsence
-# ========================================
-
-@receiver(pre_save, sender=ValidationAbsence)
-def store_old_values_validation_absence(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'ValidationAbsence_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=ValidationAbsence)
-def log_validation_absence_save(sender, instance, created, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
-
-    if created:
-        ZDLOG.log_action(
-            table_name='ValidationAbsence',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Validation {instance.get_etape_display()} par {instance.validateur.nom} {instance.validateur.prenoms} - Décision: {instance.get_decision_display()}"
-        )
-    else:
-        old_key = f'ValidationAbsence_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification validation {instance.get_etape_display()}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='ValidationAbsence',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
-            user=user,
-            request=request,
-            ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
-            description=description
-        )
-
-        if old_key in _old_values:
-            del _old_values[old_key]
-
-
-@receiver(post_delete, sender=ValidationAbsence)
-def log_validation_absence_delete(sender, instance, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
-
-    ZDLOG.log_action(
-        table_name='ValidationAbsence',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression validation {instance.get_etape_display()}"
-    )
-
-
-# ========================================
-# SIGNALS POUR NotificationAbsence
-# ========================================
-
-@receiver(pre_save, sender=NotificationAbsence)
-def store_old_values_notification_absence(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'NotificationAbsence_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=NotificationAbsence)
-def log_notification_absence_save(sender, instance, created, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
-
-    if created:
-        ZDLOG.log_action(
-            table_name='NotificationAbsence',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Création notification {instance.get_type_notification_display()} pour {instance.destinataire.matricule} - Contexte: {instance.get_contexte_display()}"
-        )
-    else:
-        old_key = f'NotificationAbsence_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification notification pour {instance.destinataire.matricule}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='NotificationAbsence',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
-            user=user,
-            request=request,
-            ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
-            description=description
-        )
-
-        if old_key in _old_values:
-            del _old_values[old_key]
-
-
-@receiver(post_delete, sender=NotificationAbsence)
-def log_notification_absence_delete(sender, instance, **kwargs):
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
-
-    ZDLOG.log_action(
-        table_name='NotificationAbsence',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression notification pour {instance.destinataire.matricule}"
-    )
-
-
-# ========================================
-# SIGNALS POUR LE MODÈLE ENTREPRISE
-# ========================================
-# ========================================
-# SIGNALS POUR Entreprise
-# ========================================
-
-@receiver(pre_save, sender=Entreprise)
-def store_old_values_entreprise(sender, instance, **kwargs):
-    """Stocke les anciennes valeurs avant modification"""
-    if instance.pk:
-        try:
-            old_instance = sender.objects.get(pk=instance.pk)
-            _old_values[f'Entreprise_{instance.pk}'] = model_to_dict(old_instance)
-        except sender.DoesNotExist:
-            pass
-
-
-@receiver(post_save, sender=Entreprise)
-def log_entreprise_save(sender, instance, created, **kwargs):
-    """Log la création ou modification d'une entreprise"""
-    request = get_current_request()
-    user = get_current_user()
-    nouvelle_valeur = model_to_dict(instance)
-
-    if created:
-        ZDLOG.log_action(
-            table_name='Entreprise',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_CREATION,
-            user=user,
-            request=request,
-            nouvelle_valeur=nouvelle_valeur,
-            description=f"Création de l'entreprise {instance.code} - {instance.nom}"
-        )
-    else:
-        old_key = f'Entreprise_{instance.pk}'
-        ancienne_valeur = _old_values.get(old_key, {})
-
-        changes = []
-        for key, new_val in nouvelle_valeur.items():
-            old_val = ancienne_valeur.get(key)
-            if old_val != new_val:
-                changes.append(f"{key}: {old_val} → {new_val}")
-
-        description = f"Modification de l'entreprise {instance.code}"
-        if changes:
-            description += ": " + ", ".join(changes)
-
-        ZDLOG.log_action(
-            table_name='Entreprise',
-            record_id=instance.pk,
-            type_mouvement=ZDLOG.TYPE_MODIFICATION,
-            user=user,
-            request=request,
-            ancienne_valeur=ancienne_valeur,
-            nouvelle_valeur=nouvelle_valeur,
-            description=description
-        )
-
-        if old_key in _old_values:
-            del _old_values[old_key]
-
-
-@receiver(post_delete, sender=Entreprise)
-def log_entreprise_delete(sender, instance, **kwargs):
-    """Log la suppression d'une entreprise"""
-    request = get_current_request()
-    user = get_current_user()
-    ancienne_valeur = model_to_dict(instance)
-
-    ZDLOG.log_action(
-        table_name='Entreprise',
-        record_id=instance.pk,
-        type_mouvement=ZDLOG.TYPE_SUPPRESSION,
-        user=user,
-        request=request,
-        ancienne_valeur=ancienne_valeur,
-        description=f"Suppression de l'entreprise {instance.code} - {instance.nom}"
-    )
+    from entreprise.models import Entreprise
+    from gestion_temps_activite.models import ZDCL, ZDAC, ZDPJ, ZDTA, ZDDO, ZDIT, ZDCM
+
+    # Liste des modèles à auditer: (model_class, table_name, description_func)
+    AUDIT_CONFIG = [
+        # Departement
+        (ZDDE, 'ZDDE', _get_description_zdde),
+        (ZDPO, 'ZDPO', _get_description_zdpo),
+        (ZYMA, 'ZYMA', _get_description_zyma),
+
+        # Employee
+        (ZY00, 'ZY00', _get_description_zy00),
+        (ZYNP, 'ZYNP', _get_description_zynp),
+        (ZYCO, 'ZYCO', _get_description_zyco),
+        (ZYTE, 'ZYTE', _get_description_zyte),
+        (ZYME, 'ZYME', _get_description_zyme),
+        (ZYAF, 'ZYAF', _get_description_zyaf),
+        (ZYAD, 'ZYAD', _get_description_zyad),
+        (ZYDO, 'ZYDO', _get_description_zydo),
+        (ZYFA, 'ZYFA', _get_description_zyfa),
+        (ZYPP, 'ZYPP', _get_description_zypp),
+        (ZYIB, 'ZYIB', _get_description_zyib),
+
+        # Absence
+        (ConfigurationConventionnelle, 'ConfigurationConventionnelle', _get_description_config_conv),
+        (TypeAbsence, 'TypeAbsence', _get_description_type_absence),
+        (JourFerie, 'JourFerie', _get_description_jour_ferie),
+        (ParametreCalculConges, 'ParametreCalculConges', _get_description_param_calcul),
+        (AcquisitionConges, 'AcquisitionConges', _get_description_acquisition),
+        (Absence, 'Absence', _get_description_absence),
+        (ValidationAbsence, 'ValidationAbsence', _get_description_validation),
+        (NotificationAbsence, 'NotificationAbsence', _get_description_notification),
+
+        # Entreprise
+        (Entreprise, 'Entreprise', _get_description_entreprise),
+
+        # Gestion Temps et Activités
+        (ZDCL, 'ZDCL', _get_description_zdcl),
+        (ZDAC, 'ZDAC', _get_description_zdac),
+        (ZDPJ, 'ZDPJ', _get_description_zdpj),
+        (ZDTA, 'ZDTA', _get_description_zdta),
+        (ZDDO, 'ZDDO', _get_description_zddo_gta),
+        (ZDIT, 'ZDIT', _get_description_zdit),
+        (ZDCM, 'ZDCM', _get_description_zdcm),
+    ]
+
+    for model_class, table_name, desc_func in AUDIT_CONFIG:
+        create_audit_handlers(model_class, table_name, desc_func)
+
+
+# Enregistrer tous les signals au chargement du module
+register_all_audit_signals()

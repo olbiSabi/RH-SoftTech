@@ -320,261 +320,71 @@ class ZY00(models.Model):
 
     @property
     def est_actif(self):
-        """
-        Calcule dynamiquement si l'employé est actif basé sur les contrats
-        C'est LA VÉRITÉ MÉTIER
-        """
-        aujourdhui = timezone.now().date()
-        # Un employé est actif s'il a AU MOINS UN contrat actif
-        contrats_actifs = self.contrats.filter(
-            Q(date_fin__isnull=True) | Q(date_fin__gte=aujourdhui),
-            actif=True
-        )
-
-        return contrats_actifs.exists()
+        """Calcule dynamiquement si l'employé est actif basé sur les contrats."""
+        from employee.services.status_service import StatusService
+        return StatusService.is_active(self)
 
     def synchroniser_etat(self):
-        """
-        Synchronise le champ `etat` avec la réalité métier
-        """
-        if self.est_actif:
-            nouvel_etat = 'actif'
-        else:
-            if self.type_dossier == 'PRE':
-                nouvel_etat = 'actif'
-            else:
-                nouvel_etat = 'inactif'
-
-        if self.etat != nouvel_etat:
-            self.etat = nouvel_etat
-            self.save(update_fields=['etat'])
-            return True
-        return False
+        """Synchronise le champ `etat` avec la réalité métier."""
+        from employee.services.status_service import StatusService
+        return StatusService.synchronize_status(self)
 
     @property
     def convention_applicable(self):
-        """
-        Retourne la convention applicable à l'employé
-        Priorité : convention_personnalisee > entreprise.configuration_conventionnelle
-        """
-        if self.convention_personnalisee:
-            return self.convention_personnalisee
-        if self.entreprise and self.entreprise.configuration_conventionnelle:
-            return self.entreprise.configuration_conventionnelle
-        return None
+        """Retourne la convention applicable à l'employé."""
+        from employee.services.status_service import StatusService
+        return StatusService.get_applicable_convention(self)
 
     @property
     def anciennete_annees(self):
-        """Calcule l'ancienneté en années complètes"""
-        if not self.date_entree_entreprise:
-            return 0
-
-        aujourdhui = timezone.now().date()
-        delta = aujourdhui - self.date_entree_entreprise
-        return delta.days // 365
+        """Calcule l'ancienneté en années complètes."""
+        from employee.services.status_service import StatusService
+        return StatusService.calculate_seniority_years(self)
 
     def est_manager_departement(self):
-        """
-        Vérifie si l'employé est manager d'un département (via ZYMA)
-        OU s'il a le rôle MANAGER
-        """
-        from departement.models import ZYMA
-
-        # 1. Vérifier via la table ZYMA (managers de département)
-        if ZYMA.objects.filter(
-                employe=self,
-                actif=True,
-                date_fin__isnull=True
-        ).exists():
-            return True
-
-        # 2. Vérifier aussi le rôle MANAGER
-        if self.has_role('MANAGER'):
-            return True
-
-        return False
+        """Vérifie si l'employé est manager d'un département."""
+        from employee.services.hierarchy_service import HierarchyService
+        return HierarchyService.is_manager(self)
 
     def get_departements_geres(self):
-        """
-        Retourne les départements gérés par cet employé (s'il est manager)
-        """
-        from departement.models import ZYMA
-        if self.est_manager_departement():
-            return ZYMA.objects.filter(
-                employe=self,
-                actif=True,
-                date_fin__isnull=True
-            ).values_list('departement', flat=True)
-        return []
+        """Retourne les départements gérés par cet employé (s'il est manager)."""
+        from employee.services.hierarchy_service import HierarchyService
+        return HierarchyService.get_managed_departments(self)
 
     def get_subordonnes_hierarchiques(self):
-        """
-        Retourne tous les subordonnés (employés des départements gérés)
-        """
-        # Récupérer les départements gérés
-        departements_geres = self.get_departements_geres()
-        if not departements_geres:
-            return ZY00.objects.none()
-
-        # Récupérer les employés de ces départements (via leur affectation active)
-        subordonnes_ids = ZYAF.objects.filter(
-            poste__DEPARTEMENT__in=departements_geres,
-            date_fin__isnull=True,
-            employe__etat='actif'
-        ).exclude(employe=self).values_list('employe', flat=True).distinct()
-
-        return ZY00.objects.filter(id__in=subordonnes_ids)
+        """Retourne tous les subordonnés (employés des départements gérés)."""
+        from employee.services.hierarchy_service import HierarchyService
+        return HierarchyService.get_subordinates(self)
 
     def peut_valider_absence_rh(self):
-        """
-        Vérifie si l'employé peut valider les absences RH
-        UTILISE VOTRE SYSTÈME DE RÔLES EXISTANT (ZYRO)
-        """
-        return self.has_role('RH_VALIDATION') or self.has_permission('absence.valider_absence_rh')
+        """Vérifie si l'employé peut valider les absences RH."""
+        from employee.services.permission_service import PermissionService
+        return PermissionService.can_validate_absence_as_rh(self)
 
     def peut_valider_absence_manager(self):
-        """
-        Vérifie si l'employé peut valider les absences en tant que manager
-        UTILISE VOTRE SYSTÈME DE RÔLES EXISTANT (ZYRO)
-        """
-        return (self.has_role('MANAGER_ABSENCE') or
-                self.has_permission('absence.valider_absence_manager') or
-                self.est_manager_departement())
+        """Vérifie si l'employé peut valider les absences en tant que manager."""
+        from employee.services.permission_service import PermissionService
+        return PermissionService.can_validate_absence_as_manager(self)
 
     def fait_partie_equipe_de(self, autre_employe):
-        """
-        Vérifie si cet employé fait partie de l'équipe d'un autre employé
-        (même département ou sous la gestion du même manager)
-        """
-        if not autre_employe:
-            return False
-
-        # 1. Même département
-        if self.get_departement_actuel() == autre_employe.get_departement_actuel():
-            return True
-
-        # 2. Même manager
-        mon_manager = self.get_manager_departement()
-        son_manager = autre_employe.get_manager_departement()
-
-        if mon_manager and son_manager and mon_manager == son_manager:
-            return True
-
-        # 3. L'autre employé est mon manager
-        if mon_manager and mon_manager == autre_employe:
-            return True
-
-        # 4. Je suis le manager de l'autre employé
-        if son_manager and son_manager == self:
-            return True
-
-        return False
+        """Vérifie si cet employé fait partie de l'équipe d'un autre employé."""
+        from employee.services.hierarchy_service import HierarchyService
+        return HierarchyService.is_in_team_of(self, autre_employe)
 
     def est_manager_de(self, autre_employe):
-        """
-        Vérifie si cet employé est manager d'un autre employé
-        """
-        if not autre_employe:
-            return False
-
-        try:
-            from departement.models import ZYMA
-
-            # 1. Vérifier si cet employé est manager actif d'un département
-            est_manager_actif = ZYMA.objects.filter(
-                employe=self,
-                actif=True,
-                date_fin__isnull=True
-            ).exists()
-
-            if not est_manager_actif:
-                return False
-
-            # 2. Vérifier si l'autre employé est dans un département géré
-            # Récupérer l'affectation active de l'autre employé
-            affectation_autre = autre_employe.affectations.filter(
-                date_fin__isnull=True
-            ).select_related('poste__DEPARTEMENT').first()
-
-            if not affectation_autre or not affectation_autre.poste.DEPARTEMENT:
-                return False
-
-            # 3. Vérifier si cet employé est manager du département de l'autre employé
-            return ZYMA.objects.filter(
-                employe=self,
-                departement=affectation_autre.poste.DEPARTEMENT,
-                actif=True,
-                date_fin__isnull=True
-            ).exists()
-
-        except Exception as e:
-            print(f"Erreur dans est_manager_de: {e}")
-            return False
+        """Vérifie si cet employé est manager d'un autre employé."""
+        from employee.services.hierarchy_service import HierarchyService
+        return HierarchyService.is_manager_of(self, autre_employe)
 
     def est_dans_departement_manager(self, manager):
-        """
-        Vérifie si cet employé est dans un département géré par le manager
-        Basé sur ZYMA (managers) et ZYAF (affectations)
-        """
-        try:
-            # Éviter l'import circulaire
-            from django.apps import apps
-            ZYMA = apps.get_model('departement', 'ZYMA')
-            ZYAF = apps.get_model('employee', 'ZYAF')
-
-            # 1. Récupérer les départements gérés par le manager
-            departements_geres = ZYMA.objects.filter(
-                employe=manager,
-                actif=True,
-                date_fin__isnull=True
-            ).values_list('departement', flat=True)
-
-            if not departements_geres:
-                return False  # Le manager ne gère aucun département
-
-            # 2. Récupérer l'affectation active de l'employé
-            affectation_employe = ZYAF.objects.filter(
-                employe=self,
-                date_fin__isnull=True,
-                employe__etat='actif'
-            ).select_related('poste__DEPARTEMENT').first()
-
-            if not affectation_employe or not affectation_employe.poste.DEPARTEMENT:
-                return False  # L'employé n'a pas d'affectation active
-
-            # 3. Vérifier si le département de l'employé est dans ceux gérés par le manager
-            return affectation_employe.poste.DEPARTEMENT.id in departements_geres
-
-        except Exception as e:
-            print(f"Erreur dans est_dans_departement_manager: {e}")
-            return False
+        """Vérifie si cet employé est dans un département géré par le manager."""
+        from employee.services.hierarchy_service import HierarchyService
+        return HierarchyService.is_in_department_of_manager(self, manager)
 
     def get_manager_departement(self):
-        """
-        Retourne le manager du département de l'employé
-        """
-        try:
-            # Éviter l'import circulaire
-            from django.apps import apps
-            ZYMA = apps.get_model('departement', 'ZYMA')
-            ZYAF = apps.get_model('employee', 'ZYAF')
-
-            # Récupérer l'affectation active de l'employé
-            affectation = ZYAF.objects.filter(
-                employe=self,
-                date_fin__isnull=True
-            ).select_related('poste__DEPARTEMENT').first()
-
-            if affectation and affectation.poste.DEPARTEMENT:
-                # Récupérer le manager actif de ce département
-                manager_zyma = ZYMA.get_manager_actif(affectation.poste.DEPARTEMENT)
-                if manager_zyma:
-                    return manager_zyma.employe
-
-            return None
-        except Exception as e:
-            print(f"Erreur get_manager_departement: {e}")
-            return None
+        """Retourne le manager du département de l'employé."""
+        from employee.services.hierarchy_service import HierarchyService
+        return HierarchyService.get_manager_of_employee(self)
 
     def get_photo_url(self):
         """Retourne l'URL de la photo ou une photo par défaut"""
@@ -588,141 +398,62 @@ class ZY00(models.Model):
 
     def desactiver_donnees_associees(self):
         """Désactive toutes les données associées lorsque l'employé est radié ou licencié"""
-        if self.etat in ['inactif']:
-            self.contrats.filter(actif=True).update(actif=False)
-            self.telephones.filter(actif=True).update(actif=False)
-            self.emails.filter(actif=True).update(actif=False)
-            self.affectations.filter(actif=True).update(actif=False)
-            self.adresses.filter(actif=True).update(actif=False)
+        from employee.services.status_service import StatusService
+        StatusService.deactivate_associated_data(self)
 
     def get_manager_responsable(self):
-        """
-        Retourne l'objet ZYMA du manager responsable de cet employé
-        Permet d'accéder à manager.employe, manager.departement, manager.date_debut, etc.
-        """
-        try:
-            from departement.models import ZYMA
-
-            # Récupérer l'affectation active avec le département
-            affectation_active = self.affectations.filter(
-                date_fin__isnull=True
-            ).select_related('poste__DEPARTEMENT').first()
-
-            if not affectation_active:
-                return None
-
-            if not affectation_active.poste.DEPARTEMENT:
-                return None
-
-            # Récupérer le manager actif du département
-            manager_zyma = ZYMA.get_manager_actif(affectation_active.poste.DEPARTEMENT)
-
-            return manager_zyma  # Retourne l'objet ZYMA complet
-
-        except Exception as e:
-            import logging
-            logger = logging.getLogger(__name__)
-            logger.error(f"Erreur get_manager_responsable pour {self.matricule}: {e}")
-            return None
+        """Retourne l'objet ZYMA du manager responsable de cet employé."""
+        from employee.services.hierarchy_service import HierarchyService
+        return HierarchyService.get_manager_record(self)
 
     def is_manager(self):
-        """Vérifie si l'employé est un manager"""
-        from departement.models import ZYMA
-        return ZYMA.objects.filter(
-            employe=self,
-            actif=True,
-            date_fin__isnull=True
-        ).exists()
+        """Vérifie si l'employé est un manager."""
+        from employee.services.hierarchy_service import HierarchyService
+        return HierarchyService.is_manager(self)
 
     def has_role(self, role_code):
         """
-        Vérifie si l'employé a un rôle spécifique actif
+        Vérifie si l'employé a un rôle spécifique actif.
+        Délègue à PermissionService.
 
         Args:
             role_code (str): Code du rôle (ex: 'DRH', 'MANAGER', 'COMPTABLE')
 
         Returns:
             bool: True si l'employé a ce rôle actif
-
-        Exemple:
-            if employe.has_role('DRH'):
-                # L'employé a le rôle DRH
         """
-        from employee.models import ZYRE
-
-        return ZYRE.objects.filter(
-            employe=self,
-            role__CODE=role_code,
-            actif=True,
-            date_fin__isnull=True
-        ).exists()
+        from employee.services.permission_service import PermissionService
+        return PermissionService.has_role(self, role_code)
 
     def get_roles(self):
         """
-        Récupère tous les rôles actifs de l'employé
+        Récupère tous les rôles actifs de l'employé.
+        Délègue à PermissionService.
 
         Returns:
-            QuerySet: Liste des rôles actifs
-
-        Exemple:
-            roles = employe.get_roles()
-            for role in roles:
-                print(role.CODE, role.LIBELLE)
+            QuerySet: Liste des attributions de rôles actives
         """
-        from employee.models import ZYRE
-
-        return ZYRE.objects.filter(
-            employe=self,
-            actif=True,
-            date_fin__isnull=True
-        ).select_related('role')
+        from employee.services.permission_service import PermissionService
+        return PermissionService.get_roles(self)
 
     def has_permission(self, permission_name):
         """
-        Vérifie si l'employé a une permission spécifique via ses rôles
-        Cherche dans Django Groups ET dans les permissions custom
+        Vérifie si l'employé a une permission spécifique via ses rôles.
+        Délègue à PermissionService.
 
         Args:
             permission_name (str): Nom de la permission
-                - Format Django: 'app_label.codename' ou juste 'codename'
-                - Format custom: 'can_validate_rh', 'zdda.delete', etc.
 
         Returns:
             bool: True si au moins un des rôles actifs a cette permission
-
-        Exemples:
-            if employe.has_permission('absence.validate_absence_rh'):  # Django
-            if employe.has_permission('can_validate_rh'):  # Custom
         """
-        from employee.models import ZYRE
-
-        # 1. Vérifier dans les permissions Django natives de l'utilisateur
-        if self.user:
-            if self.user.has_perm(permission_name):
-                return True
-
-            # Vérifier aussi avec le format court si format long fourni
-            if '.' in permission_name:
-                _, codename = permission_name.split('.', 1)
-                if self.user.has_perm(permission_name):
-                    return True
-
-        # 2. Vérifier dans les rôles ZYRO (Django Groups + Custom)
-        roles_actifs = ZYRE.objects.filter(
-            employe=self,
-            actif=True,
-            date_fin__isnull=True
-        ).select_related('role')
-
-        for attribution in roles_actifs:
-            if attribution.role.has_permission(permission_name):
-                return True
-
-        return False
+        from employee.services.permission_service import PermissionService
+        return PermissionService.has_permission(self, permission_name)
 
     def add_role(self, role_code, date_debut=None, created_by=None):
         """
-        Ajoute un rôle à l'employé
+        Ajoute un rôle à l'employé.
+        Délègue à PermissionService.
 
         Args:
             role_code (str): Code du rôle à ajouter
@@ -731,244 +462,117 @@ class ZY00(models.Model):
 
         Returns:
             ZYRE: L'attribution créée
-
-        Exemple:
-            employe.add_role('DRH', created_by=admin_employe)
         """
-        from employee.models import ZYRO, ZYRE
-        from datetime import date
-
-        role = ZYRO.objects.get(CODE=role_code, actif=True)
-
-        if not date_debut:
-            date_debut = date.today()
-
-        attribution = ZYRE.objects.create(
-            employe=self,
-            role=role,
-            date_debut=date_debut,
-            actif=True,
-            created_by=created_by
-        )
-
-        return attribution
+        from employee.services.permission_service import PermissionService
+        return PermissionService.add_role(self, role_code, date_debut, created_by)
 
     def remove_role(self, role_code):
         """
-        Retire un rôle à l'employé (désactive l'attribution)
+        Retire un rôle à l'employé (désactive l'attribution).
+        Délègue à PermissionService.
 
         Args:
             role_code (str): Code du rôle à retirer
-
-        Exemple:
-            employe.remove_role('DRH')
         """
-        from employee.models import ZYRE
-        from datetime import date
-
-        ZYRE.objects.filter(
-            employe=self,
-            role__CODE=role_code,
-            actif=True,
-            date_fin__isnull=True
-        ).update(
-            actif=False,
-            date_fin=date.today()
-        )
+        from employee.services.permission_service import PermissionService
+        PermissionService.remove_role(self, role_code)
 
     def peut_gerer_parametrage_app(self):
-        """
-        Vérifie si l'employé peut gérer le paramétrage de l'application
-        (GESTION_APP uniquement)
-        """
-        return self.has_role('GESTION_APP')
+        """Vérifie si l'employé peut gérer le paramétrage de l'application."""
+        from employee.services.permission_service import PermissionService
+        return PermissionService.can_manage_app_settings(self)
 
     def peut_gerer_parametrage_absence(self):
-        """Alias pour la gestion des absences"""
-        return self.has_role('GESTION_APP')
+        """Alias pour la gestion des absences."""
+        from employee.services.permission_service import PermissionService
+        return PermissionService.can_manage_app_settings(self)
 
     def peut_gerer_parametrage_entreprise(self):
-        """Alias pour la gestion de l'entreprise"""
-        return self.has_role('GESTION_APP')
+        """Alias pour la gestion de l'entreprise."""
+        from employee.services.permission_service import PermissionService
+        return PermissionService.can_manage_app_settings(self)
 
     def est_drh(self):
-        """Vérifie si l'employé est DRH"""
-        return self.has_role('DRH') or self.has_role('GESTION_APP')
+        """Vérifie si l'employé est DRH."""
+        from employee.services.permission_service import PermissionService
+        return PermissionService.is_drh(self)
 
     def est_assistant_rh(self):
-        """Vérifie si l'employé est assistant RH"""
-        return self.has_role('ASSISTANT_RH')
+        """Vérifie si l'employé est assistant RH."""
+        from employee.services.permission_service import PermissionService
+        return PermissionService.is_assistant_rh(self)
 
     def peut_gerer_employes(self):
-        """
-        Vérifie si l'employé peut accéder au menu Salariés
-        (DRH, GESTION_APP, ASSISTANT_RH)
-        """
-        return (
-                self.has_role('DRH') or
-                self.has_role('GESTION_APP') or
-                self.has_role('ASSISTANT_RH') or
-                self.has_role('RH_VALIDATION_ABS')
-        )
+        """Vérifie si l'employé peut accéder au menu Salariés."""
+        from employee.services.permission_service import PermissionService
+        return PermissionService.can_manage_employees(self)
 
     def peut_embaucher(self):
-        """
-        Vérifie si l'employé peut embaucher
-        (DRH et GESTION_APP uniquement)
-        """
-        return self.has_role('DRH') or self.has_role('GESTION_APP')
+        """Vérifie si l'employé peut embaucher."""
+        from employee.services.permission_service import PermissionService
+        return PermissionService.can_hire(self)
 
     def get_equipe_manager(self):
-        """
-        Retourne l'équipe complète du manager (tous les employés du département)
-        Si l'employé est manager, retourne son équipe
-        Si l'employé n'est pas manager, retourne l'équipe de son manager
-        """
-        # 1. Si l'employé est manager, retourner son équipe
-        if self.est_manager_departement():
-            return self.get_subordonnes_hierarchiques()
-
-        # 2. Sinon, trouver le manager et retourner son équipe
-        manager = self.get_manager_departement()
-        if manager:
-            return manager.get_subordonnes_hierarchiques()
-
-        return ZY00.objects.none()
+        """Retourne l'équipe complète du manager."""
+        from employee.services.hierarchy_service import HierarchyService
+        return HierarchyService.get_team_members(self)
 
     def get_collaborateurs_meme_departement(self):
-        """
-        Retourne tous les collaborateurs du même département
-        """
-        # Récupérer l'affectation active
-        affectation = self.affectations.filter(
-            date_fin__isnull=True
-        ).select_related('poste__DEPARTEMENT').first()
-
-        if not affectation or not affectation.poste.DEPARTEMENT:
-            return ZY00.objects.none()
-
-        # Récupérer tous les employés du même département
-        departement = affectation.poste.DEPARTEMENT
-
-        # Chercher les affectations actives dans ce département
-        employes_ids = ZYAF.objects.filter(
-            poste__DEPARTEMENT=departement,
-            date_fin__isnull=True,
-            employe__etat='actif'
-        ).values_list('employe', flat=True).distinct()
-
-        return ZY00.objects.filter(matricule__in=employes_ids).exclude(pk=self.pk)
+        """Retourne tous les collaborateurs du même département."""
+        from employee.services.hierarchy_service import HierarchyService
+        return HierarchyService.get_colleagues_same_department(self)
 
     def get_departement_actuel(self):
-        """Retourne le département actuel de l'employé"""
-        affectation = self.affectations.filter(
-            date_fin__isnull=True
-        ).select_related('poste__DEPARTEMENT').first()
-
-        if affectation and affectation.poste.DEPARTEMENT:
-            return affectation.poste.DEPARTEMENT
-        return None
+        """Retourne le département actuel de l'employé."""
+        from employee.services.hierarchy_service import HierarchyService
+        return HierarchyService.get_current_department(self)
 
 
     # ==================== MÉTHODES GESTION TEMPS & ACTIVITÉS ====================
     def peut_gerer_clients(self):
-        """
-        Vérifie si l'employé peut gérer les clients
-        Rôles autorisés: DRH, GESTION_APP, DIRECTEUR
-        """
-        return (
-                self.has_role('DRH') or
-                self.has_role('GESTION_APP') or
-                self.has_role('DIRECTEUR')
-        )
+        """Vérifie si l'employé peut gérer les clients."""
+        from employee.services.permission_service import PermissionService
+        return PermissionService.can_manage_clients(self)
 
     def peut_gerer_activites(self):
-        """
-        Vérifie si l'employé peut gérer les activités
-        Rôles autorisés: MANAGER, DRH, GESTION_APP, DIRECTEUR
-        """
-        return (
-                self.has_role('MANAGER') or
-                self.has_role('DRH') or
-                self.has_role('GESTION_APP') or
-                self.has_role('DIRECTEUR')
-                #self.est_manager_departement()
-        )
+        """Vérifie si l'employé peut gérer les activités."""
+        from employee.services.permission_service import PermissionService
+        return PermissionService.can_manage_activities(self)
 
     def peut_gerer_projets(self):
-        """
-        Vérifie si l'employé peut gérer les projets
-        Rôles autorisés: MANAGER, DRH, GESTION_APP, DIRECTEUR
-        """
-        return (
-                self.has_role('MANAGER') or
-                #self.has_role('DRH') or
-                self.has_role('GESTION_APP') or
-                self.has_role('DIRECTEUR')
-                #self.est_manager_departement()
-        )
+        """Vérifie si l'employé peut gérer les projets."""
+        from employee.services.permission_service import PermissionService
+        return PermissionService.can_manage_projects(self)
 
     def peut_gerer_taches(self):
-        """
-        Vérifie si l'employé peut créer/modifier/supprimer des tâches
-        Rôles autorisés: MANAGER, DRH, GESTION_APP, DIRECTEUR
-        """
-        return (
-                self.has_role('MANAGER') or
-                #self.has_role('DRH') or
-                self.has_role('GESTION_APP') or
-                self.has_role('DIRECTEUR')
-                #self.est_manager_departement()
-        )
+        """Vérifie si l'employé peut créer/modifier/supprimer des tâches."""
+        from employee.services.permission_service import PermissionService
+        return PermissionService.can_manage_tasks(self)
 
     def peut_valider_imputations(self):
-        """
-        Vérifie si l'employé peut valider les imputations de temps
-        Rôles autorisés: MANAGER, DRH, GESTION_APP, DIRECTEUR
-        """
-        return (
-                self.has_role('MANAGER') or
-                #self.has_role('DRH') or
-                self.has_role('GESTION_APP') or
-                self.has_role('DIRECTEUR')
-                #self.est_manager_departement()
-        )
+        """Vérifie si l'employé peut valider les imputations de temps."""
+        from employee.services.permission_service import PermissionService
+        return PermissionService.can_validate_time_entries(self)
 
     def peut_voir_toutes_imputations(self):
-        """
-        Vérifie si l'employé peut voir toutes les imputations
-        Rôles autorisés: MANAGER, DRH, GESTION_APP, DIRECTEUR, COMPTABLE, ASSISTANT_RH
-        """
-        return (
-                self.has_role('MANAGER') or
-                self.has_role('DRH') or
-                self.has_role('GESTION_APP') or
-                self.has_role('DIRECTEUR') or
-                self.has_role('COMPTABLE') or
-                self.has_role('ASSISTANT_RH')
-                #self.est_manager_departement()
-        )
+        """Vérifie si l'employé peut voir toutes les imputations."""
+        from employee.services.permission_service import PermissionService
+        return PermissionService.can_view_all_time_entries(self)
 
     def peut_creer_imputation(self):
-        """
-        Vérifie si l'employé peut créer des imputations de temps
-        Tous les employés peuvent créer des imputations
-        """
-        return True
+        """Vérifie si l'employé peut créer des imputations de temps."""
+        from employee.services.permission_service import PermissionService
+        return PermissionService.can_create_time_entry(self)
 
     def peut_voir_taches(self):
-        """
-        Vérifie si l'employé peut voir les tâches
-        Tous les employés peuvent voir les tâches
-        """
-        return True
+        """Vérifie si l'employé peut voir les tâches."""
+        from employee.services.permission_service import PermissionService
+        return PermissionService.can_view_tasks(self)
 
     def peut_uploader_documents(self):
-        """
-        Vérifie si l'employé peut uploader des documents
-        Tous les employés peuvent uploader des documents
-        """
-        return True
+        """Vérifie si l'employé peut uploader des documents."""
+        from employee.services.permission_service import PermissionService
+        return PermissionService.can_upload_documents(self)
 
 
 

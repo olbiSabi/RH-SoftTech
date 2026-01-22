@@ -47,7 +47,6 @@ urlpatterns = [
     path('employe/', include('employee.urls', namespace='employee')),
     path('absence/', include('absence.urls')),
     path('departement/', include('departement.urls')),
-    path('parametre/', include('parametre.urls')),
     # Module Gestion Temps et Activités
     path('gestion-temps/', include('gestion_temps_activite.urls', namespace='gestion_temps_activite')),
 

@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'employee',
     'departement',
-    'parametre',
     'core',
     'absence',
     'entreprise',
@@ -153,10 +152,10 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 Mo
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 Mo
 
 # URLs pour les pages d'erreur
-handler404 = 'employee.views.handler404'
-handler500 = 'employee.views.handler500'
-handler403 = 'employee.views.handler403'
-handler400 = 'employee.views.handler400'
+handler404 = 'employee.error_handlers.handler404'
+handler500 = 'employee.error_handlers.handler500'
+handler403 = 'employee.error_handlers.handler403'
+handler400 = 'employee.error_handlers.handler400'
 
 # Configuration d'authentification
 LOGIN_URL = reverse_lazy('login')  # Utilise le nom de l'URL
