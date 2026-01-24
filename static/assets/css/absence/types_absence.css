@@ -86,11 +86,11 @@
 
 /* Statistique Total */
 .stat-total::before {
-    background: linear-gradient(90deg, #3498db 0%, #2980b9 100%);
+    background: linear-gradient(90deg, #1c5d5f 0%, #193f41 100%);
 }
 
 .stat-total .stat-icon {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
     color: white;
 }
 
@@ -286,8 +286,8 @@
 }
 
 .btn-outline-primary:hover {
-    background-color: #0d6efd !important;
-    border-color: #0d6efd !important;
+    background-color: #1c5d5f !important;
+    border-color: #1c5d5f !important;
     color: white !important;
 }
 

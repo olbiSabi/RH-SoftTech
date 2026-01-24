@@ -1,0 +1,156 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    .form-card {
+        border-left: 4px solid #dc3545;
+    }
+    .section-header {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px 5px 0 0;
+    }
+    .btn-submit {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+    .materiel-info {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+    }
+    .materiel-info .label {
+        font-weight: 600;
+        color: #1c5d5f;
+    }
+    .warning-box {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 8px;
+        padding: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-trash-alt"></i> Réformer le matériel
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'materiel:dashboard' %}">Matériel</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'materiel:detail_materiel' uuid=materiel.uuid %}">{{ materiel.CODE_INTERNE }}</a></li>
+                        <li class="breadcrumb-item active">Réforme</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="warning-box mb-4">
+                    <h5><i class="fas fa-exclamation-triangle text-warning"></i> Attention</h5>
+                    <p class="mb-0">
+                        La réforme d'un matériel est une opération <strong>irréversible</strong>.
+                        Le matériel ne pourra plus être affecté ni utilisé.
+                        Assurez-vous que cette action est justifiée.
+                    </p>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Veuillez corriger les erreurs ci-dessous.
+                    </div>
+                    {% endif %}
+
+                    <div class="card form-card">
+                        <div class="section-header">
+                            <h5 class="mb-0"><i class="fas fa-file-alt"></i> Procès-verbal de réforme</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="id_motif">Motif de la réforme <span class="text-danger">*</span></label>
+                                {{ form.motif }}
+                                <small class="text-muted">Décrivez les raisons justifiant la mise au rebut du matériel</small>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_valeur_residuelle">Valeur résiduelle (XOF)</label>
+                                    {{ form.valeur_residuelle }}
+                                    <small class="text-muted">Valeur estimée au moment de la réforme</small>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'materiel:detail_materiel' uuid=materiel.uuid %}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Annuler
+                                </a>
+                                <button type="submit" class="btn btn-submit" onclick="return confirm('Êtes-vous sûr de vouloir réformer ce matériel ? Cette action est irréversible.');">
+                                    <i class="fas fa-trash-alt"></i> Confirmer la réforme
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header" style="background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);">
+                        <h5 class="card-title mb-0 text-white"><i class="fas fa-laptop"></i> Matériel à réformer</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="materiel-info">
+                            <div class="mb-2">
+                                <span class="label">Code:</span>
+                                <strong>{{ materiel.CODE_INTERNE }}</strong>
+                            </div>
+                            <div class="mb-2">
+                                <span class="label">Désignation:</span>
+                                {{ materiel.DESIGNATION }}
+                            </div>
+                            <div class="mb-2">
+                                <span class="label">Catégorie:</span>
+                                {{ materiel.CATEGORIE.LIBELLE }}
+                            </div>
+                            <div class="mb-2">
+                                <span class="label">État actuel:</span>
+                                {{ materiel.get_ETAT_display }}
+                            </div>
+                            <hr>
+                            <div class="mb-2">
+                                <span class="label">Prix d'acquisition:</span>
+                                {{ materiel.PRIX_ACQUISITION|floatformat:0 }} XOF
+                            </div>
+                            <div class="mb-2">
+                                <span class="label">Valeur résiduelle calculée:</span>
+                                {{ materiel.valeur_residuelle|floatformat:0 }} XOF
+                            </div>
+                            <div class="mb-2">
+                                <span class="label">Ancienneté:</span>
+                                {{ materiel.anciennete_jours }} jours
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

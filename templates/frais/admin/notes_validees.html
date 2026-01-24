@@ -1,0 +1,285 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    .filter-card {
+        border-left: 4px solid #1c5d5f;
+    }
+    .stat-box {
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+    }
+    .stat-box h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+    .stat-box p {
+        margin: 5px 0 0 0;
+        font-size: 0.9rem;
+    }
+    .table th {
+        background-color: #1c5d5f;
+        color: white;
+        border: none;
+    }
+    .table td:nth-child(5) {
+        color: white !important;
+    }
+    .col-lg-2-4 {
+        flex: 0 0 auto;
+        width: 20%;
+    }
+    @media (max-width: 991.98px) {
+        .col-lg-2-4 {
+            width: 50%;
+        }
+    }
+    @media (max-width: 767.98px) {
+        .col-lg-2-4 {
+            width: 100%;
+        }
+    }
+    .badge-valide {
+        background-color: #28a745;
+    }
+    .badge-rembourse {
+        background-color: #1c5d5f;
+    }
+    .btn-export {
+        background-color: #1c5d5f;
+        border-color: #1c5d5f;
+        color: white;
+    }
+    .btn-export:hover {
+        background-color: #164849;
+        border-color: #164849;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-file-invoice-dollar"></i> Notes de Frais Validées
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'frais:dashboard' %}">Frais</a></li>
+                        <li class="breadcrumb-item active">Notes validées</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Statistiques -->
+        <div class="row mb-4">
+            <div class="col-lg-2-4 col-md-6 mb-3">
+                <div class="stat-box text-white" style="background-color: #1c5d5f;">
+                    <h3>{{ stats.total }}</h3>
+                    <p><i class="fas fa-file-alt"></i> Notes totales</p>
+                </div>
+            </div>
+            <div class="col-lg-2-4 col-md-6 mb-3">
+                <div class="stat-box text-white" style="background-color: #2a7d80;">
+                    <h3>{{ stats.montant_total|floatformat:0 }} <small>XOF</small></h3>
+                    <p><i class="fas fa-coins"></i> Montant total validé</p>
+                </div>
+            </div>
+            <div class="col-lg-2-4 col-md-6 mb-3">
+                <div class="stat-box text-white" style="background-color: #164849;">
+                    <h3>{{ stats.nb_valide }}</h3>
+                    <p><i class="fas fa-clock"></i> En attente remboursement</p>
+                </div>
+            </div>
+            <div class="col-lg-2-4 col-md-6 mb-3">
+                <div class="stat-box text-white" style="background-color: #193f41;">
+                    <h3>{{ stats.montant_a_rembourser|floatformat:0 }} <small>XOF</small></h3>
+                    <p><i class="fas fa-hand-holding-usd"></i> À rembourser</p>
+                </div>
+            </div>
+            <div class="col-lg-2-4 col-md-6 mb-3">
+                <div class="stat-box text-white" style="background-color: #0d2e30;">
+                    <h3>{{ stats.montant_rembourse|floatformat:0 }} <small>XOF</small></h3>
+                    <p><i class="fas fa-check-circle"></i> Montant remboursé</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtres -->
+        <div class="card filter-card mb-4">
+            <div class="card-header" style="background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);">
+                <h5 class="card-title mb-0 text-white">
+                    <i class="fas fa-filter"></i> Filtres
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row align-items-end">
+                    <div class="col-md-2">
+                        <label for="annee">Année</label>
+                        <select name="annee" id="annee" class="form-control">
+                            {% for an in annees_disponibles %}
+                            <option value="{{ an }}" {% if an|stringformat:"s" == annee_selectionnee %}selected{% endif %}>{{ an }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="mois">Mois</label>
+                        <select name="mois" id="mois" class="form-control">
+                            <option value="">Tous</option>
+                            {% for num, nom in mois_disponibles %}
+                            <option value="{{ num }}" {% if num|stringformat:"s" == mois_selectionne %}selected{% endif %}>{{ nom }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="employe">Employé</label>
+                        <input type="text" name="employe" id="employe" class="form-control"
+                               placeholder="Nom, prénom ou matricule" value="{{ employe_filtre|default:'' }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="tri">Trier par</label>
+                        <select name="tri" id="tri" class="form-control">
+                            <option value="-DATE_VALIDATION" {% if tri == '-DATE_VALIDATION' %}selected{% endif %}>Date validation (récent)</option>
+                            <option value="DATE_VALIDATION" {% if tri == 'DATE_VALIDATION' %}selected{% endif %}>Date validation (ancien)</option>
+                            <option value="-MONTANT_VALIDE" {% if tri == '-MONTANT_VALIDE' %}selected{% endif %}>Montant (décroissant)</option>
+                            <option value="MONTANT_VALIDE" {% if tri == 'MONTANT_VALIDE' %}selected{% endif %}>Montant (croissant)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Filtrer
+                        </button>
+                        <a href="{% url 'frais:export_notes_validees' %}?annee={{ annee_selectionnee }}{% if mois_selectionne %}&mois={{ mois_selectionne }}{% endif %}{% if employe_filtre %}&employe={{ employe_filtre }}{% endif %}"
+                           class="btn btn-export">
+                            <i class="fas fa-file-excel"></i> Export Excel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tableau des notes -->
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Référence</th>
+                                <th>Employé</th>
+                                <th>Période</th>
+                                <th class="text-right">Montant validé</th>
+                                <th>Statut</th>
+                                <th>Date validation</th>
+                                <th>Valideur</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for note in notes %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'frais:detail_note' uuid=note.uuid %}">
+                                        <strong>{{ note.REFERENCE }}</strong>
+                                    </a>
+                                </td>
+                                <td>
+                                    {{ note.EMPLOYE.nom }} {{ note.EMPLOYE.prenoms }}
+                                    <br><small class="text-muted">{{ note.EMPLOYE.matricule }}</small>
+                                </td>
+                                <td>
+                                    {{ note.PERIODE_DEBUT|date:"d/m/Y" }}<br>
+                                    <small class="text-muted">au {{ note.PERIODE_FIN|date:"d/m/Y" }}</small>
+                                </td>
+                                <td class="text-right">
+                                    <strong>{{ note.MONTANT_VALIDE|floatformat:0 }}</strong> XOF
+                                </td>
+                                <td>
+                                    {% if note.STATUT == 'VALIDE' %}
+                                    <span class="badge badge-valide">Validé</span>
+                                    {% else %}
+                                    <span class="badge badge-rembourse">Remboursé</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ note.DATE_VALIDATION|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    {% if note.VALIDEUR %}
+                                    {{ note.VALIDEUR.nom }} {{ note.VALIDEUR.prenoms|slice:":1" }}.
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'frais:detail_note' uuid=note.uuid %}"
+                                       class="btn btn-sm btn-outline-primary" title="Voir détail">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if note.STATUT == 'VALIDE' %}
+                                    <a href="{% url 'frais:admin_remboursements' %}"
+                                       class="btn btn-sm btn-outline-success" title="Rembourser">
+                                        <i class="fas fa-hand-holding-usd"></i>
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center py-4">
+                                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">Aucune note validée pour cette période</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {% if notes.has_other_pages %}
+            <div class="card-footer">
+                <nav>
+                    <ul class="pagination justify-content-center mb-0">
+                        {% if notes.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ notes.previous_page_number }}&annee={{ annee_selectionnee }}{% if mois_selectionne %}&mois={{ mois_selectionne }}{% endif %}{% if employe_filtre %}&employe={{ employe_filtre }}{% endif %}&tri={{ tri }}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% for num in notes.paginator.page_range %}
+                            {% if num == notes.number %}
+                            <li class="page-item active">
+                                <span class="page-link" style="background-color: #1c5d5f; border-color: #1c5d5f;">{{ num }}</span>
+                            </li>
+                            {% elif num > notes.number|add:'-3' and num < notes.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}&annee={{ annee_selectionnee }}{% if mois_selectionne %}&mois={{ mois_selectionne }}{% endif %}{% if employe_filtre %}&employe={{ employe_filtre }}{% endif %}&tri={{ tri }}">{{ num }}</a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if notes.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ notes.next_page_number }}&annee={{ annee_selectionnee }}{% if mois_selectionne %}&mois={{ mois_selectionne }}{% endif %}{% if employe_filtre %}&employe={{ employe_filtre }}{% endif %}&tri={{ tri }}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

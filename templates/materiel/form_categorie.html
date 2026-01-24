@@ -1,0 +1,158 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    .form-card {
+        border-left: 4px solid #1c5d5f;
+    }
+    .section-header {
+        background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px 5px 0 0;
+    }
+    .btn-submit {
+        background-color: #1c5d5f;
+        border-color: #1c5d5f;
+        color: white;
+    }
+    .btn-submit:hover {
+        background-color: #164849;
+        border-color: #164849;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-layer-group"></i> {{ titre }}
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'materiel:dashboard' %}">Matériel</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'materiel:liste_categories' %}">Catégories</a></li>
+                        <li class="breadcrumb-item active">{{ titre }}</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8">
+                <form method="post">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Veuillez corriger les erreurs ci-dessous.
+                        <ul class="mb-0 mt-2">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <div class="card form-card">
+                        <div class="section-header">
+                            <h5 class="mb-0"><i class="fas fa-edit"></i> Informations de la catégorie</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_CODE">Code <span class="text-danger">*</span></label>
+                                    {{ form.CODE }}
+                                    <small class="text-muted">Ex: INFO, VEHIC, MOBIL</small>
+                                </div>
+                                <div class="col-md-8 mb-3">
+                                    <label for="id_LIBELLE">Libellé <span class="text-danger">*</span></label>
+                                    {{ form.LIBELLE }}
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_DESCRIPTION">Description</label>
+                                {{ form.DESCRIPTION }}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_DUREE_AMORTISSEMENT">Durée d'amortissement (mois)</label>
+                                    {{ form.DUREE_AMORTISSEMENT }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_ICONE">Icône</label>
+                                    {{ form.ICONE }}
+                                    <small class="text-muted">Ex: fa-laptop, fa-car</small>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_ORDRE">Ordre d'affichage</label>
+                                    {{ form.ORDRE }}
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="card bg-light">
+                                    <div class="card-body py-3">
+                                        <div class="form-check">
+                                            <input type="checkbox"
+                                                   class="form-check-input"
+                                                   id="id_STATUT"
+                                                   name="STATUT"
+                                                   style="width: 20px; height: 20px; cursor: pointer;"
+                                                   {% if form.STATUT.value or not categorie %}checked{% endif %}>
+                                            <label class="form-check-label ml-2" for="id_STATUT" style="cursor: pointer;">
+                                                <strong><i class="fas fa-toggle-on text-success"></i> Catégorie active</strong>
+                                            </label>
+                                        </div>
+                                        <small class="form-text text-muted mt-2">
+                                            Une catégorie inactive n'apparaît pas dans les choix
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'materiel:liste_categories' %}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Annuler
+                                </a>
+                                <button type="submit" class="btn btn-submit">
+                                    <i class="fas fa-save"></i> Enregistrer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header" style="background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);">
+                        <h5 class="card-title mb-0 text-white"><i class="fas fa-info-circle"></i> Aide</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Code:</strong> Identifiant court de la catégorie (4 caractères max recommandé).</p>
+                        <p><strong>Durée d'amortissement:</strong> Nombre de mois pour l'amortissement comptable du matériel (ex: 36 pour 3 ans).</p>
+                        <p><strong>Icône:</strong> Classe FontAwesome pour l'icône (ex: fa-laptop, fa-car, fa-chair).</p>
+                        <p><strong>Ordre:</strong> Position d'affichage dans les listes (0 = premier).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,178 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    .stat-card {
+        border-radius: 10px;
+        transition: transform 0.2s;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+    }
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+    }
+    .table th {
+        background-color: #1c5d5f;
+        color: white;
+        border: none;
+    }
+    .materiel-card {
+        border-left: 4px solid #1c5d5f;
+        transition: transform 0.2s;
+    }
+    .materiel-card:hover {
+        transform: translateY(-2px);
+    }
+    .badge-disponible { background-color: #28a745; }
+    .badge-affecte { background-color: #17a2b8; }
+    .badge-pret { background-color: #6f42c1; }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-laptop"></i> Mon matériel
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'home' %}">Accueil</a></li>
+                        <li class="breadcrumb-item active">Mon matériel</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Statistiques -->
+        <div class="row mb-4">
+            <div class="col-lg-4 col-md-6 mb-3">
+                <div class="card stat-card text-white" style="background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);">
+                    <div class="card-body text-center">
+                        <p class="stat-number">{{ stats.nb_materiels_affectes }}</p>
+                        <p class="mb-0">Matériel(s) affecté(s)</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <div class="card stat-card text-white" style="background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%);">
+                    <div class="card-body text-center">
+                        <p class="stat-number">{{ stats.valeur_totale_affectee|floatformat:0 }}</p>
+                        <p class="mb-0">Valeur totale (XOF)</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <div class="card stat-card text-white" style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);">
+                    <div class="card-body text-center">
+                        <p class="stat-number">{{ stats.nb_affectations_total }}</p>
+                        <p class="mb-0">Total affectations (historique)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Matériel actuellement affecté -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h4 style="color: #1c5d5f; border-bottom: 2px solid #1c5d5f; padding-bottom: 10px;">
+                    <i class="fas fa-check-circle"></i> Matériel actuellement affecté
+                </h4>
+            </div>
+            {% for mat in stats.materiels %}
+            <div class="col-lg-4 col-md-6 mb-3">
+                <div class="card materiel-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="font-weight-bold mb-0" style="color: #1c5d5f;">{{ mat.CODE_INTERNE }}</h6>
+                            <span class="badge badge-affecte">Affecté</span>
+                        </div>
+                        <p class="mb-2">{{ mat.DESIGNATION }}</p>
+                        <div class="text-muted small">
+                            <div><strong>Catégorie:</strong> {{ mat.CATEGORIE.LIBELLE }}</div>
+                            {% if mat.MARQUE %}<div><strong>Marque:</strong> {{ mat.MARQUE }}</div>{% endif %}
+                            {% if mat.NUMERO_SERIE %}<div><strong>N° Série:</strong> {{ mat.NUMERO_SERIE }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Aucun matériel ne vous est actuellement affecté.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Historique des affectations -->
+        <div class="card">
+            <div class="card-header" style="background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);">
+                <h5 class="card-title mb-0 text-white">
+                    <i class="fas fa-history"></i> Historique des affectations
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Matériel</th>
+                                <th>Catégorie</th>
+                                <th>Type</th>
+                                <th>Date début</th>
+                                <th>Date fin</th>
+                                <th>Affecté par</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for aff in historique %}
+                            <tr>
+                                <td>
+                                    <strong>{{ aff.MATERIEL.CODE_INTERNE }}</strong>
+                                    <br><small class="text-muted">{{ aff.MATERIEL.DESIGNATION|truncatechars:30 }}</small>
+                                </td>
+                                <td>{{ aff.MATERIEL.CATEGORIE.LIBELLE }}</td>
+                                <td>{{ aff.get_TYPE_AFFECTATION_display }}</td>
+                                <td>{{ aff.DATE_DEBUT|date:"d/m/Y" }}</td>
+                                <td>{{ aff.DATE_FIN|date:"d/m/Y"|default:"-" }}</td>
+                                <td>
+                                    {% if aff.AFFECTE_PAR %}
+                                    {{ aff.AFFECTE_PAR.nom }} {{ aff.AFFECTE_PAR.prenoms|slice:":1" }}.
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if aff.ACTIF %}
+                                    <span class="badge badge-success">Active</span>
+                                    {% else %}
+                                    <span class="badge badge-secondary">Terminée</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-muted">
+                                    Aucun historique d'affectation
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

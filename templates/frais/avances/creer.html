@@ -1,0 +1,123 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-hand-holding-usd"></i> Demande d'Avance
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'frais:dashboard' %}">Frais</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'frais:liste_avances' %}">Mes avances</a></li>
+                        <li class="breadcrumb-item active">Nouvelle</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-money-bill"></i> Nouvelle demande d'avance
+                        </h5>
+                    </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="id_MONTANT_DEMANDE">
+                                    <i class="fas fa-coins"></i> Montant demandé (XOF) *
+                                </label>
+                                {{ form.MONTANT_DEMANDE }}
+                                {% if form.MONTANT_DEMANDE.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.MONTANT_DEMANDE.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="id_MOTIF">
+                                    <i class="fas fa-comment"></i> Motif de la demande *
+                                </label>
+                                {{ form.MOTIF }}
+                                {% if form.MOTIF.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.MOTIF.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="id_DATE_MISSION_DEBUT">
+                                            <i class="fas fa-calendar"></i> Date début mission
+                                        </label>
+                                        {{ form.DATE_MISSION_DEBUT }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="id_DATE_MISSION_FIN">
+                                            <i class="fas fa-calendar"></i> Date fin mission
+                                        </label>
+                                        {{ form.DATE_MISSION_FIN }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Soumettre la demande
+                            </button>
+                            <a href="{% url 'frais:liste_avances' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-info-circle"></i> Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Une avance sur frais est un montant versé avant une mission, à régulariser ensuite via une note de frais.</p>
+                        <hr>
+                        <h6>Processus:</h6>
+                        <ol class="pl-3">
+                            <li>Soumission de la demande</li>
+                            <li>Approbation par le responsable</li>
+                            <li>Versement de l'avance</li>
+                            <li>Régularisation via note de frais</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

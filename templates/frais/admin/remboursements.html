@@ -1,0 +1,305 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    .stat-box {
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+    }
+    .stat-box h3 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: bold;
+    }
+    .stat-box p {
+        margin: 5px 0 0 0;
+        font-size: 0.9rem;
+    }
+    .table th {
+        background-color: #1c5d5f;
+        color: white;
+        border: none;
+    }
+    .note-card {
+        border-left: 4px solid #1c5d5f;
+        transition: all 0.2s;
+    }
+    .note-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .signature-box {
+        border: 2px dashed #ccc;
+        padding: 20px;
+        text-align: center;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+    .signature-box.confirmed {
+        border-color: #28a745;
+        background-color: #d4edda;
+    }
+    .btn-rembourser {
+        background-color: #1c5d5f;
+        border-color: #1c5d5f;
+        color: white;
+    }
+    .btn-rembourser:hover {
+        background-color: #164849;
+        border-color: #164849;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-hand-holding-usd"></i> Gestion des Remboursements
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'frais:dashboard' %}">Frais</a></li>
+                        <li class="breadcrumb-item active">Remboursements</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Statistiques -->
+        <div class="row mb-4">
+            <div class="col-lg-4 col-md-6 mb-3">
+                <div class="stat-box text-white" style="background-color: #1c5d5f;">
+                    <h3>{{ stats.nb_a_rembourser }}</h3>
+                    <p><i class="fas fa-clock"></i> Notes en attente de remboursement</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <div class="stat-box text-white" style="background-color: #2a7d80;">
+                    <h3>{{ stats.montant_a_rembourser|floatformat:0 }} <small>XOF</small></h3>
+                    <p><i class="fas fa-coins"></i> Montant total à rembourser</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <div class="stat-box text-white" style="background-color: #193f41;">
+                    <h3>{{ stats.nb_rembourse_mois }}</h3>
+                    <p><i class="fas fa-check-circle"></i> Remboursés ce mois</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Notes à rembourser -->
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header" style="background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);">
+                        <h5 class="card-title mb-0 text-white">
+                            <i class="fas fa-file-invoice-dollar"></i> Notes en attente de remboursement
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% for note in notes_a_rembourser %}
+                        <div class="card note-card mb-3">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5 class="card-title">
+                                            <a href="{% url 'frais:detail_note' uuid=note.uuid %}">
+                                                {{ note.REFERENCE }}
+                                            </a>
+                                        </h5>
+                                        <p class="mb-1">
+                                            <i class="fas fa-user"></i>
+                                            <strong>{{ note.EMPLOYE.nom }} {{ note.EMPLOYE.prenoms }}</strong>
+                                            <span class="text-muted">({{ note.EMPLOYE.matricule }})</span>
+                                        </p>
+                                        <p class="mb-1">
+                                            <i class="fas fa-calendar"></i>
+                                            {{ note.PERIODE_DEBUT|date:"d/m/Y" }} - {{ note.PERIODE_FIN|date:"d/m/Y" }}
+                                        </p>
+                                        <p class="mb-0">
+                                            <i class="fas fa-check-circle text-success"></i>
+                                            Validée le {{ note.DATE_VALIDATION|date:"d/m/Y" }}
+                                            par {{ note.VALIDEUR.nom }} {{ note.VALIDEUR.prenoms|slice:":1" }}.
+                                        </p>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+                                        <h4 class="text-success mb-1">{{ note.MONTANT_VALIDE|floatformat:0 }} XOF</h4>
+                                        <small class="text-muted">Montant à rembourser</small>
+                                    </div>
+                                    <div class="col-md-3 text-right">
+                                        <button type="button" class="btn btn-rembourser"
+                                                data-toggle="modal" data-target="#remboursementModal{{ note.uuid }}">
+                                            <i class="fas fa-hand-holding-usd"></i> Rembourser
+                                        </button>
+                                        <br>
+                                        <a href="{% url 'frais:fiche_remboursement' uuid=note.uuid %}"
+                                           class="btn btn-outline-secondary btn-sm mt-2" target="_blank">
+                                            <i class="fas fa-print"></i> Fiche
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                            <h5>Aucune note en attente de remboursement</h5>
+                            <p class="text-muted">Toutes les notes validées ont été remboursées.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes récemment remboursées -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-history"></i> Remboursements récents
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            {% for note in notes_remboursees %}
+                            <li class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <a href="{% url 'frais:detail_note' uuid=note.uuid %}">
+                                            <strong>{{ note.REFERENCE }}</strong>
+                                        </a>
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ note.EMPLOYE.nom }} {{ note.EMPLOYE.prenoms|slice:":1" }}.
+                                        </small>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="badge badge-success">{{ note.MONTANT_REMBOURSE|floatformat:0 }} XOF</span>
+                                        <br>
+                                        <small class="text-muted">{{ note.DATE_REMBOURSEMENT|date:"d/m" }}</small>
+                                    </div>
+                                </div>
+                            </li>
+                            {% empty %}
+                            <li class="list-group-item text-center text-muted py-4">
+                                <i class="fas fa-inbox fa-2x mb-2"></i>
+                                <br>Aucun remboursement récent
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% if notes_remboursees %}
+                    <div class="card-footer text-center">
+                        <a href="{% url 'frais:admin_notes_validees' %}?statut=REMBOURSE">
+                            Voir tous les remboursements
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modals de remboursement -->
+{% for note in notes_a_rembourser %}
+<div class="modal fade" id="remboursementModal{{ note.uuid }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="post" action="{% url 'frais:confirmer_remboursement' uuid=note.uuid %}">
+                {% csrf_token %}
+                <div class="modal-header" style="background-color: #1c5d5f;">
+                    <h5 class="modal-title text-white">
+                        <i class="fas fa-hand-holding-usd"></i> Confirmer le remboursement
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Informations de la note</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Référence</strong></td>
+                                    <td>{{ note.REFERENCE }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Employé</strong></td>
+                                    <td>{{ note.EMPLOYE.nom }} {{ note.EMPLOYE.prenoms }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Matricule</strong></td>
+                                    <td>{{ note.EMPLOYE.matricule }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Période</strong></td>
+                                    <td>{{ note.PERIODE_DEBUT|date:"d/m/Y" }} - {{ note.PERIODE_FIN|date:"d/m/Y" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Montant validé</strong></td>
+                                    <td class="text-success"><strong>{{ note.MONTANT_VALIDE|floatformat:0 }} XOF</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Informations de paiement</h6>
+                            <div class="form-group">
+                                <label for="date_remboursement">Date de remboursement *</label>
+                                <input type="date" name="date_remboursement" class="form-control" required
+                                       value="{% now 'Y-m-d' %}">
+                            </div>
+                            <div class="form-group">
+                                <label for="reference_paiement">Référence du paiement</label>
+                                <input type="text" name="reference_paiement" class="form-control"
+                                       placeholder="N° virement, chèque, caisse...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Zone de signature -->
+                    <div class="signature-box">
+                        <h6><i class="fas fa-signature"></i> Confirmation de réception</h6>
+                        <p class="text-muted mb-3">
+                            En cochant cette case, vous confirmez que le collaborateur
+                            <strong>{{ note.EMPLOYE.nom }} {{ note.EMPLOYE.prenoms }}</strong>
+                            a bien reçu le remboursement de <strong>{{ note.MONTANT_VALIDE|floatformat:0 }} XOF</strong>.
+                        </p>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="signature{{ note.uuid }}"
+                                   name="signature_confirmee" required
+                                   style="width: 25px; height: 25px; cursor: pointer;">
+                            <label class="form-check-label ml-2" for="signature{{ note.uuid }}" style="cursor: pointer;">
+                                <strong>Je confirme que le collaborateur a signé/confirmé la réception du remboursement</strong>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="{% url 'frais:fiche_remboursement' uuid=note.uuid %}"
+                       class="btn btn-outline-secondary" target="_blank">
+                        <i class="fas fa-print"></i> Imprimer la fiche
+                    </a>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check"></i> Confirmer le remboursement
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

@@ -434,7 +434,7 @@
 
 /* Couleurs pour les small-box */
 .small-box.bg-info {
-    background-color: #17a2b8 !important;
+    background-color: #2a7d80 !important;
 }
 
 .small-box.bg-success {
@@ -446,7 +446,7 @@
 }
 
 .small-box.bg-primary {
-    background-color: #007bff !important;
+    background-color: #1c5d5f !important;
 }
 
 /* Supprimer l'ancienne classe card-stats si elle existe */
@@ -527,7 +527,7 @@
     }
 
     .badge-readonly {
-        background: #17a2b8;
+        background: #2a7d80;
         color: white;
         padding: 5px 10px;
         border-radius: 5px;

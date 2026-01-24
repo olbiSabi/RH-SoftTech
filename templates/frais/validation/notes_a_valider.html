@@ -1,0 +1,93 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-tasks"></i> Notes à Valider
+                    </h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Référence</th>
+                                <th>Employé</th>
+                                <th>Période</th>
+                                <th>Objet</th>
+                                <th class="text-right">Montant</th>
+                                <th>Soumise le</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for note in notes %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'frais:detail_note' uuid=note.uuid %}">
+                                        <strong>{{ note.REFERENCE }}</strong>
+                                    </a>
+                                </td>
+                                <td>{{ note.EMPLOYE }}</td>
+                                <td>{{ note.PERIODE_DEBUT|date:"d/m/Y" }} - {{ note.PERIODE_FIN|date:"d/m/Y" }}</td>
+                                <td>{{ note.OBJET|default:"-"|truncatechars:30 }}</td>
+                                <td class="text-right">
+                                    <strong>{{ note.MONTANT_TOTAL|floatformat:0 }}</strong> XOF
+                                </td>
+                                <td>{{ note.DATE_SOUMISSION|date:"d/m/Y H:i" }}</td>
+                                <td class="text-center">
+                                    <a href="{% url 'frais:detail_note' uuid=note.uuid %}"
+                                       class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye"></i> Examiner
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    <i class="fas fa-check-circle fa-3x mb-3 d-block text-success"></i>
+                                    Aucune note en attente de validation
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if notes.has_other_pages %}
+                <nav>
+                    <ul class="pagination justify-content-center">
+                        {% if notes.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ notes.previous_page_number }}">Précédent</a>
+                        </li>
+                        {% endif %}
+                        {% for num in notes.paginator.page_range %}
+                        <li class="page-item {% if notes.number == num %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endfor %}
+                        {% if notes.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ notes.next_page_number }}">Suivant</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,248 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    .priority-badge {
+        font-size: 0.75rem;
+        padding: 3px 8px;
+        border-radius: 12px;
+    }
+    .priority-CRITIQUE { background-color: #dc3545; color: white; }
+    .priority-HAUTE { background-color: #fd7e14; color: white; }
+    .priority-MOYENNE { background-color: #ffc107; color: #333; }
+    .priority-BASSE { background-color: #28a745; color: white; }
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 3px 8px;
+        border-radius: 12px;
+    }
+    .status-NOUVEAU { background-color: #17a2b8; color: white; }
+    .status-EN_COURS { background-color: #ffc107; color: #333; }
+    .status-RESOLU { background-color: #28a745; color: white; }
+    .status-IGNORE { background-color: #6c757d; color: white; }
+    .status-EXPIRE { background-color: #dc3545; color: white; }
+    .filter-card {
+        border-left: 4px solid #1c5d5f;
+    }
+    .stat-mini {
+        padding: 10px 15px;
+        border-radius: 8px;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-bell"></i> Alertes de conformité
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'audit:dashboard' %}">Audit</a></li>
+                        <li class="breadcrumb-item active">Alertes</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Stats rapides -->
+        <div class="row mb-3">
+            <div class="col-md-3 col-6 mb-2">
+                <div class="stat-mini bg-danger text-white">
+                    <strong>{{ stats.critiques }}</strong> Critiques
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-2">
+                <div class="stat-mini bg-info text-white">
+                    <strong>{{ stats.nouveaux }}</strong> Nouvelles
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-2">
+                <div class="stat-mini bg-warning">
+                    <strong>{{ stats.en_cours }}</strong> En cours
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-2">
+                <div class="stat-mini bg-success text-white">
+                    <strong>{{ stats.resolus }}</strong> Résolues
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Filtres -->
+            <div class="col-lg-3 mb-4">
+                <div class="card filter-card">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0"><i class="fas fa-filter"></i> Filtres</h6>
+                    </div>
+                    <div class="card-body">
+                        <form method="get">
+                            <div class="form-group">
+                                <label>Recherche</label>
+                                {{ form.recherche }}
+                            </div>
+                            <div class="form-group">
+                                <label>Type</label>
+                                {{ form.type_alerte }}
+                            </div>
+                            <div class="form-group">
+                                <label>Statut</label>
+                                {{ form.statut }}
+                            </div>
+                            <div class="form-group">
+                                <label>Priorité</label>
+                                {{ form.priorite }}
+                            </div>
+                            <div class="form-group">
+                                <label>Date début</label>
+                                {{ form.date_debut }}
+                            </div>
+                            <div class="form-group">
+                                <label>Date fin</label>
+                                {{ form.date_fin }}
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fas fa-search"></i> Filtrer
+                            </button>
+                            <a href="{% url 'audit:liste_alertes' %}" class="btn btn-secondary btn-block">
+                                <i class="fas fa-times"></i> Réinitialiser
+                            </a>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <a href="{% url 'audit:executer_verifications' %}" class="btn btn-success btn-block">
+                            <i class="fas fa-sync-alt"></i> Vérifier la conformité
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Liste des alertes -->
+            <div class="col-lg-9">
+                <div class="card">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ alertes.paginator.count }} alerte(s)</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        {% if alertes %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Référence</th>
+                                        <th>Type</th>
+                                        <th>Titre</th>
+                                        <th>Employé</th>
+                                        <th>Priorité</th>
+                                        <th>Statut</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for alerte in alertes %}
+                                    <tr class="{% if alerte.est_en_retard %}table-danger{% endif %}">
+                                        <td>
+                                            <a href="{% url 'audit:detail_alerte' uuid=alerte.uuid %}">
+                                                <strong>{{ alerte.REFERENCE }}</strong>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-secondary">{{ alerte.get_TYPE_ALERTE_display }}</span>
+                                        </td>
+                                        <td>{{ alerte.TITRE|truncatechars:35 }}</td>
+                                        <td>
+                                            {% if alerte.EMPLOYE %}
+                                            {{ alerte.EMPLOYE.nom }} {{ alerte.EMPLOYE.prenoms|slice:":1" }}.
+                                            {% else %}
+                                            -
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="priority-badge priority-{{ alerte.PRIORITE }}">
+                                                {{ alerte.get_PRIORITE_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge status-{{ alerte.STATUT }}">
+                                                {{ alerte.get_STATUT_display }}
+                                            </span>
+                                        </td>
+                                        <td>{{ alerte.DATE_DETECTION|date:"d/m/Y" }}</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{% url 'audit:detail_alerte' uuid=alerte.uuid %}" class="btn btn-outline-primary" title="Voir">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                {% if alerte.STATUT in 'NOUVEAU,EN_COURS' %}
+                                                <form action="{% url 'audit:resoudre_alerte' uuid=alerte.uuid %}" method="post" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-outline-success" title="Résoudre">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                </form>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if alertes.has_other_pages %}
+                        <div class="card-footer bg-white">
+                            <nav>
+                                <ul class="pagination justify-content-center mb-0">
+                                    {% if alertes.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&laquo;</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ alertes.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Préc.</a>
+                                    </li>
+                                    {% endif %}
+
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ alertes.number }} / {{ alertes.paginator.num_pages }}</span>
+                                    </li>
+
+                                    {% if alertes.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ alertes.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Suiv.</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ alertes.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&raquo;</a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        </div>
+                        {% endif %}
+                        {% else %}
+                        <div class="text-center py-5 text-muted">
+                            <i class="fas fa-check-circle fa-4x mb-3"></i>
+                            <p class="lead">Aucune alerte trouvée</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

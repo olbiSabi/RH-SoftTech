@@ -1,6 +1,4 @@
-
 /*============================
-
 ========================================*/
 
 @font-face {
@@ -64,18 +62,30 @@
 }
 
 :root {
-    --hdcol-one: #3b3b3b;
-	--add-btn: #4ba6a6;
-	--addBtHover: #4d4d4d;
-	--active-col: #0aee97;
-	--link-activ: #0aee97;
-	--page-link: #da062e;
-    --hdcol-sec: #4ba6a6;
-    --hover-col: #777777;
-	--body-col: #f7f7f7;
+    /* Couleurs principales du thème */
+    --primary-color: #1c5d5f;
+    --primary-dark: #193f41;
+    --primary-light: #2a7d80;
+    --primary-hover: #164849;
+
+    /* Couleurs de l'interface */
+    --hdcol-one: #1c5d5f;
+    --hdcol-sec: #193f41;
+    --add-btn: #1c5d5f;
+    --addBtHover: #193f41;
+    --active-col: #1c5d5f;
+    --link-activ: #1c5d5f;
+    --page-link: #1c5d5f;
+    --hover-col: #193f41;
+    --body-col: #f7f7f7;
     --frcol: #e3e3e3;
     --bage-col: #252424;
-	/*var(--bage-col)*/
+
+    /* Couleurs secondaires */
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
 }
 
 /*-----------------
@@ -304,7 +314,7 @@ select.form-control[multiple], select.form-control[size] {
 .header-content {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    /*align-items: center;*/
     height: 100%;
 }
 
@@ -331,7 +341,7 @@ select.form-control[multiple], select.form-control[size] {
     font-size: 1.5rem;
     font-weight: 600;
     color: white;
-    margin-right: 20px;
+    /*margin-right: 20px;*/
 }
 
 /* Menu Horizontal */
@@ -343,7 +353,7 @@ select.form-control[multiple], select.form-control[size] {
 .menu-list {
     display: flex;
     list-style: none;
-    gap: 5px;
+    /*gap: 5px;*/
 }
 
 .menu-list-admin {
@@ -434,7 +444,7 @@ select.form-control[multiple], select.form-control[size] {
 
 .submenu a:hover {
     background-color: #f8f9fa;
-    color: #3498db;
+    color: #1c5d5f;
 }
 
 .submenu a i {
@@ -445,7 +455,7 @@ select.form-control[multiple], select.form-control[size] {
 }
 
 .submenu a:hover i {
-    color: #3498db;
+    color: #1c5d5f;
 }
 
 /* User Info */
@@ -455,14 +465,9 @@ select.form-control[multiple], select.form-control[size] {
     gap: 8px;
     font-size: 0.9rem;
     cursor: pointer;
-    margin: 10px 10px 20px 0;
+    /*margin: 10px 10px 20px 0;*/
     border-radius: 4px;
     transition: background-color 0.3s;
-}
-
-.user-info:hover {
-    background-color: #34495e;
-    margin: 10px 10px 20px 0;
 }
 
 .user-info i:first-child {
@@ -1574,4 +1579,423 @@ select.form-control[multiple], select.form-control[size] {
 .header-roles h5 {
     color: white;
 }
+
+/* ============================================
+   THÈME PERSONNALISÉ - BOUTONS
+   ============================================ */
+
+/* btn-primary avec couleurs du thème */
+.btn-primary {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #fff !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--primary-dark) !important;
+    border-color: var(--primary-dark) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 12px rgba(28, 93, 95, 0.3);
+}
+
+.btn-primary:active,
+.btn-primary.active {
+    background-color: var(--primary-hover) !important;
+    border-color: var(--primary-hover) !important;
+}
+
+.btn-primary:disabled,
+.btn-primary.disabled {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    opacity: 0.65;
+}
+
+/* btn-outline-primary */
+.btn-outline-primary {
+    color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    background-color: transparent !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 12px rgba(28, 93, 95, 0.3);
+}
+
+.btn-outline-primary:active,
+.btn-outline-primary.active {
+    background-color: var(--primary-dark) !important;
+    border-color: var(--primary-dark) !important;
+    color: #fff !important;
+}
+
+/* ============================================
+   THÈME - LIENS ET ÉLÉMENTS INTERACTIFS
+   ============================================ */
+
+a {
+    color: var(--primary-color);
+}
+
+a:hover {
+    color: var(--primary-dark);
+}
+
+/* ============================================
+   THÈME - ÉLÉMENTS DE FORMULAIRE
+   ============================================ */
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(28, 93, 95, 0.25);
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.form-check-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(28, 93, 95, 0.25);
+}
+
+/* ============================================
+   THÈME - PAGINATION
+   ============================================ */
+
+.page-link {
+    color: var(--primary-color);
+}
+
+.page-link:hover {
+    color: var(--primary-dark);
+    background-color: #e9ecef;
+}
+
+.page-item.active .page-link {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #fff;
+}
+
+/* ============================================
+   THÈME - BADGES
+   ============================================ */
+
+.badge-primary,
+.bg-primary {
+    background-color: var(--primary-color) !important;
+    color: #fff !important;
+}
+
+/* ============================================
+   THÈME - ÉLÉMENTS AVEC FOND PRIMAIRE (texte blanc)
+   ============================================ */
+
+.bg-primary,
+.bg-primary *,
+.badge-primary,
+.badge.bg-primary,
+.btn-primary,
+.nav-pills .nav-link.active,
+.page-item.active .page-link,
+.dropdown-item.active,
+.dropdown-item:active,
+.progress-bar,
+.list-group-item.active,
+.card-header.bg-primary,
+.card-header.bg-primary *,
+.alert-primary a {
+    color: #fff !important;
+}
+
+.bg-primary a:not(.btn),
+.card-header.bg-primary a:not(.btn) {
+    color: #fff !important;
+    text-decoration: underline;
+}
+
+.bg-primary a:not(.btn):hover,
+.card-header.bg-primary a:not(.btn):hover {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* ============================================
+   THÈME - CARTES ET CONTENEURS
+   ============================================ */
+
+.card-header.bg-primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%) !important;
+    color: #fff !important;
+}
+
+.card-header.bg-primary h1,
+.card-header.bg-primary h2,
+.card-header.bg-primary h3,
+.card-header.bg-primary h4,
+.card-header.bg-primary h5,
+.card-header.bg-primary h6,
+.card-header.bg-primary .card-title {
+    color: #fff !important;
+}
+
+/* ============================================
+   THÈME - ÉLÉMENTS DE NAVIGATION
+   ============================================ */
+
+.nav-link.active {
+    color: var(--primary-color) !important;
+}
+
+.nav-pills .nav-link.active {
+    background-color: var(--primary-color);
+    color: #fff !important;
+}
+
+.nav-tabs .nav-link.active {
+    border-bottom-color: var(--primary-color);
+}
+
+/* ============================================
+   THÈME - PROGRESS BARS
+   ============================================ */
+
+.progress-bar {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+/* ============================================
+   THÈME - DROPDOWN
+   ============================================ */
+
+.dropdown-item.active,
+.dropdown-item:active {
+    background-color: var(--primary-color);
+    color: #fff !important;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: rgba(28, 93, 95, 0.1);
+    color: var(--primary-color);
+}
+
+/* ============================================
+   THÈME - ALERTES
+   ============================================ */
+
+.alert-primary {
+    background-color: rgba(28, 93, 95, 0.15);
+    border-color: rgba(28, 93, 95, 0.3);
+    color: var(--primary-dark);
+}
+
+/* ============================================
+   THÈME - TABLEAUX
+   ============================================ */
+
+.table-primary {
+    background-color: rgba(28, 93, 95, 0.1);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(28, 93, 95, 0.05);
+}
+
+thead.bg-primary th,
+.table thead.bg-primary th {
+    background-color: var(--primary-color) !important;
+    color: #fff;
+}
+
+/* ============================================
+   THÈME - BORDURES ET SÉPARATEURS
+   ============================================ */
+
+.border-primary {
+    border-color: var(--primary-color) !important;
+}
+
+/* ============================================
+   THÈME - VARIANTE INFO (texte blanc)
+   ============================================ */
+
+.bg-info,
+.badge-info,
+.badge.bg-info,
+.btn-info,
+.alert-info.bg-info,
+.small-box.bg-info {
+    color: #fff !important;
+}
+
+.bg-info *,
+.small-box.bg-info * {
+    color: #fff !important;
+}
+
+/* ============================================
+   THÈME - SÉLECTION DE TEXTE
+   ============================================ */
+
+::selection {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+::-moz-selection {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+/* ============================================
+   THÈME - SCROLLBAR PERSONNALISÉE
+   ============================================ */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+}
+
+/*============================
+Global rules for #1c5d5f background - Ensure white text
+========================================*/
+
+/* Ensure white text on #1c5d5f background */
+[style*="#1c5d5f"],
+[style*="background: #1c5d5f"],
+[style*="background-color: #1c5d5f"],
+[style*="background: linear-gradient(135deg, #1c5d5f"],
+.bg-primary,
+.btn-primary,
+.btn-primary-custom,
+.card-header[style*="#1c5d5f"],
+.card-header[style*="linear-gradient(135deg, #1c5d5f"],
+.table th[style*="#1c5d5f"],
+.page-link[style*="#1c5d5f"],
+.badge[style*="#1c5d5f"],
+.modal-header[style*="#1c5d5f"],
+.profile-header,
+.stat-card:nth-child(1),
+.filter-card .card-header[style*="#1c5d5f"],
+.filter-card .card-header[style*="linear-gradient(135deg, #1c5d5f"] {
+    color: white !important;
+}
+
+/* Ensure links and text inside #1c5d5f elements are white */
+[style*="#1c5d5f"] *,
+[style*="background: #1c5d5f"] *,
+[style*="background-color: #1c5d5f"] *,
+[style*="background: linear-gradient(135deg, #1c5d5f"] *,
+.bg-primary *,
+.btn-primary *,
+.btn-primary-custom *,
+.card-header[style*="#1c5d5f"] *,
+.card-header[style*="linear-gradient(135deg, #1c5d5f"] *,
+.table th[style*="#1c5d5f"] *,
+.page-link[style*="#1c5d5f"] *,
+.badge[style*="#1c5d5f"] *,
+.modal-header[style*="#1c5d5f"] *,
+.profile-header *,
+.stat-card:nth-child(1) *,
+.filter-card .card-header[style*="#1c5d5f"] *,
+.filter-card .card-header[style*="linear-gradient(135deg, #1c5d5f"] * {
+    color: white !important;
+}
+
+/* Specific overrides for common elements */
+.btn-primary:hover,
+.btn-primary-custom:hover {
+    color: white !important;
+}
+
+.btn-primary:focus,
+.btn-primary-custom:focus {
+    color: white !important;
+}
+
+/* Force white text for btn-primary-custom specifically */
+.btn-primary-custom {
+    color: white !important;
+}
+
+.btn-primary-custom:hover,
+.btn-primary-custom:focus,
+.btn-primary-custom:active {
+    color: white !important;
+}
+
+.btn-primary-custom * {
+    color: white !important;
+}
+
+/* Table headers with #1c5d5f background */
+.table th {
+    color: white !important;
+}
+
+/* Pagination active items */
+.page-item.active .page-link[style*="#1c5d5f"] {
+    color: white !important;
+}
+
+/* Card headers with gradient background */
+.card-header[style*="linear-gradient(135deg, #1c5d5f"] {
+    color: white !important;
+}
+
+.card-header[style*="linear-gradient(135deg, #1c5d5f"] * {
+    color: white !important;
+}
+
+/* Modal headers */
+.modal-header[style*="#1c5d5f"] {
+    color: white !important;
+}
+
+.modal-header[style*="#1c5d5f"] .modal-title {
+    color: white !important;
+}
+
+/* Profile header */
+.profile-header {
+    color: white !important;
+}
+
+.profile-header * {
+    color: white !important;
+}
+
+/* Stat cards */
+.stat-card:nth-child(1) {
+    color: white !important;
+}
+
+.stat-card:nth-child(1) * {
+    color: white !important;
+}
+
+/*============================
+End of #1c5d5f text color rules
+========================================*/
 

@@ -49,6 +49,12 @@ urlpatterns = [
     path('departement/', include('departement.urls')),
     # Module Gestion Temps et Activités
     path('gestion-temps/', include('gestion_temps_activite.urls', namespace='gestion_temps_activite')),
+    # Module Notes de Frais
+    path('frais/', include('frais.urls', namespace='frais')),
+    # Module Suivi du Matériel & Parc
+    path('materiel/', include('materiel.urls', namespace='materiel')),
+    # Module Conformité & Audit
+    path('audit/', include('audit.urls', namespace='audit')),
 
 ]
 if settings.DEBUG:

@@ -1,0 +1,154 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    .form-card {
+        border-left: 4px solid #1c5d5f;
+    }
+    .section-header {
+        background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px 5px 0 0;
+    }
+    .btn-submit {
+        background-color: #1c5d5f;
+        border-color: #1c5d5f;
+        color: white;
+    }
+    .btn-submit:hover {
+        background-color: #164849;
+        border-color: #164849;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-truck"></i> {{ titre }}
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'materiel:dashboard' %}">Matériel</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'materiel:liste_fournisseurs' %}">Fournisseurs</a></li>
+                        <li class="breadcrumb-item active">{{ titre }}</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8">
+                <form method="post">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Veuillez corriger les erreurs ci-dessous.
+                        <ul class="mb-0 mt-2">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <div class="card form-card">
+                        <div class="section-header">
+                            <h5 class="mb-0"><i class="fas fa-building"></i> Informations du fournisseur</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if fournisseur %}
+                            <div class="alert alert-info mb-3">
+                                <i class="fas fa-barcode"></i> <strong>Code :</strong> {{ fournisseur.CODE }}
+                            </div>
+                            {% endif %}
+
+                            <div class="mb-3">
+                                <label for="id_RAISON_SOCIALE">Raison sociale <span class="text-danger">*</span></label>
+                                {{ form.RAISON_SOCIALE }}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_CONTACT">Personne de contact</label>
+                                    {{ form.CONTACT }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_TELEPHONE">Téléphone</label>
+                                    {{ form.TELEPHONE }}
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_EMAIL">Email</label>
+                                    {{ form.EMAIL }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_SITE_WEB">Site web</label>
+                                    {{ form.SITE_WEB }}
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_ADRESSE">Adresse</label>
+                                {{ form.ADRESSE }}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_NOTES">Notes</label>
+                                {{ form.NOTES }}
+                            </div>
+
+                            <div class="form-group">
+                                <div class="card bg-light">
+                                    <div class="card-body py-3">
+                                        <div class="form-check">
+                                            <input type="checkbox"
+                                                   class="form-check-input"
+                                                   id="id_STATUT"
+                                                   name="STATUT"
+                                                   style="width: 20px; height: 20px; cursor: pointer;"
+                                                   {% if form.STATUT.value or not fournisseur %}checked{% endif %}>
+                                            <label class="form-check-label ml-2" for="id_STATUT" style="cursor: pointer;">
+                                                <strong><i class="fas fa-toggle-on text-success"></i> Fournisseur actif</strong>
+                                            </label>
+                                        </div>
+                                        <small class="form-text text-muted mt-2">
+                                            Un fournisseur inactif n'apparaît pas dans les choix
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'materiel:liste_fournisseurs' %}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Annuler
+                                </a>
+                                <button type="submit" class="btn btn-submit">
+                                    <i class="fas fa-save"></i> Enregistrer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

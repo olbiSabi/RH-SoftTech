@@ -1,0 +1,401 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    .stat-card {
+        border-radius: 10px;
+        transition: transform 0.2s;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+    }
+    .stat-card .card-body {
+        padding: 20px;
+    }
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin: 0;
+    }
+    .stat-label {
+        font-size: 0.9rem;
+        margin: 0;
+        opacity: 0.9;
+    }
+    .alert-box {
+        border-left: 4px solid;
+        border-radius: 5px;
+    }
+    .alert-box.danger {
+        border-color: #dc3545;
+        background: rgba(220, 53, 69, 0.1);
+    }
+    .alert-box.warning {
+        border-color: #ffc107;
+        background: rgba(255, 193, 7, 0.1);
+    }
+    .section-title {
+        color: #1c5d5f;
+        font-weight: 600;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #1c5d5f;
+    }
+    .quick-action-btn {
+        background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+        border: none;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+    .quick-action-btn:hover {
+        background: linear-gradient(135deg, #193f41 0%, #0d2e30 100%);
+        color: white;
+        transform: translateY(-2px);
+    }
+    .table th {
+        background-color: #1c5d5f;
+        color: white;
+        border: none;
+    }
+    .badge-disponible { background-color: #28a745; }
+    .badge-affecte { background-color: #17a2b8; }
+    .badge-maintenance { background-color: #ffc107; color: #333; }
+    .badge-pret { background-color: #6f42c1; }
+    .category-card {
+        border-left: 4px solid #1c5d5f;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-boxes"></i> Suivi du Matériel & Parc
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'home' %}">Accueil</a></li>
+                        <li class="breadcrumb-item active">Matériel</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Statistiques principales -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card stat-card text-white" style="background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="stat-icon bg-white text-primary mr-3" style="color: #1c5d5f !important;">
+                            <i class="fas fa-laptop"></i>
+                        </div>
+                        <div>
+                            <p class="stat-number">{{ stats.total_materiels }}</p>
+                            <p class="stat-label">Total matériels</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card stat-card text-white" style="background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="stat-icon bg-white mr-3" style="color: #28a745 !important;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div>
+                            <p class="stat-number">{{ stats.disponibles }}</p>
+                            <p class="stat-label">Disponibles</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card stat-card text-white" style="background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%);">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="stat-icon bg-white mr-3" style="color: #17a2b8 !important;">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div>
+                            <p class="stat-number">{{ stats.affectes }}</p>
+                            <p class="stat-label">Affectés</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card stat-card text-white" style="background: linear-gradient(135deg, #ffc107 0%, #d39e00 100%);">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="stat-icon bg-white mr-3" style="color: #ffc107 !important;">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <div>
+                            <p class="stat-number">{{ stats.en_maintenance }}</p>
+                            <p class="stat-label">En maintenance</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Valeur du parc et alertes -->
+        <div class="row mb-4">
+            <div class="col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header" style="background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);">
+                        <h5 class="card-title mb-0 text-white">
+                            <i class="fas fa-chart-pie"></i> Valeur du parc
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-12 mb-3">
+                                <h4 class="mb-0" style="color: #1c5d5f;">{{ valeur_parc.valeur_acquisition|floatformat:0 }} XOF</h4>
+                                <small class="text-muted">Valeur d'acquisition</small>
+                            </div>
+                            <div class="col-6">
+                                <h5 class="mb-0 text-success">{{ valeur_parc.valeur_residuelle|floatformat:0 }} XOF</h5>
+                                <small class="text-muted">Valeur résiduelle</small>
+                            </div>
+                            <div class="col-6">
+                                <h5 class="mb-0 text-danger">{{ valeur_parc.amortissement_cumule|floatformat:0 }} XOF</h5>
+                                <small class="text-muted">Amortissement</small>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="text-center">
+                            <small class="text-muted">Taux d'amortissement global</small>
+                            <div class="progress mt-2" style="height: 25px;">
+                                <div class="progress-bar" role="progressbar"
+                                     style="width: {{ valeur_parc.taux_amortissement|floatformat:0 }}%; background-color: #1c5d5f;"
+                                     aria-valuenow="{{ valeur_parc.taux_amortissement|floatformat:0 }}" aria-valuemin="0" aria-valuemax="100">
+                                    {{ valeur_parc.taux_amortissement|floatformat:1 }}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-exclamation-triangle"></i> Alertes ({{ alertes.nb_alertes }})
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if alertes.prets_retard %}
+                        <div class="alert-box danger p-3 mb-2">
+                            <strong><i class="fas fa-clock text-danger"></i> {{ alertes.prets_retard|length }} prêt(s) en retard</strong>
+                        </div>
+                        {% endif %}
+                        {% if alertes.maintenances_retard %}
+                        <div class="alert-box warning p-3 mb-2">
+                            <strong><i class="fas fa-wrench text-warning"></i> {{ alertes.maintenances_retard|length }} maintenance(s) en retard</strong>
+                        </div>
+                        {% endif %}
+                        {% if alertes.garanties_expirant %}
+                        <div class="alert-box warning p-3 mb-2">
+                            <strong><i class="fas fa-shield-alt text-warning"></i> {{ alertes.garanties_expirant|length }} garantie(s) expirant bientôt</strong>
+                        </div>
+                        {% endif %}
+                        {% if alertes.materiel_defaillant %}
+                        <div class="alert-box danger p-3 mb-2">
+                            <strong><i class="fas fa-exclamation-circle text-danger"></i> {{ alertes.materiel_defaillant|length }} matériel(s) défaillant(s)</strong>
+                        </div>
+                        {% endif %}
+                        {% if not alertes.nb_alertes %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <p>Aucune alerte</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header" style="background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);">
+                        <h5 class="card-title mb-0 text-white">
+                            <i class="fas fa-bolt"></i> Actions rapides
+                        </h5>
+                    </div>
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        {% if peut_gerer %}
+                        <a href="{% url 'materiel:creer_materiel' %}" class="btn quick-action-btn mb-3">
+                            <i class="fas fa-plus-circle mr-2"></i> Nouveau matériel
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'materiel:liste_materiels' %}" class="btn btn-outline-primary mb-3" style="border-color: #1c5d5f; color: #1c5d5f;">
+                            <i class="fas fa-list mr-2"></i> Voir tout le matériel
+                        </a>
+                        <a href="{% url 'materiel:liste_maintenances' %}" class="btn btn-outline-warning">
+                            <i class="fas fa-tools mr-2"></i> Maintenances
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques par catégorie -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h4 class="section-title"><i class="fas fa-layer-group"></i> Par catégorie</h4>
+            </div>
+            {% for cat in stats_categories %}
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card category-card h-100">
+                    <div class="card-body">
+                        <h6 class="font-weight-bold" style="color: #1c5d5f;">{{ cat.categorie.LIBELLE }}</h6>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                <h4 class="mb-0">{{ cat.total }}</h4>
+                                <small class="text-muted">Total</small>
+                            </div>
+                            <div class="text-right">
+                                <span class="badge badge-disponible">{{ cat.disponibles }} dispo</span>
+                                <span class="badge badge-affecte">{{ cat.affectes }} aff.</span>
+                            </div>
+                        </div>
+                        <hr>
+                        <small class="text-muted">Valeur: {{ cat.valeur_totale|floatformat:0 }} XOF</small>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Aucune catégorie de matériel configurée.
+                    {% if peut_gerer %}
+                    <a href="{% url 'materiel:creer_categorie' %}">Créer une catégorie</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="row">
+            <!-- Dernières acquisitions -->
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-header" style="background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);">
+                        <h5 class="card-title mb-0 text-white">
+                            <i class="fas fa-shopping-cart"></i> Dernières acquisitions
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Matériel</th>
+                                        <th>Catégorie</th>
+                                        <th>Date</th>
+                                        <th>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for mat in dernieres_acquisitions %}
+                                    <tr>
+                                        <td>
+                                            <a href="{% url 'materiel:detail_materiel' uuid=mat.uuid %}">
+                                                <strong>{{ mat.CODE_INTERNE }}</strong>
+                                            </a>
+                                            <br><small class="text-muted">{{ mat.DESIGNATION|truncatechars:30 }}</small>
+                                        </td>
+                                        <td>{{ mat.CATEGORIE.LIBELLE }}</td>
+                                        <td>{{ mat.DATE_ACQUISITION|date:"d/m/Y" }}</td>
+                                        <td>
+                                            {% if mat.STATUT == 'DISPONIBLE' %}
+                                            <span class="badge badge-disponible">Disponible</span>
+                                            {% elif mat.STATUT == 'AFFECTE' %}
+                                            <span class="badge badge-affecte">Affecté</span>
+                                            {% elif mat.STATUT == 'EN_MAINTENANCE' %}
+                                            <span class="badge badge-maintenance">Maintenance</span>
+                                            {% else %}
+                                            <span class="badge badge-secondary">{{ mat.get_STATUT_display }}</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center py-4 text-muted">
+                                            Aucune acquisition récente
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Maintenances à venir -->
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-warning">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-calendar-alt"></i> Maintenances à venir
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Référence</th>
+                                        <th>Matériel</th>
+                                        <th>Type</th>
+                                        <th>Date prévue</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for maint in maintenances_a_venir %}
+                                    <tr>
+                                        <td><strong>{{ maint.REFERENCE }}</strong></td>
+                                        <td>
+                                            <a href="{% url 'materiel:detail_materiel' uuid=maint.MATERIEL.uuid %}">
+                                                {{ maint.MATERIEL.CODE_INTERNE }}
+                                            </a>
+                                        </td>
+                                        <td>{{ maint.get_TYPE_MAINTENANCE_display }}</td>
+                                        <td>{{ maint.DATE_PLANIFIEE|date:"d/m/Y" }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center py-4 text-muted">
+                                            Aucune maintenance planifiée
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

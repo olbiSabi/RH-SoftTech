@@ -1,0 +1,200 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    .filter-card {
+        border-left: 4px solid #ffc107;
+    }
+    .table th {
+        background-color: #1c5d5f;
+        color: white;
+        border: none;
+    }
+    .badge-planifie { background-color: #17a2b8; }
+    .badge-en-cours { background-color: #ffc107; color: #333; }
+    .badge-termine { background-color: #28a745; }
+    .badge-annule { background-color: #6c757d; }
+    .btn-primary-custom {
+        background-color: #1c5d5f;
+        border-color: #1c5d5f;
+    }
+    .btn-primary-custom:hover {
+        background-color: #164849;
+        border-color: #164849;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-tools"></i> Maintenances
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'materiel:dashboard' %}">Matériel</a></li>
+                        <li class="breadcrumb-item active">Maintenances</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Filtres -->
+        <div class="card filter-card mb-4">
+            <div class="card-header bg-warning">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-filter"></i> Filtres
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row align-items-end">
+                    <div class="col-md-3 mb-2">
+                        <label for="type_maintenance">Type</label>
+                        {{ form_filtres.type_maintenance }}
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <label for="statut">Statut</label>
+                        {{ form_filtres.statut }}
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <label for="date_debut">Du</label>
+                        {{ form_filtres.date_debut }}
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <label for="date_fin">Au</label>
+                        {{ form_filtres.date_fin }}
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <button type="submit" class="btn btn-primary-custom">
+                            <i class="fas fa-search"></i> Filtrer
+                        </button>
+                        <a href="{% url 'materiel:liste_maintenances' %}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Reset
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tableau -->
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Référence</th>
+                                <th>Matériel</th>
+                                <th>Type</th>
+                                <th>Date prévue</th>
+                                <th>Prestataire</th>
+                                <th>Coût</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for maint in maintenances %}
+                            <tr>
+                                <td><strong>{{ maint.REFERENCE }}</strong></td>
+                                <td>
+                                    <a href="{% url 'materiel:detail_materiel' uuid=maint.MATERIEL.uuid %}">
+                                        {{ maint.MATERIEL.CODE_INTERNE }}
+                                    </a>
+                                    <br><small class="text-muted">{{ maint.MATERIEL.DESIGNATION|truncatechars:30 }}</small>
+                                </td>
+                                <td>{{ maint.get_TYPE_MAINTENANCE_display }}</td>
+                                <td>
+                                    {{ maint.DATE_PLANIFIEE|date:"d/m/Y" }}
+                                    {% if maint.DATE_FIN %}
+                                    <br><small class="text-muted">Fin: {{ maint.DATE_FIN|date:"d/m/Y" }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>{{ maint.PRESTATAIRE.RAISON_SOCIALE|default:"Interne" }}</td>
+                                <td>{{ maint.cout_total|floatformat:0 }} XOF</td>
+                                <td>
+                                    {% if maint.STATUT == 'PLANIFIE' %}
+                                    <span class="badge badge-planifie">Planifié</span>
+                                    {% elif maint.STATUT == 'EN_COURS' %}
+                                    <span class="badge badge-en-cours">En cours</span>
+                                    {% elif maint.STATUT == 'TERMINE' %}
+                                    <span class="badge badge-termine">Terminé</span>
+                                    {% else %}
+                                    <span class="badge badge-annule">Annulé</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if maint.STATUT == 'PLANIFIE' %}
+                                    <a href="{% url 'materiel:demarrer_maintenance' pk=maint.pk %}"
+                                       class="btn btn-sm btn-outline-warning" title="Démarrer">
+                                        <i class="fas fa-play"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% if maint.STATUT in 'PLANIFIE,EN_COURS' %}
+                                    <a href="{% url 'materiel:terminer_maintenance' pk=maint.pk %}"
+                                       class="btn btn-sm btn-outline-success" title="Terminer">
+                                        <i class="fas fa-check"></i>
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center py-4">
+                                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">Aucune maintenance trouvée</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {% if maintenances.has_other_pages %}
+            <div class="card-footer">
+                <nav>
+                    <ul class="pagination justify-content-center mb-0">
+                        {% if maintenances.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ maintenances.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% for num in maintenances.paginator.page_range %}
+                            {% if num == maintenances.number %}
+                            <li class="page-item active">
+                                <span class="page-link" style="background-color: #1c5d5f; border-color: #1c5d5f;">{{ num }}</span>
+                            </li>
+                            {% elif num > maintenances.number|add:'-3' and num < maintenances.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if maintenances.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ maintenances.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

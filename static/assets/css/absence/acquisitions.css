@@ -108,12 +108,12 @@
 }
 
 .badge-primary {
-    background-color: #007bff;
+    background-color: #1c5d5f;
     color: #fff;
 }
 
 .badge-info {
-    background-color: #17a2b8;
+    background-color: #2a7d80;
     color: #fff;
 }
 
@@ -174,7 +174,7 @@
 
 .detail-value.highlight {
     font-weight: bold;
-    color: #007bff;
+    color: #1c5d5f;
 }
 
 /* ===== FORMULAIRE ===== */
@@ -191,8 +191,8 @@
 }
 
 .form-control:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    border-color: #1c5d5f;
+    box-shadow: 0 0 0 0.2rem rgba(28, 93, 95, 0.25);
 }
 
 .form-control[readonly] {
@@ -230,9 +230,9 @@
 }
 
 .btn-primary:hover {
-    background: linear-gradient(135deg, #458487 0%, #25696d 100%);
+    background: linear-gradient(135deg, #164849 0%, #0f2d2e 100%);
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 8px rgba(28, 93, 95, 0.3);
 }
 
 .btn-success {
@@ -247,14 +247,14 @@
 }
 
 .btn-info {
-    background-color: #17a2b8;
-    border-color: #17a2b8;
+    background-color: #2a7d80;
+    border-color: #2a7d80;
 }
 
 .btn-info:hover {
-    background-color: #138496;
+    background-color: #1c5d5f;
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(23, 162, 184, 0.3);
+    box-shadow: 0 4px 8px rgba(28, 93, 95, 0.3);
 }
 
 .btn-warning {
@@ -315,8 +315,8 @@
 #edit_jours_restants_preview {
     font-weight: bold;
     font-size: 1.1rem;
-    color: #007bff;
-    background-color: #e7f3ff;
+    color: #1c5d5f;
+    background-color: #e0f2f1;
 }
 
 /* ===== RESPONSIVE ===== */

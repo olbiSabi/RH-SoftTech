@@ -1,0 +1,426 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-chart-bar"></i> Statistiques des Frais
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <form method="GET" class="float-right">
+                        <div class="input-group" style="width: 200px;">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            </div>
+                            <select name="annee" class="form-control" onchange="this.form.submit()">
+                                {% for y in annees_disponibles %}
+                                <option value="{{ y }}" {% if y == annee %}selected{% endif %}>{{ y }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Mes statistiques personnelles -->
+        <div class="card mb-4">
+            <div class="card-header" style="background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);">
+                <h5 class="card-title mb-0 text-white">
+                    <i class="fas fa-user-circle"></i> Mes statistiques {{ annee }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="card shadow h-100 py-2" style="border-left: 4px solid #1c5d5f;">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-uppercase mb-1" style="color: #1c5d5f;">
+                                            Notes de frais
+                                        </div>
+                                        <div class="h4 mb-0 font-weight-bold text-gray-800">
+                                            {{ mes_stats.notes.total|default:0 }}
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-file-invoice fa-2x" style="color: #1c5d5f; opacity: 0.4;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="card border-left-success shadow h-100 py-2" style="border-left: 4px solid #28a745;">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                            Montant total
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            {{ mes_stats.notes.montant_total|floatformat:0|default:0 }} <small>XOF</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-coins fa-2x text-success" style="opacity: 0.4;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="card border-left-info shadow h-100 py-2" style="border-left: 4px solid #17a2b8;">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                            Remboursé
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            {{ mes_stats.notes.montant_rembourse|floatformat:0|default:0 }} <small>XOF</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-check-circle fa-2x text-info" style="opacity: 0.4;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="card border-left-warning shadow h-100 py-2" style="border-left: 4px solid #ffc107;">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                            Avances en cours
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            {{ mes_stats.avances.solde_non_regularise|floatformat:0|default:0 }} <small>XOF</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-hand-holding-usd fa-2x text-warning" style="opacity: 0.4;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Répartition par catégorie -->
+        <div class="card mb-4">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-pie" style="color: #1c5d5f;"></i> Répartition par catégorie
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th style="width: 40%;">Catégorie</th>
+                                <th class="text-center" style="width: 15%;">Nb lignes</th>
+                                <th class="text-right" style="width: 22%;">Montant total</th>
+                                <th class="text-right" style="width: 23%;">Moyenne</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stat in stats_par_categorie %}
+                            <tr>
+                                <td>
+                                    {% if stat.CATEGORIE__ICONE %}
+                                    <i class="fas {{ stat.CATEGORIE__ICONE }} text-muted mr-2"></i>
+                                    {% else %}
+                                    <i class="fas fa-tag text-muted mr-2"></i>
+                                    {% endif %}
+                                    <strong>{{ stat.CATEGORIE__LIBELLE|default:"Non catégorisé" }}</strong>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge badge-secondary">{{ stat.nb_lignes }}</span>
+                                </td>
+                                <td class="text-right font-weight-bold">
+                                    {{ stat.montant_total|floatformat:0 }} XOF
+                                </td>
+                                <td class="text-right text-muted">
+                                    {{ stat.montant_moyen|floatformat:0 }} XOF
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-5">
+                                    <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                                    Aucune dépense enregistrée cette année
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats globales (valideurs uniquement) -->
+        {% if stats_globales %}
+        <div class="card mb-4">
+            <div class="card-header" style="background: linear-gradient(135deg, #193f41 0%, #0f2526 100%);">
+                <h5 class="card-title mb-0 text-white">
+                    <i class="fas fa-building"></i> Statistiques globales {{ annee }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="card text-white h-100" style="background-color: #1c5d5f;">
+                            <div class="card-body text-center">
+                                <i class="fas fa-file-invoice fa-2x mb-2"></i>
+                                <h2 class="mb-0">{{ stats_globales.notes_frais.total|default:0 }}</h2>
+                                <small>Notes totales</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="card text-white h-100" style="background-color: #2a7d80;">
+                            <div class="card-body text-center">
+                                <i class="fas fa-coins fa-2x mb-2"></i>
+                                <h4 class="mb-0">{{ stats_globales.notes_frais.montant_total|floatformat:0|default:0 }}</h4>
+                                <small>Montant total (XOF)</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="card text-white h-100" style="background-color: #164849;">
+                            <div class="card-body text-center">
+                                <i class="fas fa-clock fa-2x mb-2"></i>
+                                <h2 class="mb-0">{{ stats_globales.notes_frais.en_attente_validation.count|default:0 }}</h2>
+                                <small>En attente validation</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="card text-white h-100" style="background-color: #193f41;">
+                            <div class="card-body text-center">
+                                <i class="fas fa-money-bill-wave fa-2x mb-2"></i>
+                                <h4 class="mb-0">{{ stats_globales.notes_frais.a_rembourser.montant|floatformat:0|default:0 }}</h4>
+                                <small>À rembourser (XOF)</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Top employés -->
+            {% if top_employes %}
+            <div class="col-lg-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-trophy text-warning"></i> Top 10 employés
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th style="width: 50px;">#</th>
+                                        <th>Employé</th>
+                                        <th class="text-center">Notes</th>
+                                        <th class="text-right">Montant</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for emp in top_employes %}
+                                    <tr>
+                                        <td>
+                                            {% if forloop.counter == 1 %}
+                                            <span class="badge badge-warning"><i class="fas fa-medal"></i> 1</span>
+                                            {% elif forloop.counter == 2 %}
+                                            <span class="badge badge-secondary"><i class="fas fa-medal"></i> 2</span>
+                                            {% elif forloop.counter == 3 %}
+                                            <span class="badge badge-danger" style="background-color: #cd7f32;"><i class="fas fa-medal"></i> 3</span>
+                                            {% else %}
+                                            <span class="text-muted">{{ forloop.counter }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <i class="fas fa-user-circle text-muted mr-1"></i>
+                                            {{ emp.EMPLOYE__nom }} {{ emp.EMPLOYE__prenoms }}
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge badge-info">{{ emp.nb_notes }}</span>
+                                        </td>
+                                        <td class="text-right font-weight-bold">
+                                            {{ emp.montant_total|floatformat:0 }} XOF
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Délais moyens -->
+            {% if delais %}
+            <div class="col-lg-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-stopwatch" style="color: #1c5d5f;"></i> Délais de traitement
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6 text-center border-right">
+                                <div class="py-4">
+                                    <i class="fas fa-check-double fa-2x text-success mb-3"></i>
+                                    <h2 class="text-success mb-1">
+                                        {{ delais.delai_validation_moyen|floatformat:1 }}
+                                        <small class="text-muted">jours</small>
+                                    </h2>
+                                    <p class="text-muted mb-0">Délai moyen de validation</p>
+                                </div>
+                            </div>
+                            <div class="col-6 text-center">
+                                <div class="py-4">
+                                    <i class="fas fa-money-check-alt fa-2x mb-3" style="color: #1c5d5f;"></i>
+                                    <h2 class="mb-1" style="color: #1c5d5f;">
+                                        {{ delais.delai_remboursement_moyen|floatformat:1 }}
+                                        <small class="text-muted">jours</small>
+                                    </h2>
+                                    <p class="text-muted mb-0">Délai moyen de remboursement</p>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <p class="text-center text-muted mb-0">
+                            <i class="fas fa-info-circle"></i>
+                            Basé sur <strong>{{ delais.notes_analysees }}</strong> note(s) traitée(s)
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Actions administratives (pour valideurs) -->
+        {% if stats_globales %}
+        <div class="card mb-4">
+            <div class="card-header" style="background-color: #1c5d5f;">
+                <h5 class="card-title mb-0 text-white">
+                    <i class="fas fa-tasks"></i> Actions administratives
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'frais:admin_notes_validees' %}?annee={{ annee }}" class="btn btn-outline-primary btn-block py-3">
+                            <i class="fas fa-file-invoice-dollar fa-lg mb-2 d-block"></i>
+                            Notes validées {{ annee }}
+                            <br><small class="text-muted">Avec export Excel</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'frais:admin_avances_approuvees' %}?annee={{ annee }}" class="btn btn-outline-info btn-block py-3">
+                            <i class="fas fa-hand-holding-usd fa-lg mb-2 d-block"></i>
+                            Avances {{ annee }}
+                            <br><small class="text-muted">Suivi versements</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'frais:admin_remboursements' %}" class="btn btn-outline-success btn-block py-3">
+                            <i class="fas fa-money-check-alt fa-lg mb-2 d-block"></i>
+                            Remboursements
+                            <br><small class="text-muted">{{ stats_globales.notes_frais.a_rembourser.count|default:0 }} en attente</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'frais:notes_a_valider' %}" class="btn btn-outline-warning btn-block py-3">
+                            <i class="fas fa-clock fa-lg mb-2 d-block"></i>
+                            À valider
+                            <br><small class="text-muted">{{ stats_globales.notes_frais.en_attente_validation.count|default:0 }} note(s)</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Liens rapides -->
+        <div class="card">
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4 mb-2">
+                        <a href="{% url 'frais:liste_notes' %}" class="btn btn-block" style="border: 1px solid #1c5d5f; color: #1c5d5f;">
+                            <i class="fas fa-list"></i> Voir mes notes
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <a href="{% url 'frais:creer_note' %}" class="btn btn-block text-white" style="background-color: #1c5d5f;">
+                            <i class="fas fa-plus"></i> Nouvelle note
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <a href="{% url 'frais:dashboard' %}" class="btn btn-outline-secondary btn-block">
+                            <i class="fas fa-tachometer-alt"></i> Tableau de bord
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.text-xs {
+    font-size: 0.75rem;
+}
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+}
+.bg-gradient-dark {
+    background: linear-gradient(135deg, #343a40 0%, #1d2124 100%);
+}
+.shadow {
+    box-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15) !important;
+}
+.card {
+    border: none;
+    border-radius: 0.35rem;
+}
+.card-header {
+    border-bottom: 1px solid rgba(0,0,0,.075);
+}
+.table th {
+    border-top: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: #6c757d;
+}
+</style>
+{% endblock %}

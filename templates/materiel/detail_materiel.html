@@ -1,0 +1,409 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    .info-card {
+        border-left: 4px solid #1c5d5f;
+    }
+    .info-label {
+        font-weight: 600;
+        color: #1c5d5f;
+        font-size: 0.85rem;
+    }
+    .info-value {
+        font-size: 1rem;
+    }
+    .section-header {
+        background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px 5px 0 0;
+    }
+    .badge-disponible { background-color: #28a745; }
+    .badge-affecte { background-color: #17a2b8; }
+    .badge-maintenance { background-color: #ffc107; color: #333; }
+    .badge-pret { background-color: #6f42c1; }
+    .badge-reforme { background-color: #6c757d; }
+    .table th {
+        background-color: #f8f9fa;
+        color: #1c5d5f;
+    }
+    .btn-action {
+        background-color: #1c5d5f;
+        border-color: #1c5d5f;
+        color: white;
+    }
+    .btn-action:hover {
+        background-color: #164849;
+        border-color: #164849;
+        color: white;
+    }
+    .timeline-item {
+        border-left: 3px solid #1c5d5f;
+        padding-left: 20px;
+        margin-bottom: 15px;
+        position: relative;
+    }
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -8px;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #1c5d5f;
+    }
+    .warranty-ok {
+        color: #28a745;
+    }
+    .warranty-expired {
+        color: #dc3545;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-laptop"></i> {{ materiel.CODE_INTERNE }}
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'materiel:dashboard' %}">Matériel</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'materiel:liste_materiels' %}">Liste</a></li>
+                        <li class="breadcrumb-item active">{{ materiel.CODE_INTERNE }}</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Informations principales -->
+            <div class="col-lg-8">
+                <div class="card info-card mb-4">
+                    <div class="section-header">
+                        <h5 class="mb-0"><i class="fas fa-info-circle"></i> Informations générales</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="info-label">Désignation</div>
+                                <div class="info-value">{{ materiel.DESIGNATION }}</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="info-label">Catégorie</div>
+                                <div class="info-value">{{ materiel.CATEGORIE.LIBELLE }}</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="info-label">Marque</div>
+                                <div class="info-value">{{ materiel.MARQUE|default:"-" }}</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="info-label">Modèle</div>
+                                <div class="info-value">{{ materiel.MODELE|default:"-" }}</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="info-label">Numéro de série</div>
+                                <div class="info-value">{{ materiel.NUMERO_SERIE|default:"-" }}</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="info-label">Localisation</div>
+                                <div class="info-value">{{ materiel.LOCALISATION|default:"-" }}</div>
+                            </div>
+                            {% if materiel.DESCRIPTION %}
+                            <div class="col-12 mb-3">
+                                <div class="info-label">Description</div>
+                                <div class="info-value">{{ materiel.DESCRIPTION }}</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acquisition & Finance -->
+                <div class="card info-card mb-4">
+                    <div class="section-header">
+                        <h5 class="mb-0"><i class="fas fa-coins"></i> Acquisition & Finance</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="info-label">Date d'acquisition</div>
+                                <div class="info-value">{{ materiel.DATE_ACQUISITION|date:"d/m/Y"|default:"-" }}</div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="info-label">Prix d'acquisition</div>
+                                <div class="info-value">{{ materiel.PRIX_ACQUISITION|floatformat:0 }} XOF</div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="info-label">Valeur résiduelle</div>
+                                <div class="info-value">{{ materiel.valeur_residuelle|floatformat:0 }} XOF</div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="info-label">Fournisseur</div>
+                                <div class="info-value">{{ materiel.FOURNISSEUR.RAISON_SOCIALE|default:"-" }}</div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="info-label">N° Facture</div>
+                                <div class="info-value">{{ materiel.NUMERO_FACTURE|default:"-" }}</div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="info-label">Ancienneté</div>
+                                <div class="info-value">{{ materiel.anciennete_jours }} jours</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Garantie -->
+                <div class="card info-card mb-4">
+                    <div class="section-header">
+                        <h5 class="mb-0"><i class="fas fa-shield-alt"></i> Garantie</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="info-label">Fin de garantie</div>
+                                <div class="info-value">
+                                    {% if materiel.DATE_FIN_GARANTIE %}
+                                    {{ materiel.DATE_FIN_GARANTIE|date:"d/m/Y" }}
+                                    {% if materiel.est_sous_garantie %}
+                                    <i class="fas fa-check-circle warranty-ok ml-2" title="Sous garantie"></i>
+                                    {% else %}
+                                    <i class="fas fa-times-circle warranty-expired ml-2" title="Garantie expirée"></i>
+                                    {% endif %}
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <div class="info-label">Conditions de garantie</div>
+                                <div class="info-value">{{ materiel.CONDITIONS_GARANTIE|default:"-" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Historique des affectations -->
+                <div class="card mb-4">
+                    <div class="section-header">
+                        <h5 class="mb-0"><i class="fas fa-history"></i> Historique des affectations</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Employé</th>
+                                        <th>Type</th>
+                                        <th>Début</th>
+                                        <th>Fin</th>
+                                        <th>Par</th>
+                                        <th>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for aff in affectations %}
+                                    <tr>
+                                        <td>{{ aff.EMPLOYE.nom }} {{ aff.EMPLOYE.prenoms }}</td>
+                                        <td>{{ aff.get_TYPE_AFFECTATION_display }}</td>
+                                        <td>{{ aff.DATE_DEBUT|date:"d/m/Y" }}</td>
+                                        <td>{{ aff.DATE_FIN|date:"d/m/Y"|default:"-" }}</td>
+                                        <td>{{ aff.AFFECTE_PAR.nom|default:"-" }}</td>
+                                        <td>
+                                            {% if aff.ACTIF %}
+                                            <span class="badge badge-success">Active</span>
+                                            {% else %}
+                                            <span class="badge badge-secondary">Terminée</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center py-3 text-muted">
+                                            Aucune affectation
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Historique des maintenances -->
+                <div class="card mb-4">
+                    <div class="section-header">
+                        <h5 class="mb-0"><i class="fas fa-tools"></i> Historique des maintenances</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Référence</th>
+                                        <th>Type</th>
+                                        <th>Date</th>
+                                        <th>Prestataire</th>
+                                        <th>Coût</th>
+                                        <th>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for maint in maintenances %}
+                                    <tr>
+                                        <td>{{ maint.REFERENCE }}</td>
+                                        <td>{{ maint.get_TYPE_MAINTENANCE_display }}</td>
+                                        <td>{{ maint.DATE_PLANIFIEE|date:"d/m/Y" }}</td>
+                                        <td>{{ maint.PRESTATAIRE.RAISON_SOCIALE|default:"Interne" }}</td>
+                                        <td>{{ maint.cout_total|floatformat:0 }} XOF</td>
+                                        <td>
+                                            {% if maint.STATUT == 'PLANIFIE' %}
+                                            <span class="badge badge-info">Planifié</span>
+                                            {% elif maint.STATUT == 'EN_COURS' %}
+                                            <span class="badge badge-warning">En cours</span>
+                                            {% elif maint.STATUT == 'TERMINE' %}
+                                            <span class="badge badge-success">Terminé</span>
+                                            {% else %}
+                                            <span class="badge badge-secondary">Annulé</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center py-3 text-muted">
+                                            Aucune maintenance
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar droite -->
+            <div class="col-lg-4">
+                <!-- Statut actuel -->
+                <div class="card mb-4">
+                    <div class="section-header">
+                        <h5 class="mb-0"><i class="fas fa-info"></i> Statut actuel</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            {% if materiel.STATUT == 'DISPONIBLE' %}
+                            <span class="badge badge-disponible p-3" style="font-size: 1.2rem;">Disponible</span>
+                            {% elif materiel.STATUT == 'AFFECTE' %}
+                            <span class="badge badge-affecte p-3" style="font-size: 1.2rem;">Affecté</span>
+                            {% elif materiel.STATUT == 'EN_MAINTENANCE' %}
+                            <span class="badge badge-maintenance p-3" style="font-size: 1.2rem;">En maintenance</span>
+                            {% elif materiel.STATUT == 'EN_PRET' %}
+                            <span class="badge badge-pret p-3" style="font-size: 1.2rem;">En prêt</span>
+                            {% elif materiel.STATUT == 'REFORME' %}
+                            <span class="badge badge-reforme p-3" style="font-size: 1.2rem;">Réformé</span>
+                            {% else %}
+                            <span class="badge badge-secondary p-3" style="font-size: 1.2rem;">{{ materiel.get_STATUT_display }}</span>
+                            {% endif %}
+                        </div>
+
+                        {% if materiel.AFFECTE_A %}
+                        <div class="alert alert-info mb-0">
+                            <strong>Affecté à:</strong><br>
+                            {{ materiel.AFFECTE_A.nom }} {{ materiel.AFFECTE_A.prenoms }}
+                            <br><small class="text-muted">{{ materiel.AFFECTE_A.matricule }}</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="card mb-4">
+                    <div class="section-header">
+                        <h5 class="mb-0"><i class="fas fa-cogs"></i> Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if peut_gerer %}
+                        <a href="{% url 'materiel:modifier_materiel' uuid=materiel.uuid %}" class="btn btn-action btn-block mb-2">
+                            <i class="fas fa-edit"></i> Modifier
+                        </a>
+                        {% endif %}
+
+                        {% if peut_affecter and materiel.STATUT == 'DISPONIBLE' %}
+                        <a href="{% url 'materiel:affecter_materiel' uuid=materiel.uuid %}" class="btn btn-success btn-block mb-2">
+                            <i class="fas fa-user-plus"></i> Affecter
+                        </a>
+                        {% endif %}
+
+                        {% if peut_affecter and materiel.STATUT in 'AFFECTE,EN_PRET' %}
+                        <a href="{% url 'materiel:retourner_materiel' uuid=materiel.uuid %}" class="btn btn-warning btn-block mb-2">
+                            <i class="fas fa-undo"></i> Retourner
+                        </a>
+                        {% endif %}
+
+                        {% if peut_gerer and materiel.STATUT != 'REFORME' %}
+                        <a href="{% url 'materiel:creer_maintenance' uuid=materiel.uuid %}" class="btn btn-info btn-block mb-2">
+                            <i class="fas fa-tools"></i> Planifier maintenance
+                        </a>
+                        <a href="{% url 'materiel:reformer_materiel' uuid=materiel.uuid %}" class="btn btn-danger btn-block">
+                            <i class="fas fa-trash-alt"></i> Réformer
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Documents -->
+                {% if materiel.DOCUMENT_FACTURE or materiel.DOCUMENT_GARANTIE %}
+                <div class="card mb-4">
+                    <div class="section-header">
+                        <h5 class="mb-0"><i class="fas fa-file-alt"></i> Documents</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if materiel.DOCUMENT_FACTURE %}
+                        <a href="{{ materiel.DOCUMENT_FACTURE.url }}" class="btn btn-outline-secondary btn-block mb-2" target="_blank">
+                            <i class="fas fa-file-invoice"></i> Facture
+                        </a>
+                        {% endif %}
+                        {% if materiel.DOCUMENT_GARANTIE %}
+                        <a href="{{ materiel.DOCUMENT_GARANTIE.url }}" class="btn btn-outline-secondary btn-block" target="_blank">
+                            <i class="fas fa-file-contract"></i> Garantie
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Derniers mouvements -->
+                <div class="card">
+                    <div class="section-header">
+                        <h5 class="mb-0"><i class="fas fa-exchange-alt"></i> Derniers mouvements</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for mvt in mouvements|slice:":5" %}
+                        <div class="timeline-item">
+                            <strong>{{ mvt.get_TYPE_MOUVEMENT_display }}</strong>
+                            <br><small class="text-muted">{{ mvt.DATE_MOUVEMENT|date:"d/m/Y" }}</small>
+                            {% if mvt.MOTIF %}
+                            <br><small>{{ mvt.MOTIF|truncatechars:50 }}</small>
+                            {% endif %}
+                        </div>
+                        {% empty %}
+                        <p class="text-muted text-center mb-0">Aucun mouvement</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

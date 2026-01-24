@@ -1,0 +1,168 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    .form-card {
+        border-left: 4px solid #28a745;
+    }
+    .section-header {
+        background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px 5px 0 0;
+    }
+    .btn-submit {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+    .materiel-info {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+    }
+    .materiel-info .label {
+        font-weight: 600;
+        color: #1c5d5f;
+    }
+    .maintenance-info {
+        background: #fff3cd;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #ffc107;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-check-circle"></i> Terminer la maintenance
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'materiel:dashboard' %}">Matériel</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'materiel:liste_maintenances' %}">Maintenances</a></li>
+                        <li class="breadcrumb-item active">Terminer</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8">
+                <form method="post">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Veuillez corriger les erreurs ci-dessous.
+                    </div>
+                    {% endif %}
+
+                    <div class="card form-card">
+                        <div class="section-header">
+                            <h5 class="mb-0"><i class="fas fa-clipboard-check"></i> Rapport de fin d'intervention</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_date_fin">Date de fin <span class="text-danger">*</span></label>
+                                    {{ form.date_fin }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_etat_materiel">État du matériel après intervention <span class="text-danger">*</span></label>
+                                    {{ form.etat_materiel }}
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_cout_pieces">Coût des pièces (XOF)</label>
+                                    {{ form.cout_pieces }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_cout_main_oeuvre">Coût main d'œuvre (XOF)</label>
+                                    {{ form.cout_main_oeuvre }}
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_rapport">Rapport d'intervention</label>
+                                {{ form.rapport }}
+                                <small class="text-muted">Décrivez les travaux effectués, les pièces remplacées, etc.</small>
+                            </div>
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'materiel:liste_maintenances' %}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Annuler
+                                </a>
+                                <button type="submit" class="btn btn-submit">
+                                    <i class="fas fa-check"></i> Confirmer la fin
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-header bg-warning">
+                        <h5 class="card-title mb-0"><i class="fas fa-tools"></i> Maintenance</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="maintenance-info">
+                            <div class="mb-2">
+                                <span class="label">Référence:</span>
+                                <strong>{{ maintenance.REFERENCE }}</strong>
+                            </div>
+                            <div class="mb-2">
+                                <span class="label">Type:</span>
+                                {{ maintenance.get_TYPE_MAINTENANCE_display }}
+                            </div>
+                            <div class="mb-2">
+                                <span class="label">Date prévue:</span>
+                                {{ maintenance.DATE_PLANIFIEE|date:"d/m/Y" }}
+                            </div>
+                            {% if maintenance.PRESTATAIRE %}
+                            <div class="mb-2">
+                                <span class="label">Prestataire:</span>
+                                {{ maintenance.PRESTATAIRE.RAISON_SOCIALE }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header" style="background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);">
+                        <h5 class="card-title mb-0 text-white"><i class="fas fa-laptop"></i> Matériel</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="materiel-info">
+                            <div class="mb-2">
+                                <span class="label">Code:</span>
+                                <strong>{{ maintenance.MATERIEL.CODE_INTERNE }}</strong>
+                            </div>
+                            <div class="mb-2">
+                                <span class="label">Désignation:</span>
+                                {{ maintenance.MATERIEL.DESIGNATION }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

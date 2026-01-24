@@ -1,0 +1,232 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-{% if categorie %}edit{% else %}plus-circle{% endif %}"></i> {{ titre }}
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'frais:dashboard' %}">Frais</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'frais:liste_categories' %}">Catégories</a></li>
+                        <li class="breadcrumb-item active">{% if categorie %}Modifier{% else %}Nouvelle{% endif %}</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-tag"></i> Informations de la catégorie
+                        </h5>
+                    </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="id_CODE">
+                                            <i class="fas fa-code"></i> Code *
+                                        </label>
+                                        {{ form.CODE }}
+                                        {% if form.CODE.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.CODE.errors.0 }}
+                                        </div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">
+                                            Ex: REPAS, TRANSPORT, HOTEL
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label for="id_LIBELLE">
+                                            <i class="fas fa-font"></i> Libellé *
+                                        </label>
+                                        {{ form.LIBELLE }}
+                                        {% if form.LIBELLE.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.LIBELLE.errors.0 }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="id_DESCRIPTION">
+                                    <i class="fas fa-align-left"></i> Description
+                                </label>
+                                {{ form.DESCRIPTION }}
+                                {% if form.DESCRIPTION.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.DESCRIPTION.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="id_ICONE">
+                                            <i class="fas fa-icons"></i> Icône
+                                        </label>
+                                        {{ form.ICONE }}
+                                        {% if form.ICONE.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.ICONE.errors.0 }}
+                                        </div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">
+                                            Classe Font Awesome (ex: fa-car)
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="id_PLAFOND_DEFAUT">
+                                            <i class="fas fa-coins"></i> Plafond par défaut (XOF)
+                                        </label>
+                                        {{ form.PLAFOND_DEFAUT }}
+                                        {% if form.PLAFOND_DEFAUT.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.PLAFOND_DEFAUT.errors.0 }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="id_ORDRE">
+                                            <i class="fas fa-sort-numeric-up"></i> Ordre d'affichage
+                                        </label>
+                                        {{ form.ORDRE }}
+                                        {% if form.ORDRE.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.ORDRE.errors.0 }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <div class="card bg-light">
+                                            <div class="card-body py-3">
+                                                <div class="form-check">
+                                                    <input type="checkbox"
+                                                           class="form-check-input"
+                                                           id="id_JUSTIFICATIF_OBLIGATOIRE"
+                                                           name="JUSTIFICATIF_OBLIGATOIRE"
+                                                           style="width: 20px; height: 20px; cursor: pointer;"
+                                                           {% if form.JUSTIFICATIF_OBLIGATOIRE.value %}checked{% endif %}>
+                                                    <label class="form-check-label ml-2" for="id_JUSTIFICATIF_OBLIGATOIRE" style="cursor: pointer;">
+                                                        <strong><i class="fas fa-file-alt text-warning"></i> Justificatif obligatoire</strong>
+                                                    </label>
+                                                </div>
+                                                <small class="form-text text-muted mt-2">
+                                                    Si coché, un justificatif sera exigé pour cette catégorie
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <div class="card bg-light">
+                                            <div class="card-body py-3">
+                                                <div class="form-check">
+                                                    <input type="checkbox"
+                                                           class="form-check-input"
+                                                           id="id_STATUT"
+                                                           name="STATUT"
+                                                           style="width: 20px; height: 20px; cursor: pointer;"
+                                                           {% if form.STATUT.value or not categorie %}checked{% endif %}>
+                                                    <label class="form-check-label ml-2" for="id_STATUT" style="cursor: pointer;">
+                                                        <strong><i class="fas fa-toggle-on text-success"></i> Catégorie active</strong>
+                                                    </label>
+                                                </div>
+                                                <small class="form-text text-muted mt-2">
+                                                    Une catégorie inactive n'apparaît pas dans les choix
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> {% if categorie %}Enregistrer{% else %}Créer{% endif %}
+                            </button>
+                            <a href="{% url 'frais:liste_categories' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-info-circle"></i> Icônes disponibles
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">Exemples d'icônes Font Awesome :</p>
+                        <div class="row">
+                            <div class="col-6">
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-utensils"></i> fa-utensils</li>
+                                    <li><i class="fas fa-car"></i> fa-car</li>
+                                    <li><i class="fas fa-bed"></i> fa-bed</li>
+                                    <li><i class="fas fa-plane"></i> fa-plane</li>
+                                    <li><i class="fas fa-gas-pump"></i> fa-gas-pump</li>
+                                </ul>
+                            </div>
+                            <div class="col-6">
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-parking"></i> fa-parking</li>
+                                    <li><i class="fas fa-taxi"></i> fa-taxi</li>
+                                    <li><i class="fas fa-phone"></i> fa-phone</li>
+                                    <li><i class="fas fa-print"></i> fa-print</li>
+                                    <li><i class="fas fa-gift"></i> fa-gift</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <hr>
+                        <a href="https://fontawesome.com/icons" target="_blank" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-external-link-alt"></i> Voir toutes les icônes
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

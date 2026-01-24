@@ -4,7 +4,6 @@
 
 .notifications-dropdown {
     position: relative;
-    margin-right: 20px;
 }
 
 .notifications-btn {
@@ -292,9 +291,9 @@
 }
 
 .context-gta {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
     color: white;
-    border: 1px solid #5a67d8;
+    border: 1px solid #1c5d5f;
 }
 
 /* ========================================

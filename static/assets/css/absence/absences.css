@@ -4,8 +4,9 @@
 :root {
     --primary-color: #1c5d5f;
     --secondary-color: #193f41;
+    --primary-light: #2a7d80;
     --success-color: #28a745;
-    --info-color: #17a2b8;
+    --info-color: #2a7d80;
     --warning-color: #ffc107;
     --danger-color: #dc3545;
     --light-gray: #f8f9fa;
@@ -102,7 +103,7 @@
 
 /* Couleurs pour les small-box */
 .small-box.bg-info {
-    background-color: #17a2b8 !important;
+    background-color: #2a7d80 !important;
 }
 
 .small-box.bg-success {
@@ -143,7 +144,7 @@
 }
 
 .table-hover tbody tr:hover {
-    background-color: rgba(102, 126, 234, 0.05);
+    background-color: rgba(28, 93, 95, 0.05);
     transition: background-color 0.2s ease;
 }
 
@@ -173,7 +174,7 @@
 
 /* Compatibilité Bootstrap 4/5 */
 .badge-primary {
-    background-color: #007bff !important;
+    background-color: #1c5d5f !important;
     color: #fff !important;
 }
 
@@ -183,7 +184,7 @@
 }
 
 .badge-info {
-    background-color: #17a2b8 !important;
+    background-color: #2a7d80 !important;
     color: #fff !important;
 }
 
@@ -542,9 +543,9 @@
 }
 
 .btn-primary:hover {
-    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+    background: linear-gradient(135deg, #164849 0%, #0f2d2e 100%);
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 8px rgba(28, 93, 95, 0.3);
 }
 
 .btn-success {
@@ -570,12 +571,12 @@
 }
 
 .btn-info {
-    background-color: #17a2b8;
-    border-color: #17a2b8;
+    background-color: #2a7d80;
+    border-color: #2a7d80;
 }
 
 .btn-info:hover {
-    background-color: #138496;
+    background-color: #1c5d5f;
 }
 
 .btn-warning {
@@ -937,18 +938,18 @@
 }
 
 .fc-button {
-    background-color: #007bff !important;
-    border-color: #007bff !important;
+    background-color: #1c5d5f !important;
+    border-color: #1c5d5f !important;
 }
 
 .fc-button:hover {
-    background-color: #0056b3 !important;
-    border-color: #0056b3 !important;
+    background-color: #193f41 !important;
+    border-color: #193f41 !important;
 }
 
 .fc-button-active {
-    background-color: #0056b3 !important;
-    border-color: #0056b3 !important;
+    background-color: #193f41 !important;
+    border-color: #193f41 !important;
 }
 
 /* Onglets */
@@ -963,7 +964,7 @@
 .nav-tabs .nav-link.active {
     background-color: #fff;
     border-color: #dee2e6 #dee2e6 #fff;
-    color: #007bff;
+    color: #1c5d5f;
 }
 
 /* Card solde */

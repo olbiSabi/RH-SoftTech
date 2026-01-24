@@ -71,7 +71,7 @@
 
 /* Couleurs des cartes stats */
 .small-box.bg-info {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%) !important;
 }
 
 .small-box.bg-success {
@@ -584,7 +584,7 @@ select#periode_prise_fin_annee option {
     }
 
     .badge-readonly {
-        background: #17a2b8;
+        background: #2a7d80;
         color: white;
         padding: 5px 10px;
         border-radius: 5px;

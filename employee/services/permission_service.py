@@ -466,3 +466,16 @@ class PermissionService:
         Tous les employés peuvent uploader des documents.
         """
         return True
+
+    # ==================== PERMISSIONS MODULE AUDIT ====================
+
+    @staticmethod
+    def can_access_audit(employee: 'ZY00') -> bool:
+        """
+        Vérifie si l'employé peut accéder au module Conformité & Audit.
+        Rôles autorisés: GESTION_APP, DIRECTEUR uniquement
+        """
+        return (
+            PermissionService.has_role(employee, 'GESTION_APP') or
+            PermissionService.has_role(employee, 'DIRECTEUR')
+        )

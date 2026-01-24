@@ -1,0 +1,163 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    .type-badge {
+        font-size: 0.85rem;
+        padding: 5px 12px;
+        border-radius: 12px;
+    }
+    .type-CREATE { background-color: #28a745; color: white; }
+    .type-UPDATE { background-color: #17a2b8; color: white; }
+    .type-DELETE { background-color: #dc3545; color: white; }
+    .info-card {
+        border-left: 4px solid #1c5d5f;
+    }
+    .detail-label {
+        font-weight: 600;
+        color: #1c5d5f;
+    }
+    .json-viewer {
+        background: #2d2d2d;
+        color: #f8f8f2;
+        padding: 15px;
+        border-radius: 8px;
+        font-family: monospace;
+        font-size: 0.85rem;
+        max-height: 400px;
+        overflow: auto;
+    }
+    .json-key { color: #66d9ef; }
+    .json-string { color: #a6e22e; }
+    .json-number { color: #ae81ff; }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-file-alt"></i> Détail du log #{{ log.pk }}
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'audit:dashboard' %}">Audit</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'audit:liste_logs' %}">Logs</a></li>
+                        <li class="breadcrumb-item active">#{{ log.pk }}</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Informations principales -->
+                <div class="card info-card mb-4">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-info-circle"></i> Informations</h5>
+                        <span class="type-badge type-{{ log.TYPE_MOUVEMENT }}">
+                            {{ log.get_TYPE_MOUVEMENT_display }}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><span class="detail-label">Table :</span> <code>{{ log.TABLE_NAME }}</code></p>
+                                <p><span class="detail-label">ID Enregistrement :</span> {{ log.RECORD_ID }}</p>
+                                <p><span class="detail-label">Date :</span> {{ log.DATE_MODIFICATION|date:"d/m/Y H:i:s" }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><span class="detail-label">Utilisateur :</span> {{ log.USER_NAME|default:"Système" }}</p>
+                                <p><span class="detail-label">Adresse IP :</span> {{ log.IP_ADDRESS|default:"-" }}</p>
+                            </div>
+                        </div>
+
+                        {% if log.DESCRIPTION %}
+                        <hr>
+                        <p><span class="detail-label">Description :</span></p>
+                        <p>{{ log.DESCRIPTION }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Ancienne valeur -->
+                {% if log.ANCIENNE_VALEUR %}
+                <div class="card mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-history text-warning"></i> Ancienne valeur</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <pre class="json-viewer mb-0">{{ log.ANCIENNE_VALEUR|pprint }}</pre>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Nouvelle valeur -->
+                {% if log.NOUVELLE_VALEUR %}
+                <div class="card mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-edit text-success"></i> Nouvelle valeur</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <pre class="json-viewer mb-0">{{ log.NOUVELLE_VALEUR|pprint }}</pre>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-lg-4">
+                <!-- Actions -->
+                <div class="card mb-4">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0"><i class="fas fa-cog"></i> Actions</h6>
+                    </div>
+                    <div class="card-body">
+                        <a href="{% url 'audit:liste_logs' %}" class="btn btn-secondary btn-block">
+                            <i class="fas fa-arrow-left"></i> Retour à la liste
+                        </a>
+                        <a href="{% url 'audit:liste_logs' %}?table_name={{ log.TABLE_NAME }}" class="btn btn-outline-info btn-block">
+                            <i class="fas fa-filter"></i> Filtrer par table
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Métadonnées -->
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0"><i class="fas fa-database"></i> Métadonnées</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm table-borderless mb-0">
+                            <tr>
+                                <td class="text-muted">ID Log</td>
+                                <td class="text-right"><strong>{{ log.pk }}</strong></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Table</td>
+                                <td class="text-right"><code>{{ log.TABLE_NAME }}</code></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Type</td>
+                                <td class="text-right">{{ log.get_TYPE_MOUVEMENT_display }}</td>
+                            </tr>
+                            {% if log.USER %}
+                            <tr>
+                                <td class="text-muted">User ID</td>
+                                <td class="text-right">{{ log.USER.id }}</td>
+                            </tr>
+                            {% endif %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

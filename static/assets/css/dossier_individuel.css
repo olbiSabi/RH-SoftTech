@@ -414,10 +414,10 @@
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.stat-card:nth-child(1) { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-.stat-card:nth-child(2) { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-.stat-card:nth-child(3) { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-.stat-card:nth-child(4) { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+.stat-card:nth-child(1) { background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%); }
+.stat-card:nth-child(2) { background: linear-gradient(135deg, #2a7d80 0%, #1c5d5f 100%); }
+.stat-card:nth-child(3) { background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); }
+.stat-card:nth-child(4) { background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); }
 
 .stat-number {
     font-size: 24px;
@@ -457,7 +457,7 @@
 }
 
 .mobile-card-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
     color: white;
     padding: 12px 15px;
     display: flex;
@@ -558,7 +558,7 @@
 }
 
 .stat-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
     color: white;
     padding: 20px;
     border-radius: 8px;
@@ -713,7 +713,7 @@
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, #667eea, #764ba2);
+    background: linear-gradient(90deg, #1c5d5f, #193f41);
     animation: slideIn 0.3s ease;
 }
 
@@ -1065,7 +1065,7 @@
 }
 
 .badge-info {
-    background-color: #17a2b8;
+    background-color: #2a7d80;
 }
 
 /* Styles pour la vue détails */
@@ -1379,7 +1379,7 @@
     }
 
     .bg-info {
-        background-color: #17a2b8 !important;
+        background-color: #2a7d80 !important;
     }
 
     .bg-warning {

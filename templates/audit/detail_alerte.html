@@ -1,0 +1,205 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    .priority-badge {
+        font-size: 0.85rem;
+        padding: 5px 12px;
+        border-radius: 12px;
+    }
+    .priority-CRITIQUE { background-color: #dc3545; color: white; }
+    .priority-HAUTE { background-color: #fd7e14; color: white; }
+    .priority-MOYENNE { background-color: #ffc107; color: #333; }
+    .priority-BASSE { background-color: #28a745; color: white; }
+    .status-badge {
+        font-size: 0.85rem;
+        padding: 5px 12px;
+        border-radius: 12px;
+    }
+    .status-NOUVEAU { background-color: #17a2b8; color: white; }
+    .status-EN_COURS { background-color: #ffc107; color: #333; }
+    .status-RESOLU { background-color: #28a745; color: white; }
+    .status-IGNORE { background-color: #6c757d; color: white; }
+    .info-card {
+        border-left: 4px solid #1c5d5f;
+    }
+    .detail-label {
+        font-weight: 600;
+        color: #1c5d5f;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-exclamation-circle"></i> {{ alerte.REFERENCE }}
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'audit:dashboard' %}">Audit</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'audit:liste_alertes' %}">Alertes</a></li>
+                        <li class="breadcrumb-item active">{{ alerte.REFERENCE }}</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Informations principales -->
+                <div class="card info-card mb-4">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-info-circle"></i> Détails de l'alerte</h5>
+                        <div>
+                            <span class="priority-badge priority-{{ alerte.PRIORITE }} mr-2">
+                                {{ alerte.get_PRIORITE_display }}
+                            </span>
+                            <span class="status-badge status-{{ alerte.STATUT }}">
+                                {{ alerte.get_STATUT_display }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h4>{{ alerte.TITRE }}</h4>
+                        <p class="text-muted">{{ alerte.DESCRIPTION }}</p>
+
+                        <hr>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><span class="detail-label">Type :</span> {{ alerte.get_TYPE_ALERTE_display }}</p>
+                                <p><span class="detail-label">Date de détection :</span> {{ alerte.DATE_DETECTION|date:"d/m/Y H:i" }}</p>
+                                {% if alerte.DATE_ECHEANCE %}
+                                <p>
+                                    <span class="detail-label">Échéance :</span>
+                                    {{ alerte.DATE_ECHEANCE|date:"d/m/Y" }}
+                                    {% if alerte.jours_restants is not None %}
+                                        {% if alerte.jours_restants < 0 %}
+                                        <span class="badge badge-danger">{{ alerte.jours_restants|abs }} jours de retard</span>
+                                        {% elif alerte.jours_restants == 0 %}
+                                        <span class="badge badge-warning">Aujourd'hui</span>
+                                        {% else %}
+                                        <span class="badge badge-info">{{ alerte.jours_restants }} jours restants</span>
+                                        {% endif %}
+                                    {% endif %}
+                                </p>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                {% if alerte.EMPLOYE %}
+                                <p><span class="detail-label">Employé :</span> {{ alerte.EMPLOYE.nom }} {{ alerte.EMPLOYE.prenoms }}</p>
+                                {% endif %}
+                                {% if alerte.ASSIGNE_A %}
+                                <p><span class="detail-label">Assigné à :</span> {{ alerte.ASSIGNE_A.nom }} {{ alerte.ASSIGNE_A.prenoms }}</p>
+                                {% endif %}
+                                {% if alerte.REGLE %}
+                                <p><span class="detail-label">Règle :</span> {{ alerte.REGLE.CODE }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if alerte.STATUT == 'RESOLU' %}
+                        <hr>
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-check-circle"></i> Résolu</h6>
+                            <p class="mb-1"><strong>Date :</strong> {{ alerte.DATE_RESOLUTION|date:"d/m/Y H:i" }}</p>
+                            {% if alerte.RESOLU_PAR %}
+                            <p class="mb-1"><strong>Par :</strong> {{ alerte.RESOLU_PAR.nom }} {{ alerte.RESOLU_PAR.prenoms }}</p>
+                            {% endif %}
+                            {% if alerte.COMMENTAIRE_RESOLUTION %}
+                            <p class="mb-0"><strong>Commentaire :</strong> {{ alerte.COMMENTAIRE_RESOLUTION }}</p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Formulaire de résolution -->
+                {% if alerte.STATUT in 'NOUVEAU,EN_COURS' %}
+                <div class="card mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-check"></i> Résoudre cette alerte</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="{% url 'audit:resoudre_alerte' uuid=alerte.uuid %}">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="commentaire">Commentaire de résolution</label>
+                                <textarea class="form-control" name="commentaire" id="commentaire" rows="3" placeholder="Décrivez comment l'alerte a été résolue..."></textarea>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-check"></i> Marquer comme résolu
+                                </button>
+                                <form method="post" action="{% url 'audit:ignorer_alerte' uuid=alerte.uuid %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-secondary" onclick="return confirm('Voulez-vous vraiment ignorer cette alerte ?')">
+                                        <i class="fas fa-eye-slash"></i> Ignorer
+                                    </button>
+                                </form>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-lg-4">
+                <!-- Actions -->
+                <div class="card mb-4">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0"><i class="fas fa-cog"></i> Actions</h6>
+                    </div>
+                    <div class="card-body">
+                        <a href="{% url 'audit:liste_alertes' %}" class="btn btn-secondary btn-block">
+                            <i class="fas fa-arrow-left"></i> Retour à la liste
+                        </a>
+                        {% if alerte.EMPLOYE %}
+                        <a href="#" class="btn btn-outline-primary btn-block">
+                            <i class="fas fa-user"></i> Voir le dossier employé
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Historique -->
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0"><i class="fas fa-history"></i> Historique</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">
+                                <small class="text-muted">{{ alerte.CREATED_AT|date:"d/m/Y H:i" }}</small><br>
+                                <span class="badge badge-info">Création</span> Alerte créée
+                            </li>
+                            {% if alerte.NOTIFICATION_ENVOYEE %}
+                            <li class="mb-2">
+                                <small class="text-muted">{{ alerte.DATE_NOTIFICATION|date:"d/m/Y H:i" }}</small><br>
+                                <span class="badge badge-primary">Notification</span> Email envoyé
+                            </li>
+                            {% endif %}
+                            {% if alerte.DATE_RESOLUTION %}
+                            <li class="mb-2">
+                                <small class="text-muted">{{ alerte.DATE_RESOLUTION|date:"d/m/Y H:i" }}</small><br>
+                                <span class="badge badge-success">Résolution</span>
+                                {% if alerte.STATUT == 'RESOLU' %}Alerte résolue{% else %}Alerte ignorée{% endif %}
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

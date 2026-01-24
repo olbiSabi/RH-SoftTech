@@ -1,0 +1,224 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    .type-badge {
+        font-size: 0.75rem;
+        padding: 3px 8px;
+        border-radius: 12px;
+    }
+    .type-CREATE { background-color: #28a745; color: white; }
+    .type-UPDATE { background-color: #17a2b8; color: white; }
+    .type-DELETE { background-color: #dc3545; color: white; }
+    .filter-card {
+        border-left: 4px solid #1c5d5f;
+    }
+    .log-details {
+        font-size: 0.85rem;
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 4px;
+        max-height: 100px;
+        overflow: auto;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-history"></i> Logs d'activité
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'audit:dashboard' %}">Audit</a></li>
+                        <li class="breadcrumb-item active">Logs</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Stats rapides -->
+        <div class="row mb-3">
+            <div class="col-md-3 col-6 mb-2">
+                <div class="card bg-light">
+                    <div class="card-body text-center py-3">
+                        <h4 class="mb-0">{{ stats.total }}</h4>
+                        <small class="text-muted">Total logs</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-2">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center py-3">
+                        <h4 class="mb-0">{{ stats.creations }}</h4>
+                        <small>Créations</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-2">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center py-3">
+                        <h4 class="mb-0">{{ stats.modifications }}</h4>
+                        <small>Modifications</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-2">
+                <div class="card bg-danger text-white">
+                    <div class="card-body text-center py-3">
+                        <h4 class="mb-0">{{ stats.suppressions }}</h4>
+                        <small>Suppressions</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Filtres -->
+            <div class="col-lg-3 mb-4">
+                <div class="card filter-card">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0"><i class="fas fa-filter"></i> Filtres</h6>
+                    </div>
+                    <div class="card-body">
+                        <form method="get">
+                            <div class="form-group">
+                                <label>Recherche</label>
+                                {{ form.recherche }}
+                            </div>
+                            <div class="form-group">
+                                <label>Table</label>
+                                {{ form.table_name }}
+                            </div>
+                            <div class="form-group">
+                                <label>Type d'action</label>
+                                {{ form.type_mouvement }}
+                            </div>
+                            <div class="form-group">
+                                <label>Date début</label>
+                                {{ form.date_debut }}
+                            </div>
+                            <div class="form-group">
+                                <label>Date fin</label>
+                                {{ form.date_fin }}
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fas fa-search"></i> Filtrer
+                            </button>
+                            <a href="{% url 'audit:liste_logs' %}" class="btn btn-secondary btn-block">
+                                <i class="fas fa-times"></i> Réinitialiser
+                            </a>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Tables fréquentes -->
+                <div class="card mt-3">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0"><i class="fas fa-database"></i> Tables</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush" style="max-height: 200px; overflow-y: auto;">
+                            {% for table in tables_disponibles %}
+                            <a href="?table_name={{ table }}" class="list-group-item list-group-item-action py-2">
+                                <small>{{ table }}</small>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Liste des logs -->
+            <div class="col-lg-9">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">{{ logs.paginator.count }} entrée(s)</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        {% if logs %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Table</th>
+                                        <th>ID</th>
+                                        <th>Utilisateur</th>
+                                        <th>Description</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for log in logs %}
+                                    <tr>
+                                        <td>
+                                            <small>{{ log.DATE_MODIFICATION|date:"d/m/Y" }}<br>{{ log.DATE_MODIFICATION|time:"H:i:s" }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="type-badge type-{{ log.TYPE_MOUVEMENT }}">
+                                                {{ log.get_TYPE_MOUVEMENT_display }}
+                                            </span>
+                                        </td>
+                                        <td><code>{{ log.TABLE_NAME }}</code></td>
+                                        <td><small>{{ log.RECORD_ID|truncatechars:15 }}</small></td>
+                                        <td>{{ log.USER_NAME|default:"Système" }}</td>
+                                        <td>{{ log.DESCRIPTION|truncatechars:30|default:"-" }}</td>
+                                        <td>
+                                            <a href="{% url 'audit:detail_log' pk=log.pk %}" class="btn btn-sm btn-outline-primary" title="Détails">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if logs.has_other_pages %}
+                        <div class="card-footer bg-white">
+                            <nav>
+                                <ul class="pagination justify-content-center mb-0">
+                                    {% if logs.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ logs.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Préc.</a>
+                                    </li>
+                                    {% endif %}
+
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ logs.number }} / {{ logs.paginator.num_pages }}</span>
+                                    </li>
+
+                                    {% if logs.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ logs.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Suiv.</a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        </div>
+                        {% endif %}
+                        {% else %}
+                        <div class="text-center py-5 text-muted">
+                            <i class="fas fa-inbox fa-4x mb-3"></i>
+                            <p class="lead">Aucun log trouvé</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

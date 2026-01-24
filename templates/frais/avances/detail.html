@@ -1,0 +1,255 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    .avance-header {
+        background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-hand-holding-usd"></i> {{ avance.REFERENCE }}
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'frais:dashboard' %}">Frais</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'frais:liste_avances' %}">Mes avances</a></li>
+                        <li class="breadcrumb-item active">{{ avance.REFERENCE }}</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- En-tête -->
+        <div class="avance-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h3 class="mb-1">{{ avance.REFERENCE }}</h3>
+                    <p class="mb-0">
+                        <i class="fas fa-user"></i> {{ avance.EMPLOYE }}
+                    </p>
+                    {% if avance.DATE_MISSION_DEBUT %}
+                    <p class="mb-0">
+                        <i class="fas fa-calendar"></i>
+                        Mission: {{ avance.DATE_MISSION_DEBUT|date:"d/m/Y" }}
+                        {% if avance.DATE_MISSION_FIN %} - {{ avance.DATE_MISSION_FIN|date:"d/m/Y" }}{% endif %}
+                    </p>
+                    {% endif %}
+                </div>
+                <div class="col-md-4 text-right">
+                    <span class="badge badge-lg
+                        {% if avance.STATUT == 'DEMANDE' %}badge-warning
+                        {% elif avance.STATUT == 'APPROUVE' %}badge-info
+                        {% elif avance.STATUT == 'VERSE' %}badge-success
+                        {% elif avance.STATUT == 'REGULARISE' %}badge-primary
+                        {% elif avance.STATUT == 'ANNULE' %}badge-danger
+                        {% endif %}"
+                        style="font-size: 1rem; padding: 10px 20px;">
+                        {{ avance.get_STATUT_display }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Détails -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-info-circle"></i> Détails de la demande
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Montant demandé:</strong>
+                                <h4>{{ avance.MONTANT_DEMANDE|floatformat:0 }} XOF</h4>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Montant approuvé:</strong>
+                                <h4 class="{% if avance.MONTANT_APPROUVE %}text-success{% else %}text-muted{% endif %}">
+                                    {% if avance.MONTANT_APPROUVE %}
+                                    {{ avance.MONTANT_APPROUVE|floatformat:0 }} XOF
+                                    {% else %}
+                                    En attente
+                                    {% endif %}
+                                </h4>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Motif:</strong>
+                            <p class="border rounded p-3 bg-light">{{ avance.MOTIF }}</p>
+                        </div>
+
+                        {% if avance.COMMENTAIRE_APPROBATION %}
+                        <div class="form-group">
+                            <strong>Commentaire approbation:</strong>
+                            <p class="border rounded p-3 bg-light">{{ avance.COMMENTAIRE_APPROBATION }}</p>
+                        </div>
+                        {% endif %}
+
+                        <!-- Timeline -->
+                        <hr>
+                        <h6>Historique</h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success"></i>
+                                <strong>Créée le:</strong> {{ avance.CREATED_AT|date:"d/m/Y H:i" }}
+                            </li>
+                            {% if avance.DATE_APPROBATION %}
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success"></i>
+                                <strong>Approuvée le:</strong> {{ avance.DATE_APPROBATION|date:"d/m/Y H:i" }}
+                                {% if avance.APPROBATEUR %} par {{ avance.APPROBATEUR }}{% endif %}
+                            </li>
+                            {% endif %}
+                            {% if avance.DATE_VERSEMENT %}
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success"></i>
+                                <strong>Versée le:</strong> {{ avance.DATE_VERSEMENT|date:"d/m/Y" }}
+                                {% if avance.REFERENCE_VERSEMENT %} (Réf: {{ avance.REFERENCE_VERSEMENT }}){% endif %}
+                            </li>
+                            {% endif %}
+                            {% if avance.DATE_REGULARISATION %}
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-primary"></i>
+                                <strong>Régularisée le:</strong> {{ avance.DATE_REGULARISATION|date:"d/m/Y" }}
+                                {% if avance.NOTE_FRAIS %}
+                                via <a href="{% url 'frais:detail_note' uuid=avance.NOTE_FRAIS.uuid %}">{{ avance.NOTE_FRAIS.REFERENCE }}</a>
+                                {% endif %}
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <!-- Actions -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-cogs"></i> Actions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if peut_approuver %}
+                        <form method="post" action="{% url 'frais:approuver_avance' uuid=avance.uuid %}">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label>Montant approuvé</label>
+                                <input type="number" name="montant_approuve" class="form-control"
+                                       value="{{ avance.MONTANT_DEMANDE }}" step="1000">
+                                <small class="form-text text-muted">Laisser vide pour le montant demandé</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Commentaire</label>
+                                <textarea name="commentaire" class="form-control" rows="2"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success btn-block mb-2">
+                                <i class="fas fa-check"></i> Approuver
+                            </button>
+                        </form>
+                        <button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#rejetModal">
+                            <i class="fas fa-times"></i> Rejeter
+                        </button>
+                        {% endif %}
+
+                        {% if peut_verser %}
+                        <form method="post" action="{% url 'frais:verser_avance' uuid=avance.uuid %}">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label>Date de versement *</label>
+                                <input type="date" name="date_versement" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Référence versement</label>
+                                <input type="text" name="reference_versement" class="form-control"
+                                       placeholder="N° virement">
+                            </div>
+                            <button type="submit" class="btn btn-success btn-block">
+                                <i class="fas fa-money-bill"></i> Marquer comme versée
+                            </button>
+                        </form>
+                        {% endif %}
+
+                        {% if not peut_approuver and not peut_verser %}
+                        <p class="text-muted text-center">
+                            Aucune action disponible
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Solde -->
+                {% if avance.STATUT == 'VERSE' %}
+                <div class="card mt-3">
+                    <div class="card-header bg-warning text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-exclamation-triangle"></i> À régulariser
+                        </h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <h3>{{ avance.solde_a_regulariser|floatformat:0 }} XOF</h3>
+                        <p class="text-muted">Solde restant</p>
+                        <a href="{% url 'frais:creer_note' %}" class="btn btn-primary">
+                            <i class="fas fa-file-invoice"></i> Créer une note de frais
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal Rejet -->
+{% if peut_approuver %}
+<div class="modal fade" id="rejetModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-times"></i> Rejeter la demande
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{% url 'frais:rejeter_avance' uuid=avance.uuid %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Motif du rejet *</label>
+                        <textarea name="commentaire" class="form-control" rows="4" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-times"></i> Confirmer le rejet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

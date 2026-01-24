@@ -44,6 +44,9 @@ INSTALLED_APPS = [
     'absence',
     'entreprise',
     'gestion_temps_activite',
+    'frais',
+    'materiel',
+    'audit',
 ]
 
 MIDDLEWARE = [

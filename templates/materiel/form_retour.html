@@ -1,0 +1,149 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    .form-card {
+        border-left: 4px solid #ffc107;
+    }
+    .section-header {
+        background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+        color: #333;
+        padding: 10px 15px;
+        border-radius: 5px 5px 0 0;
+    }
+    .btn-submit {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: #333;
+    }
+    .btn-submit:hover {
+        background-color: #e0a800;
+        border-color: #e0a800;
+        color: #333;
+    }
+    .materiel-info {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+    }
+    .materiel-info .label {
+        font-weight: 600;
+        color: #1c5d5f;
+    }
+    .affecte-info {
+        background: #e3f2fd;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #17a2b8;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-undo"></i> Retour du matériel
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'materiel:dashboard' %}">Matériel</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'materiel:detail_materiel' uuid=materiel.uuid %}">{{ materiel.CODE_INTERNE }}</a></li>
+                        <li class="breadcrumb-item active">Retour</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8">
+                <form method="post">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Veuillez corriger les erreurs ci-dessous.
+                    </div>
+                    {% endif %}
+
+                    <div class="card form-card">
+                        <div class="section-header">
+                            <h5 class="mb-0"><i class="fas fa-clipboard-check"></i> Constat de retour</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_etat_retour">État du matériel au retour <span class="text-danger">*</span></label>
+                                    {{ form.etat_retour }}
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_observations">Observations</label>
+                                {{ form.observations }}
+                                <small class="text-muted">Décrivez l'état du matériel, les éventuels problèmes constatés, etc.</small>
+                            </div>
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'materiel:detail_materiel' uuid=materiel.uuid %}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Annuler
+                                </a>
+                                <button type="submit" class="btn btn-submit">
+                                    <i class="fas fa-check"></i> Confirmer le retour
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-header" style="background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);">
+                        <h5 class="card-title mb-0 text-white"><i class="fas fa-laptop"></i> Matériel</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="materiel-info">
+                            <div class="mb-2">
+                                <span class="label">Code:</span>
+                                <strong>{{ materiel.CODE_INTERNE }}</strong>
+                            </div>
+                            <div class="mb-2">
+                                <span class="label">Désignation:</span>
+                                {{ materiel.DESIGNATION }}
+                            </div>
+                            <div class="mb-2">
+                                <span class="label">État actuel:</span>
+                                {{ materiel.get_ETAT_display }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if materiel.AFFECTE_A %}
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="card-title mb-0"><i class="fas fa-user"></i> Affecté à</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="affecte-info">
+                            <strong>{{ materiel.AFFECTE_A.nom }} {{ materiel.AFFECTE_A.prenoms }}</strong>
+                            <br><small class="text-muted">{{ materiel.AFFECTE_A.matricule }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,395 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    /* Badges de sévérité */
+    .severity-badge {
+        font-size: 0.75rem;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-weight: 500;
+        display: inline-block;
+    }
+    .severity-badge-INFO {
+        background-color: #17a2b8;
+        color: white;
+    }
+    .severity-badge-WARNING {
+        background-color: #ffc107;
+        color: #212529;
+    }
+    .severity-badge-CRITICAL {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    /* Icônes de type */
+    .type-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+    }
+    .type-CONTRAT { background-color: #e3f2fd; color: #1976d2; }
+    .type-DOCUMENT { background-color: #fff3e0; color: #f57c00; }
+    .type-FORMATION { background-color: #e8f5e9; color: #388e3c; }
+    .type-VISITE_MEDICALE { background-color: #fce4ec; color: #c2185b; }
+    .type-CONGE { background-color: #f3e5f5; color: #7b1fa2; }
+    .type-MATERIEL { background-color: #e0f7fa; color: #0097a7; }
+    .type-AUTRE { background-color: #f5f5f5; color: #616161; }
+
+    /* Statuts */
+    .status-active {
+        color: #28a745;
+        font-weight: 500;
+    }
+    .status-inactive {
+        color: #dc3545;
+        font-weight: 500;
+    }
+
+    /* Info boxes */
+    .info-box {
+        min-height: 80px;
+        box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+        border-radius: 0.25rem;
+        display: flex;
+        margin-bottom: 1rem;
+    }
+    .info-box .info-box-icon {
+        width: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        border-radius: 0.25rem 0 0 0.25rem;
+    }
+    .info-box .info-box-content {
+        padding: 10px 15px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        line-height: 1.4;
+    }
+    .info-box .info-box-text {
+        font-size: 0.875rem;
+    }
+    .info-box .info-box-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+    .info-box.bg-success,
+    .info-box.bg-danger,
+    .info-box.bg-secondary {
+        color: white;
+    }
+    .info-box.bg-success .info-box-text,
+    .info-box.bg-danger .info-box-text,
+    .info-box.bg-secondary .info-box-text {
+        color: rgba(255,255,255,0.85);
+    }
+    .info-box.bg-warning {
+        color: #212529;
+    }
+    .info-box.bg-warning .info-box-text {
+        color: rgba(0,0,0,0.65);
+    }
+
+    /* Table */
+    .table td {
+        vertical-align: middle;
+    }
+    .table thead th {
+        border-top: none;
+        background-color: #f8f9fa;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        color: #495057;
+    }
+
+    /* Badge light */
+    .badge-light {
+        background-color: #e9ecef;
+        color: #495057;
+    }
+
+    /* Légende */
+    .legend-row {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .legend-item {
+        display: flex;
+        align-items: center;
+        padding: 5px 0;
+    }
+    .legend-item small {
+        margin-left: 8px;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-cogs"></i> Règles de conformité
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'audit:dashboard' %}">Audit</a></li>
+                        <li class="breadcrumb-item active">Règles</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Actions et statistiques -->
+        <div class="row mb-3">
+            <div class="col-md-8">
+                <a href="{% url 'audit:creer_regle' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Nouvelle règle
+                </a>
+                <a href="{% url 'audit:executer_verifications' %}" class="btn btn-success ml-2">
+                    <i class="fas fa-play"></i> Exécuter les vérifications
+                </a>
+            </div>
+            <div class="col-md-4 text-right">
+                <span class="text-muted">
+                    {{ regles.count }} règle{{ regles.count|pluralize }} configurée{{ regles.count|pluralize }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Statistiques rapides -->
+        <div class="row mb-3">
+            <div class="col-lg-3 col-md-6 col-12">
+                <div class="info-box bg-success">
+                    <span class="info-box-icon"><i class="fas fa-check"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Règles actives</span>
+                        <span class="info-box-number">{{ stats.actives|default:0 }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-12">
+                <div class="info-box bg-secondary">
+                    <span class="info-box-icon"><i class="fas fa-pause"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Règles inactives</span>
+                        <span class="info-box-number">{{ stats.inactives|default:0 }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-12">
+                <div class="info-box bg-warning">
+                    <span class="info-box-icon"><i class="fas fa-bell"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Alertes générées</span>
+                        <span class="info-box-number">{{ stats.total_alertes|default:0 }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-12">
+                <div class="info-box bg-danger">
+                    <span class="info-box-icon"><i class="fas fa-exclamation-triangle"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Règles critiques</span>
+                        <span class="info-box-number">{{ stats.critiques|default:0 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liste des règles -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-list"></i> Liste des règles</h3>
+            </div>
+            <div class="card-body table-responsive p-0">
+                {% if regles %}
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">Type</th>
+                            <th>Code / Libellé</th>
+                            <th>Sévérité</th>
+                            <th>Fréquence</th>
+                            <th class="text-center">Jours avant</th>
+                            <th class="text-center">Notifications</th>
+                            <th class="text-center">Alertes</th>
+                            <th class="text-center">Statut</th>
+                            <th style="width: 100px;" class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for regle in regles %}
+                        <tr>
+                            <td class="text-center">
+                                <div class="type-icon type-{{ regle.TYPE_REGLE }}">
+                                    {% if regle.TYPE_REGLE == 'CONTRAT' %}
+                                    <i class="fas fa-file-contract"></i>
+                                    {% elif regle.TYPE_REGLE == 'DOCUMENT' %}
+                                    <i class="fas fa-file-alt"></i>
+                                    {% elif regle.TYPE_REGLE == 'FORMATION' %}
+                                    <i class="fas fa-graduation-cap"></i>
+                                    {% elif regle.TYPE_REGLE == 'VISITE_MEDICALE' %}
+                                    <i class="fas fa-stethoscope"></i>
+                                    {% elif regle.TYPE_REGLE == 'CONGE' %}
+                                    <i class="fas fa-umbrella-beach"></i>
+                                    {% elif regle.TYPE_REGLE == 'MATERIEL' %}
+                                    <i class="fas fa-laptop"></i>
+                                    {% else %}
+                                    <i class="fas fa-cog"></i>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <strong>{{ regle.CODE }}</strong><br>
+                                <small class="text-muted">{{ regle.LIBELLE }}</small>
+                            </td>
+                            <td>
+                                <span class="severity-badge severity-badge-{{ regle.SEVERITE }}">
+                                    {{ regle.get_SEVERITE_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <small>{{ regle.get_FREQUENCE_VERIFICATION_display }}</small>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-light">{{ regle.JOURS_AVANT_EXPIRATION }} j</span>
+                            </td>
+                            <td class="text-center">
+                                {% if regle.NOTIFIER_EMPLOYE %}
+                                <i class="fas fa-user text-info" title="Employé" data-toggle="tooltip"></i>
+                                {% endif %}
+                                {% if regle.NOTIFIER_MANAGER %}
+                                <i class="fas fa-user-tie text-primary" title="Manager" data-toggle="tooltip"></i>
+                                {% endif %}
+                                {% if regle.NOTIFIER_RH %}
+                                <i class="fas fa-users text-success" title="RH" data-toggle="tooltip"></i>
+                                {% endif %}
+                                {% if not regle.NOTIFIER_EMPLOYE and not regle.NOTIFIER_MANAGER and not regle.NOTIFIER_RH %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-secondary">{{ regle.alertes.count }}</span>
+                            </td>
+                            <td class="text-center">
+                                {% if regle.STATUT %}
+                                <span class="status-active">
+                                    <i class="fas fa-check-circle"></i> Actif
+                                </span>
+                                {% else %}
+                                <span class="status-inactive">
+                                    <i class="fas fa-times-circle"></i> Inactif
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'audit:modifier_regle' pk=regle.pk %}"
+                                   class="btn btn-sm btn-outline-primary"
+                                   title="Modifier" data-toggle="tooltip">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-cogs fa-3x text-muted mb-3 d-block"></i>
+                    <p class="text-muted mb-3">Aucune règle de conformité configurée.</p>
+                    <a href="{% url 'audit:creer_regle' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Créer une règle
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Légende -->
+        <div class="card mt-3">
+            <div class="card-header bg-light">
+                <h3 class="card-title"><i class="fas fa-info-circle text-info"></i> Légende des types</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-2 col-md-4 col-6 mb-2">
+                        <div class="legend-item">
+                            <span class="type-icon type-CONTRAT">
+                                <i class="fas fa-file-contract"></i>
+                            </span>
+                            <small>Contrat</small>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-6 mb-2">
+                        <div class="legend-item">
+                            <span class="type-icon type-DOCUMENT">
+                                <i class="fas fa-file-alt"></i>
+                            </span>
+                            <small>Document</small>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-6 mb-2">
+                        <div class="legend-item">
+                            <span class="type-icon type-FORMATION">
+                                <i class="fas fa-graduation-cap"></i>
+                            </span>
+                            <small>Formation</small>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-6 mb-2">
+                        <div class="legend-item">
+                            <span class="type-icon type-VISITE_MEDICALE">
+                                <i class="fas fa-stethoscope"></i>
+                            </span>
+                            <small>Visite médicale</small>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-6 mb-2">
+                        <div class="legend-item">
+                            <span class="type-icon type-CONGE">
+                                <i class="fas fa-umbrella-beach"></i>
+                            </span>
+                            <small>Congé</small>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-6 mb-2">
+                        <div class="legend-item">
+                            <span class="type-icon type-MATERIEL">
+                                <i class="fas fa-laptop"></i>
+                            </span>
+                            <small>Matériel</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extrascript %}
+<script>
+$(document).ready(function() {
+    // Activer les tooltips
+    $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
+{% endblock %}

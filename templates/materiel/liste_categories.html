@@ -1,0 +1,110 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    .table th {
+        background-color: #1c5d5f;
+        color: white;
+        border: none;
+    }
+    .btn-primary-custom {
+        background-color: #1c5d5f;
+        border-color: #1c5d5f;
+    }
+    .btn-primary-custom:hover {
+        background-color: #164849;
+        border-color: #164849;
+    }
+    .category-card {
+        border-left: 4px solid #1c5d5f;
+        transition: transform 0.2s;
+    }
+    .category-card:hover {
+        transform: translateY(-3px);
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-layer-group"></i> Catégories de matériel
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'materiel:dashboard' %}">Matériel</a></li>
+                        <li class="breadcrumb-item active">Catégories</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="mb-3">
+            <a href="{% url 'materiel:creer_categorie' %}" class="btn btn-primary-custom">
+                <i class="fas fa-plus-circle"></i> Nouvelle catégorie
+            </a>
+        </div>
+
+        <div class="row">
+            {% for cat in categories %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card category-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <span class="badge badge-secondary">{{ cat.CODE }}</span>
+                                <h5 class="mt-2 mb-0" style="color: #1c5d5f;">{{ cat.LIBELLE }}</h5>
+                            </div>
+                            {% if cat.STATUT %}
+                            <span class="badge badge-success">Actif</span>
+                            {% else %}
+                            <span class="badge badge-danger">Inactif</span>
+                            {% endif %}
+                        </div>
+
+                        {% if cat.DESCRIPTION %}
+                        <p class="text-muted small">{{ cat.DESCRIPTION|truncatechars:100 }}</p>
+                        {% endif %}
+
+                        <div class="row text-center border-top pt-3 mt-3">
+                            <div class="col-4">
+                                <h5 class="mb-0">{{ cat.nb_materiels|default:0 }}</h5>
+                                <small class="text-muted">Matériels</small>
+                            </div>
+                            <div class="col-4">
+                                <h5 class="mb-0">{{ cat.DUREE_AMORTISSEMENT }}</h5>
+                                <small class="text-muted">Années amort.</small>
+                            </div>
+                            <div class="col-4">
+                                <h5 class="mb-0">{{ cat.TAUX_AMORTISSEMENT|floatformat:0 }}%</h5>
+                                <small class="text-muted">Taux</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <a href="{% url 'materiel:modifier_categorie' pk=cat.pk %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-edit"></i> Modifier
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Aucune catégorie de matériel créée.
+                    <a href="{% url 'materiel:creer_categorie' %}">Créer la première catégorie</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,338 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    .filter-card {
+        border-left: 4px solid #1c5d5f;
+    }
+    .stat-box {
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+    }
+    .stat-box h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+    .stat-box p {
+        margin: 5px 0 0 0;
+        font-size: 0.9rem;
+    }
+    .table th {
+        background-color: #1c5d5f;
+        color: white;
+        border: none;
+    }
+    .badge-approuve {
+        background-color: #17a2b8;
+    }
+    .badge-verse {
+        background-color: #28a745;
+    }
+    .badge-regularise {
+        background-color: #1c5d5f;
+    }
+    .btn-export {
+        background-color: #1c5d5f;
+        border-color: #1c5d5f;
+        color: white;
+    }
+    .btn-export:hover {
+        background-color: #164849;
+        border-color: #164849;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-hand-holding-usd"></i> Avances Approuvées
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'frais:dashboard' %}">Frais</a></li>
+                        <li class="breadcrumb-item active">Avances approuvées</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Statistiques -->
+        <div class="row mb-4">
+            <div class="col-lg-2 col-md-4 mb-3">
+                <div class="stat-box text-white" style="background-color: #1c5d5f;">
+                    <h3>{{ stats.total }}</h3>
+                    <p><i class="fas fa-file-alt"></i> Total avances</p>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 mb-3">
+                <div class="stat-box text-white" style="background-color: #2a7d80;">
+                    <h3>{{ stats.montant_total|floatformat:0 }} <small>XOF</small></h3>
+                    <p><i class="fas fa-coins"></i> Montant total</p>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 mb-3">
+                <div class="stat-box text-white" style="background-color: #17a2b8;">
+                    <h3>{{ stats.nb_approuve }}</h3>
+                    <p><i class="fas fa-check"></i> Approuvées</p>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 mb-3">
+                <div class="stat-box text-white" style="background-color: #28a745;">
+                    <h3>{{ stats.nb_verse }}</h3>
+                    <p><i class="fas fa-money-bill"></i> Versées</p>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 mb-3">
+                <div class="stat-box text-white" style="background-color: #164849;">
+                    <h3>{{ stats.nb_regularise }}</h3>
+                    <p><i class="fas fa-balance-scale"></i> Régularisées</p>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 mb-3">
+                <div class="stat-box text-white" style="background-color: #193f41;">
+                    <h3>{{ stats.montant_a_verser|floatformat:0 }} <small>XOF</small></h3>
+                    <p><i class="fas fa-hand-holding-usd"></i> À verser</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtres -->
+        <div class="card filter-card mb-4">
+            <div class="card-header" style="background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);">
+                <h5 class="card-title mb-0 text-white">
+                    <i class="fas fa-filter"></i> Filtres
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row align-items-end">
+                    <div class="col-md-2">
+                        <label for="annee">Année</label>
+                        <select name="annee" id="annee" class="form-control">
+                            {% for an in annees_disponibles %}
+                            <option value="{{ an }}" {% if an|stringformat:"s" == annee_selectionnee %}selected{% endif %}>{{ an }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="mois">Mois</label>
+                        <select name="mois" id="mois" class="form-control">
+                            <option value="">Tous</option>
+                            {% for num, nom in mois_disponibles %}
+                            <option value="{{ num }}" {% if num|stringformat:"s" == mois_selectionne %}selected{% endif %}>{{ nom }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="statut">Statut</label>
+                        <select name="statut" id="statut" class="form-control">
+                            <option value="">Tous</option>
+                            <option value="APPROUVE" {% if statut_filtre == 'APPROUVE' %}selected{% endif %}>Approuvée</option>
+                            <option value="VERSE" {% if statut_filtre == 'VERSE' %}selected{% endif %}>Versée</option>
+                            <option value="REGULARISE" {% if statut_filtre == 'REGULARISE' %}selected{% endif %}>Régularisée</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="employe">Employé</label>
+                        <input type="text" name="employe" id="employe" class="form-control"
+                               placeholder="Nom ou matricule" value="{{ employe_filtre|default:'' }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="tri">Trier par</label>
+                        <select name="tri" id="tri" class="form-control">
+                            <option value="-DATE_APPROBATION" {% if tri == '-DATE_APPROBATION' %}selected{% endif %}>Date (récent)</option>
+                            <option value="DATE_APPROBATION" {% if tri == 'DATE_APPROBATION' %}selected{% endif %}>Date (ancien)</option>
+                            <option value="-MONTANT_APPROUVE" {% if tri == '-MONTANT_APPROUVE' %}selected{% endif %}>Montant (déc.)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Filtrer
+                        </button>
+                        <a href="{% url 'frais:export_avances_approuvees' %}?annee={{ annee_selectionnee }}{% if mois_selectionne %}&mois={{ mois_selectionne }}{% endif %}{% if employe_filtre %}&employe={{ employe_filtre }}{% endif %}{% if statut_filtre %}&statut={{ statut_filtre }}{% endif %}"
+                           class="btn btn-export">
+                            <i class="fas fa-file-excel"></i>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tableau des avances -->
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Référence</th>
+                                <th>Employé</th>
+                                <th class="text-right">Montant approuvé</th>
+                                <th>Motif</th>
+                                <th>Statut</th>
+                                <th>Date approbation</th>
+                                <th>Versement</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for avance in avances %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'frais:detail_avance' uuid=avance.uuid %}">
+                                        <strong>{{ avance.REFERENCE }}</strong>
+                                    </a>
+                                </td>
+                                <td>
+                                    {{ avance.EMPLOYE.nom }} {{ avance.EMPLOYE.prenoms }}
+                                    <br><small class="text-muted">{{ avance.EMPLOYE.matricule }}</small>
+                                </td>
+                                <td class="text-right">
+                                    <strong>{{ avance.MONTANT_APPROUVE|floatformat:0|default:avance.MONTANT_DEMANDE|floatformat:0 }}</strong> XOF
+                                </td>
+                                <td>
+                                    <span title="{{ avance.MOTIF }}">{{ avance.MOTIF|truncatechars:40 }}</span>
+                                </td>
+                                <td>
+                                    {% if avance.STATUT == 'APPROUVE' %}
+                                    <span class="badge badge-approuve">Approuvée</span>
+                                    {% elif avance.STATUT == 'VERSE' %}
+                                    <span class="badge badge-verse">Versée</span>
+                                    {% else %}
+                                    <span class="badge badge-regularise">Régularisée</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ avance.DATE_APPROBATION|date:"d/m/Y" }}</td>
+                                <td>
+                                    {% if avance.DATE_VERSEMENT %}
+                                    {{ avance.DATE_VERSEMENT|date:"d/m/Y" }}
+                                    {% if avance.REFERENCE_VERSEMENT %}
+                                    <br><small class="text-muted">{{ avance.REFERENCE_VERSEMENT }}</small>
+                                    {% endif %}
+                                    {% else %}
+                                    <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'frais:detail_avance' uuid=avance.uuid %}"
+                                       class="btn btn-sm btn-outline-primary" title="Voir détail">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if avance.STATUT == 'APPROUVE' %}
+                                    <button type="button" class="btn btn-sm btn-outline-success"
+                                            data-toggle="modal" data-target="#versementModal{{ avance.uuid }}"
+                                            title="Enregistrer versement">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                    </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center py-4">
+                                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">Aucune avance approuvée pour cette période</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {% if avances.has_other_pages %}
+            <div class="card-footer">
+                <nav>
+                    <ul class="pagination justify-content-center mb-0">
+                        {% if avances.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ avances.previous_page_number }}&annee={{ annee_selectionnee }}{% if mois_selectionne %}&mois={{ mois_selectionne }}{% endif %}{% if employe_filtre %}&employe={{ employe_filtre }}{% endif %}{% if statut_filtre %}&statut={{ statut_filtre }}{% endif %}&tri={{ tri }}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% for num in avances.paginator.page_range %}
+                            {% if num == avances.number %}
+                            <li class="page-item active">
+                                <span class="page-link" style="background-color: #1c5d5f; border-color: #1c5d5f;">{{ num }}</span>
+                            </li>
+                            {% elif num > avances.number|add:'-3' and num < avances.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}&annee={{ annee_selectionnee }}{% if mois_selectionne %}&mois={{ mois_selectionne }}{% endif %}{% if employe_filtre %}&employe={{ employe_filtre }}{% endif %}{% if statut_filtre %}&statut={{ statut_filtre }}{% endif %}&tri={{ tri }}">{{ num }}</a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if avances.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ avances.next_page_number }}&annee={{ annee_selectionnee }}{% if mois_selectionne %}&mois={{ mois_selectionne }}{% endif %}{% if employe_filtre %}&employe={{ employe_filtre }}{% endif %}{% if statut_filtre %}&statut={{ statut_filtre }}{% endif %}&tri={{ tri }}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Modals de versement -->
+{% for avance in avances %}
+{% if avance.STATUT == 'APPROUVE' %}
+<div class="modal fade" id="versementModal{{ avance.uuid }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'frais:verser_avance' uuid=avance.uuid %}">
+                {% csrf_token %}
+                <div class="modal-header" style="background-color: #1c5d5f;">
+                    <h5 class="modal-title text-white">
+                        <i class="fas fa-money-bill-wave"></i> Enregistrer le versement
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        <strong>Avance :</strong> {{ avance.REFERENCE }}<br>
+                        <strong>Employé :</strong> {{ avance.EMPLOYE.nom }} {{ avance.EMPLOYE.prenoms }}<br>
+                        <strong>Montant :</strong> {{ avance.MONTANT_APPROUVE|floatformat:0 }} XOF
+                    </p>
+                    <div class="form-group">
+                        <label for="date_versement">Date de versement *</label>
+                        <input type="date" name="date_versement" class="form-control" required
+                               value="{% now 'Y-m-d' %}">
+                    </div>
+                    <div class="form-group">
+                        <label for="reference_versement">Référence du versement</label>
+                        <input type="text" name="reference_versement" class="form-control"
+                               placeholder="N° virement, chèque...">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check"></i> Confirmer le versement
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+{% endblock %}

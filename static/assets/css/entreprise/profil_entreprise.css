@@ -125,7 +125,7 @@
 }
 
 .info-value a {
-    color: #3498db !important;
+    color: #1c5d5f !important;
     text-decoration: none !important;
 }
 
@@ -185,7 +185,7 @@
 }
 
 .badge.bg-primary {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%) !important;
 }
 
 .badge.bg-success {
@@ -217,12 +217,12 @@
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+    background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%) !important;
     border: none !important;
 }
 
 .btn-primary:hover {
-    background: linear-gradient(135deg, #2980b9 0%, #21618c 100%) !important;
+    background: linear-gradient(135deg, #164849 0%, #0f2d2e 100%) !important;
 }
 
 .btn-lg {

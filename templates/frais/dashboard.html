@@ -1,0 +1,361 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    .stat-card {
+        border-radius: 10px;
+        transition: transform 0.2s;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+    }
+    .stat-card .icon {
+        font-size: 2.5rem;
+        opacity: 0.8;
+    }
+    .stat-card h3 {
+        font-size: 1.8rem;
+        font-weight: bold;
+    }
+    .quick-actions .btn {
+        margin-bottom: 10px;
+    }
+    .recent-list .list-group-item {
+        border-left: 3px solid transparent;
+    }
+    .recent-list .list-group-item.status-brouillon {
+        border-left-color: #6c757d;
+    }
+    .recent-list .list-group-item.status-soumis {
+        border-left-color: #ffc107;
+    }
+    .recent-list .list-group-item.status-valide {
+        border-left-color: #28a745;
+    }
+    .recent-list .list-group-item.status-rejete {
+        border-left-color: #dc3545;
+    }
+    .validation-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-receipt"></i> Notes de Frais
+                    </h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Statistiques personnelles -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card stat-card bg-primary text-white h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3>{{ stats.notes.total }}</h3>
+                                <p class="mb-0">Notes de frais</p>
+                                <small>Année {{ stats.annee }}</small>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-file-invoice"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card stat-card bg-success text-white h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3>{{ stats.notes.montant_rembourse|floatformat:0|default:"0" }} <small>XOF</small></h3>
+                                <p class="mb-0">Remboursé</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card stat-card bg-warning text-white h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3>{{ stats.notes.par_statut.SOUMIS|default:"0" }}</h3>
+                                <p class="mb-0">En attente</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card stat-card bg-info text-white h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3>{{ stats.avances.solde_non_regularise|floatformat:0|default:"0" }} <small>XOF</small></h3>
+                                <p class="mb-0">Avances en cours</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-hand-holding-usd"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alertes valideur -->
+        {% if notes_a_valider or avances_a_approuver %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-warning d-flex align-items-center">
+                    <i class="fas fa-exclamation-triangle fa-2x mr-3"></i>
+                    <div>
+                        <strong>Actions en attente :</strong>
+                        {% if notes_a_valider %}
+                            <a href="{% url 'frais:notes_a_valider' %}" class="alert-link ml-2">
+                                {{ notes_a_valider }} note(s) à valider
+                            </a>
+                        {% endif %}
+                        {% if avances_a_approuver %}
+                            <a href="{% url 'frais:avances_a_approuver' %}" class="alert-link ml-2">
+                                {{ avances_a_approuver }} avance(s) à approuver
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row">
+            <!-- Actions rapides -->
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-bolt"></i> Actions rapides
+                        </h5>
+                    </div>
+                    <div class="card-body quick-actions">
+                        <a href="{% url 'frais:creer_note' %}" class="btn btn-primary btn-block">
+                            <i class="fas fa-plus"></i> Nouvelle note de frais
+                        </a>
+                        <a href="{% url 'frais:creer_avance' %}" class="btn btn-outline-primary btn-block">
+                            <i class="fas fa-hand-holding-usd"></i> Demander une avance
+                        </a>
+                        <hr>
+                        <a href="{% url 'frais:liste_notes' %}" class="btn btn-secondary btn-block">
+                            <i class="fas fa-list"></i> Mes notes de frais
+                        </a>
+                        <a href="{% url 'frais:liste_avances' %}" class="btn btn-secondary btn-block">
+                            <i class="fas fa-money-bill"></i> Mes avances
+                        </a>
+                        <a href="{% url 'frais:statistiques' %}" class="btn btn-secondary btn-block">
+                            <i class="fas fa-chart-bar"></i> Statistiques
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes récentes -->
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-file-invoice"></i> Mes notes récentes
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush recent-list">
+                            {% for note in mes_notes %}
+                            <li class="list-group-item status-{{ note.STATUT|lower }}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <a href="{% url 'frais:detail_note' uuid=note.uuid %}">
+                                            <strong>{{ note.REFERENCE }}</strong>
+                                        </a>
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ note.PERIODE_DEBUT|date:"d/m/Y" }} - {{ note.PERIODE_FIN|date:"d/m/Y" }}
+                                        </small>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="badge
+                                            {% if note.STATUT == 'BROUILLON' %}badge-secondary
+                                            {% elif note.STATUT == 'SOUMIS' %}badge-warning
+                                            {% elif note.STATUT == 'VALIDE' %}badge-success
+                                            {% elif note.STATUT == 'REMBOURSE' %}badge-primary
+                                            {% elif note.STATUT == 'REJETE' %}badge-danger
+                                            {% else %}badge-secondary{% endif %}">
+                                            {{ note.get_STATUT_display }}
+                                        </span>
+                                        <br>
+                                        <small>{{ note.MONTANT_TOTAL|floatformat:0 }} XOF</small>
+                                    </div>
+                                </div>
+                            </li>
+                            {% empty %}
+                            <li class="list-group-item text-center text-muted py-4">
+                                <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                                Aucune note de frais
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% if mes_notes %}
+                    <div class="card-footer text-center">
+                        <a href="{% url 'frais:liste_notes' %}">Voir toutes mes notes</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Avances en cours -->
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-hand-holding-usd"></i> Mes avances en cours
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush recent-list">
+                            {% for avance in mes_avances %}
+                            <li class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <a href="{% url 'frais:detail_avance' uuid=avance.uuid %}">
+                                            <strong>{{ avance.REFERENCE }}</strong>
+                                        </a>
+                                        <br>
+                                        <small class="text-muted">{{ avance.MOTIF|truncatechars:40 }}</small>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="badge
+                                            {% if avance.STATUT == 'DEMANDE' %}badge-warning
+                                            {% elif avance.STATUT == 'APPROUVE' %}badge-info
+                                            {% elif avance.STATUT == 'VERSE' %}badge-success
+                                            {% else %}badge-secondary{% endif %}">
+                                            {{ avance.get_STATUT_display }}
+                                        </span>
+                                        <br>
+                                        <small>{{ avance.MONTANT_DEMANDE|floatformat:0 }} XOF</small>
+                                    </div>
+                                </div>
+                            </li>
+                            {% empty %}
+                            <li class="list-group-item text-center text-muted py-4">
+                                <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                                Aucune avance en cours
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% if mes_avances %}
+                    <div class="card-footer text-center">
+                        <a href="{% url 'frais:liste_avances' %}">Voir toutes mes avances</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats globales (valideurs uniquement) -->
+        {% if stats_globales %}
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header" style="background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);">
+                        <h5 class="card-title mb-0 text-white">
+                            <i class="fas fa-chart-line"></i> Vue d'ensemble ({{ stats_globales.annee }})
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 text-center border-right">
+                                <h4>{{ stats_globales.notes_frais.total }}</h4>
+                                <p class="text-muted">Notes totales</p>
+                            </div>
+                            <div class="col-md-3 text-center border-right">
+                                <h4>{{ stats_globales.notes_frais.montant_total|floatformat:0|default:"0" }} XOF</h4>
+                                <p class="text-muted">Montant total</p>
+                            </div>
+                            <div class="col-md-3 text-center border-right">
+                                <h4>{{ stats_globales.notes_frais.en_attente_validation.count }}</h4>
+                                <p class="text-muted">En attente validation</p>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <h4>{{ stats_globales.notes_frais.a_rembourser.montant|floatformat:0|default:"0" }} XOF</h4>
+                                <p class="text-muted">À rembourser</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions administratives (DRH, DAF, Comptable) -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header" style="background-color: #193f41;">
+                        <h5 class="card-title mb-0 text-white">
+                            <i class="fas fa-cogs"></i> Administration des frais
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <a href="{% url 'frais:admin_notes_validees' %}" class="btn btn-outline-primary btn-block py-3">
+                                    <i class="fas fa-file-invoice-dollar fa-2x mb-2 d-block"></i>
+                                    <strong>Notes validées</strong>
+                                    <br><small>Liste complète avec export Excel</small>
+                                </a>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <a href="{% url 'frais:admin_avances_approuvees' %}" class="btn btn-outline-info btn-block py-3">
+                                    <i class="fas fa-hand-holding-usd fa-2x mb-2 d-block"></i>
+                                    <strong>Avances approuvées</strong>
+                                    <br><small>Suivi et versements</small>
+                                </a>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <a href="{% url 'frais:admin_remboursements' %}" class="btn btn-outline-success btn-block py-3">
+                                    <i class="fas fa-money-check-alt fa-2x mb-2 d-block"></i>
+                                    <strong>Remboursements</strong>
+                                    <br><small>Validation avec signature</small>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

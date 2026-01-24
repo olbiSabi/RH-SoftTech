@@ -1,0 +1,461 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    .note-header {
+        background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    .ligne-frais {
+        border-left: 3px solid #1c5d5f;
+        margin-bottom: 10px;
+        padding-left: 15px;
+    }
+    .ligne-frais.rejete {
+        border-left-color: #dc3545;
+        opacity: 0.7;
+    }
+    .anomalie-card {
+        border-left: 4px solid #ffc107;
+    }
+    .total-section {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-file-invoice"></i> {{ note.REFERENCE }}
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'frais:dashboard' %}">Frais</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'frais:liste_notes' %}">Mes notes</a></li>
+                        <li class="breadcrumb-item active">{{ note.REFERENCE }}</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- En-tête de la note -->
+        <div class="note-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h3 class="mb-1">{{ note.REFERENCE }}</h3>
+                    <p class="mb-0">
+                        <i class="fas fa-calendar"></i>
+                        {{ note.PERIODE_DEBUT|date:"d/m/Y" }} - {{ note.PERIODE_FIN|date:"d/m/Y" }}
+                    </p>
+                    {% if note.OBJET %}
+                    <p class="mb-0">
+                        <i class="fas fa-briefcase"></i> {{ note.OBJET }}
+                    </p>
+                    {% endif %}
+                </div>
+                <div class="col-md-4 text-right">
+                    <span class="badge badge-lg
+                        {% if note.STATUT == 'BROUILLON' %}badge-secondary
+                        {% elif note.STATUT == 'SOUMIS' %}badge-warning
+                        {% elif note.STATUT == 'EN_VALIDATION' %}badge-info
+                        {% elif note.STATUT == 'VALIDE' %}badge-success
+                        {% elif note.STATUT == 'REMBOURSE' %}badge-primary
+                        {% elif note.STATUT == 'REJETE' %}badge-danger
+                        {% else %}badge-dark{% endif %}"
+                        style="font-size: 1rem; padding: 10px 20px;">
+                        {{ note.get_STATUT_display }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alertes anomalies -->
+        {% if anomalies %}
+        <div class="card anomalie-card mb-4">
+            <div class="card-body">
+                <h6><i class="fas fa-exclamation-triangle text-warning"></i> Points d'attention</h6>
+                <ul class="mb-0">
+                    {% for anomalie in anomalies %}
+                    <li class="text-{{ anomalie.severity }}">{{ anomalie.message }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row">
+            <!-- Lignes de frais -->
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-list"></i> Lignes de frais
+                        </h5>
+                        {% if peut_modifier %}
+                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#ajouterLigneModal">
+                            <i class="fas fa-plus"></i> Ajouter une ligne
+                        </button>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        {% if lignes %}
+                        {% for ligne in lignes %}
+                        <div class="ligne-frais {% if ligne.STATUT_LIGNE == 'REJETE' %}rejete{% endif %}">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">
+                                        {% if ligne.CATEGORIE.ICONE %}
+                                        <i class="fas {{ ligne.CATEGORIE.ICONE }}"></i>
+                                        {% endif %}
+                                        {{ ligne.CATEGORIE.LIBELLE }}
+                                    </h6>
+                                    <p class="mb-1">{{ ligne.DESCRIPTION }}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar"></i> {{ ligne.DATE_DEPENSE|date:"d/m/Y" }}
+                                        {% if ligne.NUMERO_FACTURE %}
+                                        | <i class="fas fa-receipt"></i> {{ ligne.NUMERO_FACTURE }}
+                                        {% endif %}
+                                        {% if ligne.JUSTIFICATIF %}
+                                        | <a href="{{ ligne.JUSTIFICATIF.url }}" target="_blank">
+                                            <i class="fas fa-paperclip"></i> Justificatif
+                                        </a>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                <div class="text-right">
+                                    <h5 class="mb-0">{{ ligne.MONTANT|floatformat:0 }} {{ ligne.DEVISE }}</h5>
+                                    {% if ligne.STATUT_LIGNE == 'REJETE' %}
+                                    <small class="text-danger">
+                                        <i class="fas fa-times"></i> Rejeté
+                                    </small>
+                                    {% elif ligne.STATUT_LIGNE == 'VALIDE' %}
+                                    <small class="text-success">
+                                        <i class="fas fa-check"></i> Validé
+                                    </small>
+                                    {% endif %}
+                                    {% if peut_modifier %}
+                                    <br>
+                                    <button type="button" class="btn btn-sm btn-danger btn-supprimer-ligne mt-1"
+                                            data-ligne-uuid="{{ ligne.uuid }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if ligne.COMMENTAIRE_REJET %}
+                            <div class="alert alert-danger mt-2 mb-0 py-1 px-2">
+                                <small><strong>Motif rejet:</strong> {{ ligne.COMMENTAIRE_REJET }}</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                            Aucune ligne de frais
+                            {% if peut_modifier %}
+                            <br>
+                            <button type="button" class="btn btn-primary mt-3" data-toggle="modal" data-target="#ajouterLigneModal">
+                                <i class="fas fa-plus"></i> Ajouter la première ligne
+                            </button>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Résumé et actions -->
+            <div class="col-lg-4">
+                <!-- Totaux -->
+                <div class="total-section mb-4">
+                    <h5><i class="fas fa-calculator"></i> Récapitulatif</h5>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Montant total:</span>
+                        <strong>{{ note.MONTANT_TOTAL|floatformat:0 }} XOF</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Montant validé:</span>
+                        <strong class="text-success">{{ note.MONTANT_VALIDE|floatformat:0 }} XOF</strong>
+                    </div>
+                    {% if note.MONTANT_REMBOURSE > 0 %}
+                    <div class="d-flex justify-content-between">
+                        <span>Remboursé:</span>
+                        <strong class="text-primary">{{ note.MONTANT_REMBOURSE|floatformat:0 }} XOF</strong>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Actions -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-cogs"></i> Actions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if peut_modifier %}
+                        <form method="post" action="{% url 'frais:soumettre_note' uuid=note.uuid %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success btn-block mb-2"
+                                    {% if not lignes %}disabled{% endif %}>
+                                <i class="fas fa-paper-plane"></i> Soumettre pour validation
+                            </button>
+                        </form>
+                        <a href="{% url 'frais:modifier_note' uuid=note.uuid %}" class="btn btn-primary btn-block mb-2">
+                            <i class="fas fa-edit"></i> Modifier
+                        </a>
+                        {% if note.STATUT == 'BROUILLON' %}
+                        <form method="post" action="{% url 'frais:supprimer_note' uuid=note.uuid %}"
+                              onsubmit="return confirm('Supprimer cette note ?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-block">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                        </form>
+                        {% endif %}
+                        {% endif %}
+
+                        {% if peut_valider %}
+                        <hr>
+                        <h6>Validation</h6>
+                        <form method="post" action="{% url 'frais:valider_note' uuid=note.uuid %}">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <textarea name="commentaire" class="form-control" rows="2"
+                                          placeholder="Commentaire (optionnel)"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success btn-block mb-2">
+                                <i class="fas fa-check"></i> Valider
+                            </button>
+                        </form>
+                        <button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#rejetModal">
+                            <i class="fas fa-times"></i> Rejeter
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Informations -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-info-circle"></i> Informations
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-1">
+                            <strong>Créée le:</strong> {{ note.CREATED_AT|date:"d/m/Y H:i" }}
+                        </p>
+                        {% if note.DATE_SOUMISSION %}
+                        <p class="mb-1">
+                            <strong>Soumise le:</strong> {{ note.DATE_SOUMISSION|date:"d/m/Y H:i" }}
+                        </p>
+                        {% endif %}
+                        {% if note.VALIDEUR %}
+                        <p class="mb-1">
+                            <strong>Validée par:</strong> {{ note.VALIDEUR }}
+                        </p>
+                        <p class="mb-1">
+                            <strong>Le:</strong> {{ note.DATE_VALIDATION|date:"d/m/Y H:i" }}
+                        </p>
+                        {% endif %}
+                        {% if note.COMMENTAIRE_VALIDATION %}
+                        <p class="mb-0">
+                            <strong>Commentaire:</strong><br>
+                            <em>{{ note.COMMENTAIRE_VALIDATION }}</em>
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal Ajouter Ligne -->
+{% if peut_modifier %}
+<div class="modal fade" id="ajouterLigneModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus"></i> Ajouter une ligne de frais
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{% url 'frais:ajouter_ligne' note_uuid=note.uuid %}"
+                  enctype="multipart/form-data" id="formAjouterLigne">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Catégorie *</label>
+                                {{ ligne_form.CATEGORIE }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Date de la dépense *</label>
+                                {{ ligne_form.DATE_DEPENSE }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Description *</label>
+                        {{ ligne_form.DESCRIPTION }}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Montant *</label>
+                                {{ ligne_form.MONTANT }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Devise</label>
+                                {{ ligne_form.DEVISE }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Justificatif</label>
+                                {{ ligne_form.JUSTIFICATIF }}
+                                <small class="form-text text-muted">PDF, JPG, PNG</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>N° facture/reçu</label>
+                                {{ ligne_form.NUMERO_FACTURE }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Ajouter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Modal Rejet -->
+{% if peut_valider %}
+<div class="modal fade" id="rejetModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-times"></i> Rejeter la note
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{% url 'frais:rejeter_note' uuid=note.uuid %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Motif du rejet *</label>
+                        <textarea name="commentaire" class="form-control" rows="4" required
+                                  placeholder="Expliquez le motif du rejet..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-times"></i> Confirmer le rejet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extrascript %}
+<script>
+$(document).ready(function() {
+    // Soumettre formulaire ajout ligne via AJAX
+    $('#formAjouterLigne').on('submit', function(e) {
+        e.preventDefault();
+        var formData = new FormData(this);
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert(response.error || 'Erreur lors de l\'ajout');
+                }
+            },
+            error: function(xhr) {
+                var response = xhr.responseJSON;
+                if (response && response.errors) {
+                    var msg = Object.values(response.errors).join('\n');
+                    alert(msg);
+                } else if (response && response.error) {
+                    alert(response.error);
+                } else {
+                    alert('Erreur lors de l\'ajout');
+                }
+            }
+        });
+    });
+
+    // Supprimer ligne
+    $('.btn-supprimer-ligne').on('click', function() {
+        if (!confirm('Supprimer cette ligne ?')) return;
+
+        var ligneUuid = $(this).data('ligne-uuid');
+        $.ajax({
+            url: '/frais/lignes/' + ligneUuid + '/supprimer/',
+            type: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert(response.error || 'Erreur');
+                }
+            },
+            error: function() {
+                alert('Erreur lors de la suppression');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

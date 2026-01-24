@@ -1,0 +1,300 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css" rel="stylesheet" />
+
+<style>
+    .form-card {
+        border-left: 4px solid #1c5d5f;
+    }
+    .section-header {
+        background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px 5px 0 0;
+    }
+    .btn-submit {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+    .btn-submit:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+    }
+    .materiel-info {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+    }
+    .materiel-info .label {
+        font-weight: 600;
+        color: #1c5d5f;
+    }
+    /* Style Select2 pour correspondre au thème */
+    .select2-container--bootstrap4 .select2-selection--single {
+        height: calc(1.5em + 0.75rem + 2px) !important;
+    }
+    .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+        line-height: calc(1.5em + 0.75rem) !important;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-user-plus"></i> Affecter le matériel
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'materiel:dashboard' %}">Matériel</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'materiel:detail_materiel' uuid=materiel.uuid %}">{{ materiel.CODE_INTERNE }}</a></li>
+                        <li class="breadcrumb-item active">Affecter</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8">
+                <form method="post" id="affectation-form">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Veuillez corriger les erreurs ci-dessous.
+                        <ul class="mb-0 mt-2">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <div class="card form-card">
+                        <div class="section-header">
+                            <h5 class="mb-0"><i class="fas fa-user-check"></i> Affectation</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Employé avec Select2 AJAX -->
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    <label for="id_employe_id">Employé <span class="text-danger">*</span></label>
+                                    <select class="form-control select2-employe" id="id_employe_id" name="employe_id" style="width: 100%;">
+                                        <option value="">-- Sélectionnez un employé --</option>
+                                    </select>
+                                    {% if form.employe_id.errors %}
+                                    <div class="text-danger small mt-1">{{ form.employe_id.errors.0 }}</div>
+                                    {% endif %}
+                                    <small class="text-muted">Tapez au moins 2 caractères pour rechercher (nom, prénom ou matricule)</small>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_type_affectation">Type <span class="text-danger">*</span></label>
+                                    {{ form.type_affectation }}
+                                </div>
+                            </div>
+
+                            <!-- Date de retour (visible uniquement pour les prêts) -->
+                            <div class="row" id="pret-fields" style="display: none;">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_date_retour_prevue">Date de retour prévue <span class="text-danger">*</span></label>
+                                    <input type="date"
+                                           class="form-control {% if form.date_retour_prevue.errors %}is-invalid{% endif %}"
+                                           id="id_date_retour_prevue"
+                                           name="date_retour_prevue"
+                                           value="{{ form.date_retour_prevue.value|default:'' }}">
+                                    {% if form.date_retour_prevue.errors %}
+                                    <div class="text-danger small mt-1">{{ form.date_retour_prevue.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Motif -->
+                            <div class="mb-3">
+                                <label for="id_motif">Motif / Commentaire</label>
+                                <textarea class="form-control" id="id_motif" name="motif" rows="2" placeholder="Raison de l'affectation...">{{ form.motif.value|default:'' }}</textarea>
+                            </div>
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'materiel:detail_materiel' uuid=materiel.uuid %}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Annuler
+                                </a>
+                                <button type="submit" class="btn btn-submit text-white">
+                                    <i class="fas fa-check"></i> Confirmer l'affectation
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="section-header">
+                        <h5 class="mb-0"><i class="fas fa-laptop"></i> Matériel à affecter</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="materiel-info">
+                            <div class="mb-2">
+                                <span class="label">Code:</span>
+                                <strong>{{ materiel.CODE_INTERNE }}</strong>
+                            </div>
+                            <div class="mb-2">
+                                <span class="label">Désignation:</span>
+                                {{ materiel.DESIGNATION }}
+                            </div>
+                            <div class="mb-2">
+                                <span class="label">Catégorie:</span>
+                                {{ materiel.CATEGORIE.LIBELLE }}
+                            </div>
+                            {% if materiel.MARQUE %}
+                            <div class="mb-2">
+                                <span class="label">Marque:</span>
+                                {{ materiel.MARQUE }}
+                            </div>
+                            {% endif %}
+                            {% if materiel.MODELE %}
+                            <div class="mb-2">
+                                <span class="label">Modèle:</span>
+                                {{ materiel.MODELE }}
+                            </div>
+                            {% endif %}
+                            {% if materiel.NUMERO_SERIE %}
+                            <div class="mb-2">
+                                <span class="label">N° Série:</span>
+                                {{ materiel.NUMERO_SERIE }}
+                            </div>
+                            {% endif %}
+                            <div class="mb-2">
+                                <span class="label">État:</span>
+                                <span class="badge badge-info">{{ materiel.get_ETAT_display }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aide -->
+                <div class="card mt-3">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0"><i class="fas fa-info-circle text-info"></i> Types d'affectation</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-2"><strong>Affectation définitive :</strong><br>
+                        <small class="text-muted">Le matériel est attribué à l'employé sans date de retour prévue.</small></p>
+                        <p class="mb-0"><strong>Prêt temporaire :</strong><br>
+                        <small class="text-muted">Le matériel est prêté pour une durée limitée. Une date de retour est requise.</small></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extrascript %}
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Initialisation de Select2 pour la recherche d'employés
+    $('.select2-employe').select2({
+        theme: 'bootstrap4',
+        placeholder: '-- Sélectionnez un employé --',
+        allowClear: true,
+        minimumInputLength: 2,
+        language: {
+            inputTooShort: function() {
+                return 'Tapez au moins 2 caractères...';
+            },
+            noResults: function() {
+                return 'Aucun employé trouvé';
+            },
+            searching: function() {
+                return 'Recherche en cours...';
+            },
+            errorLoading: function() {
+                return 'Erreur lors du chargement des résultats';
+            }
+        },
+        ajax: {
+            url: "{% url 'materiel:api_search_employes' %}",
+            dataType: 'json',
+            delay: 300,
+            data: function(params) {
+                return {
+                    q: params.term
+                };
+            },
+            processResults: function(data) {
+                return {
+                    results: data.results.map(function(emp) {
+                        return {
+                            id: emp.id,
+                            text: emp.text
+                        };
+                    })
+                };
+            },
+            cache: true
+        }
+    });
+
+    // Toggle date retour pour prêt
+    function togglePretFields() {
+        var typeAffectation = $('#id_type_affectation').val();
+        if (typeAffectation === 'PRET') {
+            $('#pret-fields').slideDown();
+        } else {
+            $('#pret-fields').slideUp();
+            $('#id_date_retour_prevue').val('');
+        }
+    }
+
+    $('#id_type_affectation').on('change', togglePretFields);
+
+    // Vérifier l'état initial
+    togglePretFields();
+
+    // Validation côté client avant soumission
+    $('#affectation-form').on('submit', function(e) {
+        var employeId = $('#id_employe_id').val();
+        var typeAffectation = $('#id_type_affectation').val();
+        var dateRetour = $('#id_date_retour_prevue').val();
+
+        if (!employeId) {
+            e.preventDefault();
+            alert('Veuillez sélectionner un employé.');
+            $('.select2-employe').select2('open');
+            return false;
+        }
+
+        if (typeAffectation === 'PRET' && !dateRetour) {
+            e.preventDefault();
+            alert('Veuillez indiquer une date de retour pour le prêt.');
+            $('#id_date_retour_prevue').focus();
+            return false;
+        }
+
+        return true;
+    });
+});
+</script>
+{% endblock %}

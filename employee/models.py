@@ -366,6 +366,31 @@ class ZY00(models.Model):
         from employee.services.permission_service import PermissionService
         return PermissionService.can_validate_absence_as_manager(self)
 
+    @property
+    def peut_valider_frais(self):
+        """Vérifie si l'employé peut valider les notes de frais."""
+        return self.has_role('DRH') or self.has_role('RESP_ADMIN') or self.has_role('DAF') or self.has_role('ASSISTANT_RH')
+
+    @property
+    def peut_rembourser_frais(self):
+        """Vérifie si l'employé peut effectuer les remboursements de frais."""
+        return self.has_role('DAF') or self.has_role('COMPTABLE') or self.has_role('DRH')
+
+    @property
+    def peut_administrer_frais(self):
+        """Vérifie si l'employé peut administrer les frais (liste globale, export, remboursements)."""
+        return self.has_role('DRH') or self.has_role('DAF') or self.has_role('COMPTABLE')
+
+    @property
+    def peut_gerer_materiel(self):
+        """Vérifie si l'employé peut gérer le matériel (création, modification, réforme)."""
+        return self.has_role('DRH') or self.has_role('GESTION_APP') or self.has_role('RESP_ADMIN')
+
+    @property
+    def peut_affecter_materiel(self):
+        """Vérifie si l'employé peut affecter du matériel aux employés."""
+        return self.peut_gerer_materiel or self.has_role('ASSISTANT_RH')
+
     def fait_partie_equipe_de(self, autre_employe):
         """Vérifie si cet employé fait partie de l'équipe d'un autre employé."""
         from employee.services.hierarchy_service import HierarchyService
@@ -574,6 +599,11 @@ class ZY00(models.Model):
         from employee.services.permission_service import PermissionService
         return PermissionService.can_upload_documents(self)
 
+    # ==================== MÉTHODES MODULE AUDIT ====================
+    def peut_acceder_audit(self):
+        """Vérifie si l'employé peut accéder au module Conformité & Audit."""
+        from employee.services.permission_service import PermissionService
+        return PermissionService.can_access_audit(self)
 
 
 ######################

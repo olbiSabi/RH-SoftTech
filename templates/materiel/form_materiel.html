@@ -1,0 +1,223 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    .form-card {
+        border-left: 4px solid #1c5d5f;
+    }
+    .section-header {
+        background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px 5px 0 0;
+    }
+    .btn-submit {
+        background-color: #1c5d5f;
+        border-color: #1c5d5f;
+        color: white;
+    }
+    .btn-submit:hover {
+        background-color: #164849;
+        border-color: #164849;
+        color: white;
+    }
+    .required-field::after {
+        content: ' *';
+        color: #dc3545;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-laptop"></i> {{ titre }}
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'materiel:dashboard' %}">Matériel</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'materiel:liste_materiels' %}">Liste</a></li>
+                        <li class="breadcrumb-item active">{{ titre }}</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {% if form.errors %}
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i> Veuillez corriger les erreurs ci-dessous.
+                <ul class="mb-0 mt-2">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Identification -->
+                    <div class="card form-card mb-4">
+                        <div class="section-header">
+                            <h5 class="mb-0"><i class="fas fa-tag"></i> Identification</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if materiel %}
+                            <div class="alert alert-info mb-3">
+                                <i class="fas fa-barcode"></i> <strong>Code :</strong> {{ materiel.CODE_INTERNE }}
+                            </div>
+                            {% endif %}
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_CATEGORIE" class="required-field">Catégorie</label>
+                                    {{ form.CATEGORIE }}
+                                    <small class="text-muted">Le code sera généré automatiquement à partir de la catégorie</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_DESIGNATION" class="required-field">Désignation</label>
+                                    {{ form.DESIGNATION }}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_MARQUE">Marque</label>
+                                    {{ form.MARQUE }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_MODELE">Modèle</label>
+                                    {{ form.MODELE }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_NUMERO_SERIE">Numéro de série</label>
+                                    {{ form.NUMERO_SERIE }}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="id_CARACTERISTIQUES">Caractéristiques techniques</label>
+                                {{ form.CARACTERISTIQUES }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Acquisition -->
+                    <div class="card form-card mb-4">
+                        <div class="section-header">
+                            <h5 class="mb-0"><i class="fas fa-shopping-cart"></i> Acquisition</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_DATE_ACQUISITION">Date d'acquisition</label>
+                                    {{ form.DATE_ACQUISITION }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_FOURNISSEUR">Fournisseur</label>
+                                    {{ form.FOURNISSEUR }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_PRIX_ACQUISITION">Prix d'acquisition (XOF)</label>
+                                    {{ form.PRIX_ACQUISITION }}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_NUMERO_FACTURE">Numéro de facture</label>
+                                    {{ form.NUMERO_FACTURE }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Garantie -->
+                    <div class="card form-card mb-4">
+                        <div class="section-header">
+                            <h5 class="mb-0"><i class="fas fa-shield-alt"></i> Garantie</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_DATE_FIN_GARANTIE">Fin de garantie</label>
+                                    {{ form.DATE_FIN_GARANTIE }}
+                                </div>
+                                <div class="col-md-8 mb-3">
+                                    <label for="id_CONDITIONS_GARANTIE">Conditions de garantie</label>
+                                    {{ form.CONDITIONS_GARANTIE }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <!-- État & Localisation -->
+                    <div class="card form-card mb-4">
+                        <div class="section-header">
+                            <h5 class="mb-0"><i class="fas fa-map-marker-alt"></i> État & Localisation</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="id_ETAT">État</label>
+                                {{ form.ETAT }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="id_LOCALISATION">Localisation</label>
+                                {{ form.LOCALISATION }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="card form-card mb-4">
+                        <div class="section-header">
+                            <h5 class="mb-0"><i class="fas fa-sticky-note"></i> Notes</h5>
+                        </div>
+                        <div class="card-body">
+                            {{ form.NOTES }}
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="card">
+                        <div class="card-body">
+                            <button type="submit" class="btn btn-submit btn-block mb-2">
+                                <i class="fas fa-save"></i> {{ action }}
+                            </button>
+                            <a href="{% url 'materiel:liste_materiels' %}" class="btn btn-secondary btn-block">
+                                <i class="fas fa-times"></i> Annuler
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+$(document).ready(function() {
+    $('.select2').select2({
+        theme: 'bootstrap4',
+        width: '100%'
+    });
+});
+</script>
+{% endblock %}

@@ -242,6 +242,111 @@ def _get_description_zdcm(instance, created):
 
 
 # ==============================================================================
+# DESCRIPTIONS POUR MODULE FRAIS
+# ==============================================================================
+
+def _get_description_nfca(instance, created):
+    """Catégorie de frais"""
+    action = "Création" if created else "Modification"
+    return f"{action} de la catégorie de frais {instance.CODE} - {instance.LIBELLE}"
+
+
+def _get_description_nfpl(instance, created):
+    """Plafond de frais"""
+    action = "Création" if created else "Modification"
+    grade = instance.GRADE or "Tous grades"
+    return f"{action} du plafond pour {instance.CATEGORIE.CODE} - {grade}"
+
+
+def _get_description_nfnf(instance, created):
+    """Note de frais"""
+    action = "Création" if created else "Modification"
+    employe_info = f"{instance.EMPLOYE.nom} {instance.EMPLOYE.prenoms}" if instance.EMPLOYE else "Employé inconnu"
+    return f"{action} de la note de frais {instance.REFERENCE} - {employe_info} ({instance.get_STATUT_display()})"
+
+
+def _get_description_nflf(instance, created):
+    """Ligne de frais"""
+    action = "Ajout" if created else "Modification"
+    return f"{action} ligne de frais {instance.CATEGORIE.LIBELLE} - {instance.MONTANT}€ sur {instance.NOTE.REFERENCE}"
+
+
+def _get_description_nfav(instance, created):
+    """Avance sur frais"""
+    action = "Création" if created else "Modification"
+    employe_info = f"{instance.EMPLOYE.nom} {instance.EMPLOYE.prenoms}" if instance.EMPLOYE else "Employé inconnu"
+    return f"{action} de l'avance {instance.REFERENCE} - {employe_info} ({instance.MONTANT}€)"
+
+
+# ==============================================================================
+# DESCRIPTIONS POUR MODULE MATÉRIEL
+# ==============================================================================
+
+def _get_description_mtca(instance, created):
+    """Catégorie de matériel"""
+    action = "Création" if created else "Modification"
+    return f"{action} de la catégorie de matériel {instance.CODE} - {instance.LIBELLE}"
+
+
+def _get_description_mtfo(instance, created):
+    """Fournisseur de matériel"""
+    action = "Création" if created else "Modification"
+    return f"{action} du fournisseur {instance.CODE} - {instance.RAISON_SOCIALE}"
+
+
+def _get_description_mtmt(instance, created):
+    """Matériel"""
+    action = "Création" if created else "Modification"
+    categorie = instance.CATEGORIE.LIBELLE if instance.CATEGORIE else "N/A"
+    return f"{action} du matériel {instance.CODE_INTERNE} - {instance.DESIGNATION} ({categorie})"
+
+
+def _get_description_mtaf(instance, created):
+    """Affectation de matériel"""
+    action = "Affectation" if created else "Modification affectation"
+    employe_info = f"{instance.EMPLOYE.nom} {instance.EMPLOYE.prenoms}" if instance.EMPLOYE else "Employé inconnu"
+    materiel = instance.MATERIEL.CODE_INTERNE if instance.MATERIEL else "N/A"
+    return f"{action} du matériel {materiel} à {employe_info}"
+
+
+def _get_description_mtmv(instance, created):
+    """Mouvement de matériel"""
+    action = "Création" if created else "Modification"
+    materiel = instance.MATERIEL.CODE_INTERNE if instance.MATERIEL else "N/A"
+    return f"{action} mouvement {instance.get_TYPE_MOUVEMENT_display()} pour {materiel}"
+
+
+def _get_description_mtma(instance, created):
+    """Maintenance de matériel"""
+    action = "Création" if created else "Modification"
+    materiel = instance.MATERIEL.CODE_INTERNE if instance.MATERIEL else "N/A"
+    return f"{action} maintenance {instance.get_TYPE_MAINTENANCE_display()} pour {materiel}"
+
+
+# ==============================================================================
+# DESCRIPTIONS POUR MODULE AUDIT
+# ==============================================================================
+
+def _get_description_aurc(instance, created):
+    """Règle de conformité"""
+    action = "Création" if created else "Modification"
+    return f"{action} de la règle de conformité {instance.CODE} - {instance.LIBELLE}"
+
+
+def _get_description_aual(instance, created):
+    """Alerte de conformité"""
+    action = "Création" if created else "Modification"
+    employe_info = f" pour {instance.EMPLOYE.matricule}" if instance.EMPLOYE else ""
+    return f"{action} de l'alerte {instance.REFERENCE} - {instance.TITRE}{employe_info}"
+
+
+def _get_description_aura(instance, created):
+    """Rapport d'audit"""
+    action = "Création" if created else "Modification"
+    return f"{action} du rapport {instance.REFERENCE} - {instance.TITRE} ({instance.get_TYPE_RAPPORT_display()})"
+
+
+# ==============================================================================
 # FACTORY POUR CRÉER LES HANDLERS DE SIGNALS
 # ==============================================================================
 
@@ -360,6 +465,9 @@ def register_all_audit_signals():
     )
     from entreprise.models import Entreprise
     from gestion_temps_activite.models import ZDCL, ZDAC, ZDPJ, ZDTA, ZDDO, ZDIT, ZDCM
+    from frais.models import NFCA, NFPL, NFNF, NFLF, NFAV
+    from materiel.models import MTCA, MTFO, MTMT, MTAF, MTMV, MTMA
+    from audit.models import AURC, AUAL, AURA
 
     # Liste des modèles à auditer: (model_class, table_name, description_func)
     AUDIT_CONFIG = [
@@ -402,6 +510,26 @@ def register_all_audit_signals():
         (ZDDO, 'ZDDO', _get_description_zddo_gta),
         (ZDIT, 'ZDIT', _get_description_zdit),
         (ZDCM, 'ZDCM', _get_description_zdcm),
+
+        # Frais
+        (NFCA, 'NFCA', _get_description_nfca),
+        (NFPL, 'NFPL', _get_description_nfpl),
+        (NFNF, 'NFNF', _get_description_nfnf),
+        (NFLF, 'NFLF', _get_description_nflf),
+        (NFAV, 'NFAV', _get_description_nfav),
+
+        # Matériel
+        (MTCA, 'MTCA', _get_description_mtca),
+        (MTFO, 'MTFO', _get_description_mtfo),
+        (MTMT, 'MTMT', _get_description_mtmt),
+        (MTAF, 'MTAF', _get_description_mtaf),
+        (MTMV, 'MTMV', _get_description_mtmv),
+        (MTMA, 'MTMA', _get_description_mtma),
+
+        # Audit
+        (AURC, 'AURC', _get_description_aurc),
+        (AUAL, 'AUAL', _get_description_aual),
+        (AURA, 'AURA', _get_description_aura),
     ]
 
     for model_class, table_name, desc_func in AUDIT_CONFIG:

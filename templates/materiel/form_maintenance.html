@@ -1,0 +1,163 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    .form-card {
+        border-left: 4px solid #ffc107;
+    }
+    .section-header {
+        background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+        color: #333;
+        padding: 10px 15px;
+        border-radius: 5px 5px 0 0;
+    }
+    .btn-submit {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: #333;
+    }
+    .btn-submit:hover {
+        background-color: #e0a800;
+        border-color: #e0a800;
+        color: #333;
+    }
+    .materiel-info {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+    }
+    .materiel-info .label {
+        font-weight: 600;
+        color: #1c5d5f;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-tools"></i> {{ titre }}
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'materiel:dashboard' %}">Matériel</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'materiel:detail_materiel' uuid=materiel.uuid %}">{{ materiel.CODE_INTERNE }}</a></li>
+                        <li class="breadcrumb-item active">Maintenance</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8">
+                <form method="post">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Veuillez corriger les erreurs ci-dessous.
+                    </div>
+                    {% endif %}
+
+                    <div class="card form-card">
+                        <div class="section-header">
+                            <h5 class="mb-0"><i class="fas fa-calendar-plus"></i> Planifier la maintenance</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_TYPE_MAINTENANCE">Type de maintenance <span class="text-danger">*</span></label>
+                                    {{ form.TYPE_MAINTENANCE }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_DATE_PLANIFIEE">Date prévue <span class="text-danger">*</span></label>
+                                    {{ form.DATE_PLANIFIEE }}
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_DESCRIPTION">Description de l'intervention</label>
+                                {{ form.DESCRIPTION }}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_PRESTATAIRE">Prestataire externe</label>
+                                    {{ form.PRESTATAIRE }}
+                                    <small class="text-muted">Laisser vide si maintenance interne</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_INTERVENANT_INTERNE">Intervenant interne</label>
+                                    {{ form.INTERVENANT_INTERNE }}
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'materiel:detail_materiel' uuid=materiel.uuid %}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Annuler
+                                </a>
+                                <button type="submit" class="btn btn-submit">
+                                    <i class="fas fa-save"></i> Planifier
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header" style="background: linear-gradient(135deg, #1c5d5f 0%, #193f41 100%);">
+                        <h5 class="card-title mb-0 text-white"><i class="fas fa-laptop"></i> Matériel</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="materiel-info">
+                            <div class="mb-2">
+                                <span class="label">Code:</span>
+                                <strong>{{ materiel.CODE_INTERNE }}</strong>
+                            </div>
+                            <div class="mb-2">
+                                <span class="label">Désignation:</span>
+                                {{ materiel.DESIGNATION }}
+                            </div>
+                            <div class="mb-2">
+                                <span class="label">Catégorie:</span>
+                                {{ materiel.CATEGORIE.LIBELLE }}
+                            </div>
+                            <div class="mb-2">
+                                <span class="label">État:</span>
+                                {{ materiel.get_ETAT_display }}
+                            </div>
+                            <div class="mb-2">
+                                <span class="label">Statut:</span>
+                                {{ materiel.get_STATUT_display }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+$(document).ready(function() {
+    $('.select2').select2({
+        theme: 'bootstrap4',
+        width: '100%'
+    });
+});
+</script>
+{% endblock %}

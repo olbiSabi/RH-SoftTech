@@ -1,0 +1,280 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+        .content-wrapper {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        body {
+            font-size: 12pt;
+        }
+    }
+    .fiche-header {
+        border-bottom: 3px solid #1c5d5f;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+    }
+    .fiche-title {
+        color: #1c5d5f;
+        font-weight: bold;
+    }
+    .info-section {
+        margin-bottom: 25px;
+    }
+    .info-section h5 {
+        color: #1c5d5f;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 8px;
+        margin-bottom: 15px;
+    }
+    .signature-zone {
+        border: 1px solid #ccc;
+        min-height: 100px;
+        margin-top: 10px;
+        position: relative;
+    }
+    .signature-label {
+        position: absolute;
+        bottom: 5px;
+        left: 10px;
+        font-size: 0.8rem;
+        color: #999;
+    }
+    .table-lignes th {
+        background-color: #1c5d5f;
+        color: white;
+    }
+    .total-row {
+        background-color: #f8f9fa;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header no-print">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-file-invoice"></i> Fiche de Remboursement
+                    </h1>
+                </div>
+                <div class="col-sm-6 text-right">
+                    <button onclick="window.print()" class="btn btn-primary">
+                        <i class="fas fa-print"></i> Imprimer
+                    </button>
+                    <a href="{% url 'frais:admin_remboursements' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-body">
+                <!-- En-tête de la fiche -->
+                <div class="fiche-header">
+                    <div class="row">
+                        <div class="col-8">
+                            <h2 class="fiche-title">FICHE DE REMBOURSEMENT DE FRAIS</h2>
+                            <p class="text-muted mb-0">Référence : <strong>{{ note.REFERENCE }}</strong></p>
+                        </div>
+                        <div class="col-4 text-right">
+                            <p class="mb-0">Date d'édition : <strong>{% now "d/m/Y" %}</strong></p>
+                            {% if note.STATUT == 'REMBOURSE' %}
+                            <span class="badge badge-success">REMBOURSÉ</span>
+                            {% else %}
+                            <span class="badge badge-warning">EN ATTENTE</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informations employé -->
+                <div class="info-section">
+                    <h5><i class="fas fa-user"></i> Informations du bénéficiaire</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless table-sm">
+                                <tr>
+                                    <td width="40%"><strong>Nom et Prénom</strong></td>
+                                    <td>{{ note.EMPLOYE.nom }} {{ note.EMPLOYE.prenoms }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Matricule</strong></td>
+                                    <td>{{ note.EMPLOYE.matricule }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Service</strong></td>
+                                    <td>{{ note.EMPLOYE.service|default:"-" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless table-sm">
+                                <tr>
+                                    <td width="40%"><strong>Période couverte</strong></td>
+                                    <td>{{ note.PERIODE_DEBUT|date:"d/m/Y" }} au {{ note.PERIODE_FIN|date:"d/m/Y" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Objet/Mission</strong></td>
+                                    <td>{{ note.OBJET|default:"-" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Détail des dépenses -->
+                <div class="info-section">
+                    <h5><i class="fas fa-list"></i> Détail des dépenses</h5>
+                    <table class="table table-bordered table-lignes">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Catégorie</th>
+                                <th>Description</th>
+                                <th>N° Justificatif</th>
+                                <th class="text-right">Montant (XOF)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ligne in lignes %}
+                            <tr>
+                                <td>{{ ligne.DATE_DEPENSE|date:"d/m/Y" }}</td>
+                                <td>
+                                    {% if ligne.CATEGORIE.ICONE %}
+                                    <i class="fas {{ ligne.CATEGORIE.ICONE }}"></i>
+                                    {% endif %}
+                                    {{ ligne.CATEGORIE.LIBELLE }}
+                                </td>
+                                <td>{{ ligne.DESCRIPTION }}</td>
+                                <td>{{ ligne.NUMERO_FACTURE|default:"-" }}</td>
+                                <td class="text-right">{{ ligne.MONTANT|floatformat:0 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="total-row">
+                                <td colspan="4" class="text-right"><strong>TOTAL</strong></td>
+                                <td class="text-right"><strong>{{ note.MONTANT_TOTAL|floatformat:0 }} XOF</strong></td>
+                            </tr>
+                            {% if note.MONTANT_VALIDE != note.MONTANT_TOTAL %}
+                            <tr class="total-row">
+                                <td colspan="4" class="text-right"><strong>MONTANT VALIDÉ</strong></td>
+                                <td class="text-right text-success"><strong>{{ note.MONTANT_VALIDE|floatformat:0 }} XOF</strong></td>
+                            </tr>
+                            {% endif %}
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Validation -->
+                <div class="info-section">
+                    <h5><i class="fas fa-check-circle"></i> Validation</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless table-sm">
+                                <tr>
+                                    <td width="40%"><strong>Date de validation</strong></td>
+                                    <td>{{ note.DATE_VALIDATION|date:"d/m/Y à H:i" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Validé par</strong></td>
+                                    <td>{{ note.VALIDEUR.nom }} {{ note.VALIDEUR.prenoms }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            {% if note.COMMENTAIRE_VALIDATION %}
+                            <p><strong>Commentaire :</strong> {{ note.COMMENTAIRE_VALIDATION }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Remboursement -->
+                <div class="info-section">
+                    <h5><i class="fas fa-hand-holding-usd"></i> Remboursement</h5>
+                    {% if note.STATUT == 'REMBOURSE' %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless table-sm">
+                                <tr>
+                                    <td width="40%"><strong>Date de remboursement</strong></td>
+                                    <td>{{ note.DATE_REMBOURSEMENT|date:"d/m/Y" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Référence paiement</strong></td>
+                                    <td>{{ note.REFERENCE_PAIEMENT|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Montant remboursé</strong></td>
+                                    <td><strong class="text-success">{{ note.MONTANT_REMBOURSE|floatformat:0 }} XOF</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p><strong>Date de remboursement :</strong></p>
+                            <div style="border-bottom: 1px solid #000; min-width: 200px; height: 25px;"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>Référence paiement :</strong></p>
+                            <div style="border-bottom: 1px solid #000; min-width: 200px; height: 25px;"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>Montant remboursé :</strong></p>
+                            <div style="border-bottom: 1px solid #000; min-width: 150px; height: 25px; display: inline-block;"></div>
+                            <span> XOF</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Signatures -->
+                <div class="info-section">
+                    <h5><i class="fas fa-signature"></i> Signatures</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="text-center"><strong>Le bénéficiaire</strong></p>
+                            <p class="text-center text-muted">(Certifie avoir reçu le remboursement)</p>
+                            <div class="signature-zone">
+                                <span class="signature-label">Signature : {{ note.EMPLOYE.nom }} {{ note.EMPLOYE.prenoms }}</span>
+                            </div>
+                            <p class="text-center mt-2">Date : _______________</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="text-center"><strong>Le responsable financier</strong></p>
+                            <p class="text-center text-muted">(Certifie avoir effectué le paiement)</p>
+                            <div class="signature-zone">
+                                <span class="signature-label">Signature et cachet</span>
+                            </div>
+                            <p class="text-center mt-2">Date : _______________</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pied de page -->
+                <div class="text-center mt-4 text-muted">
+                    <small>
+                        Document généré le {% now "d/m/Y à H:i" %} - HR ONIAN - Module Notes de Frais
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

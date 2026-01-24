@@ -11,9 +11,9 @@
                     <img src="{% static 'assets/img/logo/Onian-EasyM.png' %}" width="50" height="50" alt="">
                 </a>
             </div>
-            <div class="page-title-box">
+            <!--<div class="page-title-box">
                 <h3>EasyM</h3>
-            </div>
+            </div>-->
             <!-- Menu Horizontal -->
             <nav class="horizontal-menu">
                 <ul class="menu-list">
@@ -163,6 +163,196 @@
                         </ul>
                     </li>
                 {% endif %}
+
+                    <!-- ========================================
+                        MENU FRAIS
+                        Visible pour : Tous les employés
+                    ======================================== -->
+                {% if user.is_authenticated and user.employe %}
+                    <li class="menu-item">
+                        <a href="{% url 'frais:dashboard' %}" class="menu-link">
+                            <i class="fas fa-receipt"></i>
+                            <span>Frais</span>
+                            <i class="fas fa-chevron-down menu-arrow"></i>
+                        </a>
+                        <ul class="submenu">
+                            <li>
+                                <a href="{% url 'frais:creer_note' %}">
+                                    <i class="fas fa-plus-circle"></i> Nouvelle note
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'frais:liste_notes' %}">
+                                    <i class="fas fa-file-invoice"></i> Mes notes
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'frais:liste_avances' %}">
+                                    <i class="fas fa-hand-holding-usd"></i> Mes avances
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'frais:creer_avance' %}">
+                                    <i class="fas fa-money-bill-wave"></i> Demander avance
+                                </a>
+                            </li>
+
+                            {% if user.employe.peut_valider_frais %}
+                            <li class="submenu-divider"></li>
+                            <li>
+                                <a href="{% url 'frais:notes_a_valider' %}">
+                                    <i class="fas fa-check-circle"></i> Notes à valider
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'frais:avances_a_approuver' %}">
+                                    <i class="fas fa-user-check"></i> Avances à approuver
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            {% if user.employe.peut_rembourser_frais %}
+                            <li>
+                                <a href="{% url 'frais:notes_a_rembourser' %}">
+                                    <i class="fas fa-money-check-alt"></i> À rembourser
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            {% if user.employe.peut_administrer_frais %}
+                            <li class="submenu-divider"></li>
+                            <li>
+                                <a href="{% url 'frais:admin_notes_validees' %}">
+                                    <i class="fas fa-file-invoice-dollar"></i> Notes validées
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'frais:admin_avances_approuvees' %}">
+                                    <i class="fas fa-hand-holding-usd"></i> Avances approuvées
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'frais:admin_remboursements' %}">
+                                    <i class="fas fa-money-bill-wave"></i> Remboursements
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            <li class="submenu-divider"></li>
+                            <li>
+                                <a href="{% url 'frais:statistiques' %}">
+                                    <i class="fas fa-chart-bar"></i> Statistiques
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                {% endif %}
+
+                    <!-- ========================================
+                        MENU MATÉRIEL
+                        Visible pour : DRH, GESTION_APP, RESP_ADMIN, ASSISTANT_RH et tous (mon matériel)
+                    ======================================== -->
+                {% if user.is_authenticated and user.employe %}
+                    <li class="menu-item">
+                        <a href="{% url 'materiel:dashboard' %}" class="menu-link">
+                            <i class="fas fa-boxes"></i>
+                            <span>Matériel</span>
+                            <i class="fas fa-chevron-down menu-arrow"></i>
+                        </a>
+                        <ul class="submenu">
+                            <!-- Mon matériel : Visible pour tous -->
+                            <li>
+                                <a href="{% url 'materiel:mon_materiel' %}">
+                                    <i class="fas fa-laptop"></i> Mon matériel
+                                </a>
+                            </li>
+
+                            {% if user.employe.peut_gerer_materiel or user.employe.peut_affecter_materiel %}
+                            <li class="submenu-divider"></li>
+                            <li>
+                                <a href="{% url 'materiel:liste_materiels' %}">
+                                    <i class="fas fa-list"></i> Liste matériels
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            {% if user.employe.peut_gerer_materiel %}
+                            <li>
+                                <a href="{% url 'materiel:creer_materiel' %}">
+                                    <i class="fas fa-plus-circle"></i> Nouveau matériel
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'materiel:liste_maintenances' %}">
+                                    <i class="fas fa-tools"></i> Maintenances
+                                </a>
+                            </li>
+                            <li class="submenu-divider"></li>
+                            <li>
+                                <a href="{% url 'materiel:liste_categories' %}">
+                                    <i class="fas fa-layer-group"></i> Catégories
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'materiel:liste_fournisseurs' %}">
+                                    <i class="fas fa-truck"></i> Fournisseurs
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                {% endif %}
+
+                    <!-- ========================================
+                        MENU AUDIT
+                        Visible pour : GESTION_APP, DIRECTEUR, Admin
+                    ======================================== -->
+                {% if user.is_authenticated and user.employe %}
+                    {% if user.employe.peut_acceder_audit or user.is_superuser or user.is_staff %}
+                    <li class="menu-item">
+                        <a href="{% url 'audit:dashboard' %}" class="menu-link">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Audit</span>
+                            <i class="fas fa-chevron-down menu-arrow"></i>
+                        </a>
+                        <ul class="submenu">
+                            <li>
+                                <a href="{% url 'audit:dashboard' %}">
+                                    <i class="fas fa-tachometer-alt"></i> Tableau de bord
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'audit:liste_alertes' %}">
+                                    <i class="fas fa-exclamation-triangle"></i> Alertes
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'audit:liste_logs' %}">
+                                    <i class="fas fa-history"></i> Logs système
+                                </a>
+                            </li>
+                            <li class="submenu-divider"></li>
+                            <li>
+                                <a href="{% url 'audit:liste_rapports' %}">
+                                    <i class="fas fa-file-alt"></i> Rapports
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'audit:generer_rapport' %}">
+                                    <i class="fas fa-file-export"></i> Générer rapport
+                                </a>
+                            </li>
+                            <li class="submenu-divider"></li>
+                            <li>
+                                <a href="{% url 'audit:liste_regles' %}">
+                                    <i class="fas fa-cogs"></i> Règles de conformité
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                {% endif %}
+
                     <!-- ========================================
                        MENU PARAMÈTRES
                        Visible UNIQUEMENT pour : DRH, GESTION_APP, Admin
@@ -234,6 +424,12 @@
                             <li>
                                 <a href="{% url 'absence:liste_parametres_calcul' %}">
                                     <i class="fas fa-calculator"></i>Paramètres calculs
+                                </a>
+                            </li>
+                            <!-- Catégories de frais : GESTION_APP uniquement -->
+                            <li>
+                                <a href="{% url 'frais:liste_categories' %}">
+                                    <i class="fas fa-tags"></i>Catégories de frais
                                 </a>
                             </li>
 

@@ -1,6 +1,15 @@
 """
 Script d'installation rapide du système de rôles
 À exécuter dans le shell Django après avoir ajouté les modèles
+
+1. Créer uniquement les rôles (sans interaction) :
+python manage.py setup_roles --auto
+
+2. Attribuer un rôle spécifique :
+python manage.py setup_roles --role DAF --email utilisateur@exemple.com
+
+3. Mode interactif complet :
+python manage.py setup_roles
 """
 
 from employee.models import ZYRO, ZYRE, ZY00
@@ -46,6 +55,12 @@ roles_a_creer = [
             'can_manage_activites': True,
             'can_manage_taches': True,
             'can_view_all_projets': True,
+            # Module Matériel - ACCÈS COMPLET
+            'can_manage_materiel': True,
+            'can_affecter_materiel': True,
+            'can_manage_maintenances': True,
+            'can_manage_categories_materiel': True,
+            'can_manage_fournisseurs': True,
         }
     },
     {
@@ -100,6 +115,12 @@ roles_a_creer = [
             'can_manage_activites': True,
             'can_manage_taches': True,
             'can_view_all_projets': True,
+            # Module Matériel - ACCÈS COMPLET
+            'can_manage_materiel': True,
+            'can_affecter_materiel': True,
+            'can_manage_maintenances': True,
+            'can_manage_categories_materiel': True,
+            'can_manage_fournisseurs': True,
         }
     },
     {
@@ -164,6 +185,50 @@ roles_a_creer = [
             'can_view_employees': True,
             # Gestion Temps et Activités - Lecture seule
             'can_view_all_imputations': True,
+            # Module Matériel - Affectation uniquement
+            'can_affecter_materiel': True,
+            'can_view_materiel': True,
+        }
+    },
+    {
+        'CODE': 'RESP_ADMIN',
+        'LIBELLE': 'Responsable Administratif',
+        'DESCRIPTION': 'Responsable de la gestion administrative incluant le matériel et les fournitures',
+        'PERMISSIONS_CUSTOM': {
+            'can_view_employees': True,
+            # Module Matériel - ACCÈS COMPLET
+            'can_manage_materiel': True,
+            'can_affecter_materiel': True,
+            'can_manage_maintenances': True,
+            'can_manage_categories_materiel': True,
+            'can_manage_fournisseurs': True,
+        }
+    },
+    {
+        'CODE': 'DAF',
+        'LIBELLE': 'Directeur Administratif et Financier',
+        'DESCRIPTION': 'Accès complet à la gestion financière, comptable et administrative',
+        'PERMISSIONS_CUSTOM': {
+            # Absences - Accès financier
+            'can_view_all_absences': True,
+            'can_view_payroll': True,
+            'can_view_reports': True,
+            # Gestion Temps et Activités - Accès complet pour facturation
+            'can_view_all_imputations': True,
+            'can_view_facturables': True,
+            'can_validate_imputations': True,
+            'can_manage_projets': True,
+            'can_manage_clients': True,
+            'can_view_all_projets': True,
+            # Permissions financières spécifiques
+            'can_manage_contracts': True,
+            'can_view_financial_reports': True,
+            'can_validate_timesheets': True,
+            # Module Notes de Frais - Accès complet DAF
+            'can_validate_frais': True,
+            'can_approve_avances': True,
+            'can_manage_frais_categories': True,
+            'can_view_frais_statistics': True,
         }
     }
 ]
@@ -211,8 +276,10 @@ print("4. EMPLOYE_STD - Employé standard")
 print("5. DRH - Direction des Ressources Humaines")
 print("6. MANAGER - Manager de département")
 print("7. DIRECTEUR - Directeur/Président")
+print("8. DAF - Directeur Administratif et Financier")
+print("9. RESP_ADMIN - Responsable Administratif (gestion matériel)")
 
-choix_role = input("\nQuel rôle voulez-vous attribuer ? (1-7) : ")
+choix_role = input("\nQuel rôle voulez-vous attribuer ? (1-9) : ")
 
 role_map = {
     '1': 'GESTION_APP',
@@ -221,7 +288,9 @@ role_map = {
     '4': 'EMPLOYE_STD',
     '5': 'DRH',
     '6': 'MANAGER',
-    '7': 'DIRECTEUR'
+    '7': 'DIRECTEUR',
+    '8': 'DAF',
+    '9': 'RESP_ADMIN'
 }
 
 role_code = role_map.get(choix_role)
@@ -246,7 +315,7 @@ else:
         try:
             if hasattr(u, 'employe') and u.employe:
                 roles_actuels = []
-                for code in ['GESTION_APP', 'DRH', 'RH_VALIDATION_ABS', 'MANAGER_ABS', 'EMPLOYE_STD', 'MANAGER', 'DIRECTEUR']:
+                for code in ['GESTION_APP', 'DRH', 'RH_VALIDATION_ABS', 'MANAGER_ABS', 'EMPLOYE_STD', 'MANAGER', 'DIRECTEUR', 'DAF', 'RESP_ADMIN']:
                     if u.employe.has_role(code):
                         roles_actuels.append(code)
                 if roles_actuels:
@@ -366,27 +435,69 @@ print("""
    ✓ Gestion projets, clients, activités, tâches
    → Accès: Tous les menus
 
-3. 🔧 GESTION_APP (Gestionnaire Application)
+4. 🔧 GESTION_APP (Gestionnaire Application)
    ✓ ACCÈS COMPLET à toutes les fonctionnalités
    → Accès: Tous les menus
 
-4. 🏢 DIRECTEUR (Président / Directeur)
+5. 🏢 DIRECTEUR (Président / Directeur)
    ✓ ACCÈS COMPLET à toutes les fonctionnalités
    → Accès: Tous les menus
 
-5. 👤 EMPLOYE_STD (Employé Standard)
+6. 💼 DAF (Directeur Administratif et Financier)
+   ✓ Accès complet à la gestion financière et comptable
+   ✓ Validation des imputations pour facturation
+   ✓ Gestion des projets et clients
+   ✓ Accès aux rapports financiers
+   ✓ Validation des notes de frais et approbation des avances
+   → Accès: Menus financiers, projets, imputations, notes de frais
+
+7. 👤 EMPLOYE_STD (Employé Standard)
    ✓ Création de ses imputations de temps
    ✓ Consultation de ses propres imputations
    → Accès: /gestion-temps/imputations/mes-temps/
 
-6. 💰 COMPTABLE
+8. 💰 COMPTABLE
    ✓ Consultation de toutes les imputations (facturation)
    ✓ Consultation des imputations facturables
    → Accès: /gestion-temps/imputations/ (lecture)
 
-7. 📋 ASSISTANT_RH
+9. 📋 ASSISTANT_RH
    ✓ Consultation de toutes les imputations (lecture seule)
+   ✓ Affectation de matériel aux employés
    → Accès: /gestion-temps/imputations/ (lecture)
+   → Accès: /materiel/ (affectation uniquement)
+
+10. 🏢 RESP_ADMIN (Responsable Administratif)
+   ✓ Gestion complète du parc matériel
+   ✓ Affectation de matériel
+   ✓ Gestion des maintenances
+   ✓ Gestion des catégories et fournisseurs
+   → Accès: /materiel/ (complet)
+""")
+
+print("=" * 80)
+print("📦 PERMISSIONS MODULE MATÉRIEL")
+print("=" * 80)
+
+print("""
+🎯 ACCÈS PAR RÔLE AU MODULE MATÉRIEL:
+
+1. 🔧 GESTION_APP / 🛡️ DRH / 🏢 RESP_ADMIN
+   ✓ Gestion complète du parc matériel (création, modification, réforme)
+   ✓ Affectation de matériel aux employés
+   ✓ Gestion des maintenances (planification, suivi, coûts)
+   ✓ Gestion des catégories de matériel
+   ✓ Gestion des fournisseurs
+   → Accès: /materiel/ (complet)
+
+2. 📋 ASSISTANT_RH
+   ✓ Affectation de matériel aux employés
+   ✓ Consultation du parc matériel
+   → Accès: /materiel/ (affectation uniquement)
+
+3. 👤 TOUS LES EMPLOYÉS
+   ✓ Consultation de son propre matériel affecté
+   → Accès: /materiel/mon-materiel/
 """)
 
 print("=" * 80)
