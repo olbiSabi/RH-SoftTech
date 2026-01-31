@@ -1,5 +1,5 @@
 {% extends 'base/baseSansMatricule.html' %}
-{% load static %}
+{% load static pm_tags %}
 {% block extrastylet %}
 <style>
     :root {
@@ -317,7 +317,7 @@
                 <i class="fas fa-clock"></i>
             </div>
             <div class="im-stat-content">
-                <h3>{{ stats.total_heures|floatformat:1 }}h</h3>
+                <h3>{{ stats.total_heures|format_heures }}</h3>
                 <p>Heures validees</p>
             </div>
         </div>

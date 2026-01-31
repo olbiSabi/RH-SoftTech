@@ -78,7 +78,7 @@ class ImputationListView(LoginRequiredMixin, ListView):
         context['search_form'] = ImputationSearchForm(self.request.GET)
 
         # Données pour les filtres
-        context['employes'] = ZY00.objects.filter(etat='actif').order_by('nom', 'prenoms')
+        context['employes'] = ZY00.objects.filter(etat='Actif').order_by('nom', 'prenoms')
         context['projets'] = JRProject.objects.all().order_by('nom')
 
         # Statistiques
@@ -93,17 +93,22 @@ class ImputationListView(LoginRequiredMixin, ListView):
             statut_validation='REJETE'
         ).count()
 
-        # Total heures validées
-        total_heures = JRImputation.objects.filter(
-            statut_validation='VALIDE'
-        ).aggregate(
-            total=ExpressionWrapper(
-                Coalesce(Sum('heures'), Value(0)) + Coalesce(Sum('minutes'), Value(0)) / 60.0,
-                output_field=FloatField()
-            )
-        )['total'] or 0
+        # Fonction pour calculer les heures (même logique que dans le modèle)
+        def calculer_heures(queryset):
+            total = 0
+            for imp in queryset:
+                total_minutes = int(float(imp.heures) * 60) + (imp.minutes or 0)
+                total += total_minutes / 60.0
+            return total
 
-        context['total_heures_validees'] = total_heures
+        # Total heures par statut
+        all_imputations = JRImputation.objects.all()
+        imputations_validees_qs = all_imputations.filter(statut_validation='VALIDE')
+        imputations_en_attente_qs = all_imputations.filter(statut_validation='EN_ATTENTE')
+
+        context['total_heures'] = calculer_heures(all_imputations)
+        context['heures_validees'] = calculer_heures(imputations_validees_qs)
+        context['heures_en_attente'] = calculer_heures(imputations_en_attente_qs)
 
         return context
 
@@ -197,37 +202,39 @@ def mes_imputations(request):
     except ZY00.DoesNotExist:
         messages.error(request, "Aucun employé associé à votre compte utilisateur.")
         return redirect('pm:dashboard')
-    
+
     imputations = JRImputation.objects.filter(
         employe=employe
     ).select_related('ticket', 'ticket__projet').order_by('-date_imputation')
-    
+
     # Pagination
     paginator = Paginator(imputations, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
+
+    # Fonction pour calculer les heures (même logique que dans le modèle)
+    def calculer_heures(queryset):
+        total = 0
+        for imp in queryset:
+            total_minutes = int(float(imp.heures) * 60) + (imp.minutes or 0)
+            total += total_minutes / 60.0
+        return total
+
     # Statistiques personnelles
+    imputations_validees = imputations.filter(statut_validation='VALIDE')
     stats = {
         'total': imputations.count(),
         'en_attente': imputations.filter(statut_validation='EN_ATTENTE').count(),
-        'validees': imputations.filter(statut_validation='VALIDE').count(),
+        'validees': imputations_validees.count(),
         'rejetees': imputations.filter(statut_validation='REJETE').count(),
-        'total_heures': imputations.filter(
-            statut_validation='VALIDE'
-        ).aggregate(
-            total=ExpressionWrapper(
-                Coalesce(Sum('heures'), Value(0)) + Coalesce(Sum('minutes'), Value(0)) / 60.0,
-                output_field=FloatField()
-            )
-        )['total'] or 0,
+        'total_heures': calculer_heures(imputations_validees),
     }
-    
+
     context = {
         'page_obj': page_obj,
         'stats': stats,
     }
-    
+
     return render(request, 'project_management/imputation/mes_imputations.html', context)
 
 
@@ -536,6 +543,11 @@ def export_temps_excel(request):
     # Créer le DataFrame
     data = []
     for imp in imputations:
+        # Convertir date_validation en datetime sans timezone pour Excel
+        date_validation = None
+        if imp.date_validation:
+            date_validation = imp.date_validation.replace(tzinfo=None)
+
         data.append({
             'Date': imp.date_imputation,
             'Employé': f"{imp.employe.nom} {imp.employe.prenoms}",
@@ -545,7 +557,7 @@ def export_temps_excel(request):
             'Heures': imp.total_heures,
             'Description': imp.description,
             'Validé par': f"{imp.valide_par.nom} {imp.valide_par.prenoms}" if imp.valide_par else '',
-            'Date validation': imp.date_validation,
+            'Date validation': date_validation,
         })
     
     df = pd.DataFrame(data)

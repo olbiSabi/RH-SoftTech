@@ -1,323 +1,7 @@
 {% extends 'base/baseSansMatricule.html' %}
 {% load static %}
 {% block extrastylet %}
-<style>
-    :root {
-        --pm-primary: #4f46e5;
-        --pm-primary-dark: #4338ca;
-        --pm-primary-light: #818cf8;
-        --pm-success: #10b981;
-        --pm-warning: #f59e0b;
-        --pm-danger: #ef4444;
-        --pm-info: #3b82f6;
-        --pm-gray-50: #f9fafb;
-        --pm-gray-100: #f3f4f6;
-        --pm-gray-200: #e5e7eb;
-        --pm-gray-300: #d1d5db;
-        --pm-gray-500: #6b7280;
-        --pm-gray-600: #4b5563;
-        --pm-gray-700: #374151;
-        --pm-gray-800: #1f2937;
-        --pm-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-        --pm-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-        --pm-radius: 12px;
-    }
-
-    .pm-page-header {
-        background: linear-gradient(135deg, var(--pm-primary) 0%, var(--pm-primary-dark) 100%);
-        color: white;
-        padding: 2rem;
-        border-radius: var(--pm-radius);
-        margin-bottom: 1.5rem;
-        box-shadow: var(--pm-shadow-lg);
-    }
-
-    .pm-page-header h1 {
-        margin: 0;
-        font-size: 1.75rem;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .pm-page-header p {
-        margin: 0.5rem 0 0;
-        opacity: 0.9;
-        font-size: 0.95rem;
-    }
-
-    .pm-card {
-        background: white;
-        border-radius: var(--pm-radius);
-        box-shadow: var(--pm-shadow);
-        overflow: hidden;
-        margin-bottom: 1.5rem;
-    }
-
-    .pm-card-header {
-        padding: 1.25rem 1.5rem;
-        border-bottom: 1px solid var(--pm-gray-200);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .pm-card-header h2 {
-        margin: 0;
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: var(--pm-gray-800);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .pm-card-body {
-        padding: 1.5rem;
-    }
-
-    .pm-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.625rem 1.25rem;
-        border-radius: 8px;
-        font-size: 0.875rem;
-        font-weight: 500;
-        text-decoration: none;
-        border: none;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .pm-btn-primary {
-        background: var(--pm-primary);
-        color: white;
-    }
-
-    .pm-btn-primary:hover {
-        background: var(--pm-primary-dark);
-        color: white;
-    }
-
-    .pm-btn-secondary {
-        background: var(--pm-gray-100);
-        color: var(--pm-gray-700);
-    }
-
-    .pm-btn-secondary:hover {
-        background: var(--pm-gray-200);
-    }
-
-    .pm-btn-sm {
-        padding: 0.375rem 0.75rem;
-        font-size: 0.8rem;
-    }
-
-    .pm-clients-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: 1.5rem;
-    }
-
-    .pm-client-card {
-        background: white;
-        border-radius: var(--pm-radius);
-        box-shadow: var(--pm-shadow);
-        overflow: hidden;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .pm-client-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--pm-shadow-lg);
-    }
-
-    .pm-client-header {
-        padding: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        border-bottom: 1px solid var(--pm-gray-200);
-    }
-
-    .pm-client-avatar {
-        width: 56px;
-        height: 56px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, var(--pm-primary) 0%, var(--pm-primary-dark) 100%);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.25rem;
-        font-weight: 700;
-    }
-
-    .pm-client-info h3 {
-        margin: 0;
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: var(--pm-gray-800);
-    }
-
-    .pm-client-info h3 a {
-        color: inherit;
-        text-decoration: none;
-    }
-
-    .pm-client-info h3 a:hover {
-        color: var(--pm-primary);
-    }
-
-    .pm-client-info p {
-        margin: 0.25rem 0 0;
-        font-size: 0.85rem;
-        color: var(--pm-gray-500);
-    }
-
-    .pm-client-body {
-        padding: 1.25rem 1.5rem;
-    }
-
-    .pm-client-contacts {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .pm-client-contact {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        font-size: 0.85rem;
-        color: var(--pm-gray-600);
-    }
-
-    .pm-client-contact i {
-        width: 16px;
-        color: var(--pm-gray-400);
-    }
-
-    .pm-client-contact a {
-        color: var(--pm-primary);
-        text-decoration: none;
-    }
-
-    .pm-client-contact a:hover {
-        text-decoration: underline;
-    }
-
-    .pm-client-stats {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.75rem;
-    }
-
-    .pm-client-stat {
-        text-align: center;
-        padding: 0.75rem;
-        background: var(--pm-gray-50);
-        border-radius: 8px;
-    }
-
-    .pm-client-stat-value {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--pm-primary);
-    }
-
-    .pm-client-stat-label {
-        font-size: 0.75rem;
-        color: var(--pm-gray-500);
-    }
-
-    .pm-client-footer {
-        padding: 1rem 1.5rem;
-        background: var(--pm-gray-50);
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.5rem;
-    }
-
-    .pm-btn-icon {
-        width: 32px;
-        height: 32px;
-        padding: 0;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 6px;
-        background: white;
-        color: var(--pm-gray-600);
-        border: 1px solid var(--pm-gray-200);
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .pm-btn-icon:hover {
-        background: var(--pm-gray-100);
-        color: var(--pm-gray-800);
-    }
-
-    .pm-btn-icon.danger:hover {
-        background: rgba(239, 68, 68, 0.1);
-        color: var(--pm-danger);
-        border-color: rgba(239, 68, 68, 0.3);
-    }
-
-    .pm-empty-state {
-        text-align: center;
-        padding: 3rem;
-        color: var(--pm-gray-500);
-    }
-
-    .pm-empty-state i {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        opacity: 0.5;
-    }
-
-    .pm-search-box {
-        padding: 0.625rem 1rem;
-        border: 1px solid var(--pm-gray-300);
-        border-radius: 8px;
-        font-size: 0.875rem;
-        width: 300px;
-        transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .pm-search-box:focus {
-        outline: none;
-        border-color: var(--pm-primary);
-        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-    }
-
-    .pm-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.25rem 0.625rem;
-        border-radius: 20px;
-        font-size: 0.7rem;
-        font-weight: 500;
-    }
-
-    .pm-badge-actif { background: rgba(16, 185, 129, 0.1); color: #059669; }
-    .pm-badge-inactif { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
-    .pm-badge-prospect { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
-
-    @media (max-width: 768px) {
-        .pm-clients-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .pm-search-box {
-            width: 100%;
-        }
-    }
-</style>
+<link rel="stylesheet" href="{% static 'assets/css/project_management/client.css' %}">
 {% endblock %}
 
 {% block pageContent %}
@@ -326,7 +10,7 @@
     <div class="pm-page-header">
         <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
             <div>
-                <h1><i class="fas fa-building"></i> Clients</h1>
+                <h1 class="large"><i class="fas fa-building"></i> Clients</h1>
                 <p>Gérez vos clients et leurs projets</p>
             </div>
             <a href="{% url 'pm:client_create' %}" class="pm-btn pm-btn-primary" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);">
@@ -428,22 +112,22 @@
 </div>
 
 <!-- Modal de suppression -->
-<div id="deleteModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
-    <div style="background: white; border-radius: var(--pm-radius); padding: 2rem; max-width: 400px; width: 90%; text-align: center;">
-        <div style="width: 64px; height: 64px; background: rgba(239, 68, 68, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-            <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem; color: var(--pm-danger);"></i>
+<div id="deleteModal" class="pm-modal-overlay">
+    <div class="pm-modal">
+        <div class="pm-modal-icon danger">
+            <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem;"></i>
         </div>
-        <h3 style="margin: 0 0 0.5rem; color: var(--pm-gray-800);">Supprimer ce client ?</h3>
-        <p style="color: var(--pm-gray-500); margin-bottom: 1.5rem;">
-            Le client <strong id="clientNameToDelete"></strong> sera définitivement supprimé.
-        </p>
-        <form id="deleteForm" method="post" style="display: flex; gap: 1rem; justify-content: center;">
-            {% csrf_token %}
+        <h3>Supprimer ce client ?</h3>
+        <p>Le client <strong id="clientNameToDelete"></strong> sera définitivement supprimé.</p>
+        <div class="pm-modal-actions">
             <button type="button" onclick="closeDeleteModal()" class="pm-btn pm-btn-secondary">Annuler</button>
-            <button type="submit" class="pm-btn" style="background: var(--pm-danger); color: white;">
-                <i class="fas fa-trash"></i> Supprimer
-            </button>
-        </form>
+            <form id="deleteForm" method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="pm-btn pm-btn-danger">
+                    <i class="fas fa-trash"></i> Supprimer
+                </button>
+            </form>
+        </div>
     </div>
 </div>
 

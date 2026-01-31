@@ -21247,7 +21247,25 @@
         "kind": 2,
         "importPath": "project_management.templatetags.pm_tags",
         "description": "project_management.templatetags.pm_tags",
-        "peekOfCode": "def get_item(dictionary, key):\n    \"\"\"Get an item from a dictionary using a variable key.\"\"\"\n    if dictionary is None:\n        return None\n    return dictionary.get(key)",
+        "peekOfCode": "def get_item(dictionary, key):\n    \"\"\"Get an item from a dictionary using a variable key.\"\"\"\n    if dictionary is None:\n        return None\n    return dictionary.get(key)\n@register.filter\ndef format_heures(value):\n    \"\"\"\n    Convertit un nombre décimal d'heures en format 'Xh Ymin'.\n    Exemple: 6.25 -> '6h 15min', 2.0 -> '2h', 0.5 -> '0h 30min'",
+        "detail": "project_management.templatetags.pm_tags",
+        "documentation": {}
+    },
+    {
+        "label": "format_heures",
+        "kind": 2,
+        "importPath": "project_management.templatetags.pm_tags",
+        "description": "project_management.templatetags.pm_tags",
+        "peekOfCode": "def format_heures(value):\n    \"\"\"\n    Convertit un nombre décimal d'heures en format 'Xh Ymin'.\n    Exemple: 6.25 -> '6h 15min', 2.0 -> '2h', 0.5 -> '0h 30min'\n    \"\"\"\n    if value is None:\n        return '0h'\n    try:\n        total_minutes = int(float(value) * 60)\n        heures = total_minutes // 60",
+        "detail": "project_management.templatetags.pm_tags",
+        "documentation": {}
+    },
+    {
+        "label": "format_minutes",
+        "kind": 2,
+        "importPath": "project_management.templatetags.pm_tags",
+        "description": "project_management.templatetags.pm_tags",
+        "peekOfCode": "def format_minutes(value):\n    \"\"\"\n    Convertit un nombre de minutes en format 'Xh Ymin'.\n    Exemple: 375 -> '6h 15min', 120 -> '2h', 30 -> '0h 30min'\n    \"\"\"\n    if value is None or value == 0:\n        return '0h'\n    try:\n        total_minutes = int(value)\n        heures = total_minutes // 60",
         "detail": "project_management.templatetags.pm_tags",
         "documentation": {}
     },
@@ -21256,7 +21274,7 @@
         "kind": 5,
         "importPath": "project_management.templatetags.pm_tags",
         "description": "project_management.templatetags.pm_tags",
-        "peekOfCode": "register = template.Library()\n@register.filter\ndef get_item(dictionary, key):\n    \"\"\"Get an item from a dictionary using a variable key.\"\"\"\n    if dictionary is None:\n        return None\n    return dictionary.get(key)",
+        "peekOfCode": "register = template.Library()\n@register.filter\ndef get_item(dictionary, key):\n    \"\"\"Get an item from a dictionary using a variable key.\"\"\"\n    if dictionary is None:\n        return None\n    return dictionary.get(key)\n@register.filter\ndef format_heures(value):\n    \"\"\"",
         "detail": "project_management.templatetags.pm_tags",
         "documentation": {}
     },
@@ -21598,7 +21616,7 @@
         "kind": 2,
         "importPath": "project_management.views.dashboard",
         "description": "project_management.views.dashboard",
-        "peekOfCode": "def dashboard(request):\n    \"\"\"Vue principale du tableau de bord avec données pré-chargées\"\"\"\n    # Récupérer l'employé associé à l'utilisateur\n    try:\n        employe = ZY00.objects.get(user=request.user)\n    except ZY00.DoesNotExist:\n        employe = None\n    # Statistiques globales\n    projets_actifs = JRProject.objects.filter(\n        statut__in=['PLANIFIE', 'ACTIF']",
+        "peekOfCode": "def dashboard(request):\n    \"\"\"Vue principale du tableau de bord avec données pré-chargées\"\"\"\n    # Récupérer l'employé associé à l'utilisateur\n    employe = None\n    try:\n        employe = ZY00.objects.get(user=request.user)\n    except ZY00.DoesNotExist:\n        # Essayer de trouver l'employé via le username si user n'est pas lié\n        try:\n            employe = ZY00.objects.get(username=request.user.username)",
         "detail": "project_management.views.dashboard",
         "documentation": {}
     },
@@ -21607,7 +21625,7 @@
         "kind": 2,
         "importPath": "project_management.views.dashboard",
         "description": "project_management.views.dashboard",
-        "peekOfCode": "def dashboard_stats_api(request):\n    \"\"\"API pour les statistiques du dashboard\"\"\"\n    try:\n        employe = ZY00.objects.get(user=request.user)\n    except ZY00.DoesNotExist:\n        employe = None\n    # Projets actifs\n    total_projets = JRProject.objects.filter(\n        statut__in=['PLANIFIE', 'ACTIF']\n    ).count()",
+        "peekOfCode": "def dashboard_stats_api(request):\n    \"\"\"API pour les statistiques du dashboard\"\"\"\n    employe = None\n    try:\n        employe = ZY00.objects.get(user=request.user)\n    except ZY00.DoesNotExist:\n        try:\n            employe = ZY00.objects.get(username=request.user.username)\n        except ZY00.DoesNotExist:\n            pass",
         "detail": "project_management.views.dashboard",
         "documentation": {}
     },
@@ -21643,7 +21661,7 @@
         "kind": 2,
         "importPath": "project_management.views.dashboard",
         "description": "project_management.views.dashboard",
-        "peekOfCode": "def stats_personnelles_api(request):\n    \"\"\"API pour les statistiques personnelles\"\"\"\n    try:\n        employe = ZY00.objects.get(user=request.user)\n    except ZY00.DoesNotExist:\n        return JsonResponse({\n            'tickets_assignes': 0,\n            'tickets_termines': 0,\n            'temps_mois': 0,\n            'taux_completion': 0,",
+        "peekOfCode": "def stats_personnelles_api(request):\n    \"\"\"API pour les statistiques personnelles\"\"\"\n    employe = None\n    try:\n        employe = ZY00.objects.get(user=request.user)\n    except ZY00.DoesNotExist:\n        try:\n            employe = ZY00.objects.get(username=request.user.username)\n        except ZY00.DoesNotExist:\n            pass",
         "detail": "project_management.views.dashboard",
         "documentation": {}
     },

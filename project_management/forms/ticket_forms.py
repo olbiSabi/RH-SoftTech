@@ -68,10 +68,15 @@ class TicketForm(forms.ModelForm):
             etat='actif'
         ).order_by('nom', 'prenoms')
         
-        # Si le ticket est dans le backlog, cacher le statut
-        if self.instance and self.instance.dans_backlog:
+        # Pour un nouveau ticket, le statut par défaut est OUVERT (caché)
+        # Pour un ticket existant, on affiche le statut sauf s'il est dans le backlog
+        if not self.instance.pk:
+            # Nouveau ticket - statut caché, défaut OUVERT
             self.fields['statut'].widget = forms.HiddenInput()
             self.fields['statut'].initial = 'OUVERT'
+        elif self.instance.dans_backlog:
+            # Ticket dans le backlog - statut caché
+            self.fields['statut'].widget = forms.HiddenInput()
     
     def clean_date_echeance(self):
         """Validation de la date d'échéance"""

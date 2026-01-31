@@ -15,48 +15,82 @@ def dashboard(request):
     """Vue principale du tableau de bord avec données pré-chargées"""
 
     # Récupérer l'employé associé à l'utilisateur
+    employe = None
     try:
         employe = ZY00.objects.get(user=request.user)
     except ZY00.DoesNotExist:
-        employe = None
+        # Essayer de trouver l'employé via le username si user n'est pas lié
+        try:
+            employe = ZY00.objects.get(username=request.user.username)
+        except ZY00.DoesNotExist:
+            pass
 
-    # Statistiques globales
-    projets_actifs = JRProject.objects.filter(
-        statut__in=['PLANIFIE', 'ACTIF']
+    # Statistiques globales - Projets
+    total_projets = JRProject.objects.count()
+    projets_actifs_count = JRProject.objects.filter(statut='ACTIF').count()
+
+    # Liste des projets actifs pour l'affichage
+    projets_actifs_list = JRProject.objects.filter(
+        statut='ACTIF'
     ).select_related('client', 'chef_projet').order_by('-created_at')[:5]
 
-    total_projets = projets_actifs.count()
-
+    # Statistiques - Tickets
+    total_tickets = JRTicket.objects.count()
     tickets_en_cours = JRTicket.objects.filter(statut='EN_COURS').count()
     tickets_ouverts = JRTicket.objects.filter(statut='OUVERT').count()
+    tickets_en_revue = JRTicket.objects.filter(statut='EN_REVUE').count()
     tickets_termines = JRTicket.objects.filter(statut='TERMINE').count()
+    # Tickets non terminés (ouverts + en cours + en revue)
+    tickets_non_termines = tickets_ouverts + tickets_en_cours + tickets_en_revue
+
+    # Statistiques - Sprints
+    total_sprints = JRSprint.objects.count()
+    sprints_actifs = JRSprint.objects.filter(statut='EN_COURS').count()
+
+    # Sprint actif (le plus récent en cours)
+    sprint_actif = JRSprint.objects.filter(statut='EN_COURS').order_by('-date_debut').first()
 
     # Tickets récents
     tickets_recents = JRTicket.objects.select_related(
         'projet', 'assigne'
     ).order_by('-created_at')[:5]
 
-    # Temps cette semaine (employé connecté)
+    # Temps ce mois (employé connecté)
+    debut_mois = timezone.now().date().replace(day=1)
     debut_semaine = timezone.now().date() - timedelta(days=timezone.now().date().weekday())
+    heures_ce_mois = 0
     heures_semaine = 0
     mes_tickets = []
 
+    # Fonction pour calculer les heures correctement (retourne les minutes totales)
+    def calculer_minutes(queryset):
+        total_minutes = 0
+        for imp in queryset:
+            total_minutes += int(float(imp.heures) * 60) + (imp.minutes or 0)
+        return total_minutes
+
     if employe:
-        heures_semaine = JRImputation.objects.filter(
+        # Heures ce mois (en minutes pour éviter les erreurs d'arrondi)
+        imputations_mois = JRImputation.objects.filter(
+            date_imputation__gte=debut_mois,
+            statut_validation='VALIDE',
+            employe=employe
+        )
+        heures_ce_mois = calculer_minutes(imputations_mois)
+
+        # Heures cette semaine (en minutes)
+        imputations_semaine = JRImputation.objects.filter(
             date_imputation__gte=debut_semaine,
             statut_validation='VALIDE',
             employe=employe
-        ).aggregate(
-            total=ExpressionWrapper(
-                Coalesce(Sum('heures'), Value(0)) + Coalesce(Sum('minutes'), Value(0)) / 60.0,
-                output_field=FloatField()
-            )
-        )['total'] or 0
+        )
+        heures_semaine = calculer_minutes(imputations_semaine)
 
-        # Mes tickets assignés
+        # Mes tickets assignés (tous les tickets non terminés)
         mes_tickets = JRTicket.objects.filter(
-            assigne=employe,
-            statut__in=['OUVERT', 'EN_COURS', 'EN_REVUE']
+            assigne=employe
+        ).exclude(
+            statut='TERMINE'
         ).select_related('projet').order_by('-priorite', '-created_at')[:5]
 
     # Alertes (tickets en retard)
@@ -74,18 +108,37 @@ def dashboard(request):
             ticket__projet__in=projets_chef
         ).count()
 
+    # Activités récentes (tickets créés ou modifiés récemment)
+    activites_recentes = []
+    tickets_recents_activite = JRTicket.objects.select_related('projet', 'assigne').order_by('-updated_at')[:5]
+    for ticket in tickets_recents_activite:
+        activites_recentes.append({
+            'type': 'ticket',
+            'description': f"Ticket {ticket.code} - {ticket.titre[:40]}",
+            'date': ticket.updated_at,
+        })
+
     context = {
         'employe': employe,
         # Stats principales
         'total_projets': total_projets,
+        'projets_actifs': projets_actifs_count,
+        'total_tickets': total_tickets,
         'tickets_en_cours': tickets_en_cours,
         'tickets_ouverts': tickets_ouverts,
+        'tickets_en_revue': tickets_en_revue,
         'tickets_termines': tickets_termines,
-        'heures_semaine': round(heures_semaine, 1),
+        'tickets_non_termines': tickets_non_termines,
+        'total_sprints': total_sprints,
+        'sprints_actifs': sprints_actifs,
+        'heures_ce_mois': heures_ce_mois,  # En minutes (pas d'arrondi)
+        'heures_semaine': heures_semaine,  # En minutes (pas d'arrondi)
         # Listes
-        'projets_actifs': projets_actifs,
+        'projets_actifs_list': projets_actifs_list,
         'tickets_recents': tickets_recents,
         'mes_tickets': mes_tickets,
+        'sprint_actif': sprint_actif,
+        'activites_recentes': activites_recentes,
         # Alertes
         'tickets_retard': tickets_retard,
         'imputations_en_attente': imputations_en_attente,
@@ -97,10 +150,14 @@ def dashboard(request):
 @login_required
 def dashboard_stats_api(request):
     """API pour les statistiques du dashboard"""
+    employe = None
     try:
         employe = ZY00.objects.get(user=request.user)
     except ZY00.DoesNotExist:
-        employe = None
+        try:
+            employe = ZY00.objects.get(username=request.user.username)
+        except ZY00.DoesNotExist:
+            pass
 
     # Projets actifs
     total_projets = JRProject.objects.filter(
@@ -250,9 +307,16 @@ def alertes_api(request):
 @login_required
 def stats_personnelles_api(request):
     """API pour les statistiques personnelles"""
+    employe = None
     try:
         employe = ZY00.objects.get(user=request.user)
     except ZY00.DoesNotExist:
+        try:
+            employe = ZY00.objects.get(username=request.user.username)
+        except ZY00.DoesNotExist:
+            pass
+
+    if not employe:
         return JsonResponse({
             'tickets_assignes': 0,
             'tickets_termines': 0,

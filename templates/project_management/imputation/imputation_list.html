@@ -1,5 +1,5 @@
 {% extends 'base/baseSansMatricule.html' %}
-{% load static %}
+{% load static pm_tags %}
 {% block extrastylet %}
 <style>
     :root {
@@ -344,7 +344,7 @@
                 <i class="fas fa-hourglass"></i>
             </div>
             <div class="pm-stat-content">
-                <h3>{{ total_heures|default:0 }}h</h3>
+                <h3>{{ total_heures|format_heures }}</h3>
                 <p>Heures totales</p>
             </div>
         </div>
@@ -353,7 +353,7 @@
                 <i class="fas fa-check-circle"></i>
             </div>
             <div class="pm-stat-content">
-                <h3>{{ heures_validees|default:0 }}h</h3>
+                <h3>{{ heures_validees|format_heures }}</h3>
                 <p>Heures validées</p>
             </div>
         </div>
@@ -362,7 +362,7 @@
                 <i class="fas fa-hourglass-half"></i>
             </div>
             <div class="pm-stat-content">
-                <h3>{{ heures_en_attente|default:0 }}h</h3>
+                <h3>{{ heures_en_attente|format_heures }}</h3>
                 <p>En attente</p>
             </div>
         </div>

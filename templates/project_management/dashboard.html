@@ -1,5 +1,5 @@
 {% extends 'base/baseSansMatricule.html' %}
-{% load static %}
+{% load static pm_tags %}
 {% block extrastylet %}
 <style>
     :root {
@@ -506,7 +506,7 @@
             <div class="pm-stat-content">
                 <h3>{{ total_tickets|default:0 }}</h3>
                 <p>Tickets</p>
-                <span class="trend"><i class="fas fa-hourglass-half"></i> {{ tickets_ouverts|default:0 }} ouverts</span>
+                <span class="trend"><i class="fas fa-hourglass-half"></i> {{ tickets_non_termines|default:0 }} en cours</span>
             </div>
         </div>
         <div class="pm-stat-card">
@@ -524,7 +524,7 @@
                 <i class="fas fa-clock"></i>
             </div>
             <div class="pm-stat-content">
-                <h3>{{ heures_ce_mois|default:0 }}h</h3>
+                <h3>{{ heures_ce_mois|format_minutes }}</h3>
                 <p>Heures ce mois</p>
                 <span class="trend up"><i class="fas fa-chart-line"></i></span>
             </div>

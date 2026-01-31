@@ -158,9 +158,9 @@ class TicketService:
         # Matrice des transitions autorisées
         transitions_autorisees = {
             'OUVERT': ['EN_COURS', 'TERMINE'],
-            'EN_COURS': ['OUVERT', 'EN_REVue', 'TERMINE'],
-            'EN_REVue': ['EN_COURS', 'TERMINE'],
-            'TERMINE': ['OUVERT', 'EN_COURS', 'EN_REVue'],  # Réouverture possible
+            'EN_COURS': ['OUVERT', 'EN_REVUE', 'TERMINE'],
+            'EN_REVUE': ['EN_COURS', 'TERMINE'],
+            'TERMINE': ['OUVERT', 'EN_COURS', 'EN_REVUE'],  # Réouverture possible
         }
         
         return nouveau_statut in transitions_autorisees.get(ancien_statut, [])
@@ -170,7 +170,7 @@ class TicketService:
         """Retourne les tickets en retard (date d'échéance dépassée)"""
         return JRTicket.objects.filter(
             date_echeance__lt=timezone.now().date(),
-            statut__in=['OUVERT', 'EN_COURS', 'EN_REVue']
+            statut__in=['OUVERT', 'EN_COURS', 'EN_REVUE']
         ).select_related('projet', 'assigne')
     
     @staticmethod
@@ -178,7 +178,7 @@ class TicketService:
         """Retourne les tickets non assignés"""
         return JRTicket.objects.filter(
             assigne__isnull=True,
-            statut__in=['OUVERT', 'EN_COURS', 'EN_REVue']
+            statut__in=['OUVERT', 'EN_COURS', 'EN_REVUE']
         ).select_related('projet')
     
     @staticmethod
@@ -186,7 +186,7 @@ class TicketService:
         """Retourne les tickets avec priorité critique"""
         return JRTicket.objects.filter(
             priorite='CRITIQUE',
-            statut__in=['OUVERT', 'EN_COURS', 'EN_REVue']
+            statut__in=['OUVERT', 'EN_COURS', 'EN_REVUE']
         ).select_related('projet', 'assigne')
     
     @staticmethod
@@ -231,7 +231,7 @@ class TicketService:
             'en_cours': tickets.filter(statut='EN_COURS').count(),
             'en_retard': tickets.filter(
                 date_echeance__lt=timezone.now().date(),
-                statut__in=['OUVERT', 'EN_COURS', 'EN_REVue']
+                statut__in=['OUVERT', 'EN_COURS', 'EN_REVUE']
             ).count(),
             'charge_totale': sum(
                 ticket.estimation_heures or 0 
