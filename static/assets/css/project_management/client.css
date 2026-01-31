@@ -1,13 +1,13 @@
 /* assets/css/project_management/client.css */
 
 :root {
-    --pm-primary: #4f46e5;
-    --pm-primary-dark: #4338ca;
-    --pm-primary-light: #818cf8;
-    --pm-success: #10b981;
-    --pm-warning: #f59e0b;
-    --pm-danger: #ef4444;
-    --pm-info: #3b82f6;
+    --pm-primary: #4b5563;
+    --pm-primary-dark: #374151;
+    --pm-primary-light: #6b7280;
+    --pm-success: #059669;
+    --pm-warning: #d97706;
+    --pm-danger: #dc2626;
+    --pm-info: #0369a1;
     --pm-gray-50: #f9fafb;
     --pm-gray-100: #f3f4f6;
     --pm-gray-200: #e5e7eb;
@@ -17,9 +17,9 @@
     --pm-gray-600: #4b5563;
     --pm-gray-700: #374151;
     --pm-gray-800: #1f2937;
-    --pm-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-    --pm-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-    --pm-radius: 12px;
+    --pm-shadow: 0 2px 4px -1px rgba(0,0,0,0.04), 0 1px 2px -1px rgba(0,0,0,0.02);
+    --pm-shadow-lg: 0 8px 12px -3px rgba(0,0,0,0.06), 0 3px 5px -2px rgba(0,0,0,0.03);
+    --pm-radius: 8px;
 }
 
 /* Layout */

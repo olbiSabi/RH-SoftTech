@@ -1,5 +1,5 @@
 {% extends 'base/baseSansMatricule.html' %}
-{% load static %}
+{% load static pm_tags %}
 {% block extrastylet %}
 <style>
     :root {
@@ -380,7 +380,7 @@
                     <div class="sp-summary-label">Restants</div>
                 </div>
                 <div class="sp-summary-item info">
-                    <div class="sp-summary-value">{{ heures_totales|default:0 }}h</div>
+                    <div class="sp-summary-value">{{ minutes_totales|format_minutes }}</div>
                     <div class="sp-summary-label">Heures imputées</div>
                 </div>
             </div>

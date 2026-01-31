@@ -1,14 +1,13 @@
 /* assets/css/project_management/projet.css */
 
 :root {
-    /* Variables communes - déjà dans client.css, mais on les garde pour compatibilité */
-    --pm-primary: #4f46e5;
-    --pm-primary-dark: #4338ca;
-    --pm-primary-light: #818cf8;
-    --pm-success: #10b981;
-    --pm-warning: #f59e0b;
-    --pm-danger: #ef4444;
-    --pm-info: #3b82f6;
+    --pm-primary: #1e40af;
+    --pm-primary-dark: #1e3a8a;
+    --pm-primary-light: #3b82f6;
+    --pm-success: #047857;
+    --pm-warning: #b45309;
+    --pm-danger: #b91c1c;
+    --pm-info: #0ea5e9;
     --pm-gray-50: #f9fafb;
     --pm-gray-100: #f3f4f6;
     --pm-gray-200: #e5e7eb;
@@ -18,9 +17,9 @@
     --pm-gray-600: #4b5563;
     --pm-gray-700: #374151;
     --pm-gray-800: #1f2937;
-    --pm-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-    --pm-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-    --pm-radius: 12px;
+    --pm-shadow: 0 3px 5px -1px rgba(0,0,0,0.06), 0 1px 3px -1px rgba(0,0,0,0.03);
+    --pm-shadow-lg: 0 8px 12px -3px rgba(0,0,0,0.07), 0 3px 6px -2px rgba(0,0,0,0.04);
+    --pm-radius: 8px;
 }
 
 /* Layout */
@@ -1080,4 +1079,51 @@ select.pm-form-control {
     .pm-tabs {
         overflow-x: auto;
     }
+}
+
+/* Backlog Links */
+.pm-backlog-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: white;
+    border: 1px solid var(--pm-gray-200);
+    border-radius: var(--pm-radius);
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.pm-backlog-link:hover {
+    border-color: var(--pm-primary);
+    box-shadow: var(--pm-shadow);
+    transform: translateY(-2px);
+}
+
+.pm-backlog-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.pm-backlog-info {
+    flex: 1;
+}
+
+.pm-backlog-info h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--pm-gray-800);
+}
+
+.pm-backlog-info p {
+    margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+    color: var(--pm-gray-500);
 }

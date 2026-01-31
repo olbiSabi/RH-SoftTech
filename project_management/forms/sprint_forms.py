@@ -104,7 +104,7 @@ class SprintTicketForm(forms.ModelForm):
         # Filtrer les tickets du projet qui ne sont pas terminés
         self.fields['tickets'].queryset = JRTicket.objects.filter(
             projet=projet,
-            statut__in=['OUVERT', 'EN_COURS', 'EN_REVue']
+            statut__in=['OUVERT', 'EN_COURS', 'EN_REVUE']
         ).order_by('ordre_backlog', 'created_at')
 
 

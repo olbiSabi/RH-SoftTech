@@ -49,8 +49,8 @@ class WorkflowService:
                     ticket.dans_backlog = False
                     ticket.ordre_backlog = 0
             
-            # Transition EN_COURS → EN_REVue
-            elif ancien_statut == 'EN_COURS' and nouveau_statut == 'EN_REVue':
+            # Transition EN_COURS → EN_REVUE
+            elif ancien_statut == 'EN_COURS' and nouveau_statut == 'EN_REVUE':
                 # Vérifier qu'il y a eu du temps imputé
                 temps_impute = JRImputation.objects.filter(
                     ticket=ticket,
@@ -61,8 +61,8 @@ class WorkflowService:
                     # Avertissement mais pas d'erreur bloquante
                     pass
             
-            # Transition EN_REVue → TERMINE
-            elif ancien_statut == 'EN_REVue' and nouveau_statut == 'TERMINE':
+            # Transition EN_REVUE → TERMINE
+            elif ancien_statut == 'EN_REVUE' and nouveau_statut == 'TERMINE':
                 # Vérifier que le temps est validé
                 temps_en_attente = JRImputation.objects.filter(
                     ticket=ticket,
@@ -208,7 +208,7 @@ class WorkflowService:
         # Tickets en retard
         tickets_en_retard = JRTicket.objects.filter(
             date_echeance__lt=timezone.now().date(),
-            statut__in=['OUVERT', 'EN_COURS', 'EN_REVue']
+            statut__in=['OUVERT', 'EN_COURS', 'EN_REVUE']
         ).select_related('projet', 'assigne')
         
         for ticket in tickets_en_retard:
@@ -245,7 +245,7 @@ class WorkflowService:
         
         for sprint in sprints_fin_proche:
             tickets_non_termines = sprint.tickets.filter(
-                statut__in=['OUVERT', 'EN_COURS', 'EN_REVue']
+                statut__in=['OUVERT', 'EN_COURS', 'EN_REVUE']
             ).count()
             
             if tickets_non_termines > 0:

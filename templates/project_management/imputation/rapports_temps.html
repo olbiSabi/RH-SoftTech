@@ -266,7 +266,7 @@
                 </h1>
                 <p style="margin: 0.5rem 0 0; opacity: 0.9;">Analyse des temps imputes</p>
             </div>
-            <a href="{% url 'pm:export_temps_excel' %}" class="im-btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;">
+            <a href="{% url 'pm:export_temps_excel' %}?{{ request.GET.urlencode }}" class="im-btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;" id="exportBtn">
                 <i class="fas fa-file-excel"></i> Exporter Excel
             </a>
         </div>

@@ -21751,7 +21751,7 @@
         "kind": 2,
         "importPath": "project_management.views.imputation_views",
         "description": "project_management.views.imputation_views",
-        "peekOfCode": "def export_temps_excel(request):\n    \"\"\"Vue pour exporter les temps en Excel\"\"\"\n    import pandas as pd\n    from io import BytesIO\n    from django.http import HttpResponse\n    # Récupérer les données (même logique que rapports_temps)\n    imputations = JRImputation.objects.filter(statut_validation='VALIDE').select_related(\n        'employe', 'ticket', 'ticket__projet'\n    ).order_by('-date_imputation')\n    # Créer le DataFrame",
+        "peekOfCode": "def export_temps_excel(request):\n    \"\"\"Vue pour exporter les temps en Excel avec les mêmes filtres que rapports_temps\"\"\"\n    import pandas as pd\n    from io import BytesIO\n    from django.http import HttpResponse\n    # Récupérer les filtres (même logique que rapports_temps)\n    projet_id = request.GET.get('projet')\n    employe_id = request.GET.get('employe')\n    date_debut = request.GET.get('date_debut')\n    date_fin = request.GET.get('date_fin')",
         "detail": "project_management.views.imputation_views",
         "documentation": {}
     },
@@ -21886,7 +21886,7 @@
         "kind": 2,
         "importPath": "project_management.views.sprint_views",
         "description": "project_management.views.sprint_views",
-        "peekOfCode": "def sprint_board(request, pk):\n    \"\"\"Vue pour le tableau Kanban du sprint\"\"\"\n    sprint = get_object_or_404(JRSprint, pk=pk)\n    # Tickets du sprint organisés par statut\n    tickets = sprint.tickets.select_related('assigne')\n    tickets_par_statut = {\n        'OUVERT': tickets.filter(statut='OUVERT'),\n        'EN_COURS': tickets.filter(statut='EN_COURS'),\n        'EN_REVue': tickets.filter(statut='EN_REVue'),\n        'TERMINE': tickets.filter(statut='TERMINE'),",
+        "peekOfCode": "def sprint_board(request, pk):\n    \"\"\"Vue pour le tableau Kanban du sprint\"\"\"\n    sprint = get_object_or_404(JRSprint, pk=pk)\n    # Tickets du sprint organisés par statut\n    tickets = sprint.tickets.select_related('assigne')\n    context = {\n        'sprint': sprint,\n        'tickets_ouvert': tickets.filter(statut='OUVERT'),\n        'tickets_en_cours': tickets.filter(statut='EN_COURS'),\n        'tickets_en_revue': tickets.filter(statut='EN_REVUE'),",
         "detail": "project_management.views.sprint_views",
         "documentation": {}
     },
@@ -21913,7 +21913,7 @@
         "kind": 2,
         "importPath": "project_management.views.sprint_views",
         "description": "project_management.views.sprint_views",
-        "peekOfCode": "def sprint_terminer(request, pk):\n    \"\"\"Vue pour terminer un sprint\"\"\"\n    sprint = get_object_or_404(JRSprint, pk=pk)\n    if sprint.statut == 'ACTIF':\n        sprint.statut = 'TERMINE'\n        sprint.save()\n        messages.success(request, f'Sprint \"{sprint.nom}\" terminé avec succès.')\n        # Optionnel : déplacer les tickets non terminés vers le backlog\n        tickets_non_termines = sprint.tickets.filter(\n            statut__in=['OUVERT', 'EN_COURS', 'EN_REVue']",
+        "peekOfCode": "def sprint_terminer(request, pk):\n    \"\"\"Vue pour terminer un sprint\"\"\"\n    sprint = get_object_or_404(JRSprint, pk=pk)\n    if sprint.statut == 'ACTIF':\n        sprint.statut = 'TERMINE'\n        sprint.save()\n        messages.success(request, f'Sprint \"{sprint.nom}\" terminé avec succès.')\n        # Optionnel : déplacer les tickets non terminés vers le backlog\n        tickets_non_termines = sprint.tickets.filter(\n            statut__in=['OUVERT', 'EN_COURS', 'EN_REVUE']",
         "detail": "project_management.views.sprint_views",
         "documentation": {}
     },
@@ -21931,7 +21931,7 @@
         "kind": 2,
         "importPath": "project_management.views.sprint_views",
         "description": "project_management.views.sprint_views",
-        "peekOfCode": "def sprint_rapport(request, pk):\n    \"\"\"Vue pour le rapport d'un sprint\"\"\"\n    sprint = get_object_or_404(JRSprint, pk=pk)\n    # Tickets du sprint\n    tickets = sprint.tickets.select_related('assigne')\n    # Imputations du sprint\n    imputations = JRImputation.objects.filter(\n        ticket__in=tickets,\n        statut_validation='VALIDE'\n    ).select_related('employe', 'ticket')",
+        "peekOfCode": "def sprint_rapport(request, pk):\n    \"\"\"Vue pour le rapport d'un sprint\"\"\"\n    sprint = get_object_or_404(JRSprint, pk=pk)\n    # Tickets du sprint\n    tickets = sprint.tickets.select_related('assigne')\n    # Statistiques des tickets par statut\n    tickets_termines = tickets.filter(statut='TERMINE').count()\n    tickets_en_cours = tickets.filter(statut='EN_COURS').count()\n    tickets_ouverts = tickets.filter(statut='OUVERT').count()\n    tickets_en_revue = tickets.filter(statut='EN_REVUE').count()",
         "detail": "project_management.views.sprint_views",
         "documentation": {}
     },
@@ -21941,6 +21941,24 @@
         "importPath": "project_management.views.sprint_views",
         "description": "project_management.views.sprint_views",
         "peekOfCode": "def sprint_stats_api(request):\n    \"\"\"API pour les statistiques des sprints\"\"\"\n    stats = {\n        'total_sprints': JRSprint.objects.count(),\n        'par_statut': list(\n            JRSprint.objects.values('statut')\n            .annotate(count=Count('id'))\n            .order_by('-count')\n        ),\n        'sprints_actifs': JRSprint.objects.filter(statut='ACTIF').count(),",
+        "detail": "project_management.views.sprint_views",
+        "documentation": {}
+    },
+    {
+        "label": "sprint_add_ticket",
+        "kind": 2,
+        "importPath": "project_management.views.sprint_views",
+        "description": "project_management.views.sprint_views",
+        "peekOfCode": "def sprint_add_ticket(request, pk, ticket_pk):\n    \"\"\"Vue pour ajouter un ticket au sprint\"\"\"\n    sprint = get_object_or_404(JRSprint, pk=pk)\n    ticket = get_object_or_404(JRTicket, pk=ticket_pk)\n    # Vérifier que le ticket appartient au même projet que le sprint\n    if ticket.projet != sprint.projet:\n        messages.error(request, \"Ce ticket n'appartient pas au même projet que le sprint.\")\n        return redirect('pm:sprint_tickets', pk=pk)\n    # Ajouter le ticket au sprint\n    sprint.tickets.add(ticket)",
+        "detail": "project_management.views.sprint_views",
+        "documentation": {}
+    },
+    {
+        "label": "sprint_remove_ticket",
+        "kind": 2,
+        "importPath": "project_management.views.sprint_views",
+        "description": "project_management.views.sprint_views",
+        "peekOfCode": "def sprint_remove_ticket(request, pk, ticket_pk):\n    \"\"\"Vue pour retirer un ticket du sprint\"\"\"\n    sprint = get_object_or_404(JRSprint, pk=pk)\n    ticket = get_object_or_404(JRTicket, pk=ticket_pk)\n    # Retirer le ticket du sprint\n    sprint.tickets.remove(ticket)\n    messages.success(request, f'Ticket \"{ticket.code}\" retiré du sprint.')\n    return redirect('pm:sprint_tickets', pk=pk)",
         "detail": "project_management.views.sprint_views",
         "documentation": {}
     },

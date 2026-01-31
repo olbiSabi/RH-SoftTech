@@ -328,7 +328,7 @@
         <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
             <div>
                 <h1><i class="fas fa-ticket-alt"></i> Gérer les tickets du sprint</h1>
-                <p>Ajoutez ou retirez des tickets de ce sprint</p>
+                <p>Ajoutez ou retirez des tickets de ce sprint ({{ total_tickets_projet }} tickets dans le projet {{ sprint.projet.nom }})</p>
             </div>
             <a href="{% url 'pm:sprint_detail' sprint.pk %}" class="sp-btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;">
                 <i class="fas fa-arrow-left"></i> Retour au sprint
@@ -343,13 +343,13 @@
                 <h2>
                     <i class="fas fa-check-circle" style="color: var(--sp-success);"></i>
                     Dans le sprint
-                    <span class="sp-count">{{ tickets_in_sprint.count }}</span>
+                    <span class="sp-count">{{ tickets_actuels.count }}</span>
                 </h2>
             </div>
             <div class="sp-card-body" style="padding: 0;">
                 <input type="text" class="sp-search-box" id="searchInSprint" placeholder="Rechercher dans le sprint..." style="margin: 1rem; width: calc(100% - 2rem);">
                 <div class="sp-ticket-list" id="ticketsInSprint">
-                    {% for ticket in tickets_in_sprint %}
+                    {% for ticket in tickets_actuels %}
                     <div class="sp-ticket-item" data-title="{{ ticket.titre|lower }}" data-code="{{ ticket.code|lower }}">
                         <div class="sp-ticket-info">
                             <span class="sp-ticket-code">{{ ticket.code }}</span>
@@ -386,13 +386,13 @@
                 <h2>
                     <i class="fas fa-list" style="color: var(--sp-info);"></i>
                     Tickets disponibles
-                    <span class="sp-count">{{ tickets_available.count }}</span>
+                    <span class="sp-count">{{ tickets_disponibles.count }}</span>
                 </h2>
             </div>
             <div class="sp-card-body" style="padding: 0;">
                 <input type="text" class="sp-search-box" id="searchAvailable" placeholder="Rechercher un ticket..." style="margin: 1rem; width: calc(100% - 2rem);">
                 <div class="sp-ticket-list" id="ticketsAvailable">
-                    {% for ticket in tickets_available %}
+                    {% for ticket in tickets_disponibles %}
                     <div class="sp-ticket-item" data-title="{{ ticket.titre|lower }}" data-code="{{ ticket.code|lower }}">
                         <div class="sp-ticket-info">
                             <span class="sp-ticket-code">{{ ticket.code }}</span>

@@ -114,7 +114,7 @@ def sprint_detail(request, pk):
         'total': tickets.count(),
         'ouverts': tickets.filter(statut='OUVERT').count(),
         'en_cours': tickets.filter(statut='EN_COURS').count(),
-        'en_revue': tickets.filter(statut='EN_REVue').count(),
+        'en_revue': tickets.filter(statut='EN_REVUE').count(),
         'termines': tickets.filter(statut='TERMINE').count(),
     }
     
@@ -153,22 +153,18 @@ def sprint_detail(request, pk):
 def sprint_board(request, pk):
     """Vue pour le tableau Kanban du sprint"""
     sprint = get_object_or_404(JRSprint, pk=pk)
-    
+
     # Tickets du sprint organisés par statut
     tickets = sprint.tickets.select_related('assigne')
-    
-    tickets_par_statut = {
-        'OUVERT': tickets.filter(statut='OUVERT'),
-        'EN_COURS': tickets.filter(statut='EN_COURS'),
-        'EN_REVue': tickets.filter(statut='EN_REVue'),
-        'TERMINE': tickets.filter(statut='TERMINE'),
-    }
-    
+
     context = {
         'sprint': sprint,
-        'tickets_par_statut': tickets_par_statut,
+        'tickets_ouvert': tickets.filter(statut='OUVERT'),
+        'tickets_en_cours': tickets.filter(statut='EN_COURS'),
+        'tickets_en_revue': tickets.filter(statut='EN_REVUE'),
+        'tickets_termine': tickets.filter(statut='TERMINE'),
     }
-    
+
     return render(request, 'project_management/sprint/sprint_board.html', context)
 
 
@@ -186,19 +182,23 @@ def sprint_tickets(request, pk):
     else:
         form = SprintTicketForm(sprint.projet, instance=sprint)
     
-    # Tickets disponibles pour le sprint (non terminés et pas dans d'autres sprints actifs)
-    tickets_disponibles = JRTicket.objects.filter(
-        projet=sprint.projet,
-        statut__in=['OUVERT', 'EN_COURS', 'EN_REVue']
-    ).exclude(
-        id__in=sprint.tickets.all()
-    ).select_related('assigne').order_by('ordre_backlog', 'created_at')
-    
+    # Tous les tickets du projet
+    tous_les_tickets = JRTicket.objects.filter(projet=sprint.projet)
+
+    # Tickets déjà dans le sprint
+    tickets_actuels = sprint.tickets.select_related('assigne').order_by('ordre_backlog')
+
+    # Tickets disponibles pour le sprint (tous les tickets du projet qui ne sont pas déjà dans ce sprint)
+    tickets_disponibles = tous_les_tickets.exclude(
+        id__in=tickets_actuels
+    ).select_related('assigne').order_by('-priorite', 'ordre_backlog', 'created_at')
+
     context = {
         'sprint': sprint,
         'form': form,
         'tickets_disponibles': tickets_disponibles,
-        'tickets_actuels': sprint.tickets.select_related('assigne').order_by('ordre_backlog'),
+        'tickets_actuels': tickets_actuels,
+        'total_tickets_projet': tous_les_tickets.count(),
     }
     
     return render(request, 'project_management/sprint/sprint_tickets.html', context)
@@ -245,7 +245,7 @@ def sprint_terminer(request, pk):
         
         # Optionnel : déplacer les tickets non terminés vers le backlog
         tickets_non_termines = sprint.tickets.filter(
-            statut__in=['OUVERT', 'EN_COURS', 'EN_REVue']
+            statut__in=['OUVERT', 'EN_COURS', 'EN_REVUE']
         )
         
         if tickets_non_termines.exists():
@@ -280,94 +280,85 @@ def sprint_supprimer(request, pk):
 def sprint_rapport(request, pk):
     """Vue pour le rapport d'un sprint"""
     sprint = get_object_or_404(JRSprint, pk=pk)
-    
+
     # Tickets du sprint
     tickets = sprint.tickets.select_related('assigne')
-    
+
+    # Statistiques des tickets par statut
+    tickets_termines = tickets.filter(statut='TERMINE').count()
+    tickets_en_cours = tickets.filter(statut='EN_COURS').count()
+    tickets_ouverts = tickets.filter(statut='OUVERT').count()
+    tickets_en_revue = tickets.filter(statut='EN_REVUE').count()
+    tickets_restants = tickets_ouverts + tickets_en_cours + tickets_en_revue
+
+    # Dictionnaire pour la répartition par statut
+    tickets_par_statut = {
+        'OUVERT': tickets_ouverts,
+        'EN_COURS': tickets_en_cours,
+        'EN_REVUE': tickets_en_revue,
+        'TERMINE': tickets_termines,
+    }
+
+    # Dictionnaire pour la répartition par priorité
+    tickets_par_priorite = {
+        'CRITIQUE': tickets.filter(priorite='CRITIQUE').count(),
+        'HAUTE': tickets.filter(priorite='HAUTE').count(),
+        'MOYENNE': tickets.filter(priorite='MOYENNE').count(),
+        'BASSE': tickets.filter(priorite='BASSE').count(),
+    }
+
     # Imputations du sprint
     imputations = JRImputation.objects.filter(
         ticket__in=tickets,
         statut_validation='VALIDE'
     ).select_related('employe', 'ticket')
-    
-    # Statistiques détaillées
-    rapport = {
-        'sprint': {
-            'nom': sprint.nom,
-            'description': sprint.description,
-            'duree_jours': sprint.duree_jours,
-            'statut': sprint.statut,
-            'date_debut': sprint.date_debut,
-            'date_fin': sprint.date_fin,
-        },
-        'tickets': {
-            'total': tickets.count(),
-            'termines': tickets.filter(statut='TERMINE').count(),
-            'non_termines': tickets.filter(
-                statut__in=['OUVERT', 'EN_COURS', 'EN_REVue']
-            ).count(),
-            'par_type': list(
-                tickets.values('type_ticket')
-                .annotate(count=Count('id'))
-                .order_by('-count')
-            ),
-            'par_priorite': list(
-                tickets.values('priorite')
-                .annotate(count=Count('id'))
-                .order_by('-count')
-            ),
-        },
-        'temps': {
-            'estimation_totale': sum(
-                ticket.estimation_heures or 0 for ticket in tickets
-            ),
-            'temps_reel': imputations.aggregate(
-                total=ExpressionWrapper(
-                    Sum('heures') + Sum('minutes') / 60.0,
-                    output_field=FloatField()
-                )
-            )['total'] or 0,
-            'par_employe': list(
-                imputations.values('employe__nom', 'employe__prenoms')
-                .annotate(
-                    total_heures=ExpressionWrapper(
-                        Sum('heures') + Sum('minutes') / 60.0,
-                        output_field=FloatField()
-                    ),
-                    nombre_tickets=Count('ticket', distinct=True)
-                )
-                .order_by('-total_heures')
-            ),
-            'par_type_activite': list(
-                imputations.values('type_activite')
-                .annotate(
-                    total_heures=ExpressionWrapper(
-                        Sum('heures') + Sum('minutes') / 60.0,
-                        output_field=FloatField()
-                    ),
-                    count=Count('id')
-                )
-                .order_by('-total_heures')
-            ),
-        },
-        'performance': {
-            'progression': sprint.progression,
-            'efficacite': 0,  # Temps estimé / Temps réel
-        }
-    }
-    
-    # Calculer l'efficacité
-    if rapport['temps']['estimation_totale'] > 0:
-        rapport['performance']['efficacite'] = (
-            rapport['temps']['estimation_totale'] / 
-            max(rapport['temps']['temps_reel'], 0.01)
-        ) * 100
-    
+
+    # Calculer les minutes totales imputées
+    minutes_totales = 0
+    for imp in imputations:
+        minutes_totales += int(float(imp.heures or 0) * 60) + int(imp.minutes or 0)
+
+    # Statistiques par membre de l'équipe
+    team_stats_raw = imputations.values(
+        'employe__nom', 'employe__prenoms', 'employe__matricule'
+    ).annotate(
+        heures_imputees=ExpressionWrapper(
+            Sum('heures') + Sum('minutes') / 60.0,
+            output_field=FloatField()
+        ),
+        tickets_count=Count('ticket', distinct=True)
+    ).order_by('-heures_imputees')
+
+    # Construire team_stats avec les tickets terminés par membre
+    team_stats = []
+    for member in team_stats_raw:
+        # Compter les tickets terminés par cet employé
+        tickets_termines_membre = tickets.filter(
+            assigne__matricule=member['employe__matricule'],
+            statut='TERMINE'
+        ).count()
+
+        team_stats.append({
+            'nom': member['employe__nom'],
+            'prenoms': member['employe__prenoms'],
+            'heures_imputees': round(member['heures_imputees'] or 0, 1),
+            'tickets_count': member['tickets_count'],
+            'tickets_termines': tickets_termines_membre,
+        })
+
     context = {
         'sprint': sprint,
-        'rapport': rapport,
+        'tickets_termines': tickets_termines,
+        'tickets_en_cours': tickets_en_cours,
+        'tickets_ouverts': tickets_ouverts,
+        'tickets_en_revue': tickets_en_revue,
+        'tickets_restants': tickets_restants,
+        'tickets_par_statut': tickets_par_statut,
+        'tickets_par_priorite': tickets_par_priorite,
+        'minutes_totales': minutes_totales,
+        'team_stats': team_stats,
     }
-    
+
     return render(request, 'project_management/sprint/sprint_rapport.html', context)
 
 
@@ -393,3 +384,41 @@ def sprint_stats_api(request):
     }
     
     return JsonResponse(stats)
+
+
+@login_required
+@require_POST
+def sprint_add_ticket(request, pk, ticket_pk):
+    """Vue pour ajouter un ticket au sprint"""
+    sprint = get_object_or_404(JRSprint, pk=pk)
+    ticket = get_object_or_404(JRTicket, pk=ticket_pk)
+
+    # Vérifier que le ticket appartient au même projet que le sprint
+    if ticket.projet != sprint.projet:
+        messages.error(request, "Ce ticket n'appartient pas au même projet que le sprint.")
+        return redirect('pm:sprint_tickets', pk=pk)
+
+    # Ajouter le ticket au sprint
+    sprint.tickets.add(ticket)
+
+    # Retirer le ticket du backlog s'il y était
+    if ticket.dans_backlog:
+        ticket.dans_backlog = False
+        ticket.save()
+
+    messages.success(request, f'Ticket "{ticket.code}" ajouté au sprint.')
+    return redirect('pm:sprint_tickets', pk=pk)
+
+
+@login_required
+@require_POST
+def sprint_remove_ticket(request, pk, ticket_pk):
+    """Vue pour retirer un ticket du sprint"""
+    sprint = get_object_or_404(JRSprint, pk=pk)
+    ticket = get_object_or_404(JRTicket, pk=ticket_pk)
+
+    # Retirer le ticket du sprint
+    sprint.tickets.remove(ticket)
+
+    messages.success(request, f'Ticket "{ticket.code}" retiré du sprint.')
+    return redirect('pm:sprint_tickets', pk=pk)

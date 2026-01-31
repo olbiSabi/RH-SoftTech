@@ -751,3 +751,39 @@ class JRSprint(models.Model):
             return 0
         tickets_termines = self.tickets.filter(statut='TERMINE').count()
         return round((tickets_termines / total_tickets) * 100, 2)
+
+    @property
+    def tickets_termines(self):
+        """Retourne le nombre de tickets terminés"""
+        return self.tickets.filter(statut='TERMINE').count()
+
+    @property
+    def tickets_en_cours(self):
+        """Retourne le nombre de tickets en cours"""
+        return self.tickets.filter(statut='EN_COURS').count()
+
+    @property
+    def tickets_ouverts(self):
+        """Retourne le nombre de tickets ouverts"""
+        return self.tickets.filter(statut='OUVERT').count()
+
+    @property
+    def tickets_en_revue(self):
+        """Retourne le nombre de tickets en revue"""
+        return self.tickets.filter(statut='EN_REVUE').count()
+
+    @property
+    def tickets_restants(self):
+        """Retourne le nombre de tickets non terminés"""
+        return self.tickets.exclude(statut='TERMINE').count()
+
+    @property
+    def jours_restants(self):
+        """Calcule le nombre de jours restants avant la fin du sprint"""
+        from django.utils import timezone
+        if self.statut != 'ACTIF':
+            return 0
+        today = timezone.now().date()
+        if today > self.date_fin:
+            return 0
+        return (self.date_fin - today).days

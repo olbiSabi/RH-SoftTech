@@ -530,16 +530,42 @@ def rapports_temps(request):
 
 @login_required
 def export_temps_excel(request):
-    """Vue pour exporter les temps en Excel"""
+    """Vue pour exporter les temps en Excel avec les mêmes filtres que rapports_temps"""
     import pandas as pd
     from io import BytesIO
     from django.http import HttpResponse
-    
-    # Récupérer les données (même logique que rapports_temps)
-    imputations = JRImputation.objects.filter(statut_validation='VALIDE').select_related(
-        'employe', 'ticket', 'ticket__projet'
+
+    # Récupérer les filtres (même logique que rapports_temps)
+    projet_id = request.GET.get('projet')
+    employe_id = request.GET.get('employe')
+    date_debut = request.GET.get('date_debut')
+    date_fin = request.GET.get('date_fin')
+    statut_filter = request.GET.get('statut', '')
+
+    # Par défaut, exporter toutes les imputations (pas seulement les validées)
+    imputations = JRImputation.objects.all()
+
+    # Filtre par statut si spécifié
+    if statut_filter:
+        imputations = imputations.filter(statut_validation=statut_filter)
+
+    if projet_id:
+        imputations = imputations.filter(ticket__projet_id=projet_id)
+
+    if employe_id:
+        imputations = imputations.filter(employe_id=employe_id)
+
+    if date_debut:
+        imputations = imputations.filter(date_imputation__gte=date_debut)
+
+    if date_fin:
+        imputations = imputations.filter(date_imputation__lte=date_fin)
+
+    # Récupérer les données avec les relations
+    imputations = imputations.select_related(
+        'employe', 'ticket', 'ticket__projet', 'valide_par'
     ).order_by('-date_imputation')
-    
+
     # Créer le DataFrame
     data = []
     for imp in imputations:
@@ -548,16 +574,25 @@ def export_temps_excel(request):
         if imp.date_validation:
             date_validation = imp.date_validation.replace(tzinfo=None)
 
+        # Convertir created_at en datetime sans timezone pour Excel
+        created_at = None
+        if imp.created_at:
+            created_at = imp.created_at.replace(tzinfo=None)
+
         data.append({
             'Date': imp.date_imputation,
-            'Employé': f"{imp.employe.nom} {imp.employe.prenoms}",
+            'Employé': f"{imp.employe.nom} {imp.employe.prenoms or ''}".strip(),
             'Projet': imp.ticket.projet.code,
+            'Nom Projet': imp.ticket.projet.nom,
             'Ticket': imp.ticket.code,
+            'Titre Ticket': imp.ticket.titre,
             'Type activité': imp.get_type_activite_display(),
             'Heures': imp.total_heures,
-            'Description': imp.description,
-            'Validé par': f"{imp.valide_par.nom} {imp.valide_par.prenoms}" if imp.valide_par else '',
+            'Description': imp.description or '',
+            'Statut': imp.get_statut_validation_display(),
+            'Validé par': f"{imp.valide_par.nom} {imp.valide_par.prenoms or ''}".strip() if imp.valide_par else '',
             'Date validation': date_validation,
+            'Créé le': created_at,
         })
     
     df = pd.DataFrame(data)

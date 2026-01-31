@@ -47,7 +47,7 @@ class ClientService:
             'termines': tickets.filter(statut='TERMINE').count(),
             'en_retard': tickets.filter(
                 date_echeance__lt=timezone.now().date(),
-                statut__in=['OUVERT', 'EN_COURS', 'EN_REVue']
+                statut__in=['OUVERT', 'EN_COURS', 'EN_REVUE']
             ).count(),
         }
         

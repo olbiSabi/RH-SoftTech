@@ -1,23 +1,24 @@
 /* Variables CSS globales */
 :root {
-    --pm-primary: #4f46e5;
-    --pm-primary-dark: #4338ca;
-    --pm-primary-light: #818cf8;
-    --pm-success: #10b981;
-    --pm-warning: #f59e0b;
-    --pm-danger: #ef4444;
-    --pm-info: #3b82f6;
-    --pm-gray-50: #f9fafb;
-    --pm-gray-100: #f3f4f6;
-    --pm-gray-200: #e5e7eb;
-    --pm-gray-300: #d1d5db;
-    --pm-gray-500: #6b7280;
-    --pm-gray-600: #4b5563;
-    --pm-gray-700: #374151;
-    --pm-gray-800: #1f2937;
-    --pm-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-    --pm-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-    --pm-radius: 12px;
+    --pm-primary: #dc6b19;
+    --pm-primary-dark: #b45309;
+    --pm-primary-light: #fb923c;
+    --pm-success: #047857;
+    --pm-warning: #d97706;
+    --pm-danger: #dc2626;
+    --pm-info: #0c4a6e;
+    --pm-gray-50: #fafaf9;
+    --pm-gray-100: #f5f5f4;
+    --pm-gray-200: #e7e5e4;
+    --pm-gray-300: #d6d3d1;
+    --pm-gray-400: #a8a29e;
+    --pm-gray-500: #78716c;
+    --pm-gray-600: #57534e;
+    --pm-gray-700: #44403c;
+    --pm-gray-800: #292524;
+    --pm-shadow: 0 3px 6px -1px rgba(0,0,0,0.06), 0 2px 4px -1px rgba(0,0,0,0.04);
+    --pm-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.05);
+    --pm-radius: 10px;
 }
 
 /* Layout et structure */
