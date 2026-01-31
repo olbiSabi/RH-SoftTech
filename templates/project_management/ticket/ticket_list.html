@@ -1,0 +1,750 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<style>
+    :root {
+        --pm-primary: #4f46e5;
+        --pm-primary-dark: #4338ca;
+        --pm-primary-light: #818cf8;
+        --pm-success: #10b981;
+        --pm-warning: #f59e0b;
+        --pm-danger: #ef4444;
+        --pm-info: #3b82f6;
+        --pm-gray-50: #f9fafb;
+        --pm-gray-100: #f3f4f6;
+        --pm-gray-200: #e5e7eb;
+        --pm-gray-300: #d1d5db;
+        --pm-gray-500: #6b7280;
+        --pm-gray-600: #4b5563;
+        --pm-gray-700: #374151;
+        --pm-gray-800: #1f2937;
+        --pm-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        --pm-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        --pm-radius: 12px;
+    }
+
+    .pm-page-header {
+        background: linear-gradient(135deg, var(--pm-primary) 0%, var(--pm-primary-dark) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: var(--pm-radius);
+        margin-bottom: 1.5rem;
+        box-shadow: var(--pm-shadow-lg);
+    }
+
+    .pm-page-header h1 {
+        margin: 0;
+        font-size: 1.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .pm-page-header p {
+        margin: 0.5rem 0 0;
+        opacity: 0.9;
+        font-size: 0.95rem;
+    }
+
+    .pm-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .pm-stat-card {
+        background: white;
+        border-radius: var(--pm-radius);
+        padding: 1.25rem;
+        box-shadow: var(--pm-shadow);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .pm-stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--pm-shadow-lg);
+    }
+
+    .pm-stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .pm-stat-icon.total { background: rgba(79, 70, 229, 0.1); color: var(--pm-primary); }
+    .pm-stat-icon.ouvert { background: rgba(59, 130, 246, 0.1); color: var(--pm-info); }
+    .pm-stat-icon.en-cours { background: rgba(245, 158, 11, 0.1); color: var(--pm-warning); }
+    .pm-stat-icon.revue { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+    .pm-stat-icon.termine { background: rgba(16, 185, 129, 0.1); color: var(--pm-success); }
+
+    .pm-stat-content h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--pm-gray-800);
+    }
+
+    .pm-stat-content p {
+        font-size: 0.85rem;
+        color: var(--pm-gray-500);
+        margin: 0;
+    }
+
+    .pm-card {
+        background: white;
+        border-radius: var(--pm-radius);
+        box-shadow: var(--pm-shadow);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .pm-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--pm-gray-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .pm-card-header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--pm-gray-800);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .pm-card-body {
+        padding: 1.5rem;
+    }
+
+    .pm-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .pm-btn-primary {
+        background: var(--pm-primary);
+        color: white;
+    }
+
+    .pm-btn-primary:hover {
+        background: var(--pm-primary-dark);
+        color: white;
+    }
+
+    .pm-btn-secondary {
+        background: var(--pm-gray-100);
+        color: var(--pm-gray-700);
+    }
+
+    .pm-btn-secondary:hover {
+        background: var(--pm-gray-200);
+    }
+
+    .pm-btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    .pm-search-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .pm-form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    .pm-form-group label {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--pm-gray-600);
+    }
+
+    .pm-form-control {
+        padding: 0.625rem 0.875rem;
+        border: 1px solid var(--pm-gray-300);
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .pm-form-control:focus {
+        outline: none;
+        border-color: var(--pm-primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .pm-search-actions {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-end;
+    }
+
+    .pm-active-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--pm-gray-200);
+    }
+
+    .pm-filter-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        background: var(--pm-primary);
+        color: white;
+        border-radius: 20px;
+        font-size: 0.8rem;
+    }
+
+    .pm-filter-tag i {
+        cursor: pointer;
+        opacity: 0.8;
+    }
+
+    .pm-filter-tag i:hover {
+        opacity: 1;
+    }
+
+    .pm-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .pm-table th {
+        text-align: left;
+        padding: 1rem;
+        background: var(--pm-gray-50);
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--pm-gray-600);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid var(--pm-gray-200);
+    }
+
+    .pm-table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--pm-gray-200);
+        font-size: 0.9rem;
+        color: var(--pm-gray-700);
+    }
+
+    .pm-table tbody tr:hover {
+        background: var(--pm-gray-50);
+    }
+
+    .pm-ticket-code {
+        font-family: monospace;
+        font-weight: 600;
+        color: var(--pm-primary);
+    }
+
+    .pm-ticket-title {
+        font-weight: 500;
+        color: var(--pm-gray-800);
+        text-decoration: none;
+    }
+
+    .pm-ticket-title:hover {
+        color: var(--pm-primary);
+    }
+
+    .pm-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.625rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .pm-badge-statut-ouvert { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
+    .pm-badge-statut-en_cours { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+    .pm-badge-statut-en_revue { background: rgba(139, 92, 246, 0.1); color: #7c3aed; }
+    .pm-badge-statut-termine { background: rgba(16, 185, 129, 0.1); color: #059669; }
+    .pm-badge-statut-ferme { background: rgba(107, 114, 128, 0.1); color: #4b5563; }
+
+    .pm-badge-priorite-critique { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+    .pm-badge-priorite-haute { background: rgba(249, 115, 22, 0.1); color: #ea580c; }
+    .pm-badge-priorite-moyenne { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+    .pm-badge-priorite-basse { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
+
+    .pm-badge-type-bug { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+    .pm-badge-type-feature { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
+    .pm-badge-type-amelioration { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
+    .pm-badge-type-tache { background: rgba(107, 114, 128, 0.1); color: #4b5563; }
+
+    .pm-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--pm-primary);
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .pm-assignee {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .pm-pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1.5rem;
+    }
+
+    .pm-pagination a,
+    .pm-pagination span {
+        padding: 0.5rem 0.875rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .pm-pagination a {
+        color: var(--pm-gray-700);
+        background: var(--pm-gray-100);
+    }
+
+    .pm-pagination a:hover {
+        background: var(--pm-gray-200);
+    }
+
+    .pm-pagination .current {
+        background: var(--pm-primary);
+        color: white;
+    }
+
+    .pm-empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: var(--pm-gray-500);
+    }
+
+    .pm-empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .pm-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .pm-btn-icon {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        background: var(--pm-gray-100);
+        color: var(--pm-gray-600);
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .pm-btn-icon:hover {
+        background: var(--pm-gray-200);
+        color: var(--pm-gray-800);
+    }
+
+    .pm-btn-icon.danger:hover {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--pm-danger);
+    }
+
+    @media (max-width: 768px) {
+        .pm-table-responsive {
+            overflow-x: auto;
+        }
+
+        .pm-search-form {
+            grid-template-columns: 1fr;
+        }
+
+        .pm-search-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="pm-page-header">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h1><i class="fas fa-ticket-alt"></i> Tickets</h1>
+                <p>Gerez et suivez tous les tickets de vos projets</p>
+            </div>
+            <a href="{% url 'pm:ticket_create' %}" class="pm-btn pm-btn-primary" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);">
+                <i class="fas fa-plus"></i> Nouveau ticket
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="pm-stats-grid">
+        <div class="pm-stat-card">
+            <div class="pm-stat-icon total">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <div class="pm-stat-content">
+                <h3>{{ total_tickets }}</h3>
+                <p>Total tickets</p>
+            </div>
+        </div>
+        <div class="pm-stat-card">
+            <div class="pm-stat-icon ouvert">
+                <i class="fas fa-folder-open"></i>
+            </div>
+            <div class="pm-stat-content">
+                <h3>{{ tickets_ouverts }}</h3>
+                <p>Ouverts</p>
+            </div>
+        </div>
+        <div class="pm-stat-card">
+            <div class="pm-stat-icon en-cours">
+                <i class="fas fa-spinner"></i>
+            </div>
+            <div class="pm-stat-content">
+                <h3>{{ tickets_en_cours }}</h3>
+                <p>En cours</p>
+            </div>
+        </div>
+        <div class="pm-stat-card">
+            <div class="pm-stat-icon revue">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="pm-stat-content">
+                <h3>{{ tickets_en_revue }}</h3>
+                <p>En revue</p>
+            </div>
+        </div>
+        <div class="pm-stat-card">
+            <div class="pm-stat-icon termine">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="pm-stat-content">
+                <h3>{{ tickets_termines }}</h3>
+                <p>Termines</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="pm-card">
+        <div class="pm-card-header">
+            <h2><i class="fas fa-filter"></i> Recherche et filtres</h2>
+            <a href="{% url 'pm:ticket_kanban' %}" class="pm-btn pm-btn-secondary pm-btn-sm">
+                <i class="fas fa-columns"></i> Vue Kanban
+            </a>
+        </div>
+        <div class="pm-card-body">
+            <form method="get" class="pm-search-form">
+                <div class="pm-form-group">
+                    <label for="recherche">Recherche</label>
+                    <input type="text" name="recherche" id="recherche" class="pm-form-control"
+                           placeholder="Code, titre, description..."
+                           value="{{ search_form.recherche.value|default:'' }}">
+                </div>
+                <div class="pm-form-group">
+                    <label for="projet">Projet</label>
+                    {{ search_form.projet }}
+                </div>
+                <div class="pm-form-group">
+                    <label for="assigne">Assigne a</label>
+                    {{ search_form.assigne }}
+                </div>
+                <div class="pm-form-group">
+                    <label for="statut">Statut</label>
+                    {{ search_form.statut }}
+                </div>
+                <div class="pm-form-group">
+                    <label for="priorite">Priorite</label>
+                    {{ search_form.priorite }}
+                </div>
+                <div class="pm-form-group">
+                    <label for="type_ticket">Type</label>
+                    {{ search_form.type_ticket }}
+                </div>
+                <div class="pm-search-actions">
+                    <button type="submit" class="pm-btn pm-btn-primary">
+                        <i class="fas fa-search"></i> Rechercher
+                    </button>
+                    <a href="{% url 'pm:ticket_list' %}" class="pm-btn pm-btn-secondary">
+                        <i class="fas fa-times"></i> Reinitialiser
+                    </a>
+                </div>
+            </form>
+
+            {% if search_form.recherche.value or search_form.projet.value or search_form.assigne.value or search_form.statut.value or search_form.priorite.value or search_form.type_ticket.value %}
+            <div class="pm-active-filters">
+                <span style="font-size: 0.85rem; color: var(--pm-gray-600); margin-right: 0.5rem;">Filtres actifs:</span>
+                {% if search_form.recherche.value %}
+                    <span class="pm-filter-tag">
+                        <i class="fas fa-search"></i> "{{ search_form.recherche.value }}"
+                    </span>
+                {% endif %}
+                {% if search_form.projet.value %}
+                    <span class="pm-filter-tag">
+                        <i class="fas fa-project-diagram"></i> Projet
+                    </span>
+                {% endif %}
+                {% if search_form.assigne.value %}
+                    <span class="pm-filter-tag">
+                        <i class="fas fa-user"></i> Assigne
+                    </span>
+                {% endif %}
+                {% if search_form.statut.value %}
+                    <span class="pm-filter-tag">
+                        <i class="fas fa-flag"></i> {{ search_form.statut.value }}
+                    </span>
+                {% endif %}
+                {% if search_form.priorite.value %}
+                    <span class="pm-filter-tag">
+                        <i class="fas fa-exclamation"></i> {{ search_form.priorite.value }}
+                    </span>
+                {% endif %}
+                {% if search_form.type_ticket.value %}
+                    <span class="pm-filter-tag">
+                        <i class="fas fa-tag"></i> {{ search_form.type_ticket.value }}
+                    </span>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Liste des tickets -->
+    <div class="pm-card">
+        <div class="pm-card-header">
+            <h2><i class="fas fa-list"></i> Liste des tickets</h2>
+            <span style="font-size: 0.875rem; color: var(--pm-gray-500);">
+                {{ page_obj.paginator.count }} ticket{{ page_obj.paginator.count|pluralize }}
+            </span>
+        </div>
+        <div class="pm-table-responsive">
+            <table class="pm-table">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Titre</th>
+                        <th>Projet</th>
+                        <th>Type</th>
+                        <th>Priorite</th>
+                        <th>Statut</th>
+                        <th>Assigne</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ticket in tickets %}
+                    <tr>
+                        <td>
+                            <span class="pm-ticket-code">{{ ticket.code }}</span>
+                        </td>
+                        <td>
+                            <a href="{% url 'pm:ticket_detail' ticket.pk %}" class="pm-ticket-title">
+                                {{ ticket.titre|truncatechars:50 }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if ticket.projet %}
+                                <a href="{% url 'pm:projet_detail' ticket.projet.pk %}" style="color: var(--pm-gray-700); text-decoration: none;">
+                                    {{ ticket.projet.nom|truncatechars:25 }}
+                                </a>
+                            {% else %}
+                                <span style="color: var(--pm-gray-400);">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="pm-badge pm-badge-type-{{ ticket.type_ticket|lower }}">
+                                {{ ticket.get_type_ticket_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="pm-badge pm-badge-priorite-{{ ticket.priorite|lower }}">
+                                {{ ticket.get_priorite_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="pm-badge pm-badge-statut-{{ ticket.statut|lower }}">
+                                {{ ticket.get_statut_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if ticket.assigne %}
+                            <div class="pm-assignee">
+                                <span class="pm-avatar">
+                                    {{ ticket.assigne.prenoms|slice:":1" }}{{ ticket.assigne.nom|slice:":1" }}
+                                </span>
+                                <span>{{ ticket.assigne.prenoms|truncatechars:15 }}</span>
+                            </div>
+                            {% else %}
+                            <span style="color: var(--pm-gray-400);">Non assigne</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size: 0.85rem; color: var(--pm-gray-500);">
+                            {{ ticket.created_at|date:"d/m/Y" }}
+                        </td>
+                        <td>
+                            <div class="pm-actions">
+                                <a href="{% url 'pm:ticket_detail' ticket.pk %}" class="pm-btn-icon" title="Voir">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'pm:ticket_update' ticket.pk %}" class="pm-btn-icon" title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="pm-btn-icon danger" title="Supprimer"
+                                        onclick="confirmDelete('{{ ticket.pk }}', '{{ ticket.code }}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9">
+                            <div class="pm-empty-state">
+                                <i class="fas fa-ticket-alt"></i>
+                                <p>Aucun ticket trouve</p>
+                                <a href="{% url 'pm:ticket_create' %}" class="pm-btn pm-btn-primary">
+                                    <i class="fas fa-plus"></i> Creer un ticket
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj.has_other_pages %}
+        <div class="pm-pagination">
+            {% if page_obj.has_previous %}
+                <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page=1">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+                <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <span class="current">{{ num }}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+                <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+<div id="deleteModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+    <div style="background: white; border-radius: var(--pm-radius); padding: 2rem; max-width: 400px; width: 90%; text-align: center;">
+        <div style="width: 64px; height: 64px; background: rgba(239, 68, 68, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem; color: var(--pm-danger);"></i>
+        </div>
+        <h3 style="margin: 0 0 0.5rem; color: var(--pm-gray-800);">Supprimer ce ticket ?</h3>
+        <p style="color: var(--pm-gray-500); margin-bottom: 1.5rem;">
+            Le ticket <strong id="ticketCodeToDelete"></strong> sera definitivement supprime avec tous ses commentaires et pieces jointes.
+        </p>
+        <form id="deleteForm" method="post" style="display: flex; gap: 1rem; justify-content: center;">
+            {% csrf_token %}
+            <button type="button" onclick="closeDeleteModal()" class="pm-btn pm-btn-secondary">
+                Annuler
+            </button>
+            <button type="submit" class="pm-btn" style="background: var(--pm-danger); color: white;">
+                <i class="fas fa-trash"></i> Supprimer
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script>
+    // Ajout de la classe pm-form-control aux selects du formulaire de recherche
+    document.querySelectorAll('.pm-search-form select').forEach(select => {
+        select.classList.add('pm-form-control');
+    });
+
+    function confirmDelete(ticketId, ticketCode) {
+        document.getElementById('ticketCodeToDelete').textContent = ticketCode;
+        document.getElementById('deleteForm').action = '{% url "pm:ticket_delete" "00000000-0000-0000-0000-000000000000" %}'.replace('00000000-0000-0000-0000-000000000000', ticketId);
+        document.getElementById('deleteModal').style.display = 'flex';
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+    }
+
+    // Fermer le modal en cliquant en dehors
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteModal();
+        }
+    });
+</script>
+{% endblock %}

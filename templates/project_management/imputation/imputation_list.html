@@ -1,0 +1,539 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% block extrastylet %}
+<style>
+    :root {
+        --pm-primary: #4f46e5;
+        --pm-primary-dark: #4338ca;
+        --pm-primary-light: #818cf8;
+        --pm-success: #10b981;
+        --pm-warning: #f59e0b;
+        --pm-danger: #ef4444;
+        --pm-info: #3b82f6;
+        --pm-gray-50: #f9fafb;
+        --pm-gray-100: #f3f4f6;
+        --pm-gray-200: #e5e7eb;
+        --pm-gray-300: #d1d5db;
+        --pm-gray-500: #6b7280;
+        --pm-gray-600: #4b5563;
+        --pm-gray-700: #374151;
+        --pm-gray-800: #1f2937;
+        --pm-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        --pm-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        --pm-radius: 12px;
+    }
+
+    .pm-page-header {
+        background: linear-gradient(135deg, var(--pm-primary) 0%, var(--pm-primary-dark) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: var(--pm-radius);
+        margin-bottom: 1.5rem;
+        box-shadow: var(--pm-shadow-lg);
+    }
+
+    .pm-page-header h1 {
+        margin: 0;
+        font-size: 1.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .pm-page-header p {
+        margin: 0.5rem 0 0;
+        opacity: 0.9;
+        font-size: 0.95rem;
+    }
+
+    .pm-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .pm-stat-card {
+        background: white;
+        border-radius: var(--pm-radius);
+        padding: 1.25rem;
+        box-shadow: var(--pm-shadow);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .pm-stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .pm-stat-icon.total { background: rgba(79, 70, 229, 0.1); color: var(--pm-primary); }
+    .pm-stat-icon.validees { background: rgba(16, 185, 129, 0.1); color: var(--pm-success); }
+    .pm-stat-icon.en-attente { background: rgba(245, 158, 11, 0.1); color: var(--pm-warning); }
+
+    .pm-stat-content h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--pm-gray-800);
+    }
+
+    .pm-stat-content p {
+        font-size: 0.85rem;
+        color: var(--pm-gray-500);
+        margin: 0;
+    }
+
+    .pm-card {
+        background: white;
+        border-radius: var(--pm-radius);
+        box-shadow: var(--pm-shadow);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .pm-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--pm-gray-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .pm-card-header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--pm-gray-800);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .pm-card-body {
+        padding: 1.5rem;
+    }
+
+    .pm-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .pm-btn-primary {
+        background: var(--pm-primary);
+        color: white;
+    }
+
+    .pm-btn-primary:hover {
+        background: var(--pm-primary-dark);
+        color: white;
+    }
+
+    .pm-btn-secondary {
+        background: var(--pm-gray-100);
+        color: var(--pm-gray-700);
+    }
+
+    .pm-btn-secondary:hover {
+        background: var(--pm-gray-200);
+    }
+
+    .pm-search-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+    }
+
+    .pm-form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    .pm-form-group label {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--pm-gray-600);
+    }
+
+    .pm-form-control {
+        padding: 0.625rem 0.875rem;
+        border: 1px solid var(--pm-gray-300);
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .pm-form-control:focus {
+        outline: none;
+        border-color: var(--pm-primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .pm-search-actions {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-end;
+    }
+
+    .pm-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .pm-table th {
+        text-align: left;
+        padding: 1rem;
+        background: var(--pm-gray-50);
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--pm-gray-600);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid var(--pm-gray-200);
+    }
+
+    .pm-table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--pm-gray-200);
+        font-size: 0.9rem;
+        color: var(--pm-gray-700);
+    }
+
+    .pm-table tbody tr:hover {
+        background: var(--pm-gray-50);
+    }
+
+    .pm-avatar-sm {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--pm-primary);
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .pm-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.625rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .pm-badge-validee { background: rgba(16, 185, 129, 0.1); color: #059669; }
+    .pm-badge-en-attente { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+    .pm-badge-rejetee { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+
+    .pm-hours {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--pm-primary);
+    }
+
+    .pm-hours small {
+        font-size: 0.8rem;
+        font-weight: 400;
+        color: var(--pm-gray-500);
+    }
+
+    .pm-ticket-code {
+        font-family: monospace;
+        font-weight: 600;
+        color: var(--pm-primary);
+        font-size: 0.85rem;
+    }
+
+    .pm-empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: var(--pm-gray-500);
+    }
+
+    .pm-empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .pm-pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1.5rem;
+    }
+
+    .pm-pagination a,
+    .pm-pagination span {
+        padding: 0.5rem 0.875rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .pm-pagination a {
+        color: var(--pm-gray-700);
+        background: var(--pm-gray-100);
+    }
+
+    .pm-pagination a:hover {
+        background: var(--pm-gray-200);
+    }
+
+    .pm-pagination .current {
+        background: var(--pm-primary);
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .pm-table-responsive {
+            overflow-x: auto;
+        }
+
+        .pm-search-form {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="pm-page-header">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h1><i class="fas fa-clock"></i> Imputations</h1>
+                <p>Suivez le temps passé sur les projets</p>
+            </div>
+            <a href="{% url 'pm:imputation_create' %}" class="pm-btn pm-btn-primary" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);">
+                <i class="fas fa-plus"></i> Nouvelle imputation
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="pm-stats-grid">
+        <div class="pm-stat-card">
+            <div class="pm-stat-icon total">
+                <i class="fas fa-hourglass"></i>
+            </div>
+            <div class="pm-stat-content">
+                <h3>{{ total_heures|default:0 }}h</h3>
+                <p>Heures totales</p>
+            </div>
+        </div>
+        <div class="pm-stat-card">
+            <div class="pm-stat-icon validees">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="pm-stat-content">
+                <h3>{{ heures_validees|default:0 }}h</h3>
+                <p>Heures validées</p>
+            </div>
+        </div>
+        <div class="pm-stat-card">
+            <div class="pm-stat-icon en-attente">
+                <i class="fas fa-hourglass-half"></i>
+            </div>
+            <div class="pm-stat-content">
+                <h3>{{ heures_en_attente|default:0 }}h</h3>
+                <p>En attente</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="pm-card">
+        <div class="pm-card-header">
+            <h2><i class="fas fa-filter"></i> Filtres</h2>
+        </div>
+        <div class="pm-card-body">
+            <form method="get" class="pm-search-form">
+                <div class="pm-form-group">
+                    <label for="employe">Employé</label>
+                    <select name="employe" id="employe" class="pm-form-control">
+                        <option value="">Tous</option>
+                        {% for emp in employes %}
+                        <option value="{{ emp.pk }}" {% if request.GET.employe == emp.pk|stringformat:"s" %}selected{% endif %}>
+                            {{ emp.prenoms }} {{ emp.nom }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="pm-form-group">
+                    <label for="projet">Projet</label>
+                    <select name="projet" id="projet" class="pm-form-control">
+                        <option value="">Tous</option>
+                        {% for p in projets %}
+                        <option value="{{ p.code }}" {% if request.GET.projet == p.code %}selected{% endif %}>
+                            {{ p.code }} - {{ p.nom }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="pm-form-group">
+                    <label for="date_debut">Date début</label>
+                    <input type="date" name="date_debut" id="date_debut" class="pm-form-control"
+                           value="{{ request.GET.date_debut|default:'' }}">
+                </div>
+                <div class="pm-form-group">
+                    <label for="date_fin">Date fin</label>
+                    <input type="date" name="date_fin" id="date_fin" class="pm-form-control"
+                           value="{{ request.GET.date_fin|default:'' }}">
+                </div>
+                <div class="pm-form-group">
+                    <label for="statut">Statut</label>
+                    <select name="statut" id="statut" class="pm-form-control">
+                        <option value="">Tous</option>
+                        <option value="EN_ATTENTE" {% if request.GET.statut == 'EN_ATTENTE' %}selected{% endif %}>En attente</option>
+                        <option value="VALIDEE" {% if request.GET.statut == 'VALIDEE' %}selected{% endif %}>Validée</option>
+                        <option value="REJETEE" {% if request.GET.statut == 'REJETEE' %}selected{% endif %}>Rejetée</option>
+                    </select>
+                </div>
+                <div class="pm-search-actions">
+                    <button type="submit" class="pm-btn pm-btn-primary">
+                        <i class="fas fa-search"></i> Filtrer
+                    </button>
+                    <a href="{% url 'pm:imputation_list' %}" class="pm-btn pm-btn-secondary">
+                        <i class="fas fa-times"></i> Réinitialiser
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Liste des imputations -->
+    <div class="pm-card">
+        <div class="pm-card-header">
+            <h2><i class="fas fa-list"></i> Liste des imputations</h2>
+        </div>
+        <div class="pm-table-responsive">
+            <table class="pm-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Employé</th>
+                        <th>Projet</th>
+                        <th>Ticket</th>
+                        <th>Heures</th>
+                        <th>Statut</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for imputation in imputations %}
+                    <tr>
+                        <td>{{ imputation.date_imputation|date:"d/m/Y" }}</td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="pm-avatar-sm">
+                                    {{ imputation.employe.prenoms|slice:":1" }}{{ imputation.employe.nom|slice:":1" }}
+                                </span>
+                                {{ imputation.employe.prenoms }} {{ imputation.employe.nom|slice:":1" }}.
+                            </div>
+                        </td>
+                        <td>
+                            {% if imputation.ticket and imputation.ticket.projet %}
+                            <a href="{% url 'pm:projet_detail' imputation.ticket.projet.pk %}" style="color: var(--pm-gray-800); text-decoration: none;">
+                                {{ imputation.ticket.projet.code }}
+                            </a>
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if imputation.ticket %}
+                            <a href="{% url 'pm:ticket_detail' imputation.ticket.pk %}" class="pm-ticket-code">
+                                {{ imputation.ticket.code }}
+                            </a>
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="pm-hours">{{ imputation.heures_affichage }}h{% if imputation.minutes_affichage %} {{ imputation.minutes_affichage }}min{% endif %}</span>
+                        </td>
+                        <td>
+                            <span class="pm-badge pm-badge-{% if imputation.statut_validation == 'VALIDE' %}validee{% elif imputation.statut_validation == 'REJETE' %}rejetee{% else %}en-attente{% endif %}">
+                                {{ imputation.get_statut_validation_display|default:"En attente" }}
+                            </span>
+                        </td>
+                        <td style="max-width: 200px;">
+                            {{ imputation.description|truncatechars:50|default:"-" }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7">
+                            <div class="pm-empty-state">
+                                <i class="fas fa-clock"></i>
+                                <p>Aucune imputation trouvée</p>
+                                <a href="{% url 'pm:imputation_create' %}" class="pm-btn pm-btn-primary">
+                                    <i class="fas fa-plus"></i> Nouvelle imputation
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj.has_other_pages %}
+        <div class="pm-pagination">
+            {% if page_obj.has_previous %}
+                <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page=1">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+                <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <span class="current">{{ num }}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+                <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

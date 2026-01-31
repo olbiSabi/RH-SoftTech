@@ -1,0 +1,388 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static pm_tags %}
+{% block extrastylet %}
+<style>
+    :root {
+        --bl-primary: #7c3aed;
+        --bl-primary-dark: #6d28d9;
+        --bl-success: #10b981;
+        --bl-warning: #f59e0b;
+        --bl-danger: #ef4444;
+        --bl-info: #3b82f6;
+        --bl-gray-50: #f9fafb;
+        --bl-gray-100: #f3f4f6;
+        --bl-gray-200: #e5e7eb;
+        --bl-gray-300: #d1d5db;
+        --bl-gray-400: #9ca3af;
+        --bl-gray-500: #6b7280;
+        --bl-gray-600: #4b5563;
+        --bl-gray-700: #374151;
+        --bl-gray-800: #1f2937;
+        --bl-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        --bl-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        --bl-radius: 12px;
+    }
+
+    .bl-page-header {
+        background: linear-gradient(135deg, var(--bl-primary) 0%, var(--bl-primary-dark) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: var(--bl-radius);
+        margin-bottom: 1.5rem;
+        box-shadow: var(--bl-shadow-lg);
+    }
+
+    .bl-page-header h1 {
+        margin: 0;
+        font-size: 1.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .bl-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        opacity: 0.9;
+        margin-bottom: 0.5rem;
+    }
+
+    .bl-breadcrumb a {
+        color: white;
+        text-decoration: none;
+    }
+
+    .bl-breadcrumb a:hover {
+        text-decoration: underline;
+    }
+
+    .bl-priority-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .bl-card {
+        background: white;
+        border-radius: var(--bl-radius);
+        box-shadow: var(--bl-shadow);
+        overflow: hidden;
+    }
+
+    .bl-card-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--bl-gray-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .bl-card-header h2 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--bl-gray-800);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .bl-card-header.critique { border-left: 4px solid var(--bl-danger); }
+    .bl-card-header.haute { border-left: 4px solid var(--bl-warning); }
+    .bl-card-header.normale { border-left: 4px solid var(--bl-info); }
+    .bl-card-header.basse { border-left: 4px solid var(--bl-gray-400); }
+
+    .bl-card-body {
+        padding: 0;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .bl-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .bl-btn-secondary {
+        background: var(--bl-gray-100);
+        color: var(--bl-gray-700);
+    }
+
+    .bl-btn-secondary:hover {
+        background: var(--bl-gray-200);
+    }
+
+    .bl-btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .bl-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .bl-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid var(--bl-gray-100);
+        transition: background 0.15s;
+    }
+
+    .bl-item:last-child {
+        border-bottom: none;
+    }
+
+    .bl-item:hover {
+        background: var(--bl-gray-50);
+    }
+
+    .bl-item-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .bl-item-code {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--bl-primary);
+        background: rgba(124, 58, 237, 0.1);
+        padding: 0.125rem 0.375rem;
+        border-radius: 4px;
+        margin-right: 0.5rem;
+    }
+
+    .bl-item-title {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--bl-gray-800);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .bl-item-title a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .bl-item-title a:hover {
+        color: var(--bl-primary);
+    }
+
+    .bl-item-meta {
+        font-size: 0.75rem;
+        color: var(--bl-gray-500);
+        margin-top: 0.125rem;
+    }
+
+    .bl-empty {
+        text-align: center;
+        padding: 2rem 1.5rem;
+        color: var(--bl-gray-500);
+        font-size: 0.9rem;
+    }
+
+    .bl-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: 500;
+    }
+
+    .bl-badge-critique { background: rgba(239, 68, 68, 0.1); color: var(--bl-danger); }
+    .bl-badge-haute { background: rgba(245, 158, 11, 0.1); color: var(--bl-warning); }
+    .bl-badge-normale { background: rgba(59, 130, 246, 0.1); color: var(--bl-info); }
+    .bl-badge-basse { background: rgba(107, 114, 128, 0.1); color: var(--bl-gray-500); }
+
+    .bl-priority-dropdown {
+        position: relative;
+    }
+
+    .bl-priority-btn {
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .bl-priority-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        border: 1px solid var(--bl-gray-200);
+        border-radius: 8px;
+        box-shadow: var(--bl-shadow-lg);
+        z-index: 100;
+        display: none;
+        min-width: 120px;
+    }
+
+    .bl-priority-menu.show {
+        display: block;
+    }
+
+    .bl-priority-option {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+        color: var(--bl-gray-700);
+        cursor: pointer;
+        transition: background 0.15s;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .bl-priority-option:hover {
+        background: var(--bl-gray-50);
+    }
+
+    .bl-priority-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+    .bl-priority-dot.critique { background: var(--bl-danger); }
+    .bl-priority-dot.haute { background: var(--bl-warning); }
+    .bl-priority-dot.normale { background: var(--bl-info); }
+    .bl-priority-dot.basse { background: var(--bl-gray-400); }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="bl-page-header">
+        <div class="bl-breadcrumb">
+            <a href="{% url 'pm:backlog_list' %}"><i class="fas fa-layer-group"></i> Backlog</a>
+            <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
+            <a href="{% url 'pm:backlog_projet' projet.pk %}">{{ projet.nom }}</a>
+            <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
+            <span>Priorisation</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h1>
+                    <i class="fas fa-sort-amount-up"></i>
+                    Priorisation du Backlog
+                </h1>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'pm:backlog_projet' projet.pk %}" class="bl-btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;">
+                    <i class="fas fa-arrow-left"></i> Retour
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grille par priorité -->
+    <div class="bl-priority-grid">
+        {% for priorite, label in priorite_choices %}
+        <div class="bl-card">
+            <div class="bl-card-header {{ priorite|lower }}">
+                <h2>
+                    <span class="bl-priority-dot {{ priorite|lower }}"></span>
+                    {{ label }}
+                </h2>
+                <span class="bl-badge bl-badge-{{ priorite|lower }}">{{ tickets_par_priorite|get_item:priorite|length }}</span>
+            </div>
+            <div class="bl-card-body">
+                {% with tickets=tickets_par_priorite|get_item:priorite %}
+                {% if tickets %}
+                <ul class="bl-list">
+                    {% for ticket in tickets %}
+                    <li class="bl-item">
+                        <div class="bl-item-content">
+                            <div class="bl-item-title">
+                                <span class="bl-item-code">{{ ticket.code }}</span>
+                                <a href="{% url 'pm:ticket_detail' ticket.pk %}">{{ ticket.titre }}</a>
+                            </div>
+                            <div class="bl-item-meta">
+                                {{ ticket.get_type_ticket_display }}
+                                {% if ticket.estimation_heures %} - {{ ticket.estimation_heures }}h{% endif %}
+                            </div>
+                        </div>
+                        <div class="bl-priority-dropdown">
+                            <button type="button" class="bl-priority-btn bl-badge-{{ priorite|lower }}" onclick="togglePriorityMenu(this)">
+                                <i class="fas fa-exchange-alt"></i>
+                            </button>
+                            <div class="bl-priority-menu">
+                                {% for p_code, p_label in priorite_choices %}
+                                {% if p_code != priorite %}
+                                <form method="post" action="{% url 'pm:backlog_changer_priorite' projet.pk %}" style="margin: 0;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="ticket_id" value="{{ ticket.pk }}">
+                                    <input type="hidden" name="priorite" value="{{ p_code }}">
+                                    <button type="submit" class="bl-priority-option">
+                                        <span class="bl-priority-dot {{ p_code|lower }}"></span>
+                                        {{ p_label }}
+                                    </button>
+                                </form>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="bl-empty">
+                    Aucun ticket {{ label|lower }}
+                </div>
+                {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script>
+function togglePriorityMenu(btn) {
+    // Fermer tous les autres menus
+    document.querySelectorAll('.bl-priority-menu.show').forEach(menu => {
+        if (menu !== btn.nextElementSibling) {
+            menu.classList.remove('show');
+        }
+    });
+    btn.nextElementSibling.classList.toggle('show');
+}
+
+// Fermer les menus au clic en dehors
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.bl-priority-dropdown')) {
+        document.querySelectorAll('.bl-priority-menu.show').forEach(menu => {
+            menu.classList.remove('show');
+        });
+    }
+});
+</script>
+{% endblock %}

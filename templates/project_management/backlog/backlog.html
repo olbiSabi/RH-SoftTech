@@ -1,0 +1,627 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% block extrastylet %}
+<style>
+    :root {
+        --bl-primary: #7c3aed;
+        --bl-primary-dark: #6d28d9;
+        --bl-primary-light: #a78bfa;
+        --bl-success: #10b981;
+        --bl-warning: #f59e0b;
+        --bl-danger: #ef4444;
+        --bl-info: #3b82f6;
+        --bl-gray-50: #f9fafb;
+        --bl-gray-100: #f3f4f6;
+        --bl-gray-200: #e5e7eb;
+        --bl-gray-300: #d1d5db;
+        --bl-gray-400: #9ca3af;
+        --bl-gray-500: #6b7280;
+        --bl-gray-600: #4b5563;
+        --bl-gray-700: #374151;
+        --bl-gray-800: #1f2937;
+        --bl-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        --bl-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        --bl-radius: 12px;
+    }
+
+    .bl-page-header {
+        background: linear-gradient(135deg, var(--bl-primary) 0%, var(--bl-primary-dark) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: var(--bl-radius);
+        margin-bottom: 1.5rem;
+        box-shadow: var(--bl-shadow-lg);
+    }
+
+    .bl-page-header h1 {
+        margin: 0;
+        font-size: 1.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .bl-page-header p {
+        margin: 0.5rem 0 0;
+        opacity: 0.9;
+        font-size: 0.95rem;
+    }
+
+    .bl-header-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+
+    .bl-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .bl-stat-card {
+        background: white;
+        border-radius: var(--bl-radius);
+        padding: 1.25rem;
+        box-shadow: var(--bl-shadow);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .bl-stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--bl-shadow-lg);
+    }
+
+    .bl-stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .bl-stat-icon.total { background: rgba(124, 58, 237, 0.1); color: var(--bl-primary); }
+    .bl-stat-icon.non-assigne { background: rgba(107, 114, 128, 0.1); color: var(--bl-gray-500); }
+    .bl-stat-icon.haute { background: rgba(245, 158, 11, 0.1); color: var(--bl-warning); }
+    .bl-stat-icon.critique { background: rgba(239, 68, 68, 0.1); color: var(--bl-danger); }
+
+    .bl-stat-content h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--bl-gray-800);
+    }
+
+    .bl-stat-content p {
+        font-size: 0.85rem;
+        color: var(--bl-gray-500);
+        margin: 0;
+    }
+
+    .bl-card {
+        background: white;
+        border-radius: var(--bl-radius);
+        box-shadow: var(--bl-shadow);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .bl-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--bl-gray-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .bl-card-header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--bl-gray-800);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .bl-card-body {
+        padding: 1.5rem;
+    }
+
+    .bl-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .bl-btn-primary {
+        background: var(--bl-primary);
+        color: white;
+    }
+
+    .bl-btn-primary:hover {
+        background: var(--bl-primary-dark);
+        color: white;
+    }
+
+    .bl-btn-secondary {
+        background: var(--bl-gray-100);
+        color: var(--bl-gray-700);
+    }
+
+    .bl-btn-secondary:hover {
+        background: var(--bl-gray-200);
+    }
+
+    .bl-btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    .bl-filter-form {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .bl-form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    .bl-form-group label {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--bl-gray-600);
+    }
+
+    .bl-form-control {
+        padding: 0.625rem 0.875rem;
+        border: 1px solid var(--bl-gray-300);
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        min-width: 200px;
+    }
+
+    .bl-form-control:focus {
+        outline: none;
+        border-color: var(--bl-primary);
+        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    }
+
+    /* Backlog List */
+    .bl-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .bl-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--bl-gray-100);
+        transition: background 0.15s;
+    }
+
+    .bl-item:last-child {
+        border-bottom: none;
+    }
+
+    .bl-item:hover {
+        background: var(--bl-gray-50);
+    }
+
+    .bl-item-order {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: var(--bl-gray-100);
+        color: var(--bl-gray-600);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+    }
+
+    .bl-item-priority {
+        width: 4px;
+        height: 40px;
+        border-radius: 2px;
+        flex-shrink: 0;
+    }
+
+    .bl-item-priority.basse { background: var(--bl-gray-400); }
+    .bl-item-priority.normale { background: var(--bl-info); }
+    .bl-item-priority.haute { background: var(--bl-warning); }
+    .bl-item-priority.critique { background: var(--bl-danger); }
+
+    .bl-item-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .bl-item-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .bl-item-code {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--bl-primary);
+        background: rgba(124, 58, 237, 0.1);
+        padding: 0.125rem 0.5rem;
+        border-radius: 4px;
+    }
+
+    .bl-item-title {
+        font-weight: 500;
+        color: var(--bl-gray-800);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .bl-item-title a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .bl-item-title a:hover {
+        color: var(--bl-primary);
+    }
+
+    .bl-item-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 0.8rem;
+        color: var(--bl-gray-500);
+    }
+
+    .bl-item-meta span {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .bl-item-badges {
+        display: flex;
+        gap: 0.5rem;
+        flex-shrink: 0;
+    }
+
+    .bl-badge {
+        padding: 0.25rem 0.625rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .bl-badge-type {
+        background: var(--bl-gray-100);
+        color: var(--bl-gray-600);
+    }
+
+    .bl-badge-bug { background: rgba(239, 68, 68, 0.1); color: var(--bl-danger); }
+    .bl-badge-feature { background: rgba(16, 185, 129, 0.1); color: var(--bl-success); }
+    .bl-badge-amelioration { background: rgba(59, 130, 246, 0.1); color: var(--bl-info); }
+    .bl-badge-tache { background: rgba(107, 114, 128, 0.1); color: var(--bl-gray-600); }
+
+    .bl-item-assignee {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-shrink: 0;
+    }
+
+    .bl-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--bl-primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .bl-avatar.unassigned {
+        background: var(--bl-gray-300);
+        color: var(--bl-gray-500);
+    }
+
+    .bl-item-estimation {
+        font-size: 0.85rem;
+        color: var(--bl-gray-600);
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .bl-item-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-shrink: 0;
+    }
+
+    .bl-empty {
+        text-align: center;
+        padding: 3rem 1.5rem;
+        color: var(--bl-gray-500);
+    }
+
+    .bl-empty i {
+        font-size: 3rem;
+        color: var(--bl-gray-300);
+        margin-bottom: 1rem;
+    }
+
+    .bl-empty h3 {
+        margin: 0 0 0.5rem;
+        color: var(--bl-gray-700);
+    }
+
+    .bl-empty p {
+        margin: 0;
+    }
+
+    /* Projet Info */
+    .bl-projet-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        background: rgba(124, 58, 237, 0.05);
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+
+    .bl-projet-info i {
+        font-size: 1.5rem;
+        color: var(--bl-primary);
+    }
+
+    .bl-projet-info h3 {
+        margin: 0;
+        font-size: 1rem;
+        color: var(--bl-gray-800);
+    }
+
+    .bl-projet-info p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: var(--bl-gray-500);
+    }
+
+    @media (max-width: 768px) {
+        .bl-item {
+            flex-wrap: wrap;
+        }
+
+        .bl-item-badges,
+        .bl-item-assignee,
+        .bl-item-estimation {
+            display: none;
+        }
+
+        .bl-filter-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .bl-form-control {
+            min-width: auto;
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="bl-page-header">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h1>
+                    <i class="fas fa-layer-group"></i>
+                    Backlog
+                </h1>
+                <p>Gestion et priorisation des tickets dans le backlog</p>
+            </div>
+            <div class="bl-header-actions">
+                <a href="{% url 'pm:ticket_create' %}" class="bl-btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;">
+                    <i class="fas fa-plus"></i> Nouveau ticket
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="bl-stats-grid">
+        <div class="bl-stat-card">
+            <div class="bl-stat-icon total">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <div class="bl-stat-content">
+                <h3>{{ stats.total }}</h3>
+                <p>Total backlog</p>
+            </div>
+        </div>
+        <div class="bl-stat-card">
+            <div class="bl-stat-icon non-assigne">
+                <i class="fas fa-user-slash"></i>
+            </div>
+            <div class="bl-stat-content">
+                <h3>{{ stats.non_assignes }}</h3>
+                <p>Non assignés</p>
+            </div>
+        </div>
+        <div class="bl-stat-card">
+            <div class="bl-stat-icon haute">
+                <i class="fas fa-arrow-up"></i>
+            </div>
+            <div class="bl-stat-content">
+                <h3>{{ stats.haute_priorite }}</h3>
+                <p>Haute priorité</p>
+            </div>
+        </div>
+        <div class="bl-stat-card">
+            <div class="bl-stat-icon critique">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="bl-stat-content">
+                <h3>{{ stats.critique }}</h3>
+                <p>Critique</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtre par projet -->
+    <div class="bl-card">
+        <div class="bl-card-header">
+            <h2><i class="fas fa-filter"></i> Filtrer</h2>
+        </div>
+        <div class="bl-card-body">
+            <form method="get" class="bl-filter-form">
+                <div class="bl-form-group">
+                    <label for="projet">Projet</label>
+                    <select name="projet" id="projet" class="bl-form-control" onchange="this.form.submit()">
+                        <option value="">Tous les projets</option>
+                        {% for p in projets %}
+                        <option value="{{ p.pk }}" {% if projet and projet.pk == p.pk %}selected{% endif %}>{{ p.nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% if projet %}
+                <a href="{% url 'pm:backlog_list' %}" class="bl-btn bl-btn-secondary">
+                    <i class="fas fa-times"></i> Réinitialiser
+                </a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    {% if projet %}
+    <!-- Info projet sélectionné -->
+    <div class="bl-projet-info">
+        <i class="fas fa-project-diagram"></i>
+        <div>
+            <h3>{{ projet.nom }}</h3>
+            <p>{{ projet.code }} - {{ projet.get_statut_display }}</p>
+        </div>
+        <div style="margin-left: auto; display: flex; gap: 0.5rem;">
+            <a href="{% url 'pm:backlog_projet' projet.pk %}" class="bl-btn bl-btn-primary bl-btn-sm">
+                <i class="fas fa-cog"></i> Gérer le backlog
+            </a>
+            <a href="{% url 'pm:backlog_priorisation' projet.pk %}" class="bl-btn bl-btn-secondary bl-btn-sm">
+                <i class="fas fa-sort-amount-up"></i> Priorisation
+            </a>
+            <a href="{% url 'pm:backlog_planning_sprint' projet.pk %}" class="bl-btn bl-btn-secondary bl-btn-sm">
+                <i class="fas fa-calendar-plus"></i> Planifier un sprint
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Liste du backlog -->
+    <div class="bl-card">
+        <div class="bl-card-header">
+            <h2><i class="fas fa-list-ol"></i> Tickets dans le backlog</h2>
+            <span class="bl-badge bl-badge-type">{{ tickets|length }} ticket{{ tickets|length|pluralize }}</span>
+        </div>
+        <div class="bl-card-body" style="padding: 0;">
+            {% if tickets %}
+            <ul class="bl-list">
+                {% for ticket in tickets %}
+                <li class="bl-item">
+                    <div class="bl-item-order">{{ forloop.counter }}</div>
+                    <div class="bl-item-priority {{ ticket.priorite|lower }}"></div>
+                    <div class="bl-item-content">
+                        <div class="bl-item-header">
+                            <span class="bl-item-code">{{ ticket.code }}</span>
+                            <span class="bl-item-title">
+                                <a href="{% url 'pm:ticket_detail' ticket.pk %}">{{ ticket.titre }}</a>
+                            </span>
+                        </div>
+                        <div class="bl-item-meta">
+                            {% if not projet %}
+                            <span><i class="fas fa-project-diagram"></i> {{ ticket.projet.nom }}</span>
+                            {% endif %}
+                            <span><i class="fas fa-flag"></i> {{ ticket.get_priorite_display }}</span>
+                            <span><i class="fas fa-calendar"></i> {{ ticket.created_at|date:"d/m/Y" }}</span>
+                        </div>
+                    </div>
+                    <div class="bl-item-badges">
+                        <span class="bl-badge bl-badge-{{ ticket.type_ticket|lower }}">{{ ticket.get_type_ticket_display }}</span>
+                    </div>
+                    <div class="bl-item-assignee">
+                        {% if ticket.assigne %}
+                        <div class="bl-avatar">
+                            {{ ticket.assigne.prenoms|slice:":1" }}{{ ticket.assigne.nom|slice:":1" }}
+                        </div>
+                        <span style="font-size: 0.85rem; color: var(--bl-gray-600);">{{ ticket.assigne.prenoms }} {{ ticket.assigne.nom|slice:":10" }}</span>
+                        {% else %}
+                        <div class="bl-avatar unassigned">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if ticket.estimation_heures %}
+                    <div class="bl-item-estimation">
+                        <i class="fas fa-clock"></i>
+                        {{ ticket.estimation_heures }}h
+                    </div>
+                    {% endif %}
+                    <div class="bl-item-actions">
+                        <a href="{% url 'pm:ticket_detail' ticket.pk %}" class="bl-btn bl-btn-secondary bl-btn-sm" title="Voir le détail">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="bl-empty">
+                <i class="fas fa-inbox"></i>
+                <h3>Aucun ticket dans le backlog</h3>
+                <p>{% if projet %}Ce projet n'a pas encore de tickets dans le backlog.{% else %}Sélectionnez un projet ou ajoutez des tickets au backlog.{% endif %}</p>
+                <a href="{% url 'pm:ticket_create' %}" class="bl-btn bl-btn-primary" style="margin-top: 1rem;">
+                    <i class="fas fa-plus"></i> Créer un ticket
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

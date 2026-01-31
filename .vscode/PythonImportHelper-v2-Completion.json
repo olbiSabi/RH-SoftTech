@@ -131,6 +131,14 @@
         "documentation": {}
     },
     {
+        "label": "reverse",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
         "label": "path",
         "importPath": "django.urls",
         "description": "django.urls",
@@ -331,207 +339,111 @@
         "documentation": {}
     },
     {
-        "label": "admin",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
+        "label": "reverse",
+        "importPath": "django.urls",
+        "description": "django.urls",
         "isExtraImport": true,
-        "detail": "django.contrib",
+        "detail": "django.urls",
         "documentation": {}
     },
     {
-        "label": "messages",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
+        "label": "reverse",
+        "importPath": "django.urls",
+        "description": "django.urls",
         "isExtraImport": true,
-        "detail": "django.contrib",
+        "detail": "django.urls",
         "documentation": {}
     },
     {
-        "label": "messages",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
+        "label": "reverse",
+        "importPath": "django.urls",
+        "description": "django.urls",
         "isExtraImport": true,
-        "detail": "django.contrib",
+        "detail": "django.urls",
         "documentation": {}
     },
     {
-        "label": "messages",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
+        "label": "reverse",
+        "importPath": "django.urls",
+        "description": "django.urls",
         "isExtraImport": true,
-        "detail": "django.contrib",
+        "detail": "django.urls",
         "documentation": {}
     },
     {
-        "label": "messages",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
+        "label": "reverse",
+        "importPath": "django.urls",
+        "description": "django.urls",
         "isExtraImport": true,
-        "detail": "django.contrib",
+        "detail": "django.urls",
         "documentation": {}
     },
     {
-        "label": "messages",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
+        "label": "reverse",
+        "importPath": "django.urls",
+        "description": "django.urls",
         "isExtraImport": true,
-        "detail": "django.contrib",
+        "detail": "django.urls",
         "documentation": {}
     },
     {
-        "label": "admin",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
+        "label": "reverse",
+        "importPath": "django.urls",
+        "description": "django.urls",
         "isExtraImport": true,
-        "detail": "django.contrib",
+        "detail": "django.urls",
         "documentation": {}
     },
     {
-        "label": "messages",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
+        "label": "reverse_lazy",
+        "importPath": "django.urls",
+        "description": "django.urls",
         "isExtraImport": true,
-        "detail": "django.contrib",
+        "detail": "django.urls",
         "documentation": {}
     },
     {
-        "label": "admin",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
+        "label": "reverse_lazy",
+        "importPath": "django.urls",
+        "description": "django.urls",
         "isExtraImport": true,
-        "detail": "django.contrib",
+        "detail": "django.urls",
         "documentation": {}
     },
     {
-        "label": "messages",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
+        "label": "reverse_lazy",
+        "importPath": "django.urls",
+        "description": "django.urls",
         "isExtraImport": true,
-        "detail": "django.contrib",
+        "detail": "django.urls",
         "documentation": {}
     },
     {
-        "label": "admin",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
+        "label": "reverse_lazy",
+        "importPath": "django.urls",
+        "description": "django.urls",
         "isExtraImport": true,
-        "detail": "django.contrib",
+        "detail": "django.urls",
         "documentation": {}
     },
     {
-        "label": "messages",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
+        "label": "reverse_lazy",
+        "importPath": "django.urls",
+        "description": "django.urls",
         "isExtraImport": true,
-        "detail": "django.contrib",
+        "detail": "django.urls",
         "documentation": {}
     },
     {
-        "label": "admin",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
+        "label": "path",
+        "importPath": "django.urls",
+        "description": "django.urls",
         "isExtraImport": true,
-        "detail": "django.contrib",
-        "documentation": {}
-    },
-    {
-        "label": "messages",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
-        "isExtraImport": true,
-        "detail": "django.contrib",
-        "documentation": {}
-    },
-    {
-        "label": "messages",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
-        "isExtraImport": true,
-        "detail": "django.contrib",
+        "detail": "django.urls",
         "documentation": {}
     },
     {
         "label": "admin",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
-        "isExtraImport": true,
-        "detail": "django.contrib",
-        "documentation": {}
-    },
-    {
-        "label": "messages",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
-        "isExtraImport": true,
-        "detail": "django.contrib",
-        "documentation": {}
-    },
-    {
-        "label": "messages",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
-        "isExtraImport": true,
-        "detail": "django.contrib",
-        "documentation": {}
-    },
-    {
-        "label": "messages",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
-        "isExtraImport": true,
-        "detail": "django.contrib",
-        "documentation": {}
-    },
-    {
-        "label": "admin",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
-        "isExtraImport": true,
-        "detail": "django.contrib",
-        "documentation": {}
-    },
-    {
-        "label": "messages",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
-        "isExtraImport": true,
-        "detail": "django.contrib",
-        "documentation": {}
-    },
-    {
-        "label": "admin",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
-        "isExtraImport": true,
-        "detail": "django.contrib",
-        "documentation": {}
-    },
-    {
-        "label": "messages",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
-        "isExtraImport": true,
-        "detail": "django.contrib",
-        "documentation": {}
-    },
-    {
-        "label": "messages",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
-        "isExtraImport": true,
-        "detail": "django.contrib",
-        "documentation": {}
-    },
-    {
-        "label": "messages",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
-        "isExtraImport": true,
-        "detail": "django.contrib",
-        "documentation": {}
-    },
-    {
-        "label": "messages",
         "importPath": "django.contrib",
         "description": "django.contrib",
         "isExtraImport": true,
@@ -587,6 +499,14 @@
         "documentation": {}
     },
     {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
         "label": "admin",
         "importPath": "django.contrib",
         "description": "django.contrib",
@@ -596,6 +516,254 @@
     },
     {
         "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
         "importPath": "django.contrib",
         "description": "django.contrib",
         "isExtraImport": true,
@@ -656,6 +824,166 @@
         "description": "django.views.generic",
         "isExtraImport": true,
         "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "ListView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
+        "isExtraImport": true,
+        "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "ListView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
+        "isExtraImport": true,
+        "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "CreateView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
+        "isExtraImport": true,
+        "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "UpdateView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
+        "isExtraImport": true,
+        "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "DeleteView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
+        "isExtraImport": true,
+        "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "ListView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
+        "isExtraImport": true,
+        "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "CreateView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
+        "isExtraImport": true,
+        "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "UpdateView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
+        "isExtraImport": true,
+        "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "DeleteView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
+        "isExtraImport": true,
+        "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "ListView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
+        "isExtraImport": true,
+        "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "CreateView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
+        "isExtraImport": true,
+        "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "UpdateView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
+        "isExtraImport": true,
+        "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "ListView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
+        "isExtraImport": true,
+        "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "CreateView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
+        "isExtraImport": true,
+        "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "UpdateView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
+        "isExtraImport": true,
+        "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "ListView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
+        "isExtraImport": true,
+        "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "CreateView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
+        "isExtraImport": true,
+        "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "UpdateView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
+        "isExtraImport": true,
+        "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "settings",
+        "importPath": "django.conf",
+        "description": "django.conf",
+        "isExtraImport": true,
+        "detail": "django.conf",
+        "documentation": {}
+    },
+    {
+        "label": "settings",
+        "importPath": "django.conf",
+        "description": "django.conf",
+        "isExtraImport": true,
+        "detail": "django.conf",
         "documentation": {}
     },
     {
@@ -1515,6 +1843,166 @@
         "documentation": {}
     },
     {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "get_object_or_404",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "redirect",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "get_object_or_404",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "redirect",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "get_object_or_404",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "redirect",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "get_object_or_404",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "redirect",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "get_object_or_404",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "redirect",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "get_object_or_404",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "redirect",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
         "label": "get_wsgi_application",
         "importPath": "django.core.wsgi",
         "description": "django.core.wsgi",
@@ -2148,6 +2636,78 @@
         "documentation": {}
     },
     {
+        "label": "ZY00",
+        "importPath": "employee.models",
+        "description": "employee.models",
+        "isExtraImport": true,
+        "detail": "employee.models",
+        "documentation": {}
+    },
+    {
+        "label": "ZY00",
+        "importPath": "employee.models",
+        "description": "employee.models",
+        "isExtraImport": true,
+        "detail": "employee.models",
+        "documentation": {}
+    },
+    {
+        "label": "ZY00",
+        "importPath": "employee.models",
+        "description": "employee.models",
+        "isExtraImport": true,
+        "detail": "employee.models",
+        "documentation": {}
+    },
+    {
+        "label": "ZY00",
+        "importPath": "employee.models",
+        "description": "employee.models",
+        "isExtraImport": true,
+        "detail": "employee.models",
+        "documentation": {}
+    },
+    {
+        "label": "ZY00",
+        "importPath": "employee.models",
+        "description": "employee.models",
+        "isExtraImport": true,
+        "detail": "employee.models",
+        "documentation": {}
+    },
+    {
+        "label": "ZY00",
+        "importPath": "employee.models",
+        "description": "employee.models",
+        "isExtraImport": true,
+        "detail": "employee.models",
+        "documentation": {}
+    },
+    {
+        "label": "ZY00",
+        "importPath": "employee.models",
+        "description": "employee.models",
+        "isExtraImport": true,
+        "detail": "employee.models",
+        "documentation": {}
+    },
+    {
+        "label": "ZY00",
+        "importPath": "employee.models",
+        "description": "employee.models",
+        "isExtraImport": true,
+        "detail": "employee.models",
+        "documentation": {}
+    },
+    {
+        "label": "ZY00",
+        "importPath": "employee.models",
+        "description": "employee.models",
+        "isExtraImport": true,
+        "detail": "employee.models",
+        "documentation": {}
+    },
+    {
         "label": "ZYRO",
         "importPath": "employee.models",
         "description": "employee.models",
@@ -2341,6 +2901,70 @@
     },
     {
         "label": "logout",
+        "importPath": "django.contrib.auth",
+        "description": "django.contrib.auth",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth",
+        "documentation": {}
+    },
+    {
+        "label": "get_user_model",
+        "importPath": "django.contrib.auth",
+        "description": "django.contrib.auth",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth",
+        "documentation": {}
+    },
+    {
+        "label": "get_user_model",
+        "importPath": "django.contrib.auth",
+        "description": "django.contrib.auth",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth",
+        "documentation": {}
+    },
+    {
+        "label": "get_user_model",
+        "importPath": "django.contrib.auth",
+        "description": "django.contrib.auth",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth",
+        "documentation": {}
+    },
+    {
+        "label": "get_user_model",
+        "importPath": "django.contrib.auth",
+        "description": "django.contrib.auth",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth",
+        "documentation": {}
+    },
+    {
+        "label": "get_user_model",
+        "importPath": "django.contrib.auth",
+        "description": "django.contrib.auth",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth",
+        "documentation": {}
+    },
+    {
+        "label": "get_user_model",
+        "importPath": "django.contrib.auth",
+        "description": "django.contrib.auth",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth",
+        "documentation": {}
+    },
+    {
+        "label": "get_user_model",
+        "importPath": "django.contrib.auth",
+        "description": "django.contrib.auth",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth",
+        "documentation": {}
+    },
+    {
+        "label": "get_user_model",
         "importPath": "django.contrib.auth",
         "description": "django.contrib.auth",
         "isExtraImport": true,
@@ -2949,6 +3573,14 @@
         "documentation": {}
     },
     {
+        "label": "timedelta",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
         "label": "BaseCommand",
         "importPath": "django.core.management.base",
         "description": "django.core.management.base",
@@ -3234,6 +3866,182 @@
         "description": "django.contrib.contenttypes.models",
         "isExtraImport": true,
         "detail": "django.contrib.contenttypes.models",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
         "documentation": {}
     },
     {
@@ -4990,6 +5798,86 @@
         "documentation": {}
     },
     {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "transaction",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "connection",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "transaction",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
         "label": "django.db.models.deletion",
         "kind": 6,
         "isExtraImport": true,
@@ -5194,6 +6082,110 @@
     },
     {
         "label": "Client",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "Client",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "Client",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
         "importPath": "django.test",
         "description": "django.test",
         "isExtraImport": true,
@@ -5657,6 +6649,14 @@
         "documentation": {}
     },
     {
+        "label": "ValidationError",
+        "importPath": "django.core.exceptions",
+        "description": "django.core.exceptions",
+        "isExtraImport": true,
+        "detail": "django.core.exceptions",
+        "documentation": {}
+    },
+    {
         "label": "JsonResponse",
         "importPath": "django.http",
         "description": "django.http",
@@ -5938,6 +6938,86 @@
     },
     {
         "label": "HttpResponse",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
+        "label": "JsonResponse",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
+        "label": "JsonResponse",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
+        "label": "HttpResponse",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
+        "label": "JsonResponse",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
+        "label": "JsonResponse",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
+        "label": "HttpResponse",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
+        "label": "JsonResponse",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
+        "label": "JsonResponse",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
+        "label": "HttpResponse",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
+        "label": "JsonResponse",
         "importPath": "django.http",
         "description": "django.http",
         "isExtraImport": true,
@@ -6313,67 +7393,59 @@
         "documentation": {}
     },
     {
-        "label": "require_http_methods",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
+        "label": "login_required",
+        "importPath": "django.contrib.auth.decorators",
+        "description": "django.contrib.auth.decorators",
         "isExtraImport": true,
-        "detail": "django.views.decorators.http",
+        "detail": "django.contrib.auth.decorators",
         "documentation": {}
     },
     {
-        "label": "require_POST",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
+        "label": "login_required",
+        "importPath": "django.contrib.auth.decorators",
+        "description": "django.contrib.auth.decorators",
         "isExtraImport": true,
-        "detail": "django.views.decorators.http",
+        "detail": "django.contrib.auth.decorators",
         "documentation": {}
     },
     {
-        "label": "require_http_methods",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
+        "label": "login_required",
+        "importPath": "django.contrib.auth.decorators",
+        "description": "django.contrib.auth.decorators",
         "isExtraImport": true,
-        "detail": "django.views.decorators.http",
+        "detail": "django.contrib.auth.decorators",
         "documentation": {}
     },
     {
-        "label": "require_POST",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
+        "label": "login_required",
+        "importPath": "django.contrib.auth.decorators",
+        "description": "django.contrib.auth.decorators",
         "isExtraImport": true,
-        "detail": "django.views.decorators.http",
+        "detail": "django.contrib.auth.decorators",
         "documentation": {}
     },
     {
-        "label": "require_http_methods",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
+        "label": "login_required",
+        "importPath": "django.contrib.auth.decorators",
+        "description": "django.contrib.auth.decorators",
         "isExtraImport": true,
-        "detail": "django.views.decorators.http",
+        "detail": "django.contrib.auth.decorators",
         "documentation": {}
     },
     {
-        "label": "require_POST",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
+        "label": "login_required",
+        "importPath": "django.contrib.auth.decorators",
+        "description": "django.contrib.auth.decorators",
         "isExtraImport": true,
-        "detail": "django.views.decorators.http",
+        "detail": "django.contrib.auth.decorators",
         "documentation": {}
     },
     {
-        "label": "require_http_methods",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
+        "label": "login_required",
+        "importPath": "django.contrib.auth.decorators",
+        "description": "django.contrib.auth.decorators",
         "isExtraImport": true,
-        "detail": "django.views.decorators.http",
-        "documentation": {}
-    },
-    {
-        "label": "require_POST",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
-        "isExtraImport": true,
-        "detail": "django.views.decorators.http",
+        "detail": "django.contrib.auth.decorators",
         "documentation": {}
     },
     {
@@ -6402,54 +7474,6 @@
     },
     {
         "label": "require_POST",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
-        "isExtraImport": true,
-        "detail": "django.views.decorators.http",
-        "documentation": {}
-    },
-    {
-        "label": "require_POST",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
-        "isExtraImport": true,
-        "detail": "django.views.decorators.http",
-        "documentation": {}
-    },
-    {
-        "label": "require_GET",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
-        "isExtraImport": true,
-        "detail": "django.views.decorators.http",
-        "documentation": {}
-    },
-    {
-        "label": "require_http_methods",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
-        "isExtraImport": true,
-        "detail": "django.views.decorators.http",
-        "documentation": {}
-    },
-    {
-        "label": "require_http_methods",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
-        "isExtraImport": true,
-        "detail": "django.views.decorators.http",
-        "documentation": {}
-    },
-    {
-        "label": "require_http_methods",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
-        "isExtraImport": true,
-        "detail": "django.views.decorators.http",
-        "documentation": {}
-    },
-    {
-        "label": "require_http_methods",
         "importPath": "django.views.decorators.http",
         "description": "django.views.decorators.http",
         "isExtraImport": true,
@@ -6506,6 +7530,14 @@
     },
     {
         "label": "require_http_methods",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_POST",
         "importPath": "django.views.decorators.http",
         "description": "django.views.decorators.http",
         "isExtraImport": true,
@@ -6529,6 +7561,94 @@
         "documentation": {}
     },
     {
+        "label": "require_http_methods",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_http_methods",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_http_methods",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_http_methods",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_http_methods",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_POST",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_http_methods",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_POST",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_http_methods",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_POST",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_http_methods",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
         "label": "require_POST",
         "importPath": "django.views.decorators.http",
         "description": "django.views.decorators.http",
@@ -6538,6 +7658,62 @@
     },
     {
         "label": "require_GET",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_POST",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_GET",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_POST",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_POST",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_POST",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_POST",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_POST",
         "importPath": "django.views.decorators.http",
         "description": "django.views.decorators.http",
         "isExtraImport": true,
@@ -7145,6 +8321,294 @@
         "documentation": {}
     },
     {
+        "label": "Q",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Q",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Max",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Count",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Sum",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Q",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Count",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Sum",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Count",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Sum",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Q",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "FloatField",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "ExpressionWrapper",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Value",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Q",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Sum",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Count",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "FloatField",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "ExpressionWrapper",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "F",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Value",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Q",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Count",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Sum",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Avg",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "F",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "FloatField",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "ExpressionWrapper",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Q",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Count",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Sum",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "FloatField",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "ExpressionWrapper",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Q",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Count",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Sum",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
         "label": "drh_or_admin_required",
         "importPath": "absence.decorators",
         "description": "absence.decorators",
@@ -7514,6 +8978,46 @@
         "documentation": {}
     },
     {
+        "label": "Paginator",
+        "importPath": "django.core.paginator",
+        "description": "django.core.paginator",
+        "isExtraImport": true,
+        "detail": "django.core.paginator",
+        "documentation": {}
+    },
+    {
+        "label": "Paginator",
+        "importPath": "django.core.paginator",
+        "description": "django.core.paginator",
+        "isExtraImport": true,
+        "detail": "django.core.paginator",
+        "documentation": {}
+    },
+    {
+        "label": "Paginator",
+        "importPath": "django.core.paginator",
+        "description": "django.core.paginator",
+        "isExtraImport": true,
+        "detail": "django.core.paginator",
+        "documentation": {}
+    },
+    {
+        "label": "Paginator",
+        "importPath": "django.core.paginator",
+        "description": "django.core.paginator",
+        "isExtraImport": true,
+        "detail": "django.core.paginator",
+        "documentation": {}
+    },
+    {
+        "label": "Paginator",
+        "importPath": "django.core.paginator",
+        "description": "django.core.paginator",
+        "isExtraImport": true,
+        "detail": "django.core.paginator",
+        "documentation": {}
+    },
+    {
         "label": "never_cache",
         "importPath": "django.views.decorators.cache",
         "description": "django.views.decorators.cache",
@@ -7562,6 +9066,14 @@
         "documentation": {}
     },
     {
+        "label": "format_html",
+        "importPath": "django.utils.html",
+        "description": "django.utils.html",
+        "isExtraImport": true,
+        "detail": "django.utils.html",
+        "documentation": {}
+    },
+    {
         "label": "mark_safe",
         "importPath": "django.utils.safestring",
         "description": "django.utils.safestring",
@@ -7575,6 +9087,22 @@
         "description": "django.utils.safestring",
         "isExtraImport": true,
         "detail": "django.utils.safestring",
+        "documentation": {}
+    },
+    {
+        "label": "mark_safe",
+        "importPath": "django.utils.safestring",
+        "description": "django.utils.safestring",
+        "isExtraImport": true,
+        "detail": "django.utils.safestring",
+        "documentation": {}
+    },
+    {
+        "label": "AppConfig",
+        "importPath": "django.apps",
+        "description": "django.apps",
+        "isExtraImport": true,
+        "detail": "django.apps",
         "documentation": {}
     },
     {
@@ -7739,6 +9267,54 @@
     },
     {
         "label": "forms",
+        "importPath": "django",
+        "description": "django",
+        "isExtraImport": true,
+        "detail": "django",
+        "documentation": {}
+    },
+    {
+        "label": "forms",
+        "importPath": "django",
+        "description": "django",
+        "isExtraImport": true,
+        "detail": "django",
+        "documentation": {}
+    },
+    {
+        "label": "forms",
+        "importPath": "django",
+        "description": "django",
+        "isExtraImport": true,
+        "detail": "django",
+        "documentation": {}
+    },
+    {
+        "label": "forms",
+        "importPath": "django",
+        "description": "django",
+        "isExtraImport": true,
+        "detail": "django",
+        "documentation": {}
+    },
+    {
+        "label": "forms",
+        "importPath": "django",
+        "description": "django",
+        "isExtraImport": true,
+        "detail": "django",
+        "documentation": {}
+    },
+    {
+        "label": "forms",
+        "importPath": "django",
+        "description": "django",
+        "isExtraImport": true,
+        "detail": "django",
+        "documentation": {}
+    },
+    {
+        "label": "template",
         "importPath": "django",
         "description": "django",
         "isExtraImport": true,
@@ -8698,6 +10274,14 @@
         "importPath": "io",
         "description": "io",
         "detail": "io",
+        "documentation": {}
+    },
+    {
+        "label": "send_mail",
+        "importPath": "django.core.mail",
+        "description": "django.core.mail",
+        "isExtraImport": true,
+        "detail": "django.core.mail",
         "documentation": {}
     },
     {
@@ -10643,6 +12227,54 @@
         "documentation": {}
     },
     {
+        "label": "method_decorator",
+        "importPath": "django.utils.decorators",
+        "description": "django.utils.decorators",
+        "isExtraImport": true,
+        "detail": "django.utils.decorators",
+        "documentation": {}
+    },
+    {
+        "label": "method_decorator",
+        "importPath": "django.utils.decorators",
+        "description": "django.utils.decorators",
+        "isExtraImport": true,
+        "detail": "django.utils.decorators",
+        "documentation": {}
+    },
+    {
+        "label": "method_decorator",
+        "importPath": "django.utils.decorators",
+        "description": "django.utils.decorators",
+        "isExtraImport": true,
+        "detail": "django.utils.decorators",
+        "documentation": {}
+    },
+    {
+        "label": "method_decorator",
+        "importPath": "django.utils.decorators",
+        "description": "django.utils.decorators",
+        "isExtraImport": true,
+        "detail": "django.utils.decorators",
+        "documentation": {}
+    },
+    {
+        "label": "method_decorator",
+        "importPath": "django.utils.decorators",
+        "description": "django.utils.decorators",
+        "isExtraImport": true,
+        "detail": "django.utils.decorators",
+        "documentation": {}
+    },
+    {
+        "label": "method_decorator",
+        "importPath": "django.utils.decorators",
+        "description": "django.utils.decorators",
+        "isExtraImport": true,
+        "detail": "django.utils.decorators",
+        "documentation": {}
+    },
+    {
         "label": "time",
         "kind": 6,
         "isExtraImport": true,
@@ -10693,6 +12325,54 @@
     },
     {
         "label": "UserPassesTestMixin",
+        "importPath": "django.contrib.auth.mixins",
+        "description": "django.contrib.auth.mixins",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.mixins",
+        "documentation": {}
+    },
+    {
+        "label": "LoginRequiredMixin",
+        "importPath": "django.contrib.auth.mixins",
+        "description": "django.contrib.auth.mixins",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.mixins",
+        "documentation": {}
+    },
+    {
+        "label": "LoginRequiredMixin",
+        "importPath": "django.contrib.auth.mixins",
+        "description": "django.contrib.auth.mixins",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.mixins",
+        "documentation": {}
+    },
+    {
+        "label": "LoginRequiredMixin",
+        "importPath": "django.contrib.auth.mixins",
+        "description": "django.contrib.auth.mixins",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.mixins",
+        "documentation": {}
+    },
+    {
+        "label": "LoginRequiredMixin",
+        "importPath": "django.contrib.auth.mixins",
+        "description": "django.contrib.auth.mixins",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.mixins",
+        "documentation": {}
+    },
+    {
+        "label": "LoginRequiredMixin",
+        "importPath": "django.contrib.auth.mixins",
+        "description": "django.contrib.auth.mixins",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.mixins",
+        "documentation": {}
+    },
+    {
+        "label": "LoginRequiredMixin",
         "importPath": "django.contrib.auth.mixins",
         "description": "django.contrib.auth.mixins",
         "isExtraImport": true,
@@ -10769,6 +12449,14 @@
         "description": "django.contrib.auth.views",
         "isExtraImport": true,
         "detail": "django.contrib.auth.views",
+        "documentation": {}
+    },
+    {
+        "label": "render_to_string",
+        "importPath": "django.template.loader",
+        "description": "django.template.loader",
+        "isExtraImport": true,
+        "detail": "django.template.loader",
         "documentation": {}
     },
     {
@@ -10925,6 +12613,14 @@
         "documentation": {}
     },
     {
+        "label": "FileExtensionValidator",
+        "importPath": "django.core.validators",
+        "description": "django.core.validators",
+        "isExtraImport": true,
+        "detail": "django.core.validators",
+        "documentation": {}
+    },
+    {
         "label": "TruncMonth",
         "importPath": "django.db.models.functions",
         "description": "django.db.models.functions",
@@ -10934,6 +12630,30 @@
     },
     {
         "label": "TruncYear",
+        "importPath": "django.db.models.functions",
+        "description": "django.db.models.functions",
+        "isExtraImport": true,
+        "detail": "django.db.models.functions",
+        "documentation": {}
+    },
+    {
+        "label": "Coalesce",
+        "importPath": "django.db.models.functions",
+        "description": "django.db.models.functions",
+        "isExtraImport": true,
+        "detail": "django.db.models.functions",
+        "documentation": {}
+    },
+    {
+        "label": "Coalesce",
+        "importPath": "django.db.models.functions",
+        "description": "django.db.models.functions",
+        "isExtraImport": true,
+        "detail": "django.db.models.functions",
+        "documentation": {}
+    },
+    {
+        "label": "Cast",
         "importPath": "django.db.models.functions",
         "description": "django.db.models.functions",
         "isExtraImport": true,
@@ -11939,6 +13659,54 @@
         "description": "materiel.services",
         "isExtraImport": true,
         "detail": "materiel.services",
+        "documentation": {}
+    },
+    {
+        "label": "APITestCase",
+        "importPath": "rest_framework.test",
+        "description": "rest_framework.test",
+        "isExtraImport": true,
+        "detail": "rest_framework.test",
+        "documentation": {}
+    },
+    {
+        "label": "status",
+        "importPath": "rest_framework",
+        "description": "rest_framework",
+        "isExtraImport": true,
+        "detail": "rest_framework",
+        "documentation": {}
+    },
+    {
+        "label": "SimpleUploadedFile",
+        "importPath": "django.core.files.uploadedfile",
+        "description": "django.core.files.uploadedfile",
+        "isExtraImport": true,
+        "detail": "django.core.files.uploadedfile",
+        "documentation": {}
+    },
+    {
+        "label": "override_settings",
+        "importPath": "django.test.utils",
+        "description": "django.test.utils",
+        "isExtraImport": true,
+        "detail": "django.test.utils",
+        "documentation": {}
+    },
+    {
+        "label": "csrf_exempt",
+        "importPath": "django.views.decorators.csrf",
+        "description": "django.views.decorators.csrf",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.csrf",
+        "documentation": {}
+    },
+    {
+        "label": "default_storage",
+        "importPath": "django.core.files.storage",
+        "description": "django.core.files.storage",
+        "isExtraImport": true,
+        "detail": "django.core.files.storage",
         "documentation": {}
     },
     {
@@ -13910,6 +15678,33 @@
         "description": "audit.migrations.0001_initial",
         "peekOfCode": "class Migration(migrations.Migration):\n    initial = True\n    dependencies = [\n        ('employee', '0002_alter_zyre_unique_together'),\n    ]\n    operations = [\n        migrations.CreateModel(\n            name='AURC',\n            fields=[\n                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),",
         "detail": "audit.migrations.0001_initial",
+        "documentation": {}
+    },
+    {
+        "label": "AURCAdmin",
+        "kind": 6,
+        "importPath": "audit.admin",
+        "description": "audit.admin",
+        "peekOfCode": "class AURCAdmin(admin.ModelAdmin):\n    \"\"\"Admin pour les Règles de conformité.\"\"\"\n    list_display = [\n        'CODE', 'LIBELLE', 'TYPE_REGLE', 'severite_badge',\n        'FREQUENCE_VERIFICATION', 'JOURS_AVANT_EXPIRATION',\n        'notifications_display', 'statut_display', 'alertes_count'\n    ]\n    list_filter = [\n        'TYPE_REGLE', 'SEVERITE', 'STATUT',\n        'FREQUENCE_VERIFICATION', 'NOTIFIER_RH'",
+        "detail": "audit.admin",
+        "documentation": {}
+    },
+    {
+        "label": "AUALAdmin",
+        "kind": 6,
+        "importPath": "audit.admin",
+        "description": "audit.admin",
+        "peekOfCode": "class AUALAdmin(admin.ModelAdmin):\n    \"\"\"Admin pour les Alertes de conformité.\"\"\"\n    list_display = [\n        'REFERENCE', 'TITRE', 'TYPE_ALERTE', 'priorite_badge',\n        'statut_badge', 'employe_link', 'DATE_DETECTION',\n        'DATE_ECHEANCE', 'retard_display'\n    ]\n    list_filter = [\n        'STATUT', 'PRIORITE', 'TYPE_ALERTE',\n        'NOTIFICATION_ENVOYEE', 'DATE_DETECTION'",
+        "detail": "audit.admin",
+        "documentation": {}
+    },
+    {
+        "label": "AURAAdmin",
+        "kind": 6,
+        "importPath": "audit.admin",
+        "description": "audit.admin",
+        "peekOfCode": "class AURAAdmin(admin.ModelAdmin):\n    \"\"\"Admin pour les Rapports d'audit.\"\"\"\n    list_display = [\n        'REFERENCE', 'TITRE', 'TYPE_RAPPORT', 'FORMAT',\n        'statut_badge', 'periode_display', 'NB_ENREGISTREMENTS',\n        'fichier_link', 'genere_par_link', 'DATE_GENERATION'\n    ]\n    list_filter = [\n        'TYPE_RAPPORT', 'FORMAT', 'STATUT', 'DATE_GENERATION'\n    ]",
+        "detail": "audit.admin",
         "documentation": {}
     },
     {
@@ -19247,6 +21042,1158 @@
         "description": "materiel.views",
         "peekOfCode": "def api_stats_dashboard(request):\n    \"\"\"API pour les stats du dashboard (refresh AJAX).\"\"\"\n    employe = getattr(request.user, 'employe', None)\n    if not _peut_gerer_materiel(employe):\n        return JsonResponse({'error': 'Non autorisé'}, status=403)\n    stats = StatistiquesMaterielService.get_stats_globales()\n    alertes = StatistiquesMaterielService.get_alertes()\n    return JsonResponse({\n        'stats': {\n            'total_materiels': stats['total_materiels'],",
         "detail": "materiel.views",
+        "documentation": {}
+    },
+    {
+        "label": "ClientForm",
+        "kind": 6,
+        "importPath": "project_management.forms.client_forms",
+        "description": "project_management.forms.client_forms",
+        "peekOfCode": "class ClientForm(forms.ModelForm):\n    \"\"\"Formulaire pour la création et modification des clients\"\"\"\n    class Meta:\n        model = JRClient\n        fields = [\n            'raison_sociale', 'contact_principal', 'email_contact', \n            'telephone_contact', 'adresse', 'code_postal', 'ville', 'pays',\n            'numero_tva', 'conditions_paiement', 'statut'\n        ]\n        widgets = {",
+        "detail": "project_management.forms.client_forms",
+        "documentation": {}
+    },
+    {
+        "label": "ClientSearchForm",
+        "kind": 6,
+        "importPath": "project_management.forms.client_forms",
+        "description": "project_management.forms.client_forms",
+        "peekOfCode": "class ClientSearchForm(forms.Form):\n    \"\"\"Formulaire de recherche pour les clients\"\"\"\n    recherche = forms.CharField(\n        required=False,\n        widget=forms.TextInput(attrs={\n            'class': 'form-control',\n            'placeholder': 'Rechercher par nom, email, code...'\n        })\n    )\n    statut = forms.ChoiceField(",
+        "detail": "project_management.forms.client_forms",
+        "documentation": {}
+    },
+    {
+        "label": "ImputationForm",
+        "kind": 6,
+        "importPath": "project_management.forms.imputation_forms",
+        "description": "project_management.forms.imputation_forms",
+        "peekOfCode": "class ImputationForm(forms.ModelForm):\n    \"\"\"Formulaire pour la saisie des imputations de temps\"\"\"\n    class Meta:\n        model = JRImputation\n        fields = [\n            'ticket', 'date_imputation', 'heures', 'minutes',\n            'description', 'type_activite'\n        ]\n        widgets = {\n            'ticket': forms.Select(attrs={",
+        "detail": "project_management.forms.imputation_forms",
+        "documentation": {}
+    },
+    {
+        "label": "ImputationSearchForm",
+        "kind": 6,
+        "importPath": "project_management.forms.imputation_forms",
+        "description": "project_management.forms.imputation_forms",
+        "peekOfCode": "class ImputationSearchForm(forms.Form):\n    \"\"\"Formulaire de recherche pour les imputations\"\"\"\n    recherche = forms.CharField(\n        required=False,\n        widget=forms.TextInput(attrs={\n            'class': 'form-control',\n            'placeholder': 'Rechercher par ticket, description...'\n        })\n    )\n    employe = forms.ModelChoiceField(",
+        "detail": "project_management.forms.imputation_forms",
+        "documentation": {}
+    },
+    {
+        "label": "ValidationImputationForm",
+        "kind": 6,
+        "importPath": "project_management.forms.imputation_forms",
+        "description": "project_management.forms.imputation_forms",
+        "peekOfCode": "class ValidationImputationForm(forms.Form):\n    \"\"\"Formulaire pour la validation/rejet des imputations\"\"\"\n    commentaire_validation = forms.CharField(\n        required=False,\n        widget=forms.Textarea(attrs={\n            'class': 'form-control',\n            'rows': 3,\n            'placeholder': 'Commentaire de validation (optionnel)...'\n        })\n    )",
+        "detail": "project_management.forms.imputation_forms",
+        "documentation": {}
+    },
+    {
+        "label": "ProjetForm",
+        "kind": 6,
+        "importPath": "project_management.forms.projet_forms",
+        "description": "project_management.forms.projet_forms",
+        "peekOfCode": "class ProjetForm(forms.ModelForm):\n    \"\"\"Formulaire pour la création et modification des projets\"\"\"\n    class Meta:\n        model = JRProject\n        fields = [\n            'nom', 'description', 'client', 'chef_projet', 'montant_total',\n            'date_debut', 'date_fin_prevue', 'statut'\n        ]\n        widgets = {\n            'nom': forms.TextInput(attrs={",
+        "detail": "project_management.forms.projet_forms",
+        "documentation": {}
+    },
+    {
+        "label": "ProjetSearchForm",
+        "kind": 6,
+        "importPath": "project_management.forms.projet_forms",
+        "description": "project_management.forms.projet_forms",
+        "peekOfCode": "class ProjetSearchForm(forms.Form):\n    \"\"\"Formulaire de recherche pour les projets\"\"\"\n    recherche = forms.CharField(\n        required=False,\n        widget=forms.TextInput(attrs={\n            'class': 'form-control',\n            'placeholder': 'Rechercher par nom, code...'\n        })\n    )\n    client = forms.ModelChoiceField(",
+        "detail": "project_management.forms.projet_forms",
+        "documentation": {}
+    },
+    {
+        "label": "SprintForm",
+        "kind": 6,
+        "importPath": "project_management.forms.sprint_forms",
+        "description": "project_management.forms.sprint_forms",
+        "peekOfCode": "class SprintForm(forms.ModelForm):\n    \"\"\"Formulaire pour la création et modification des sprints\"\"\"\n    class Meta:\n        model = JRSprint\n        fields = [\n            'nom', 'description', 'projet', 'date_debut', \n            'date_fin', 'statut'\n        ]\n        widgets = {\n            'nom': forms.TextInput(attrs={",
+        "detail": "project_management.forms.sprint_forms",
+        "documentation": {}
+    },
+    {
+        "label": "SprintTicketForm",
+        "kind": 6,
+        "importPath": "project_management.forms.sprint_forms",
+        "description": "project_management.forms.sprint_forms",
+        "peekOfCode": "class SprintTicketForm(forms.ModelForm):\n    \"\"\"Formulaire pour ajouter/retirer des tickets d'un sprint\"\"\"\n    class Meta:\n        model = JRSprint\n        fields = ['tickets']\n        widgets = {\n            'tickets': forms.CheckboxSelectMultiple(attrs={\n                'class': 'form-check-input'\n            })\n        }",
+        "detail": "project_management.forms.sprint_forms",
+        "documentation": {}
+    },
+    {
+        "label": "SprintSearchForm",
+        "kind": 6,
+        "importPath": "project_management.forms.sprint_forms",
+        "description": "project_management.forms.sprint_forms",
+        "peekOfCode": "class SprintSearchForm(forms.Form):\n    \"\"\"Formulaire de recherche pour les sprints\"\"\"\n    recherche = forms.CharField(\n        required=False,\n        widget=forms.TextInput(attrs={\n            'class': 'form-control',\n            'placeholder': 'Rechercher par nom...'\n        })\n    )\n    projet = forms.ModelChoiceField(",
+        "detail": "project_management.forms.sprint_forms",
+        "documentation": {}
+    },
+    {
+        "label": "BacklogForm",
+        "kind": 6,
+        "importPath": "project_management.forms.sprint_forms",
+        "description": "project_management.forms.sprint_forms",
+        "peekOfCode": "class BacklogForm(forms.Form):\n    \"\"\"Formulaire pour la gestion du backlog\"\"\"\n    tickets = forms.ModelMultipleChoiceField(\n        queryset=JRTicket.objects.none(),\n        widget=forms.CheckboxSelectMultiple(attrs={\n            'class': 'form-check-input'\n        }),\n        required=False\n    )\n    def __init__(self, projet, *args, **kwargs):",
+        "detail": "project_management.forms.sprint_forms",
+        "documentation": {}
+    },
+    {
+        "label": "TicketForm",
+        "kind": 6,
+        "importPath": "project_management.forms.ticket_forms",
+        "description": "project_management.forms.ticket_forms",
+        "peekOfCode": "class TicketForm(forms.ModelForm):\n    \"\"\"Formulaire pour la création et modification des tickets\"\"\"\n    class Meta:\n        model = JRTicket\n        fields = [\n            'projet', 'titre', 'description', 'priorite', 'statut',\n            'assigne', 'type_ticket', 'estimation_heures', 'date_echeance',\n            'dans_backlog'\n        ]\n        widgets = {",
+        "detail": "project_management.forms.ticket_forms",
+        "documentation": {}
+    },
+    {
+        "label": "TicketSearchForm",
+        "kind": 6,
+        "importPath": "project_management.forms.ticket_forms",
+        "description": "project_management.forms.ticket_forms",
+        "peekOfCode": "class TicketSearchForm(forms.Form):\n    \"\"\"Formulaire de recherche pour les tickets\"\"\"\n    recherche = forms.CharField(\n        required=False,\n        widget=forms.TextInput(attrs={\n            'class': 'form-control',\n            'placeholder': 'Rechercher par titre, code, description...'\n        })\n    )\n    projet = forms.ModelChoiceField(",
+        "detail": "project_management.forms.ticket_forms",
+        "documentation": {}
+    },
+    {
+        "label": "CommentaireForm",
+        "kind": 6,
+        "importPath": "project_management.forms.ticket_forms",
+        "description": "project_management.forms.ticket_forms",
+        "peekOfCode": "class CommentaireForm(forms.ModelForm):\n    \"\"\"Formulaire pour les commentaires sur les tickets\"\"\"\n    class Meta:\n        model = JRTicket\n        fields = []  # Pas de champs du modèle\n    contenu = forms.CharField(\n        widget=forms.Textarea(attrs={\n            'class': 'form-control',\n            'rows': 3,\n            'placeholder': 'Ajouter un commentaire...',",
+        "detail": "project_management.forms.ticket_forms",
+        "documentation": {}
+    },
+    {
+        "label": "PieceJointeForm",
+        "kind": 6,
+        "importPath": "project_management.forms.ticket_forms",
+        "description": "project_management.forms.ticket_forms",
+        "peekOfCode": "class PieceJointeForm(forms.ModelForm):\n    \"\"\"Formulaire pour l'upload de pièces jointes\"\"\"\n    class Meta:\n        model = JRTicket\n        fields = []  # Pas de champs du modèle\n    fichier = forms.FileField(\n        widget=forms.FileInput(attrs={\n            'class': 'form-control',\n            'accept': '.pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.zip,.rar'\n        })",
+        "detail": "project_management.forms.ticket_forms",
+        "documentation": {}
+    },
+    {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "project_management.migrations.0001_initial",
+        "description": "project_management.migrations.0001_initial",
+        "peekOfCode": "class Migration(migrations.Migration):\n    initial = True\n    dependencies = [\n        ('employee', '0002_alter_zyre_unique_together'),\n    ]\n    operations = [\n        migrations.CreateModel(\n            name='JRClient',\n            fields=[\n                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),",
+        "detail": "project_management.migrations.0001_initial",
+        "documentation": {}
+    },
+    {
+        "label": "ClientService",
+        "kind": 6,
+        "importPath": "project_management.services.client_service",
+        "description": "project_management.services.client_service",
+        "peekOfCode": "class ClientService:\n    \"\"\"Service pour la gestion des clients\"\"\"\n    @staticmethod\n    def get_clients_actifs():\n        \"\"\"Retourne les clients actifs avec leurs statistiques\"\"\"\n        clients = JRClient.objects.filter(statut='ACTIF').annotate(\n            nombre_projets=models.Count('projets'),\n            ca_total=models.Sum('projets__montant_total')\n        ).order_by('raison_sociale')\n        return clients",
+        "detail": "project_management.services.client_service",
+        "documentation": {}
+    },
+    {
+        "label": "ImputationService",
+        "kind": 6,
+        "importPath": "project_management.services.imputation_service",
+        "description": "project_management.services.imputation_service",
+        "peekOfCode": "class ImputationService:\n    \"\"\"Service pour la gestion des imputations de temps\"\"\"\n    @staticmethod\n    def peut_valider_imputation(utilisateur, imputation):\n        \"\"\"Vérifie si un utilisateur peut valider une imputation\"\"\"\n        # Récupérer l'employé correspondant à l'utilisateur\n        try:\n            employe = ZY00.objects.get(user=utilisateur)\n        except ZY00.DoesNotExist:\n            return False",
+        "detail": "project_management.services.imputation_service",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationService",
+        "kind": 6,
+        "importPath": "project_management.services.notification_service",
+        "description": "project_management.services.notification_service",
+        "peekOfCode": "class NotificationService:\n    \"\"\"Service pour la gestion des notifications\"\"\"\n    @staticmethod\n    def creer_notification(utilisateur, titre, message, type_notification='INFO', \n                          objet_id=None, objet_type=None, priorite='normale'):\n        \"\"\"\n        Crée une notification pour un utilisateur\n        Args:\n            utilisateur: L'utilisateur qui recevra la notification\n            titre: Titre de la notification",
+        "detail": "project_management.services.notification_service",
+        "documentation": {}
+    },
+    {
+        "label": "TicketService",
+        "kind": 6,
+        "importPath": "project_management.services.ticket_service",
+        "description": "project_management.services.ticket_service",
+        "peekOfCode": "class TicketService:\n    \"\"\"Service pour la gestion des tickets\"\"\"\n    @staticmethod\n    def get_employe_from_user(user):\n        \"\"\"\n        Récupère l'employé ZY00 à partir d'un utilisateur Django.\n        Accepte soit un User Django soit directement un ZY00.\n        \"\"\"\n        if user is None:\n            return None",
+        "detail": "project_management.services.ticket_service",
+        "documentation": {}
+    },
+    {
+        "label": "User",
+        "kind": 5,
+        "importPath": "project_management.services.ticket_service",
+        "description": "project_management.services.ticket_service",
+        "peekOfCode": "User = get_user_model()\nclass TicketService:\n    \"\"\"Service pour la gestion des tickets\"\"\"\n    @staticmethod\n    def get_employe_from_user(user):\n        \"\"\"\n        Récupère l'employé ZY00 à partir d'un utilisateur Django.\n        Accepte soit un User Django soit directement un ZY00.\n        \"\"\"\n        if user is None:",
+        "detail": "project_management.services.ticket_service",
+        "documentation": {}
+    },
+    {
+        "label": "WorkflowService",
+        "kind": 6,
+        "importPath": "project_management.services.workflow_service",
+        "description": "project_management.services.workflow_service",
+        "peekOfCode": "class WorkflowService:\n    \"\"\"Service pour la gestion des workflows et automatisations\"\"\"\n    @staticmethod\n    def executer_workflow_ticket(ticket, utilisateur, action, **kwargs):\n        \"\"\"Exécute un workflow pour un ticket\"\"\"\n        if action == 'changer_statut':\n            return WorkflowService._changer_statut_workflow(\n                ticket, utilisateur, kwargs.get('nouveau_statut')\n            )\n        elif action == 'assigner':",
+        "detail": "project_management.services.workflow_service",
+        "documentation": {}
+    },
+    {
+        "label": "get_item",
+        "kind": 2,
+        "importPath": "project_management.templatetags.pm_tags",
+        "description": "project_management.templatetags.pm_tags",
+        "peekOfCode": "def get_item(dictionary, key):\n    \"\"\"Get an item from a dictionary using a variable key.\"\"\"\n    if dictionary is None:\n        return None\n    return dictionary.get(key)",
+        "detail": "project_management.templatetags.pm_tags",
+        "documentation": {}
+    },
+    {
+        "label": "register",
+        "kind": 5,
+        "importPath": "project_management.templatetags.pm_tags",
+        "description": "project_management.templatetags.pm_tags",
+        "peekOfCode": "register = template.Library()\n@register.filter\ndef get_item(dictionary, key):\n    \"\"\"Get an item from a dictionary using a variable key.\"\"\"\n    if dictionary is None:\n        return None\n    return dictionary.get(key)",
+        "detail": "project_management.templatetags.pm_tags",
+        "documentation": {}
+    },
+    {
+        "label": "ProjectManagementAPITest",
+        "kind": 6,
+        "importPath": "project_management.tests.test_api",
+        "description": "project_management.tests.test_api",
+        "peekOfCode": "class ProjectManagementAPITest(APITestCase):\n    \"\"\"Tests pour les API de project_management\"\"\"\n    def setUp(self):\n        self.user = User.objects.create_user(\n            username='testuser',\n            email='test@test.com',\n            password='testpass123'\n        )\n        self.client.force_authenticate(user=self.user)\n        # Créer des données de test",
+        "detail": "project_management.tests.test_api",
+        "documentation": {}
+    },
+    {
+        "label": "User",
+        "kind": 5,
+        "importPath": "project_management.tests.test_api",
+        "description": "project_management.tests.test_api",
+        "peekOfCode": "User = get_user_model()\nclass ProjectManagementAPITest(APITestCase):\n    \"\"\"Tests pour les API de project_management\"\"\"\n    def setUp(self):\n        self.user = User.objects.create_user(\n            username='testuser',\n            email='test@test.com',\n            password='testpass123'\n        )\n        self.client.force_authenticate(user=self.user)",
+        "detail": "project_management.tests.test_api",
+        "documentation": {}
+    },
+    {
+        "label": "BasicProjectManagementTest",
+        "kind": 6,
+        "importPath": "project_management.tests.test_basic",
+        "description": "project_management.tests.test_basic",
+        "peekOfCode": "class BasicProjectManagementTest(TestCase):\n    \"\"\"Tests basiques pour vérifier le fonctionnement minimal\"\"\"\n    def setUp(self):\n        self.user = User.objects.create_user(\n            username='testuser',\n            email='test@test.com',\n            password='testpass123'\n        )\n    def test_client_model_basic(self):\n        \"\"\"Test basique du modèle Client\"\"\"",
+        "detail": "project_management.tests.test_basic",
+        "documentation": {}
+    },
+    {
+        "label": "User",
+        "kind": 5,
+        "importPath": "project_management.tests.test_basic",
+        "description": "project_management.tests.test_basic",
+        "peekOfCode": "User = get_user_model()\nclass BasicProjectManagementTest(TestCase):\n    \"\"\"Tests basiques pour vérifier le fonctionnement minimal\"\"\"\n    def setUp(self):\n        self.user = User.objects.create_user(\n            username='testuser',\n            email='test@test.com',\n            password='testpass123'\n        )\n    def test_client_model_basic(self):",
+        "detail": "project_management.tests.test_basic",
+        "documentation": {}
+    },
+    {
+        "label": "ClientFormTest",
+        "kind": 6,
+        "importPath": "project_management.tests.test_forms",
+        "description": "project_management.tests.test_forms",
+        "peekOfCode": "class ClientFormTest(TestCase):\n    \"\"\"Tests pour le formulaire ClientForm\"\"\"\n    def test_valid_client_form(self):\n        \"\"\"Test un formulaire client valide\"\"\"\n        form_data = {\n            'raison_sociale': 'Test Client',\n            'contact_principal': 'John Doe',\n            'email_contact': 'john@test.com',\n            'statut': 'ACTIF'\n        }",
+        "detail": "project_management.tests.test_forms",
+        "documentation": {}
+    },
+    {
+        "label": "ProjetFormTest",
+        "kind": 6,
+        "importPath": "project_management.tests.test_forms",
+        "description": "project_management.tests.test_forms",
+        "peekOfCode": "class ProjetFormTest(TestCase):\n    \"\"\"Tests pour le formulaire ProjetForm\"\"\"\n    def setUp(self):\n        self.client = JRClient.objects.create(\n            raison_sociale='Test Client',\n            statut='ACTIF'\n        )\n    def test_valid_projet_form(self):\n        \"\"\"Test un formulaire projet valide\"\"\"\n        form_data = {",
+        "detail": "project_management.tests.test_forms",
+        "documentation": {}
+    },
+    {
+        "label": "ProjectManagementIntegrationTest",
+        "kind": 6,
+        "importPath": "project_management.tests.test_integration",
+        "description": "project_management.tests.test_integration",
+        "peekOfCode": "class ProjectManagementIntegrationTest(TestCase):\n    \"\"\"Tests d'intégration pour le flux complet de project_management\"\"\"\n    def setUp(self):\n        self.client = Client()\n        # Créer un utilisateur de test\n        self.user = User.objects.create_user(\n            username='testuser',\n            email='test@test.com',\n            password='testpass123'\n        )",
+        "detail": "project_management.tests.test_integration",
+        "documentation": {}
+    },
+    {
+        "label": "User",
+        "kind": 5,
+        "importPath": "project_management.tests.test_integration",
+        "description": "project_management.tests.test_integration",
+        "peekOfCode": "User = get_user_model()\nclass ProjectManagementIntegrationTest(TestCase):\n    \"\"\"Tests d'intégration pour le flux complet de project_management\"\"\"\n    def setUp(self):\n        self.client = Client()\n        # Créer un utilisateur de test\n        self.user = User.objects.create_user(\n            username='testuser',\n            email='test@test.com',\n            password='testpass123'",
+        "detail": "project_management.tests.test_integration",
+        "documentation": {}
+    },
+    {
+        "label": "MinimalProjectManagementTest",
+        "kind": 6,
+        "importPath": "project_management.tests.test_minimal",
+        "description": "project_management.tests.test_minimal",
+        "peekOfCode": "class MinimalProjectManagementTest(TestCase):\n    \"\"\"Tests minimaux pour vérifier que l'application fonctionne\"\"\"\n    def setUp(self):\n        self.user = User.objects.create_user(\n            username='testuser',\n            email='test@test.com',\n            password='testpass123'\n        )\n    def test_client_creation(self):\n        \"\"\"Test simple création d'un client\"\"\"",
+        "detail": "project_management.tests.test_minimal",
+        "documentation": {}
+    },
+    {
+        "label": "User",
+        "kind": 5,
+        "importPath": "project_management.tests.test_minimal",
+        "description": "project_management.tests.test_minimal",
+        "peekOfCode": "User = get_user_model()\nclass MinimalProjectManagementTest(TestCase):\n    \"\"\"Tests minimaux pour vérifier que l'application fonctionne\"\"\"\n    def setUp(self):\n        self.user = User.objects.create_user(\n            username='testuser',\n            email='test@test.com',\n            password='testpass123'\n        )\n    def test_client_creation(self):",
+        "detail": "project_management.tests.test_minimal",
+        "documentation": {}
+    },
+    {
+        "label": "JRClientModelTest",
+        "kind": 6,
+        "importPath": "project_management.tests.test_models",
+        "description": "project_management.tests.test_models",
+        "peekOfCode": "class JRClientModelTest(TestCase):\n    \"\"\"Tests pour le modèle JRClient\"\"\"\n    def test_create_client(self):\n        client = JRClient.objects.create(\n            raison_sociale='Test Client',\n            contact_principal='John Doe',\n            email_contact='john@test.com',\n            statut='ACTIF'\n        )\n        self.assertEqual(client.raison_sociale, 'Test Client')",
+        "detail": "project_management.tests.test_models",
+        "documentation": {}
+    },
+    {
+        "label": "JRProjectModelTest",
+        "kind": 6,
+        "importPath": "project_management.tests.test_models",
+        "description": "project_management.tests.test_models",
+        "peekOfCode": "class JRProjectModelTest(TestCase):\n    \"\"\"Tests pour le modèle JRProject\"\"\"\n    def test_create_project(self):\n        client = JRClient.objects.create(\n            raison_sociale='Test Client',\n            statut='ACTIF'\n        )\n        project = JRProject.objects.create(\n            nom='Test Project',\n            client=client,",
+        "detail": "project_management.tests.test_models",
+        "documentation": {}
+    },
+    {
+        "label": "JRTicketModelTest",
+        "kind": 6,
+        "importPath": "project_management.tests.test_models",
+        "description": "project_management.tests.test_models",
+        "peekOfCode": "class JRTicketModelTest(TestCase):\n    \"\"\"Tests pour le modèle JRTicket\"\"\"\n    def test_create_ticket(self):\n        client = JRClient.objects.create(\n            raison_sociale='Test Client',\n            statut='ACTIF'\n        )\n        project = JRProject.objects.create(\n            nom='Test Project',\n            client=client,",
+        "detail": "project_management.tests.test_models",
+        "documentation": {}
+    },
+    {
+        "label": "ProjectManagementPerformanceTest",
+        "kind": 6,
+        "importPath": "project_management.tests.test_performance",
+        "description": "project_management.tests.test_performance",
+        "peekOfCode": "class ProjectManagementPerformanceTest(TestCase):\n    \"\"\"Tests de performance pour project_management\"\"\"\n    def setUp(self):\n        self.user = User.objects.create_user(\n            username='testuser',\n            email='test@test.com',\n            password='testpass123'\n        )\n        # Créer des données de test en masse\n        self.create_test_data()",
+        "detail": "project_management.tests.test_performance",
+        "documentation": {}
+    },
+    {
+        "label": "User",
+        "kind": 5,
+        "importPath": "project_management.tests.test_performance",
+        "description": "project_management.tests.test_performance",
+        "peekOfCode": "User = get_user_model()\nclass ProjectManagementPerformanceTest(TestCase):\n    \"\"\"Tests de performance pour project_management\"\"\"\n    def setUp(self):\n        self.user = User.objects.create_user(\n            username='testuser',\n            email='test@test.com',\n            password='testpass123'\n        )\n        # Créer des données de test en masse",
+        "detail": "project_management.tests.test_performance",
+        "documentation": {}
+    },
+    {
+        "label": "ClientServiceTest",
+        "kind": 6,
+        "importPath": "project_management.tests.test_services",
+        "description": "project_management.tests.test_services",
+        "peekOfCode": "class ClientServiceTest(TestCase):\n    \"\"\"Tests pour le service client\"\"\"\n    def setUp(self):\n        self.client = JRClient.objects.create(\n            raison_sociale='Test Client',\n            contact_principal='John Doe',\n            email_contact='john@test.com',\n            statut='ACTIF'\n        )\n    def test_get_active_clients(self):",
+        "detail": "project_management.tests.test_services",
+        "documentation": {}
+    },
+    {
+        "label": "TicketServiceTest",
+        "kind": 6,
+        "importPath": "project_management.tests.test_services",
+        "description": "project_management.tests.test_services",
+        "peekOfCode": "class TicketServiceTest(TestCase):\n    \"\"\"Tests pour le service ticket\"\"\"\n    def setUp(self):\n        self.client = JRClient.objects.create(\n            raison_sociale='Test Client',\n            statut='ACTIF'\n        )\n        self.project = JRProject.objects.create(\n            nom='Test Project',\n            client=self.client,",
+        "detail": "project_management.tests.test_services",
+        "documentation": {}
+    },
+    {
+        "label": "SimpleProjectManagementTest",
+        "kind": 6,
+        "importPath": "project_management.tests.test_simple",
+        "description": "project_management.tests.test_simple",
+        "peekOfCode": "class SimpleProjectManagementTest(TestCase):\n    \"\"\"Tests simples pour vérifier le fonctionnement de base\"\"\"\n    def setUp(self):\n        self.user = User.objects.create_user(\n            username='testuser',\n            email='test@test.com',\n            password='testpass123'\n        )\n    def test_models_creation(self):\n        \"\"\"Test la création des modèles de base\"\"\"",
+        "detail": "project_management.tests.test_simple",
+        "documentation": {}
+    },
+    {
+        "label": "User",
+        "kind": 5,
+        "importPath": "project_management.tests.test_simple",
+        "description": "project_management.tests.test_simple",
+        "peekOfCode": "User = get_user_model()\nclass SimpleProjectManagementTest(TestCase):\n    \"\"\"Tests simples pour vérifier le fonctionnement de base\"\"\"\n    def setUp(self):\n        self.user = User.objects.create_user(\n            username='testuser',\n            email='test@test.com',\n            password='testpass123'\n        )\n    def test_models_creation(self):",
+        "detail": "project_management.tests.test_simple",
+        "documentation": {}
+    },
+    {
+        "label": "ProjectManagementViewsTest",
+        "kind": 6,
+        "importPath": "project_management.tests.test_views",
+        "description": "project_management.tests.test_views",
+        "peekOfCode": "class ProjectManagementViewsTest(TestCase):\n    \"\"\"Tests pour les vues de project_management\"\"\"\n    def setUp(self):\n        self.client = Client()\n        # Créer un utilisateur de test\n        self.user = User.objects.create_user(\n            username='testuser',\n            email='test@test.com',\n            password='testpass123'\n        )",
+        "detail": "project_management.tests.test_views",
+        "documentation": {}
+    },
+    {
+        "label": "User",
+        "kind": 5,
+        "importPath": "project_management.tests.test_views",
+        "description": "project_management.tests.test_views",
+        "peekOfCode": "User = get_user_model()\nclass ProjectManagementViewsTest(TestCase):\n    \"\"\"Tests pour les vues de project_management\"\"\"\n    def setUp(self):\n        self.client = Client()\n        # Créer un utilisateur de test\n        self.user = User.objects.create_user(\n            username='testuser',\n            email='test@test.com',\n            password='testpass123'",
+        "detail": "project_management.tests.test_views",
+        "documentation": {}
+    },
+    {
+        "label": "BacklogListView",
+        "kind": 6,
+        "importPath": "project_management.views.backlog_views",
+        "description": "project_management.views.backlog_views",
+        "peekOfCode": "class BacklogListView(LoginRequiredMixin, ListView):\n    \"\"\"Vue pour la gestion du backlog\"\"\"\n    model = JRTicket\n    template_name = 'project_management/backlog/backlog.html'\n    context_object_name = 'tickets'\n    def get_queryset(self):\n        # Récupérer le projet sélectionné\n        projet_id = self.request.GET.get('projet')\n        if projet_id:\n            self.projet = get_object_or_404(JRProject, pk=projet_id)",
+        "detail": "project_management.views.backlog_views",
+        "documentation": {}
+    },
+    {
+        "label": "backlog_projet",
+        "kind": 2,
+        "importPath": "project_management.views.backlog_views",
+        "description": "project_management.views.backlog_views",
+        "peekOfCode": "def backlog_projet(request, pk):\n    \"\"\"Vue pour le backlog d'un projet spécifique\"\"\"\n    projet = get_object_or_404(JRProject, pk=pk)\n    # Tickets dans le backlog\n    tickets_backlog = JRTicket.objects.filter(\n        projet=projet,\n        dans_backlog=True\n    ).select_related('assigne').order_by('ordre_backlog', 'created_at')\n    # Tickets non dans le backlog (pour pouvoir les ajouter)\n    tickets_disponibles = JRTicket.objects.filter(",
+        "detail": "project_management.views.backlog_views",
+        "documentation": {}
+    },
+    {
+        "label": "backlog_ajouter_ticket",
+        "kind": 2,
+        "importPath": "project_management.views.backlog_views",
+        "description": "project_management.views.backlog_views",
+        "peekOfCode": "def backlog_ajouter_ticket(request, pk):\n    \"\"\"Vue pour ajouter un ticket au backlog\"\"\"\n    projet = get_object_or_404(JRProject, pk=pk)\n    ticket_id = request.POST.get('ticket_id')\n    if ticket_id:\n        ticket = get_object_or_404(JRTicket, pk=ticket_id, projet=projet)\n        if not ticket.dans_backlog:\n            ticket.dans_backlog = True\n            # Définir l'ordre comme le plus élevé existant + 1\n            max_ordre = JRTicket.objects.filter(",
+        "detail": "project_management.views.backlog_views",
+        "documentation": {}
+    },
+    {
+        "label": "backlog_retirer_ticket",
+        "kind": 2,
+        "importPath": "project_management.views.backlog_views",
+        "description": "project_management.views.backlog_views",
+        "peekOfCode": "def backlog_retirer_ticket(request, pk):\n    \"\"\"Vue pour retirer un ticket du backlog\"\"\"\n    projet = get_object_or_404(JRProject, pk=pk)\n    ticket_id = request.POST.get('ticket_id')\n    if ticket_id:\n        ticket = get_object_or_404(JRTicket, pk=ticket_id, projet=projet)\n        if ticket.dans_backlog:\n            ticket.dans_backlog = False\n            ticket.ordre_backlog = 0\n            ticket.save()",
+        "detail": "project_management.views.backlog_views",
+        "documentation": {}
+    },
+    {
+        "label": "backlog_reorganiser",
+        "kind": 2,
+        "importPath": "project_management.views.backlog_views",
+        "description": "project_management.views.backlog_views",
+        "peekOfCode": "def backlog_reorganiser(request):\n    \"\"\"Vue pour réorganiser l'ordre des tickets dans le backlog (AJAX)\"\"\"\n    ticket_orders = request.POST.get('orders', '{}')\n    try:\n        import json\n        orders = json.loads(ticket_orders)\n        for ticket_id, ordre in orders.items():\n            try:\n                ticket = JRTicket.objects.get(pk=ticket_id, dans_backlog=True)\n                ticket.ordre_backlog = int(ordre)",
+        "detail": "project_management.views.backlog_views",
+        "documentation": {}
+    },
+    {
+        "label": "backlog_priorisation",
+        "kind": 2,
+        "importPath": "project_management.views.backlog_views",
+        "description": "project_management.views.backlog_views",
+        "peekOfCode": "def backlog_priorisation(request, pk):\n    \"\"\"Vue pour la priorisation du backlog\"\"\"\n    projet = get_object_or_404(JRProject, pk=pk)\n    # Tickets dans le backlog organisés par priorité\n    tickets_backlog = JRTicket.objects.filter(\n        projet=projet,\n        dans_backlog=True\n    ).select_related('assigne').order_by('-priorite', 'ordre_backlog')\n    # Regrouper par priorité\n    tickets_par_priorite = {}",
+        "detail": "project_management.views.backlog_views",
+        "documentation": {}
+    },
+    {
+        "label": "backlog_changer_priorite",
+        "kind": 2,
+        "importPath": "project_management.views.backlog_views",
+        "description": "project_management.views.backlog_views",
+        "peekOfCode": "def backlog_changer_priorite(request, pk):\n    \"\"\"Vue pour changer la priorité d'un ticket dans le backlog\"\"\"\n    projet = get_object_or_404(JRProject, pk=pk)\n    ticket_id = request.POST.get('ticket_id')\n    nouvelle_priorite = request.POST.get('priorite')\n    if ticket_id and nouvelle_priorite:\n        ticket = get_object_or_404(JRTicket, pk=ticket_id, projet=projet)\n        if nouvelle_priorite in dict(JRTicket.PRIORITE_CHOICES):\n            ancienne_priorite = ticket.priorite\n            ticket.priorite = nouvelle_priorite",
+        "detail": "project_management.views.backlog_views",
+        "documentation": {}
+    },
+    {
+        "label": "backlog_planning_sprint",
+        "kind": 2,
+        "importPath": "project_management.views.backlog_views",
+        "description": "project_management.views.backlog_views",
+        "peekOfCode": "def backlog_planning_sprint(request, pk):\n    \"\"\"Vue pour planifier un sprint à partir du backlog\"\"\"\n    projet = get_object_or_404(JRProject, pk=pk)\n    # Tickets dans le backlog\n    tickets_backlog = JRTicket.objects.filter(\n        projet=projet,\n        dans_backlog=True\n    ).select_related('assigne').order_by('ordre_backlog')\n    # Estimation de la capacité (basée sur les sprints précédents ou par défaut)\n    capacite_heures = 40  # Par défaut : 1 semaine * 8h/jour * 5 jours",
+        "detail": "project_management.views.backlog_views",
+        "documentation": {}
+    },
+    {
+        "label": "backlog_creer_sprint",
+        "kind": 2,
+        "importPath": "project_management.views.backlog_views",
+        "description": "project_management.views.backlog_views",
+        "peekOfCode": "def backlog_creer_sprint(request, pk):\n    \"\"\"Vue pour créer un sprint à partir des tickets sélectionnés du backlog\"\"\"\n    projet = get_object_or_404(JRProject, pk=pk)\n    from ..models import JRSprint\n    from ..forms import SprintForm\n    if request.method == 'POST':\n        form = SprintForm(request.POST)\n        ticket_ids = request.POST.getlist('tickets')\n        if form.is_valid() and ticket_ids:\n            # Créer le sprint",
+        "detail": "project_management.views.backlog_views",
+        "documentation": {}
+    },
+    {
+        "label": "backlog_stats_api",
+        "kind": 2,
+        "importPath": "project_management.views.backlog_views",
+        "description": "project_management.views.backlog_views",
+        "peekOfCode": "def backlog_stats_api(request, pk=None):\n    \"\"\"API pour les statistiques du backlog\"\"\"\n    if pk:\n        projet = get_object_or_404(JRProject, pk=pk)\n        tickets = JRTicket.objects.filter(projet=projet, dans_backlog=True)\n    else:\n        projet = None\n        tickets = JRTicket.objects.filter(dans_backlog=True)\n    stats = {\n        'total_tickets': tickets.count(),",
+        "detail": "project_management.views.backlog_views",
+        "documentation": {}
+    },
+    {
+        "label": "ClientListView",
+        "kind": 6,
+        "importPath": "project_management.views.client_views",
+        "description": "project_management.views.client_views",
+        "peekOfCode": "class ClientListView(LoginRequiredMixin, ListView):\n    \"\"\"Vue pour la liste des clients\"\"\"\n    model = JRClient\n    template_name = 'project_management/client/client_list.html'\n    context_object_name = 'clients'\n    paginate_by = 20\n    def get_queryset(self):\n        queryset = JRClient.objects.all()\n        # Recherche\n        search_form = ClientSearchForm(self.request.GET)",
+        "detail": "project_management.views.client_views",
+        "documentation": {}
+    },
+    {
+        "label": "ClientCreateView",
+        "kind": 6,
+        "importPath": "project_management.views.client_views",
+        "description": "project_management.views.client_views",
+        "peekOfCode": "class ClientCreateView(LoginRequiredMixin, CreateView):\n    \"\"\"Vue pour la création d'un client\"\"\"\n    model = JRClient\n    form_class = ClientForm\n    template_name = 'project_management/client/client_form.html'\n    success_url = reverse_lazy('pm:client_list')\n    def form_valid(self, form):\n        messages.success(self.request, f'Client {form.instance.raison_sociale} créé avec succès.')\n        return super().form_valid(form)\n@method_decorator(login_required, name='dispatch')",
+        "detail": "project_management.views.client_views",
+        "documentation": {}
+    },
+    {
+        "label": "ClientUpdateView",
+        "kind": 6,
+        "importPath": "project_management.views.client_views",
+        "description": "project_management.views.client_views",
+        "peekOfCode": "class ClientUpdateView(LoginRequiredMixin, UpdateView):\n    \"\"\"Vue pour la modification d'un client\"\"\"\n    model = JRClient\n    form_class = ClientForm\n    template_name = 'project_management/client/client_form.html'\n    success_url = reverse_lazy('pm:client_list')\n    def form_valid(self, form):\n        messages.success(self.request, f'Client {form.instance.raison_sociale} modifié avec succès.')\n        return super().form_valid(form)\n@method_decorator(login_required, name='dispatch')",
+        "detail": "project_management.views.client_views",
+        "documentation": {}
+    },
+    {
+        "label": "ClientDetailView",
+        "kind": 6,
+        "importPath": "project_management.views.client_views",
+        "description": "project_management.views.client_views",
+        "peekOfCode": "class ClientDetailView(LoginRequiredMixin, ListView):\n    \"\"\"Vue pour le détail d'un client avec ses projets\"\"\"\n    model = JRProject\n    template_name = 'project_management/client/client_detail.html'\n    context_object_name = 'projets'\n    paginate_by = 10\n    def get_queryset(self):\n        self.client = get_object_or_404(JRClient, pk=self.kwargs['pk'])\n        return JRProject.objects.filter(client=self.client).order_by('-created_at')\n    def get_context_data(self, **kwargs):",
+        "detail": "project_management.views.client_views",
+        "documentation": {}
+    },
+    {
+        "label": "client_delete",
+        "kind": 2,
+        "importPath": "project_management.views.client_views",
+        "description": "project_management.views.client_views",
+        "peekOfCode": "def client_delete(request, pk):\n    \"\"\"Vue pour supprimer un client\"\"\"\n    client = get_object_or_404(JRClient, pk=pk)\n    # Vérifier si le client a des projets\n    if client.projets.exists():\n        messages.error(request, 'Impossible de supprimer ce client car il a des projets associés.')\n        return redirect('pm:client_detail', pk=pk)\n    raison_sociale = client.raison_sociale\n    client.delete()\n    messages.success(request, f'Client {raison_sociale} supprimé avec succès.')",
+        "detail": "project_management.views.client_views",
+        "documentation": {}
+    },
+    {
+        "label": "client_stats_api",
+        "kind": 2,
+        "importPath": "project_management.views.client_views",
+        "description": "project_management.views.client_views",
+        "peekOfCode": "def client_stats_api(request):\n    \"\"\"API pour les statistiques des clients\"\"\"\n    stats = {\n        'total_clients': JRClient.objects.count(),\n        'clients_actifs': JRClient.objects.filter(statut='ACTIF').count(),\n        'clients_inactifs': JRClient.objects.filter(statut='INACTIF').count(),\n        'clients_suspendus': JRClient.objects.filter(statut='SUSPENDU').count(),\n        'par_pays': list(\n            JRClient.objects.values('pays')\n            .annotate(count=Count('id'))",
+        "detail": "project_management.views.client_views",
+        "documentation": {}
+    },
+    {
+        "label": "dashboard",
+        "kind": 2,
+        "importPath": "project_management.views.dashboard",
+        "description": "project_management.views.dashboard",
+        "peekOfCode": "def dashboard(request):\n    \"\"\"Vue principale du tableau de bord avec données pré-chargées\"\"\"\n    # Récupérer l'employé associé à l'utilisateur\n    try:\n        employe = ZY00.objects.get(user=request.user)\n    except ZY00.DoesNotExist:\n        employe = None\n    # Statistiques globales\n    projets_actifs = JRProject.objects.filter(\n        statut__in=['PLANIFIE', 'ACTIF']",
+        "detail": "project_management.views.dashboard",
+        "documentation": {}
+    },
+    {
+        "label": "dashboard_stats_api",
+        "kind": 2,
+        "importPath": "project_management.views.dashboard",
+        "description": "project_management.views.dashboard",
+        "peekOfCode": "def dashboard_stats_api(request):\n    \"\"\"API pour les statistiques du dashboard\"\"\"\n    try:\n        employe = ZY00.objects.get(user=request.user)\n    except ZY00.DoesNotExist:\n        employe = None\n    # Projets actifs\n    total_projets = JRProject.objects.filter(\n        statut__in=['PLANIFIE', 'ACTIF']\n    ).count()",
+        "detail": "project_management.views.dashboard",
+        "documentation": {}
+    },
+    {
+        "label": "tickets_recents_api",
+        "kind": 2,
+        "importPath": "project_management.views.dashboard",
+        "description": "project_management.views.dashboard",
+        "peekOfCode": "def tickets_recents_api(request):\n    \"\"\"API pour les tickets récents\"\"\"\n    tickets = JRTicket.objects.select_related(\n        'projet', 'projet__client', 'assigne'\n    ).order_by('-created_at')[:10]\n    tickets_data = []\n    for ticket in tickets:\n        en_retard = (\n            ticket.date_echeance and\n            ticket.date_echeance < timezone.now().date() and",
+        "detail": "project_management.views.dashboard",
+        "documentation": {}
+    },
+    {
+        "label": "projets_actifs_api",
+        "kind": 2,
+        "importPath": "project_management.views.dashboard",
+        "description": "project_management.views.dashboard",
+        "peekOfCode": "def projets_actifs_api(request):\n    \"\"\"API pour les projets actifs\"\"\"\n    projets = JRProject.objects.select_related('client').filter(\n        statut__in=['PLANIFIE', 'ACTIF']\n    ).annotate(\n        tickets_count=Count('tickets')\n    ).order_by('-created_at')[:10]\n    projets_data = []\n    for projet in projets:\n        progression = projet.progression",
+        "detail": "project_management.views.dashboard",
+        "documentation": {}
+    },
+    {
+        "label": "alertes_api",
+        "kind": 2,
+        "importPath": "project_management.views.dashboard",
+        "description": "project_management.views.dashboard",
+        "peekOfCode": "def alertes_api(request):\n    \"\"\"API pour les alertes\"\"\"\n    alertes = []\n    # Tickets en retard\n    tickets_retard = JRTicket.objects.filter(\n        date_echeance__lt=timezone.now().date(),\n        statut__in=['OUVERT', 'EN_COURS', 'EN_REVUE']\n    ).select_related('assigne', 'projet')\n    for ticket in tickets_retard:\n        alertes.append({",
+        "detail": "project_management.views.dashboard",
+        "documentation": {}
+    },
+    {
+        "label": "stats_personnelles_api",
+        "kind": 2,
+        "importPath": "project_management.views.dashboard",
+        "description": "project_management.views.dashboard",
+        "peekOfCode": "def stats_personnelles_api(request):\n    \"\"\"API pour les statistiques personnelles\"\"\"\n    try:\n        employe = ZY00.objects.get(user=request.user)\n    except ZY00.DoesNotExist:\n        return JsonResponse({\n            'tickets_assignes': 0,\n            'tickets_termines': 0,\n            'temps_mois': 0,\n            'taux_completion': 0,",
+        "detail": "project_management.views.dashboard",
+        "documentation": {}
+    },
+    {
+        "label": "ImputationListView",
+        "kind": 6,
+        "importPath": "project_management.views.imputation_views",
+        "description": "project_management.views.imputation_views",
+        "peekOfCode": "class ImputationListView(LoginRequiredMixin, ListView):\n    \"\"\"Vue pour la liste des imputations\"\"\"\n    model = JRImputation\n    template_name = 'project_management/imputation/imputation_list.html'\n    context_object_name = 'imputations'\n    paginate_by = 25\n    def get_queryset(self):\n        queryset = JRImputation.objects.select_related(\n            'employe', 'ticket', 'ticket__projet', 'valide_par'\n        )",
+        "detail": "project_management.views.imputation_views",
+        "documentation": {}
+    },
+    {
+        "label": "ImputationCreateView",
+        "kind": 6,
+        "importPath": "project_management.views.imputation_views",
+        "description": "project_management.views.imputation_views",
+        "peekOfCode": "class ImputationCreateView(LoginRequiredMixin, CreateView):\n    \"\"\"Vue pour la création d'une imputation\"\"\"\n    model = JRImputation\n    form_class = ImputationForm\n    template_name = 'project_management/imputation/imputation_form.html'\n    success_url = reverse_lazy('pm:imputation_list')\n    def get_form_kwargs(self):\n        kwargs = super().get_form_kwargs()\n        kwargs['user'] = self.request.user\n        return kwargs",
+        "detail": "project_management.views.imputation_views",
+        "documentation": {}
+    },
+    {
+        "label": "ImputationUpdateView",
+        "kind": 6,
+        "importPath": "project_management.views.imputation_views",
+        "description": "project_management.views.imputation_views",
+        "peekOfCode": "class ImputationUpdateView(LoginRequiredMixin, UpdateView):\n    \"\"\"Vue pour la modification d'une imputation\"\"\"\n    model = JRImputation\n    form_class = ImputationForm\n    template_name = 'project_management/imputation/imputation_form.html'\n    def get_success_url(self):\n        return reverse_lazy('pm:mes_imputations')\n    def get_queryset(self):\n        # L'utilisateur ne peut modifier que ses propres imputations en attente\n        try:",
+        "detail": "project_management.views.imputation_views",
+        "documentation": {}
+    },
+    {
+        "label": "ImputationDeleteView",
+        "kind": 6,
+        "importPath": "project_management.views.imputation_views",
+        "description": "project_management.views.imputation_views",
+        "peekOfCode": "class ImputationDeleteView(LoginRequiredMixin, DeleteView):\n    \"\"\"Vue pour la suppression d'une imputation\"\"\"\n    model = JRImputation\n    template_name = 'project_management/imputation/imputation_confirm_delete.html'\n    success_url = reverse_lazy('pm:mes_imputations')\n    def get_queryset(self):\n        # L'utilisateur ne peut supprimer que ses propres imputations en attente\n        try:\n            employe = ZY00.objects.get(user=self.request.user)\n            return JRImputation.objects.filter(",
+        "detail": "project_management.views.imputation_views",
+        "documentation": {}
+    },
+    {
+        "label": "mes_imputations",
+        "kind": 2,
+        "importPath": "project_management.views.imputation_views",
+        "description": "project_management.views.imputation_views",
+        "peekOfCode": "def mes_imputations(request):\n    \"\"\"Vue pour les imputations de l'utilisateur connecté\"\"\"\n    # Récupérer l'employé associé à l'utilisateur connecté\n    try:\n        employe = ZY00.objects.get(user=request.user)\n    except ZY00.DoesNotExist:\n        messages.error(request, \"Aucun employé associé à votre compte utilisateur.\")\n        return redirect('pm:dashboard')\n    imputations = JRImputation.objects.filter(\n        employe=employe",
+        "detail": "project_management.views.imputation_views",
+        "documentation": {}
+    },
+    {
+        "label": "validation_imputations",
+        "kind": 2,
+        "importPath": "project_management.views.imputation_views",
+        "description": "project_management.views.imputation_views",
+        "peekOfCode": "def validation_imputations(request):\n    \"\"\"Vue pour la validation des imputations (pour les chefs de projet et administrateurs)\"\"\"\n    # Récupérer l'employé associé à l'utilisateur connecté\n    try:\n        employe = ZY00.objects.get(user=request.user)\n    except ZY00.DoesNotExist:\n        messages.error(request, \"Aucun employé associé à votre compte utilisateur.\")\n        return redirect('pm:dashboard')\n    # Vérifier si l'utilisateur a des droits étendus (DRH, GESTION_APP, DIRECTEUR)\n    is_admin = (",
+        "detail": "project_management.views.imputation_views",
+        "documentation": {}
+    },
+    {
+        "label": "valider_imputation",
+        "kind": 2,
+        "importPath": "project_management.views.imputation_views",
+        "description": "project_management.views.imputation_views",
+        "peekOfCode": "def valider_imputation(request, pk):\n    \"\"\"Vue pour valider une imputation\"\"\"\n    imputation = get_object_or_404(JRImputation, pk=pk)\n    # Récupérer l'employé correspondant à l'utilisateur\n    try:\n        employe = ZY00.objects.get(user=request.user)\n    except ZY00.DoesNotExist:\n        messages.error(request, \"Aucun employé associé à votre compte utilisateur.\")\n        return redirect('pm:validation_imputations')\n    # Vérifier que l'utilisateur est autorisé à valider",
+        "detail": "project_management.views.imputation_views",
+        "documentation": {}
+    },
+    {
+        "label": "valider_multiple_imputations",
+        "kind": 2,
+        "importPath": "project_management.views.imputation_views",
+        "description": "project_management.views.imputation_views",
+        "peekOfCode": "def valider_multiple_imputations(request):\n    \"\"\"Vue pour valider plusieurs imputations en masse\"\"\"\n    # Récupérer l'employé correspondant à l'utilisateur\n    try:\n        employe = ZY00.objects.get(user=request.user)\n    except ZY00.DoesNotExist:\n        messages.error(request, \"Aucun employé associé à votre compte utilisateur.\")\n        return redirect('pm:validation_imputations')\n    imputation_ids = request.POST.getlist('imputation_ids')\n    action = request.POST.get('action')",
+        "detail": "project_management.views.imputation_views",
+        "documentation": {}
+    },
+    {
+        "label": "rapports_temps",
+        "kind": 2,
+        "importPath": "project_management.views.imputation_views",
+        "description": "project_management.views.imputation_views",
+        "peekOfCode": "def rapports_temps(request):\n    \"\"\"Vue pour les rapports de temps\"\"\"\n    # Filtres\n    projet_id = request.GET.get('projet')\n    employe_id = request.GET.get('employe')\n    date_debut = request.GET.get('date_debut')\n    date_fin = request.GET.get('date_fin')\n    statut_filter = request.GET.get('statut', '')\n    # Par défaut, afficher toutes les imputations traitées (validées et rejetées)\n    imputations = JRImputation.objects.exclude(statut_validation='EN_ATTENTE')",
+        "detail": "project_management.views.imputation_views",
+        "documentation": {}
+    },
+    {
+        "label": "export_temps_excel",
+        "kind": 2,
+        "importPath": "project_management.views.imputation_views",
+        "description": "project_management.views.imputation_views",
+        "peekOfCode": "def export_temps_excel(request):\n    \"\"\"Vue pour exporter les temps en Excel\"\"\"\n    import pandas as pd\n    from io import BytesIO\n    from django.http import HttpResponse\n    # Récupérer les données (même logique que rapports_temps)\n    imputations = JRImputation.objects.filter(statut_validation='VALIDE').select_related(\n        'employe', 'ticket', 'ticket__projet'\n    ).order_by('-date_imputation')\n    # Créer le DataFrame",
+        "detail": "project_management.views.imputation_views",
+        "documentation": {}
+    },
+    {
+        "label": "imputation_stats_api",
+        "kind": 2,
+        "importPath": "project_management.views.imputation_views",
+        "description": "project_management.views.imputation_views",
+        "peekOfCode": "def imputation_stats_api(request):\n    \"\"\"API pour les statistiques des imputations\"\"\"\n    stats = {\n        'total_imputations': JRImputation.objects.count(),\n        'par_statut': list(\n            JRImputation.objects.values('statut_validation')\n            .annotate(count=Count('id'))\n            .order_by('-count')\n        ),\n        'total_heures_validees': JRImputation.objects.filter(",
+        "detail": "project_management.views.imputation_views",
+        "documentation": {}
+    },
+    {
+        "label": "ProjetListView",
+        "kind": 6,
+        "importPath": "project_management.views.projet_views",
+        "description": "project_management.views.projet_views",
+        "peekOfCode": "class ProjetListView(LoginRequiredMixin, ListView):\n    \"\"\"Vue pour la liste des projets\"\"\"\n    model = JRProject\n    template_name = 'project_management/projet/projet_list.html'\n    context_object_name = 'projets'\n    paginate_by = 20\n    def get_queryset(self):\n        queryset = JRProject.objects.select_related('client', 'chef_projet')\n        # Recherche\n        search_form = ProjetSearchForm(self.request.GET)",
+        "detail": "project_management.views.projet_views",
+        "documentation": {}
+    },
+    {
+        "label": "ProjetCreateView",
+        "kind": 6,
+        "importPath": "project_management.views.projet_views",
+        "description": "project_management.views.projet_views",
+        "peekOfCode": "class ProjetCreateView(LoginRequiredMixin, CreateView):\n    \"\"\"Vue pour la création d'un projet\"\"\"\n    model = JRProject\n    form_class = ProjetForm\n    template_name = 'project_management/projet/projet_form.html'\n    success_url = reverse_lazy('pm:projet_list')\n    def form_valid(self, form):\n        messages.success(self.request, f'Projet {form.instance.nom} créé avec succès.')\n        return super().form_valid(form)\n@method_decorator(login_required, name='dispatch')",
+        "detail": "project_management.views.projet_views",
+        "documentation": {}
+    },
+    {
+        "label": "ProjetUpdateView",
+        "kind": 6,
+        "importPath": "project_management.views.projet_views",
+        "description": "project_management.views.projet_views",
+        "peekOfCode": "class ProjetUpdateView(LoginRequiredMixin, UpdateView):\n    \"\"\"Vue pour la modification d'un projet\"\"\"\n    model = JRProject\n    form_class = ProjetForm\n    template_name = 'project_management/projet/projet_form.html'\n    success_url = reverse_lazy('pm:projet_list')\n    def form_valid(self, form):\n        messages.success(self.request, f'Projet {form.instance.nom} modifié avec succès.')\n        return super().form_valid(form)\n@login_required",
+        "detail": "project_management.views.projet_views",
+        "documentation": {}
+    },
+    {
+        "label": "projet_detail",
+        "kind": 2,
+        "importPath": "project_management.views.projet_views",
+        "description": "project_management.views.projet_views",
+        "peekOfCode": "def projet_detail(request, pk):\n    \"\"\"Vue pour le détail d'un projet\"\"\"\n    projet = get_object_or_404(\n        JRProject.objects.select_related('client', 'chef_projet'),\n        pk=pk\n    )\n    # Tickets du projet\n    tickets = JRTicket.objects.filter(projet=projet).select_related('assigne')\n    # Statistiques des tickets\n    stats_tickets = {",
+        "detail": "project_management.views.projet_views",
+        "documentation": {}
+    },
+    {
+        "label": "projet_tickets",
+        "kind": 2,
+        "importPath": "project_management.views.projet_views",
+        "description": "project_management.views.projet_views",
+        "peekOfCode": "def projet_tickets(request, pk):\n    \"\"\"Vue pour les tickets d'un projet\"\"\"\n    projet = get_object_or_404(JRProject, pk=pk)\n    tickets = JRTicket.objects.filter(projet=projet).select_related('assigne')\n    # Pagination\n    paginator = Paginator(tickets, 20)\n    page_number = request.GET.get('page')\n    page_obj = paginator.get_page(page_number)\n    context = {\n        'projet': projet,",
+        "detail": "project_management.views.projet_views",
+        "documentation": {}
+    },
+    {
+        "label": "projet_imputations",
+        "kind": 2,
+        "importPath": "project_management.views.projet_views",
+        "description": "project_management.views.projet_views",
+        "peekOfCode": "def projet_imputations(request, pk):\n    \"\"\"Vue pour les imputations d'un projet\"\"\"\n    projet = get_object_or_404(JRProject, pk=pk)\n    imputations = JRImputation.objects.filter(\n        ticket__projet=projet\n    ).select_related('employe', 'ticket', 'valide_par').order_by('-date_imputation')\n    # Pagination\n    paginator = Paginator(imputations, 25)\n    page_number = request.GET.get('page')\n    page_obj = paginator.get_page(page_number)",
+        "detail": "project_management.views.projet_views",
+        "documentation": {}
+    },
+    {
+        "label": "projet_delete",
+        "kind": 2,
+        "importPath": "project_management.views.projet_views",
+        "description": "project_management.views.projet_views",
+        "peekOfCode": "def projet_delete(request, pk):\n    \"\"\"Vue pour supprimer un projet\"\"\"\n    projet = get_object_or_404(JRProject, pk=pk)\n    # Vérifier si le projet a des tickets\n    if projet.tickets.exists():\n        messages.error(request, 'Impossible de supprimer ce projet car il a des tickets associés.')\n        return redirect('pm:projet_detail', pk=pk)\n    projet.delete()\n    messages.success(request, f'Projet {projet.nom} supprimé avec succès.')\n    return redirect('pm:projet_list')",
+        "detail": "project_management.views.projet_views",
+        "documentation": {}
+    },
+    {
+        "label": "projet_stats_api",
+        "kind": 2,
+        "importPath": "project_management.views.projet_views",
+        "description": "project_management.views.projet_views",
+        "peekOfCode": "def projet_stats_api(request):\n    \"\"\"API pour les statistiques des projets\"\"\"\n    stats = {\n        'total_projets': JRProject.objects.count(),\n        'par_statut': list(\n            JRProject.objects.values('statut')\n            .annotate(count=Count('id'))\n            .order_by('-count')\n        ),\n        'budget_total': JRProject.objects.aggregate(",
+        "detail": "project_management.views.projet_views",
+        "documentation": {}
+    },
+    {
+        "label": "search_employes_api",
+        "kind": 2,
+        "importPath": "project_management.views.projet_views",
+        "description": "project_management.views.projet_views",
+        "peekOfCode": "def search_employes_api(request):\n    \"\"\"API pour rechercher des employés (autocomplete)\"\"\"\n    try:\n        query = request.GET.get('q', '').strip()\n        if len(query) < 2:\n            return JsonResponse({'results': []})\n        employes = ZY00.objects.filter(\n            Q(nom__icontains=query) |\n            Q(prenoms__icontains=query) |\n            Q(matricule__icontains=query)",
+        "detail": "project_management.views.projet_views",
+        "documentation": {}
+    },
+    {
+        "label": "SprintListView",
+        "kind": 6,
+        "importPath": "project_management.views.sprint_views",
+        "description": "project_management.views.sprint_views",
+        "peekOfCode": "class SprintListView(LoginRequiredMixin, ListView):\n    \"\"\"Vue pour la liste des sprints\"\"\"\n    model = JRSprint\n    template_name = 'project_management/sprint/sprint_list.html'\n    context_object_name = 'sprints'\n    paginate_by = 20\n    def get_queryset(self):\n        queryset = JRSprint.objects.select_related('projet', 'projet__client')\n        # Recherche\n        search_form = SprintSearchForm(self.request.GET)",
+        "detail": "project_management.views.sprint_views",
+        "documentation": {}
+    },
+    {
+        "label": "SprintCreateView",
+        "kind": 6,
+        "importPath": "project_management.views.sprint_views",
+        "description": "project_management.views.sprint_views",
+        "peekOfCode": "class SprintCreateView(LoginRequiredMixin, CreateView):\n    \"\"\"Vue pour la création d'un sprint\"\"\"\n    model = JRSprint\n    form_class = SprintForm\n    template_name = 'project_management/sprint/sprint_form.html'\n    success_url = reverse_lazy('pm:sprint_list')\n    def form_valid(self, form):\n        response = super().form_valid(form)\n        messages.success(self.request, f'Sprint {form.instance.nom} créé avec succès.')\n        return response",
+        "detail": "project_management.views.sprint_views",
+        "documentation": {}
+    },
+    {
+        "label": "SprintUpdateView",
+        "kind": 6,
+        "importPath": "project_management.views.sprint_views",
+        "description": "project_management.views.sprint_views",
+        "peekOfCode": "class SprintUpdateView(LoginRequiredMixin, UpdateView):\n    \"\"\"Vue pour la modification d'un sprint\"\"\"\n    model = JRSprint\n    form_class = SprintForm\n    template_name = 'project_management/sprint/sprint_form.html'\n    success_url = reverse_lazy('pm:sprint_list')\n    def form_valid(self, form):\n        response = super().form_valid(form)\n        messages.success(self.request, f'Sprint {form.instance.nom} modifié avec succès.')\n        return response",
+        "detail": "project_management.views.sprint_views",
+        "documentation": {}
+    },
+    {
+        "label": "sprint_detail",
+        "kind": 2,
+        "importPath": "project_management.views.sprint_views",
+        "description": "project_management.views.sprint_views",
+        "peekOfCode": "def sprint_detail(request, pk):\n    \"\"\"Vue pour le détail d'un sprint\"\"\"\n    sprint = get_object_or_404(\n        JRSprint.objects.select_related('projet', 'projet__client'),\n        pk=pk\n    )\n    # Tickets du sprint\n    tickets = sprint.tickets.select_related('assigne').order_by('ordre_backlog', 'created_at')\n    # Statistiques des tickets\n    stats_tickets = {",
+        "detail": "project_management.views.sprint_views",
+        "documentation": {}
+    },
+    {
+        "label": "sprint_board",
+        "kind": 2,
+        "importPath": "project_management.views.sprint_views",
+        "description": "project_management.views.sprint_views",
+        "peekOfCode": "def sprint_board(request, pk):\n    \"\"\"Vue pour le tableau Kanban du sprint\"\"\"\n    sprint = get_object_or_404(JRSprint, pk=pk)\n    # Tickets du sprint organisés par statut\n    tickets = sprint.tickets.select_related('assigne')\n    tickets_par_statut = {\n        'OUVERT': tickets.filter(statut='OUVERT'),\n        'EN_COURS': tickets.filter(statut='EN_COURS'),\n        'EN_REVue': tickets.filter(statut='EN_REVue'),\n        'TERMINE': tickets.filter(statut='TERMINE'),",
+        "detail": "project_management.views.sprint_views",
+        "documentation": {}
+    },
+    {
+        "label": "sprint_tickets",
+        "kind": 2,
+        "importPath": "project_management.views.sprint_views",
+        "description": "project_management.views.sprint_views",
+        "peekOfCode": "def sprint_tickets(request, pk):\n    \"\"\"Vue pour gérer les tickets d'un sprint\"\"\"\n    sprint = get_object_or_404(JRSprint, pk=pk)\n    if request.method == 'POST':\n        form = SprintTicketForm(sprint.projet, request.POST, instance=sprint)\n        if form.is_valid():\n            form.save()\n            messages.success(request, 'Tickets du sprint mis à jour avec succès.')\n            return redirect('pm:sprint_detail', pk=pk)\n    else:",
+        "detail": "project_management.views.sprint_views",
+        "documentation": {}
+    },
+    {
+        "label": "sprint_demarrer",
+        "kind": 2,
+        "importPath": "project_management.views.sprint_views",
+        "description": "project_management.views.sprint_views",
+        "peekOfCode": "def sprint_demarrer(request, pk):\n    \"\"\"Vue pour démarrer un sprint\"\"\"\n    sprint = get_object_or_404(JRSprint, pk=pk)\n    if sprint.statut == 'PLANIFIE':\n        # Vérifier qu'il n'y a pas déjà un sprint actif pour ce projet\n        sprint_actif = JRSprint.objects.filter(\n            projet=sprint.projet,\n            statut='ACTIF'\n        ).first()\n        if sprint_actif:",
+        "detail": "project_management.views.sprint_views",
+        "documentation": {}
+    },
+    {
+        "label": "sprint_terminer",
+        "kind": 2,
+        "importPath": "project_management.views.sprint_views",
+        "description": "project_management.views.sprint_views",
+        "peekOfCode": "def sprint_terminer(request, pk):\n    \"\"\"Vue pour terminer un sprint\"\"\"\n    sprint = get_object_or_404(JRSprint, pk=pk)\n    if sprint.statut == 'ACTIF':\n        sprint.statut = 'TERMINE'\n        sprint.save()\n        messages.success(request, f'Sprint \"{sprint.nom}\" terminé avec succès.')\n        # Optionnel : déplacer les tickets non terminés vers le backlog\n        tickets_non_termines = sprint.tickets.filter(\n            statut__in=['OUVERT', 'EN_COURS', 'EN_REVue']",
+        "detail": "project_management.views.sprint_views",
+        "documentation": {}
+    },
+    {
+        "label": "sprint_supprimer",
+        "kind": 2,
+        "importPath": "project_management.views.sprint_views",
+        "description": "project_management.views.sprint_views",
+        "peekOfCode": "def sprint_supprimer(request, pk):\n    \"\"\"Vue pour supprimer un sprint\"\"\"\n    sprint = get_object_or_404(JRSprint, pk=pk)\n    if sprint.statut == 'ACTIF':\n        messages.error(request, 'Impossible de supprimer un sprint actif.')\n        return redirect('pm:sprint_detail', pk=pk)\n    nom_sprint = sprint.nom\n    sprint.delete()\n    messages.success(request, f'Sprint \"{nom_sprint}\" supprimé avec succès.')\n    return redirect('pm:sprint_list')",
+        "detail": "project_management.views.sprint_views",
+        "documentation": {}
+    },
+    {
+        "label": "sprint_rapport",
+        "kind": 2,
+        "importPath": "project_management.views.sprint_views",
+        "description": "project_management.views.sprint_views",
+        "peekOfCode": "def sprint_rapport(request, pk):\n    \"\"\"Vue pour le rapport d'un sprint\"\"\"\n    sprint = get_object_or_404(JRSprint, pk=pk)\n    # Tickets du sprint\n    tickets = sprint.tickets.select_related('assigne')\n    # Imputations du sprint\n    imputations = JRImputation.objects.filter(\n        ticket__in=tickets,\n        statut_validation='VALIDE'\n    ).select_related('employe', 'ticket')",
+        "detail": "project_management.views.sprint_views",
+        "documentation": {}
+    },
+    {
+        "label": "sprint_stats_api",
+        "kind": 2,
+        "importPath": "project_management.views.sprint_views",
+        "description": "project_management.views.sprint_views",
+        "peekOfCode": "def sprint_stats_api(request):\n    \"\"\"API pour les statistiques des sprints\"\"\"\n    stats = {\n        'total_sprints': JRSprint.objects.count(),\n        'par_statut': list(\n            JRSprint.objects.values('statut')\n            .annotate(count=Count('id'))\n            .order_by('-count')\n        ),\n        'sprints_actifs': JRSprint.objects.filter(statut='ACTIF').count(),",
+        "detail": "project_management.views.sprint_views",
+        "documentation": {}
+    },
+    {
+        "label": "TicketListView",
+        "kind": 6,
+        "importPath": "project_management.views.ticket_views",
+        "description": "project_management.views.ticket_views",
+        "peekOfCode": "class TicketListView(LoginRequiredMixin, ListView):\n    \"\"\"Vue pour la liste des tickets\"\"\"\n    model = JRTicket\n    template_name = 'project_management/ticket/ticket_list.html'\n    context_object_name = 'tickets'\n    paginate_by = 25\n    def get_queryset(self):\n        queryset = JRTicket.objects.select_related('projet', 'assigne', 'projet__client')\n        # Recherche\n        search_form = TicketSearchForm(self.request.GET)",
+        "detail": "project_management.views.ticket_views",
+        "documentation": {}
+    },
+    {
+        "label": "TicketCreateView",
+        "kind": 6,
+        "importPath": "project_management.views.ticket_views",
+        "description": "project_management.views.ticket_views",
+        "peekOfCode": "class TicketCreateView(LoginRequiredMixin, CreateView):\n    \"\"\"Vue pour la création d'un ticket\"\"\"\n    model = JRTicket\n    form_class = TicketForm\n    template_name = 'project_management/ticket/ticket_form.html'\n    def get_form_kwargs(self):\n        kwargs = super().get_form_kwargs()\n        kwargs['user'] = self.request.user\n        return kwargs\n    def get_success_url(self):",
+        "detail": "project_management.views.ticket_views",
+        "documentation": {}
+    },
+    {
+        "label": "TicketUpdateView",
+        "kind": 6,
+        "importPath": "project_management.views.ticket_views",
+        "description": "project_management.views.ticket_views",
+        "peekOfCode": "class TicketUpdateView(LoginRequiredMixin, UpdateView):\n    \"\"\"Vue pour la modification d'un ticket\"\"\"\n    model = JRTicket\n    form_class = TicketForm\n    template_name = 'project_management/ticket/ticket_form.html'\n    def get_form_kwargs(self):\n        kwargs = super().get_form_kwargs()\n        kwargs['user'] = self.request.user\n        return kwargs\n    def get_success_url(self):",
+        "detail": "project_management.views.ticket_views",
+        "documentation": {}
+    },
+    {
+        "label": "ticket_detail",
+        "kind": 2,
+        "importPath": "project_management.views.ticket_views",
+        "description": "project_management.views.ticket_views",
+        "peekOfCode": "def ticket_detail(request, pk):\n    \"\"\"Vue pour le détail d'un ticket\"\"\"\n    ticket = get_object_or_404(\n        JRTicket.objects.select_related(\n            'projet', 'assigne', 'projet__client', 'projet__chef_projet'\n        ),\n        pk=pk\n    )\n    # Commentaires\n    commentaires = ticket.commentaires.select_related('auteur').order_by('created_at')",
+        "detail": "project_management.views.ticket_views",
+        "documentation": {}
+    },
+    {
+        "label": "ticket_ajouter_commentaire",
+        "kind": 2,
+        "importPath": "project_management.views.ticket_views",
+        "description": "project_management.views.ticket_views",
+        "peekOfCode": "def ticket_ajouter_commentaire(request, pk):\n    \"\"\"Vue pour ajouter un commentaire à un ticket\"\"\"\n    ticket = get_object_or_404(JRTicket, pk=pk)\n    form = CommentaireForm(request.POST)\n    # Récupérer l'employé ZY00 lié à l'utilisateur connecté\n    try:\n        employe = ZY00.objects.get(user=request.user)\n    except ZY00.DoesNotExist:\n        messages.error(request, 'Vous devez être associé à un employé pour commenter.')\n        return redirect('pm:ticket_detail', pk=pk)",
+        "detail": "project_management.views.ticket_views",
+        "documentation": {}
+    },
+    {
+        "label": "ticket_ajouter_piece_jointe",
+        "kind": 2,
+        "importPath": "project_management.views.ticket_views",
+        "description": "project_management.views.ticket_views",
+        "peekOfCode": "def ticket_ajouter_piece_jointe(request, pk):\n    \"\"\"Vue pour ajouter une pièce jointe à un ticket\"\"\"\n    ticket = get_object_or_404(JRTicket, pk=pk)\n    form = PieceJointeForm(request.POST, request.FILES)\n    # Récupérer l'employé ZY00 lié à l'utilisateur connecté\n    try:\n        employe = ZY00.objects.get(user=request.user)\n    except ZY00.DoesNotExist:\n        employe = None  # uploaded_by accepte null\n    if form.is_valid() and request.FILES.get('fichier'):",
+        "detail": "project_management.views.ticket_views",
+        "documentation": {}
+    },
+    {
+        "label": "ticket_changer_statut",
+        "kind": 2,
+        "importPath": "project_management.views.ticket_views",
+        "description": "project_management.views.ticket_views",
+        "peekOfCode": "def ticket_changer_statut(request, pk):\n    \"\"\"Vue pour changer le statut d'un ticket\"\"\"\n    ticket = get_object_or_404(JRTicket, pk=pk)\n    nouveau_statut = request.POST.get('statut')\n    if nouveau_statut in dict(JRTicket.STATUT_CHOICES):\n        ancien_statut = ticket.statut\n        # Validation des transitions\n        if not TicketService.valider_transition_statut(ancien_statut, nouveau_statut):\n            messages.error(request, 'Transition de statut non autorisée.')\n            return redirect('pm:ticket_detail', pk=pk)",
+        "detail": "project_management.views.ticket_views",
+        "documentation": {}
+    },
+    {
+        "label": "ticket_assigner",
+        "kind": 2,
+        "importPath": "project_management.views.ticket_views",
+        "description": "project_management.views.ticket_views",
+        "peekOfCode": "def ticket_assigner(request, pk):\n    \"\"\"Vue pour assigner un ticket\"\"\"\n    ticket = get_object_or_404(JRTicket, pk=pk)\n    assigne_id = request.POST.get('assigne')\n    ancien_assigne = ticket.assigne\n    nouveau_assigne = None\n    if assigne_id:\n        nouveau_assigne = get_object_or_404(ZY00, pk=assigne_id)\n    ticket.assigne = nouveau_assigne\n    ticket.save()",
+        "detail": "project_management.views.ticket_views",
+        "documentation": {}
+    },
+    {
+        "label": "ticket_kanban",
+        "kind": 2,
+        "importPath": "project_management.views.ticket_views",
+        "description": "project_management.views.ticket_views",
+        "peekOfCode": "def ticket_kanban(request):\n    \"\"\"Vue pour le tableau Kanban des tickets\"\"\"\n    # Filtres\n    projet_id = request.GET.get('projet')\n    assigne_id = request.GET.get('assigne')\n    tickets = JRTicket.objects.select_related('projet', 'assigne')\n    projet = None\n    if projet_id:\n        try:\n            projet = JRProject.objects.get(pk=projet_id)",
+        "detail": "project_management.views.ticket_views",
+        "documentation": {}
+    },
+    {
+        "label": "ticket_stats_api",
+        "kind": 2,
+        "importPath": "project_management.views.ticket_views",
+        "description": "project_management.views.ticket_views",
+        "peekOfCode": "def ticket_stats_api(request):\n    \"\"\"API pour les statistiques des tickets\"\"\"\n    stats = {\n        'total_tickets': JRTicket.objects.count(),\n        'par_statut': list(\n            JRTicket.objects.values('statut')\n            .annotate(count=Count('id'))\n            .order_by('-count')\n        ),\n        'par_priorite': list(",
+        "detail": "project_management.views.ticket_views",
+        "documentation": {}
+    },
+    {
+        "label": "ticket_delete",
+        "kind": 2,
+        "importPath": "project_management.views.ticket_views",
+        "description": "project_management.views.ticket_views",
+        "peekOfCode": "def ticket_delete(request, pk):\n    \"\"\"Vue pour supprimer un ticket\"\"\"\n    ticket = get_object_or_404(JRTicket, pk=pk)\n    code = ticket.code\n    titre = ticket.titre\n    # Supprimer le ticket (les commentaires, pièces jointes et historique seront supprimés en cascade)\n    ticket.delete()\n    messages.success(request, f'Ticket {code} \"{titre}\" supprimé avec succès.')\n    return redirect('pm:ticket_list')",
+        "detail": "project_management.views.ticket_views",
+        "documentation": {}
+    },
+    {
+        "label": "JRClientAdmin",
+        "kind": 6,
+        "importPath": "project_management.admin",
+        "description": "project_management.admin",
+        "peekOfCode": "class JRClientAdmin(admin.ModelAdmin):\n    list_display = ('code_client', 'raison_sociale', 'email_contact', 'telephone_contact', 'statut', 'created_at')\n    list_filter = ('statut', 'created_at')\n    search_fields = ('code_client', 'raison_sociale', 'email_contact')\n    ordering = ('-created_at',)\n@admin.register(JRProject)\nclass JRProjectAdmin(admin.ModelAdmin):\n    list_display = ('code', 'nom', 'client', 'chef_projet', 'statut', 'date_debut', 'date_fin_prevue')\n    list_filter = ('statut', 'client', 'date_debut')\n    search_fields = ('code', 'nom', 'client__raison_sociale')",
+        "detail": "project_management.admin",
+        "documentation": {}
+    },
+    {
+        "label": "JRProjectAdmin",
+        "kind": 6,
+        "importPath": "project_management.admin",
+        "description": "project_management.admin",
+        "peekOfCode": "class JRProjectAdmin(admin.ModelAdmin):\n    list_display = ('code', 'nom', 'client', 'chef_projet', 'statut', 'date_debut', 'date_fin_prevue')\n    list_filter = ('statut', 'client', 'date_debut')\n    search_fields = ('code', 'nom', 'client__raison_sociale')\n    autocomplete_fields = ('client', 'chef_projet')\n    ordering = ('-created_at',)\n    date_hierarchy = 'date_debut'\n@admin.register(JRTicket)\nclass JRTicketAdmin(admin.ModelAdmin):\n    list_display = ('code', 'titre', 'projet', 'type_ticket', 'priorite', 'statut', 'assigne', 'date_echeance')",
+        "detail": "project_management.admin",
+        "documentation": {}
+    },
+    {
+        "label": "JRTicketAdmin",
+        "kind": 6,
+        "importPath": "project_management.admin",
+        "description": "project_management.admin",
+        "peekOfCode": "class JRTicketAdmin(admin.ModelAdmin):\n    list_display = ('code', 'titre', 'projet', 'type_ticket', 'priorite', 'statut', 'assigne', 'date_echeance')\n    list_filter = ('statut', 'priorite', 'type_ticket', 'projet', 'dans_backlog')\n    search_fields = ('code', 'titre', 'description', 'projet__nom')\n    autocomplete_fields = ('projet', 'assigne')\n    ordering = ('-created_at',)\n    date_hierarchy = 'created_at'\n    list_editable = ('statut', 'priorite', 'assigne')\n@admin.register(JRCommentaire)\nclass JRCommentaireAdmin(admin.ModelAdmin):",
+        "detail": "project_management.admin",
+        "documentation": {}
+    },
+    {
+        "label": "JRCommentaireAdmin",
+        "kind": 6,
+        "importPath": "project_management.admin",
+        "description": "project_management.admin",
+        "peekOfCode": "class JRCommentaireAdmin(admin.ModelAdmin):\n    list_display = ('ticket', 'auteur', 'contenu_court', 'created_at')\n    list_filter = ('created_at', 'ticket__projet')\n    search_fields = ('contenu', 'ticket__code', 'auteur__nom')\n    ordering = ('-created_at',)\n    def contenu_court(self, obj):\n        return obj.contenu[:50] + '...' if len(obj.contenu) > 50 else obj.contenu\n    contenu_court.short_description = 'Contenu'\n@admin.register(JRPieceJointe)\nclass JRPieceJointeAdmin(admin.ModelAdmin):",
+        "detail": "project_management.admin",
+        "documentation": {}
+    },
+    {
+        "label": "JRPieceJointeAdmin",
+        "kind": 6,
+        "importPath": "project_management.admin",
+        "description": "project_management.admin",
+        "peekOfCode": "class JRPieceJointeAdmin(admin.ModelAdmin):\n    list_display = ('nom_original', 'ticket', 'uploaded_by', 'taille', 'uploaded_at')\n    list_filter = ('uploaded_at', 'ticket__projet')\n    search_fields = ('nom_original', 'ticket__code')\n    ordering = ('-uploaded_at',)\n@admin.register(JRHistorique)\nclass JRHistoriqueAdmin(admin.ModelAdmin):\n    list_display = ('ticket', 'utilisateur', 'type_changement', 'champ_modifie', 'created_at')\n    list_filter = ('type_changement', 'created_at', 'ticket__projet')\n    search_fields = ('ticket__code', 'description')",
+        "detail": "project_management.admin",
+        "documentation": {}
+    },
+    {
+        "label": "JRHistoriqueAdmin",
+        "kind": 6,
+        "importPath": "project_management.admin",
+        "description": "project_management.admin",
+        "peekOfCode": "class JRHistoriqueAdmin(admin.ModelAdmin):\n    list_display = ('ticket', 'utilisateur', 'type_changement', 'champ_modifie', 'created_at')\n    list_filter = ('type_changement', 'created_at', 'ticket__projet')\n    search_fields = ('ticket__code', 'description')\n    ordering = ('-created_at',)\n    readonly_fields = ('ticket', 'utilisateur', 'type_changement', 'champ_modifie',\n                       'ancienne_valeur', 'nouvelle_valeur', 'description', 'created_at')\n@admin.register(JRImputation)\nclass JRImputationAdmin(admin.ModelAdmin):\n    list_display = ('date_imputation', 'employe', 'ticket', 'type_activite', 'heures', 'minutes',",
+        "detail": "project_management.admin",
+        "documentation": {}
+    },
+    {
+        "label": "JRImputationAdmin",
+        "kind": 6,
+        "importPath": "project_management.admin",
+        "description": "project_management.admin",
+        "peekOfCode": "class JRImputationAdmin(admin.ModelAdmin):\n    list_display = ('date_imputation', 'employe', 'ticket', 'type_activite', 'heures', 'minutes',\n                    'statut_validation', 'valide_par')\n    list_filter = ('statut_validation', 'type_activite', 'date_imputation', 'ticket__projet')\n    search_fields = ('employe__nom', 'ticket__code', 'description')\n    autocomplete_fields = ('employe', 'ticket', 'valide_par')\n    ordering = ('-date_imputation', '-created_at')\n    date_hierarchy = 'date_imputation'\n    list_editable = ('statut_validation',)\n    fieldsets = (",
+        "detail": "project_management.admin",
+        "documentation": {}
+    },
+    {
+        "label": "JRSprintAdmin",
+        "kind": 6,
+        "importPath": "project_management.admin",
+        "description": "project_management.admin",
+        "peekOfCode": "class JRSprintAdmin(admin.ModelAdmin):\n    list_display = ('nom', 'projet', 'statut', 'date_debut', 'date_fin', 'progression_display')\n    list_filter = ('statut', 'projet', 'date_debut')\n    search_fields = ('nom', 'projet__nom', 'description')\n    autocomplete_fields = ('projet',)\n    filter_horizontal = ('tickets',)\n    ordering = ('-date_debut',)\n    date_hierarchy = 'date_debut'\n    def progression_display(self, obj):\n        progression = obj.progression",
+        "detail": "project_management.admin",
+        "documentation": {}
+    },
+    {
+        "label": "ProjectManagementConfig",
+        "kind": 6,
+        "importPath": "project_management.apps",
+        "description": "project_management.apps",
+        "peekOfCode": "class ProjectManagementConfig(AppConfig):\n    default_auto_field = 'django.db.models.BigAutoField'\n    name = 'project_management'",
+        "detail": "project_management.apps",
+        "documentation": {}
+    },
+    {
+        "label": "JRClient",
+        "kind": 6,
+        "importPath": "project_management.models",
+        "description": "project_management.models",
+        "peekOfCode": "class JRClient(models.Model):\n    \"\"\"Modèle pour la gestion des clients\"\"\"\n    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)\n    code_client = models.CharField(\n        max_length=20,\n        unique=True,\n        verbose_name=\"Code Client\",\n        editable=False\n    )\n    raison_sociale = models.CharField(",
+        "detail": "project_management.models",
+        "documentation": {}
+    },
+    {
+        "label": "JRProject",
+        "kind": 6,
+        "importPath": "project_management.models",
+        "description": "project_management.models",
+        "peekOfCode": "class JRProject(models.Model):\n    \"\"\"Modèle pour la gestion des projets\"\"\"\n    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)\n    code = models.CharField(max_length=20, unique=True, verbose_name=\"Code Projet\")\n    nom = models.CharField(max_length=200, verbose_name=\"Nom du projet\")\n    description = models.TextField(blank=True, null=True)\n    # Gestion du projet\n    client = models.ForeignKey(\n        JRClient,\n        on_delete=models.PROTECT,",
+        "detail": "project_management.models",
+        "documentation": {}
+    },
+    {
+        "label": "JRTicket",
+        "kind": 6,
+        "importPath": "project_management.models",
+        "description": "project_management.models",
+        "peekOfCode": "class JRTicket(models.Model):\n    \"\"\"Modèle principal pour les tickets/tâches\"\"\"\n    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)\n    code = models.CharField(max_length=20, unique=True, verbose_name=\"Code Ticket\")\n    # Liaison avec le projet\n    projet = models.ForeignKey(\n        JRProject,\n        on_delete=models.CASCADE,\n        related_name='tickets',\n        verbose_name=\"Projet\"",
+        "detail": "project_management.models",
+        "documentation": {}
+    },
+    {
+        "label": "JRCommentaire",
+        "kind": 6,
+        "importPath": "project_management.models",
+        "description": "project_management.models",
+        "peekOfCode": "class JRCommentaire(models.Model):\n    \"\"\"Modèle pour les commentaires sur les tickets\"\"\"\n    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)\n    ticket = models.ForeignKey(\n        JRTicket,\n        on_delete=models.CASCADE,\n        related_name='commentaires',\n        verbose_name=\"Ticket\"\n    )\n    auteur = models.ForeignKey(",
+        "detail": "project_management.models",
+        "documentation": {}
+    },
+    {
+        "label": "JRPieceJointe",
+        "kind": 6,
+        "importPath": "project_management.models",
+        "description": "project_management.models",
+        "peekOfCode": "class JRPieceJointe(models.Model):\n    \"\"\"Modèle pour les pièces jointes des tickets\"\"\"\n    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)\n    ticket = models.ForeignKey(\n        JRTicket,\n        on_delete=models.CASCADE,\n        related_name='pieces_jointes',\n        verbose_name=\"Ticket\"\n    )\n    fichier = models.FileField(",
+        "detail": "project_management.models",
+        "documentation": {}
+    },
+    {
+        "label": "JRHistorique",
+        "kind": 6,
+        "importPath": "project_management.models",
+        "description": "project_management.models",
+        "peekOfCode": "class JRHistorique(models.Model):\n    \"\"\"Modèle pour suivre l'historique des changements sur les tickets\"\"\"\n    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)\n    ticket = models.ForeignKey(\n        JRTicket,\n        on_delete=models.CASCADE,\n        related_name='historique',\n        verbose_name=\"Ticket\"\n    )\n    utilisateur = models.ForeignKey(",
+        "detail": "project_management.models",
+        "documentation": {}
+    },
+    {
+        "label": "JRImputation",
+        "kind": 6,
+        "importPath": "project_management.models",
+        "description": "project_management.models",
+        "peekOfCode": "class JRImputation(models.Model):\n    \"\"\"Modèle pour les imputations de temps sur les tickets\"\"\"\n    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)\n    # Liaison avec l'employé et le ticket\n    employe = models.ForeignKey(\n        'employee.ZY00',\n        on_delete=models.CASCADE,\n        related_name='pm_imputations',\n        verbose_name=\"Employé\"\n    )",
+        "detail": "project_management.models",
+        "documentation": {}
+    },
+    {
+        "label": "JRSprint",
+        "kind": 6,
+        "importPath": "project_management.models",
+        "description": "project_management.models",
+        "peekOfCode": "class JRSprint(models.Model):\n    \"\"\"Modèle pour la gestion des sprints\"\"\"\n    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)\n    nom = models.CharField(max_length=100, verbose_name=\"Nom du sprint\")\n    description = models.TextField(blank=True, null=True)\n    projet = models.ForeignKey(\n        JRProject,\n        on_delete=models.CASCADE,\n        related_name='sprints',\n        verbose_name=\"Projet\"",
+        "detail": "project_management.models",
+        "documentation": {}
+    },
+    {
+        "label": "app_name",
+        "kind": 5,
+        "importPath": "project_management.urls",
+        "description": "project_management.urls",
+        "peekOfCode": "app_name = 'pm'\nurlpatterns = [\n    # Dashboard\n    path('', views.dashboard, name='dashboard'),\n    # Clients\n    path('clients/', views.ClientListView.as_view(), name='client_list'),\n    path('clients/create/', views.ClientCreateView.as_view(), name='client_create'),\n    path('clients/<uuid:pk>/', views.ClientDetailView.as_view(), name='client_detail'),\n    path('clients/<uuid:pk>/update/', views.ClientUpdateView.as_view(), name='client_update'),\n    path('clients/<uuid:pk>/delete/', views.client_delete, name='client_delete'),",
+        "detail": "project_management.urls",
+        "documentation": {}
+    },
+    {
+        "label": "urlpatterns",
+        "kind": 5,
+        "importPath": "project_management.urls",
+        "description": "project_management.urls",
+        "peekOfCode": "urlpatterns = [\n    # Dashboard\n    path('', views.dashboard, name='dashboard'),\n    # Clients\n    path('clients/', views.ClientListView.as_view(), name='client_list'),\n    path('clients/create/', views.ClientCreateView.as_view(), name='client_create'),\n    path('clients/<uuid:pk>/', views.ClientDetailView.as_view(), name='client_detail'),\n    path('clients/<uuid:pk>/update/', views.ClientUpdateView.as_view(), name='client_update'),\n    path('clients/<uuid:pk>/delete/', views.client_delete, name='client_delete'),\n    path('clients/stats/', views.client_stats_api, name='client_stats_api'),",
+        "detail": "project_management.urls",
         "documentation": {}
     },
     {

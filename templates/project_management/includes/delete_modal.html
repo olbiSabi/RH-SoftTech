@@ -1,0 +1,57 @@
+{% comment %}
+Modal de confirmation de suppression réutilisable
+Usage: {% include 'project_management/includes/delete_modal.html' with modal_id='deleteModal' title='Supprimer cet élément ?' message='Cette action est irréversible.' %}
+
+Paramètres:
+- modal_id: ID unique du modal (défaut: 'deleteModal')
+- title: Titre du modal
+- message: Message de confirmation
+- form_id: ID du formulaire (optionnel, défaut: 'deleteForm')
+{% endcomment %}
+
+<div class="pm-modal-overlay" id="{{ modal_id|default:'deleteModal' }}" style="display: none;">
+    <div class="pm-modal">
+        <div class="pm-modal-header">
+            <h3><i class="fas fa-exclamation-triangle text-danger"></i> {{ title|default:'Confirmer la suppression' }}</h3>
+            <button type="button" class="pm-modal-close" onclick="closeDeleteModal('{{ modal_id|default:'deleteModal' }}')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="pm-modal-body">
+            <p>{{ message|default:'Êtes-vous sûr de vouloir supprimer cet élément ? Cette action est irréversible.' }}</p>
+        </div>
+        <div class="pm-modal-footer">
+            <button type="button" class="pm-btn pm-btn-secondary" onclick="closeDeleteModal('{{ modal_id|default:'deleteModal' }}')">
+                <i class="fas fa-times"></i> Annuler
+            </button>
+            <form id="{{ form_id|default:'deleteForm' }}" method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="pm-btn pm-btn-danger">
+                    <i class="fas fa-trash-alt"></i> Supprimer
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openDeleteModal(modalId, deleteUrl) {
+    document.getElementById('deleteForm').action = deleteUrl;
+    document.getElementById(modalId).style.display = 'flex';
+}
+
+function closeDeleteModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+// Fermer le modal en cliquant à l'extérieur
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.pm-modal-overlay').forEach(function(modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
+        });
+    });
+});
+</script>

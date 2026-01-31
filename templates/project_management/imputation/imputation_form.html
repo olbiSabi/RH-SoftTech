@@ -1,0 +1,494 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% block extrastylet %}
+<style>
+    :root {
+        --im-primary: #0891b2;
+        --im-primary-dark: #0e7490;
+        --im-primary-light: #22d3ee;
+        --im-success: #10b981;
+        --im-warning: #f59e0b;
+        --im-danger: #ef4444;
+        --im-info: #3b82f6;
+        --im-gray-50: #f9fafb;
+        --im-gray-100: #f3f4f6;
+        --im-gray-200: #e5e7eb;
+        --im-gray-300: #d1d5db;
+        --im-gray-500: #6b7280;
+        --im-gray-600: #4b5563;
+        --im-gray-700: #374151;
+        --im-gray-800: #1f2937;
+        --im-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        --im-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        --im-radius: 12px;
+    }
+
+    .im-page-header {
+        background: linear-gradient(135deg, var(--im-primary) 0%, var(--im-primary-dark) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: var(--im-radius);
+        margin-bottom: 1.5rem;
+        box-shadow: var(--im-shadow-lg);
+    }
+
+    .im-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        margin-bottom: 0.75rem;
+        opacity: 0.9;
+    }
+
+    .im-breadcrumb a {
+        color: white;
+        text-decoration: none;
+    }
+
+    .im-breadcrumb a:hover {
+        text-decoration: underline;
+    }
+
+    .im-page-header h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .im-card {
+        background: white;
+        border-radius: var(--im-radius);
+        box-shadow: var(--im-shadow);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .im-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--im-gray-200);
+    }
+
+    .im-card-header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--im-gray-800);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .im-card-body {
+        padding: 1.5rem;
+    }
+
+    .im-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .im-btn-primary {
+        background: var(--im-primary);
+        color: white;
+    }
+
+    .im-btn-primary:hover {
+        background: var(--im-primary-dark);
+        color: white;
+    }
+
+    .im-btn-secondary {
+        background: var(--im-gray-100);
+        color: var(--im-gray-700);
+    }
+
+    .im-btn-secondary:hover {
+        background: var(--im-gray-200);
+    }
+
+    .im-btn-lg {
+        padding: 0.875rem 1.5rem;
+        font-size: 0.95rem;
+    }
+
+    .im-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .im-form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .im-form-group {
+        margin-bottom: 0;
+    }
+
+    .im-form-group.full-width {
+        grid-column: span 2;
+    }
+
+    @media (max-width: 768px) {
+        .im-form-group.full-width {
+            grid-column: span 1;
+        }
+    }
+
+    .im-form-group label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--im-gray-700);
+        margin-bottom: 0.5rem;
+    }
+
+    .im-form-group label .required {
+        color: var(--im-danger);
+    }
+
+    .im-form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--im-gray-300);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background: white;
+        color: var(--im-gray-800);
+    }
+
+    .im-form-control:focus {
+        outline: none;
+        border-color: var(--im-primary);
+        box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+    }
+
+    .im-form-control:disabled {
+        background: var(--im-gray-100);
+        cursor: not-allowed;
+    }
+
+    textarea.im-form-control {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    select.im-form-control {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1.25rem;
+        padding-right: 2.5rem;
+        cursor: pointer;
+    }
+
+    .im-form-help {
+        font-size: 0.8rem;
+        color: var(--im-gray-500);
+        margin-top: 0.375rem;
+    }
+
+    .im-form-error {
+        font-size: 0.8rem;
+        color: var(--im-danger);
+        margin-top: 0.375rem;
+    }
+
+    .im-form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--im-gray-200);
+        margin-top: 1.5rem;
+    }
+
+    .im-time-inputs {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .im-time-input {
+        flex: 1;
+    }
+
+    .im-time-input label {
+        font-size: 0.8rem;
+        color: var(--im-gray-600);
+        margin-bottom: 0.375rem;
+        display: block;
+    }
+
+    .im-input-group {
+        display: flex;
+        align-items: center;
+    }
+
+    .im-input-group input {
+        border-radius: 8px 0 0 8px;
+        border-right: none;
+    }
+
+    .im-input-group-text {
+        padding: 0.75rem 1rem;
+        background: var(--im-gray-100);
+        border: 1px solid var(--im-gray-300);
+        border-left: none;
+        border-radius: 0 8px 8px 0;
+        font-size: 0.85rem;
+        color: var(--im-gray-600);
+    }
+
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 0.375rem 0 0;
+    }
+
+    .errorlist li {
+        font-size: 0.8rem;
+        color: var(--im-danger);
+    }
+
+    /* Styles pour les champs Django générés automatiquement */
+    .im-card-body select,
+    .im-card-body input[type="text"],
+    .im-card-body input[type="number"],
+    .im-card-body input[type="date"],
+    .im-card-body textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--im-gray-300);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background: white;
+        color: var(--im-gray-800);
+    }
+
+    .im-card-body select:focus,
+    .im-card-body input:focus,
+    .im-card-body textarea:focus {
+        outline: none;
+        border-color: var(--im-primary);
+        box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+    }
+
+    .im-card-body select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1.25rem;
+        padding-right: 2.5rem;
+        cursor: pointer;
+    }
+
+    /* Info box */
+    .im-info-box {
+        background: rgba(8, 145, 178, 0.1);
+        border: 1px solid rgba(8, 145, 178, 0.2);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .im-info-box i {
+        color: var(--im-primary);
+        font-size: 1.1rem;
+        margin-top: 0.125rem;
+    }
+
+    .im-info-box p {
+        margin: 0;
+        font-size: 0.875rem;
+        color: var(--im-gray-700);
+        line-height: 1.5;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="im-page-header">
+        <div class="im-breadcrumb">
+            <a href="{% url 'pm:imputation_list' %}"><i class="fas fa-clock"></i> Imputations</a>
+            <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
+            <span>{% if form.instance.created_at %}Modifier{% else %}Nouvelle{% endif %}</span>
+        </div>
+        <h1>
+            <i class="fas fa-{% if form.instance.created_at %}edit{% else %}plus-circle{% endif %}"></i>
+            {% if form.instance.created_at %}Modifier l'imputation{% else %}Nouvelle imputation{% endif %}
+        </h1>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- Erreurs globales du formulaire -->
+        {% if form.non_field_errors %}
+        <div class="im-card" style="border-left: 4px solid var(--im-danger);">
+            <div class="im-card-body" style="padding: 1rem 1.5rem;">
+                {% for error in form.non_field_errors %}
+                <p style="margin: 0; color: var(--im-danger);"><i class="fas fa-exclamation-circle"></i> {{ error }}</p>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="im-card">
+            <div class="im-card-header">
+                <h2><i class="fas fa-clock"></i> Saisie du temps</h2>
+            </div>
+            <div class="im-card-body">
+                <div class="im-info-box">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Saisissez le temps passé sur un ticket. Sélectionnez d'abord le ticket concerné, puis indiquez la date et la durée du travail effectué.</p>
+                </div>
+
+                <div class="im-form-grid">
+                    <!-- Ticket -->
+                    <div class="im-form-group full-width">
+                        <label for="id_ticket">Ticket <span class="required">*</span></label>
+                        {{ form.ticket }}
+                        {% if form.ticket.errors %}
+                            <div class="im-form-error">{{ form.ticket.errors.0 }}</div>
+                        {% endif %}
+                        <div class="im-form-help">Sélectionnez le ticket sur lequel vous avez travaillé</div>
+                    </div>
+
+                    <!-- Date -->
+                    <div class="im-form-group">
+                        <label for="id_date_imputation">Date <span class="required">*</span></label>
+                        <input type="date" name="date_imputation" id="id_date_imputation"
+                               class="im-form-control" required
+                               value="{{ form.date_imputation.value|date:'Y-m-d' }}">
+                        {% if form.date_imputation.errors %}
+                            <div class="im-form-error">{{ form.date_imputation.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Type d'activité -->
+                    <div class="im-form-group">
+                        <label for="id_type_activite">Type d'activité <span class="required">*</span></label>
+                        <select name="type_activite" id="id_type_activite" class="im-form-control" required>
+                            {% for value, label in form.type_activite.field.choices %}
+                            <option value="{{ value }}" {% if form.type_activite.value == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if form.type_activite.errors %}
+                            <div class="im-form-error">{{ form.type_activite.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Heures et Minutes -->
+                    <div class="im-form-group">
+                        <label>Durée <span class="required">*</span></label>
+                        <div class="im-time-inputs">
+                            <div class="im-time-input">
+                                <label for="id_heures">Heures</label>
+                                <div class="im-input-group">
+                                    <input type="number" name="heures" id="id_heures"
+                                           class="im-form-control" min="0" max="24" step="1"
+                                           value="{{ form.heures.value|default:'' }}"
+                                           placeholder="0">
+                                    <span class="im-input-group-text">h</span>
+                                </div>
+                            </div>
+                            <div class="im-time-input">
+                                <label for="id_minutes">Minutes</label>
+                                <div class="im-input-group">
+                                    <input type="number" name="minutes" id="id_minutes"
+                                           class="im-form-control" min="0" max="59" step="15"
+                                           value="{{ form.minutes.value|default:'' }}"
+                                           placeholder="0">
+                                    <span class="im-input-group-text">min</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% if form.heures.errors %}
+                            <div class="im-form-error">{{ form.heures.errors.0 }}</div>
+                        {% endif %}
+                        {% if form.minutes.errors %}
+                            <div class="im-form-error">{{ form.minutes.errors.0 }}</div>
+                        {% endif %}
+                        <div class="im-form-help">Exemple: 2h 30min pour deux heures et demie</div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="im-form-group full-width">
+                        <label for="id_description">Description du travail effectué</label>
+                        <textarea name="description" id="id_description"
+                                  class="im-form-control" rows="4"
+                                  placeholder="Décrivez brièvement ce que vous avez réalisé...">{{ form.description.value|default:'' }}</textarea>
+                        {% if form.description.errors %}
+                            <div class="im-form-error">{{ form.description.errors.0 }}</div>
+                        {% endif %}
+                        <div class="im-form-help">Décrivez le travail effectué pour faciliter le suivi</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="im-form-actions">
+            <a href="{% url 'pm:imputation_list' %}" class="im-btn im-btn-secondary im-btn-lg">
+                <i class="fas fa-times"></i> Annuler
+            </a>
+            <button type="submit" class="im-btn im-btn-primary im-btn-lg">
+                <i class="fas fa-save"></i> {% if form.instance.created_at %}Enregistrer{% else %}Créer l'imputation{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Focus sur le premier champ
+        document.getElementById('id_ticket').focus();
+
+        // Validation temps en temps réel
+        const heuresInput = document.getElementById('id_heures');
+        const minutesInput = document.getElementById('id_minutes');
+
+        function validateTime() {
+            const heures = parseInt(heuresInput.value) || 0;
+            const minutes = parseInt(minutesInput.value) || 0;
+
+            if (heures === 0 && minutes === 0) {
+                heuresInput.style.borderColor = '';
+                minutesInput.style.borderColor = '';
+            } else {
+                heuresInput.style.borderColor = 'var(--im-success)';
+                minutesInput.style.borderColor = 'var(--im-success)';
+            }
+        }
+
+        heuresInput.addEventListener('input', validateTime);
+        minutesInput.addEventListener('input', validateTime);
+    });
+</script>
+{% endblock %}

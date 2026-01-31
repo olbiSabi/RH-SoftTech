@@ -55,6 +55,8 @@ urlpatterns = [
     path('materiel/', include('materiel.urls', namespace='materiel')),
     # Module Conformité & Audit
     path('audit/', include('audit.urls', namespace='audit')),
+    # Module Gestion de Projet (remplace gestion_temps_activite)
+    path('project-management/', include('project_management.urls', namespace='pm')),
 
 ]
 if settings.DEBUG:

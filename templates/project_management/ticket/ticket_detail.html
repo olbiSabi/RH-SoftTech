@@ -1,0 +1,1343 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block title %}{{ ticket.code }} - {{ ticket.titre }}{% endblock %}
+
+{% block extrastylet %}
+<style>
+    :root {
+        --pm-primary: #4f46e5;
+        --pm-primary-dark: #4338ca;
+        --pm-primary-light: #818cf8;
+        --pm-success: #10b981;
+        --pm-warning: #f59e0b;
+        --pm-danger: #ef4444;
+        --pm-info: #3b82f6;
+        --pm-gray-50: #f9fafb;
+        --pm-gray-100: #f3f4f6;
+        --pm-gray-200: #e5e7eb;
+        --pm-gray-300: #d1d5db;
+        --pm-gray-500: #6b7280;
+        --pm-gray-600: #4b5563;
+        --pm-gray-700: #374151;
+        --pm-gray-800: #1f2937;
+        --pm-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        --pm-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        --pm-radius: 12px;
+    }
+
+    .pm-page-header {
+        background: linear-gradient(135deg, var(--pm-primary) 0%, var(--pm-primary-dark) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: var(--pm-radius);
+        margin-bottom: 1.5rem;
+        box-shadow: var(--pm-shadow-lg);
+    }
+
+    .pm-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        margin-bottom: 0.75rem;
+        opacity: 0.9;
+    }
+
+    .pm-breadcrumb a {
+        color: white;
+        text-decoration: none;
+    }
+
+    .pm-breadcrumb a:hover {
+        text-decoration: underline;
+    }
+
+    .pm-page-header h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .pm-ticket-code {
+        font-family: monospace;
+        background: rgba(255,255,255,0.2);
+        padding: 0.25rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+    }
+
+    .pm-header-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .pm-header-badge {
+        background: rgba(255,255,255,0.2);
+        padding: 0.375rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .pm-card {
+        background: white;
+        border-radius: var(--pm-radius);
+        box-shadow: var(--pm-shadow);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .pm-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--pm-gray-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .pm-card-header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--pm-gray-800);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .pm-card-body {
+        padding: 1.5rem;
+    }
+
+    .pm-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 992px) {
+        .pm-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .pm-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .pm-btn-primary {
+        background: var(--pm-primary);
+        color: white;
+    }
+
+    .pm-btn-primary:hover {
+        background: var(--pm-primary-dark);
+        color: white;
+    }
+
+    .pm-btn-secondary {
+        background: var(--pm-gray-100);
+        color: var(--pm-gray-700);
+    }
+
+    .pm-btn-secondary:hover {
+        background: var(--pm-gray-200);
+    }
+
+    .pm-btn-danger {
+        background: var(--pm-danger);
+        color: white;
+    }
+
+    .pm-btn-danger:hover {
+        background: #dc2626;
+    }
+
+    .pm-btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    .pm-description {
+        line-height: 1.7;
+        color: var(--pm-gray-700);
+    }
+
+    .pm-description p {
+        margin-bottom: 1rem;
+    }
+
+    .pm-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .pm-info-item {
+        padding: 1rem;
+        background: var(--pm-gray-50);
+        border-radius: 8px;
+    }
+
+    .pm-info-item label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--pm-gray-500);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.375rem;
+    }
+
+    .pm-info-item span,
+    .pm-info-item a {
+        font-size: 0.9rem;
+        color: var(--pm-gray-800);
+    }
+
+    .pm-info-item a {
+        text-decoration: none;
+    }
+
+    .pm-info-item a:hover {
+        color: var(--pm-primary);
+    }
+
+    .pm-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.625rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .pm-badge-statut-ouvert { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
+    .pm-badge-statut-en_cours { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+    .pm-badge-statut-en_revue { background: rgba(139, 92, 246, 0.1); color: #7c3aed; }
+    .pm-badge-statut-termine { background: rgba(16, 185, 129, 0.1); color: #059669; }
+    .pm-badge-statut-ferme { background: rgba(107, 114, 128, 0.1); color: #4b5563; }
+
+    .pm-badge-priorite-critique { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+    .pm-badge-priorite-haute { background: rgba(249, 115, 22, 0.1); color: #ea580c; }
+    .pm-badge-priorite-moyenne { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+    .pm-badge-priorite-basse { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
+
+    .pm-badge-type-bug { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+    .pm-badge-type-feature { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
+    .pm-badge-type-amelioration { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
+    .pm-badge-type-tache { background: rgba(107, 114, 128, 0.1); color: #4b5563; }
+
+    .pm-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--pm-primary);
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .pm-avatar-sm {
+        width: 32px;
+        height: 32px;
+        font-size: 0.75rem;
+    }
+
+    .pm-assignee-full {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .pm-assignee-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .pm-assignee-name {
+        font-weight: 500;
+        color: var(--pm-gray-800);
+    }
+
+    .pm-assignee-role {
+        font-size: 0.8rem;
+        color: var(--pm-gray-500);
+    }
+
+    /* Commentaires */
+    .pm-comment {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--pm-gray-200);
+    }
+
+    .pm-comment:last-child {
+        border-bottom: none;
+    }
+
+    .pm-comment-content {
+        flex: 1;
+    }
+
+    .pm-comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .pm-comment-author {
+        font-weight: 600;
+        color: var(--pm-gray-800);
+    }
+
+    .pm-comment-date {
+        font-size: 0.8rem;
+        color: var(--pm-gray-500);
+    }
+
+    .pm-comment-text {
+        color: var(--pm-gray-700);
+        line-height: 1.6;
+    }
+
+    .pm-comment-form textarea {
+        width: 100%;
+        padding: 0.875rem;
+        border: 1px solid var(--pm-gray-300);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        resize: vertical;
+        min-height: 100px;
+        margin-bottom: 1rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .pm-comment-form textarea:focus {
+        outline: none;
+        border-color: var(--pm-primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    /* Pièces jointes */
+    .pm-attachment {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--pm-gray-50);
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+    }
+
+    .pm-attachment-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--pm-gray-200);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--pm-gray-600);
+    }
+
+    .pm-attachment-info {
+        flex: 1;
+    }
+
+    .pm-attachment-name {
+        font-weight: 500;
+        color: var(--pm-gray-800);
+        margin-bottom: 0.25rem;
+    }
+
+    .pm-attachment-meta {
+        font-size: 0.8rem;
+        color: var(--pm-gray-500);
+    }
+
+    /* Historique */
+    .pm-timeline {
+        position: relative;
+        padding-left: 1.5rem;
+    }
+
+    .pm-timeline::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--pm-gray-200);
+    }
+
+    .pm-timeline-item {
+        position: relative;
+        padding-bottom: 1.5rem;
+    }
+
+    .pm-timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -1.5rem;
+        top: 0.5rem;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--pm-primary);
+        border: 2px solid white;
+    }
+
+    .pm-timeline-date {
+        font-size: 0.8rem;
+        color: var(--pm-gray-500);
+        margin-bottom: 0.25rem;
+    }
+
+    .pm-timeline-content {
+        color: var(--pm-gray-700);
+        font-size: 0.9rem;
+    }
+
+    .pm-timeline-author {
+        font-weight: 500;
+        color: var(--pm-gray-800);
+    }
+
+    /* Imputations */
+    .pm-imputation {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: var(--pm-gray-50);
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+    }
+
+    .pm-imputation-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .pm-imputation-hours {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--pm-primary);
+    }
+
+    .pm-imputation-hours small {
+        font-size: 0.8rem;
+        font-weight: 400;
+        color: var(--pm-gray-500);
+    }
+
+    /* Actions rapides */
+    .pm-quick-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--pm-gray-200);
+    }
+
+    .pm-status-btn {
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--pm-gray-300);
+        border-radius: 8px;
+        background: white;
+        color: var(--pm-gray-700);
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .pm-status-btn:hover {
+        border-color: var(--pm-primary);
+        color: var(--pm-primary);
+    }
+
+    .pm-status-btn.active {
+        background: var(--pm-primary);
+        color: white;
+        border-color: var(--pm-primary);
+    }
+
+    /* Tabs */
+    .pm-tabs {
+        display: flex;
+        border-bottom: 2px solid var(--pm-gray-200);
+        margin-bottom: 1.5rem;
+    }
+
+    .pm-tab {
+        padding: 1rem 1.5rem;
+        color: var(--pm-gray-500);
+        text-decoration: none;
+        font-weight: 500;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        transition: all 0.2s;
+    }
+
+    .pm-tab:hover {
+        color: var(--pm-gray-700);
+    }
+
+    .pm-tab.active {
+        color: var(--pm-primary);
+        border-bottom-color: var(--pm-primary);
+    }
+
+    .pm-tab-badge {
+        background: var(--pm-gray-200);
+        color: var(--pm-gray-600);
+        padding: 0.125rem 0.5rem;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        margin-left: 0.5rem;
+    }
+
+    .pm-tab.active .pm-tab-badge {
+        background: rgba(79, 70, 229, 0.1);
+        color: var(--pm-primary);
+    }
+
+    .pm-tab-content {
+        display: none;
+    }
+
+    .pm-tab-content.active {
+        display: block;
+    }
+
+    .pm-empty {
+        text-align: center;
+        padding: 2rem;
+        color: var(--pm-gray-500);
+    }
+
+    .pm-empty i {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+        opacity: 0.5;
+    }
+
+    /* Modal */
+    .pm-modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .pm-modal {
+        background: white;
+        border-radius: var(--pm-radius);
+        padding: 2rem;
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+    }
+
+    .pm-modal-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+    }
+
+    .pm-modal-icon.danger {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--pm-danger);
+    }
+
+    .pm-modal h3 {
+        margin: 0 0 0.5rem;
+        color: var(--pm-gray-800);
+    }
+
+    .pm-modal p {
+        color: var(--pm-gray-500);
+        margin-bottom: 1.5rem;
+    }
+
+    .pm-modal-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .pm-form-control {
+        width: 100%;
+        padding: 0.625rem 0.875rem;
+        border: 1px solid var(--pm-gray-300);
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .pm-form-control:focus {
+        outline: none;
+        border-color: var(--pm-primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    /* Autocomplete styles */
+    .pm-autocomplete-wrapper {
+        position: relative;
+    }
+
+    .pm-autocomplete-input {
+        width: 100%;
+        padding: 0.625rem 0.875rem;
+        padding-right: 2.5rem;
+        border: 1px solid var(--pm-gray-300);
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background: white;
+    }
+
+    .pm-autocomplete-input:focus {
+        outline: none;
+        border-color: var(--pm-primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .pm-autocomplete-clear {
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--pm-gray-400);
+        cursor: pointer;
+        padding: 0.25rem;
+        display: none;
+    }
+
+    .pm-autocomplete-clear:hover {
+        color: var(--pm-gray-600);
+    }
+
+    .pm-autocomplete-wrapper.has-value .pm-autocomplete-clear {
+        display: block;
+    }
+
+    .pm-autocomplete-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid var(--pm-gray-200);
+        border-radius: 8px;
+        box-shadow: var(--pm-shadow-lg);
+        max-height: 250px;
+        overflow-y: auto;
+        z-index: 100;
+        display: none;
+    }
+
+    .pm-autocomplete-dropdown.show {
+        display: block;
+    }
+
+    .pm-autocomplete-item {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: background 0.15s;
+    }
+
+    .pm-autocomplete-item:hover,
+    .pm-autocomplete-item.active {
+        background: var(--pm-gray-50);
+    }
+
+    .pm-autocomplete-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--pm-primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+
+    .pm-autocomplete-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .pm-autocomplete-name {
+        font-weight: 500;
+        color: var(--pm-gray-800);
+    }
+
+    .pm-autocomplete-meta {
+        font-size: 0.8rem;
+        color: var(--pm-gray-500);
+    }
+
+    .pm-autocomplete-empty {
+        padding: 1rem;
+        text-align: center;
+        color: var(--pm-gray-500);
+    }
+
+    .pm-autocomplete-loading {
+        padding: 1rem;
+        text-align: center;
+        color: var(--pm-gray-500);
+    }
+
+    .pm-selected-employee {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 0.75rem;
+        background: var(--pm-gray-50);
+        border-radius: 8px;
+        margin-top: 0.5rem;
+    }
+
+    .pm-selected-employee .pm-autocomplete-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.75rem;
+    }
+
+    .pm-selected-employee .pm-remove-btn {
+        margin-left: auto;
+        background: none;
+        border: none;
+        color: var(--pm-gray-400);
+        cursor: pointer;
+        padding: 0.25rem;
+    }
+
+    .pm-selected-employee .pm-remove-btn:hover {
+        color: var(--pm-danger);
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="pm-page-header">
+        <div class="pm-breadcrumb">
+            <a href="{% url 'pm:ticket_list' %}"><i class="fas fa-ticket-alt"></i> Tickets</a>
+            <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
+            <span>{{ ticket.code }}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h1>
+                    <span class="pm-ticket-code">{{ ticket.code }}</span>
+                    {{ ticket.titre }}
+                </h1>
+                <div class="pm-header-badges">
+                    <span class="pm-header-badge">
+                        <i class="fas fa-tag"></i> {{ ticket.get_type_ticket_display }}
+                    </span>
+                    <span class="pm-header-badge">
+                        <i class="fas fa-exclamation-circle"></i> {{ ticket.get_priorite_display }}
+                    </span>
+                    <span class="pm-header-badge">
+                        <i class="fas fa-flag"></i> {{ ticket.get_statut_display }}
+                    </span>
+                    {% if ticket.projet %}
+                    <span class="pm-header-badge">
+                        <i class="fas fa-project-diagram"></i> {{ ticket.projet.nom }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'pm:ticket_update' ticket.pk %}" class="pm-btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;">
+                    <i class="fas fa-edit"></i> Modifier
+                </a>
+                <button type="button" class="pm-btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;" onclick="openDeleteModal()">
+                    <i class="fas fa-trash"></i> Supprimer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="pm-grid">
+        <!-- Colonne principale -->
+        <div>
+            <!-- Description -->
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h2><i class="fas fa-align-left"></i> Description</h2>
+                </div>
+                <div class="pm-card-body">
+                    <div class="pm-description">
+                        {% if ticket.description %}
+                            {{ ticket.description|linebreaks }}
+                        {% else %}
+                            <p style="color: var(--pm-gray-400); font-style: italic;">Aucune description</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs pour commentaires, pièces jointes, historique, imputations -->
+            <div class="pm-card">
+                <div class="pm-card-body" style="padding-bottom: 0;">
+                    <div class="pm-tabs">
+                        <a href="#" class="pm-tab active" data-tab="commentaires">
+                            <i class="fas fa-comments"></i> Commentaires
+                            <span class="pm-tab-badge">{{ commentaires.count }}</span>
+                        </a>
+                        <a href="#" class="pm-tab" data-tab="pieces-jointes">
+                            <i class="fas fa-paperclip"></i> Pièces jointes
+                            <span class="pm-tab-badge">{{ pieces_jointes.count }}</span>
+                        </a>
+                        <a href="#" class="pm-tab" data-tab="historique">
+                            <i class="fas fa-history"></i> Historique
+                        </a>
+                        <a href="#" class="pm-tab" data-tab="imputations">
+                            <i class="fas fa-clock"></i> Imputations
+                            <span class="pm-tab-badge">{{ imputations.count }}</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Commentaires -->
+                <div id="tab-commentaires" class="pm-tab-content active">
+                    <div class="pm-card-body">
+                        <!-- Formulaire d'ajout -->
+                        <form method="post" action="{% url 'pm:ticket_commentaire' ticket.pk %}" class="pm-comment-form">
+                            {% csrf_token %}
+                            <textarea name="contenu" placeholder="Ajouter un commentaire..." required></textarea>
+                            <button type="submit" class="pm-btn pm-btn-primary">
+                                <i class="fas fa-paper-plane"></i> Envoyer
+                            </button>
+                        </form>
+
+                        <!-- Liste des commentaires -->
+                        {% for commentaire in commentaires %}
+                        <div class="pm-comment">
+                            <span class="pm-avatar pm-avatar-sm">
+                                {{ commentaire.auteur.prenoms|slice:":1" }}{{ commentaire.auteur.nom|slice:":1" }}
+                            </span>
+                            <div class="pm-comment-content">
+                                <div class="pm-comment-header">
+                                    <span class="pm-comment-author">{{ commentaire.auteur.prenoms }} {{ commentaire.auteur.nom }}</span>
+                                    <span class="pm-comment-date">{{ commentaire.created_at|date:"d/m/Y H:i" }}</span>
+                                </div>
+                                <div class="pm-comment-text">{{ commentaire.contenu|linebreaks }}</div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="pm-empty">
+                            <i class="fas fa-comments"></i>
+                            <p>Aucun commentaire pour ce ticket</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Pièces jointes -->
+                <div id="tab-pieces-jointes" class="pm-tab-content">
+                    <div class="pm-card-body">
+                        <!-- Formulaire d'ajout -->
+                        <form method="post" action="{% url 'pm:ticket_piece_jointe' ticket.pk %}" enctype="multipart/form-data" style="margin-bottom: 1.5rem;">
+                            {% csrf_token %}
+                            <div style="display: flex; gap: 1rem; align-items: flex-end;">
+                                <div style="flex: 1;">
+                                    <input type="file" name="fichier" class="pm-form-control" required>
+                                </div>
+                                <button type="submit" class="pm-btn pm-btn-primary">
+                                    <i class="fas fa-upload"></i> Téléverser
+                                </button>
+                            </div>
+                        </form>
+
+                        {% for piece in pieces_jointes %}
+                        <div class="pm-attachment">
+                            <div class="pm-attachment-icon">
+                                <i class="fas fa-file"></i>
+                            </div>
+                            <div class="pm-attachment-info">
+                                <div class="pm-attachment-name">{{ piece.nom_original }}</div>
+                                <div class="pm-attachment-meta">
+                                    {{ piece.taille|filesizeformat }} ·
+                                    {% if piece.uploaded_by %}{{ piece.uploaded_by.prenoms }} {{ piece.uploaded_by.nom }}{% endif %} ·
+                                    {{ piece.uploaded_at|date:"d/m/Y H:i" }}
+                                </div>
+                            </div>
+                            <a href="{{ piece.fichier.url }}" class="pm-btn pm-btn-secondary pm-btn-sm" download>
+                                <i class="fas fa-download"></i>
+                            </a>
+                        </div>
+                        {% empty %}
+                        <div class="pm-empty">
+                            <i class="fas fa-paperclip"></i>
+                            <p>Aucune pièce jointe</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Historique -->
+                <div id="tab-historique" class="pm-tab-content">
+                    <div class="pm-card-body">
+                        <div class="pm-timeline">
+                            {% for hist in historique %}
+                            <div class="pm-timeline-item">
+                                <div class="pm-timeline-date">{{ hist.created_at|date:"d/m/Y H:i" }}</div>
+                                <div class="pm-timeline-content">
+                                    <span class="pm-timeline-author">
+                                        {% if hist.utilisateur %}{{ hist.utilisateur.prenoms }} {{ hist.utilisateur.nom }}{% else %}Système{% endif %}
+                                    </span>
+                                    <br>{{ hist.description }}
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="pm-empty">
+                                <i class="fas fa-history"></i>
+                                <p>Aucun historique</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Imputations -->
+                <div id="tab-imputations" class="pm-tab-content">
+                    <div class="pm-card-body">
+                        {% for imputation in imputations %}
+                        <div class="pm-imputation">
+                            <div class="pm-imputation-left">
+                                <span class="pm-avatar pm-avatar-sm">
+                                    {{ imputation.employe.prenoms|slice:":1" }}{{ imputation.employe.nom|slice:":1" }}
+                                </span>
+                                <div>
+                                    <strong>{{ imputation.employe.prenoms }} {{ imputation.employe.nom }}</strong>
+                                    <br>
+                                    <small style="color: var(--pm-gray-500);">{{ imputation.date_imputation|date:"d/m/Y" }}</small>
+                                </div>
+                            </div>
+                            <div class="pm-imputation-hours">
+                                {{ imputation.heures_travaillees }} <small>h</small>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="pm-empty">
+                            <i class="fas fa-clock"></i>
+                            <p>Aucune imputation sur ce ticket</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne latérale -->
+        <div>
+            <!-- Informations -->
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h2><i class="fas fa-info-circle"></i> Informations</h2>
+                </div>
+                <div class="pm-card-body">
+                    <div class="pm-info-grid">
+                        <div class="pm-info-item">
+                            <label>Statut</label>
+                            <span class="pm-badge pm-badge-statut-{{ ticket.statut|lower }}">
+                                {{ ticket.get_statut_display }}
+                            </span>
+                        </div>
+                        <div class="pm-info-item">
+                            <label>Priorité</label>
+                            <span class="pm-badge pm-badge-priorite-{{ ticket.priorite|lower }}">
+                                {{ ticket.get_priorite_display }}
+                            </span>
+                        </div>
+                        <div class="pm-info-item">
+                            <label>Type</label>
+                            <span class="pm-badge pm-badge-type-{{ ticket.type_ticket|lower }}">
+                                {{ ticket.get_type_ticket_display }}
+                            </span>
+                        </div>
+                        <div class="pm-info-item">
+                            <label>Créé le</label>
+                            <span>{{ ticket.created_at|date:"d/m/Y H:i" }}</span>
+                        </div>
+                        <div class="pm-info-item" style="grid-column: span 2;">
+                            <label>Projet</label>
+                            {% if ticket.projet %}
+                            <a href="{% url 'pm:projet_detail' ticket.projet.pk %}">
+                                {{ ticket.projet.nom }}
+                            </a>
+                            {% else %}
+                            <span style="color: var(--pm-gray-400);">Non assigné</span>
+                            {% endif %}
+                        </div>
+                        {% if ticket.date_echeance %}
+                        <div class="pm-info-item" style="grid-column: span 2;">
+                            <label>Date d'échéance</label>
+                            <span {% if ticket.date_echeance < today %}style="color: var(--pm-danger);"{% endif %}>
+                                {{ ticket.date_echeance|date:"d/m/Y" }}
+                            </span>
+                        </div>
+                        {% endif %}
+                        {% if ticket.estimation_heures %}
+                        <div class="pm-info-item">
+                            <label>Estimation</label>
+                            <span>{{ ticket.estimation_heures }}h</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Changer le statut rapidement -->
+                    <div class="pm-quick-actions">
+                        <span style="font-size: 0.8rem; color: var(--pm-gray-500); width: 100%; margin-bottom: 0.5rem;">Changer le statut :</span>
+                        <form method="post" action="{% url 'pm:ticket_changer_statut' ticket.pk %}" style="display: contents;" id="statusForm">
+                            {% csrf_token %}
+                            <button type="submit" name="statut" value="OUVERT" class="pm-status-btn {% if ticket.statut == 'OUVERT' %}active{% endif %}">
+                                Ouvert
+                            </button>
+                            <button type="submit" name="statut" value="EN_COURS" class="pm-status-btn {% if ticket.statut == 'EN_COURS' %}active{% endif %}">
+                                En cours
+                            </button>
+                            <button type="submit" name="statut" value="EN_REVUE" class="pm-status-btn {% if ticket.statut == 'EN_REVUE' %}active{% endif %}">
+                                En revue
+                            </button>
+                            <button type="submit" name="statut" value="TERMINE" class="pm-status-btn {% if ticket.statut == 'TERMINE' %}active{% endif %}">
+                                Terminé
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assignation -->
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h2><i class="fas fa-user"></i> Assigné à</h2>
+                </div>
+                <div class="pm-card-body">
+                    <form method="post" action="{% url 'pm:ticket_assigner' ticket.pk %}" id="assigneForm">
+                        {% csrf_token %}
+                        <div class="pm-autocomplete-wrapper" id="assigneAutocomplete">
+                            <input type="text"
+                                   id="assigne_search"
+                                   class="pm-autocomplete-input"
+                                   placeholder="Rechercher un employé..."
+                                   autocomplete="off">
+                            <button type="button" class="pm-autocomplete-clear" id="clearAssigne">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <div class="pm-autocomplete-dropdown" id="assigneDropdown"></div>
+                            <input type="hidden" name="assigne" id="id_assigne" value="{% if ticket.assigne %}{{ ticket.assigne.matricule }}{% endif %}">
+                        </div>
+                        <div id="selectedAssigne">
+                            {% if ticket.assigne %}
+                            <div class="pm-selected-employee">
+                                <div class="pm-autocomplete-avatar">
+                                    {{ ticket.assigne.prenoms|slice:":1" }}{{ ticket.assigne.nom|slice:":1" }}
+                                </div>
+                                <div class="pm-autocomplete-info">
+                                    <div class="pm-autocomplete-name">{{ ticket.assigne.prenoms }} {{ ticket.assigne.nom }}</div>
+                                    <div class="pm-autocomplete-meta">{{ ticket.assigne.fonction|default:"Employé" }}</div>
+                                </div>
+                                <button type="button" class="pm-remove-btn" onclick="clearAssigneSelection()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            {% else %}
+                            <p style="color: var(--pm-gray-400); text-align: center; margin-top: 0.5rem; font-size: 0.875rem;">Non assigné</p>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Sprint -->
+            {% if ticket.sprint %}
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h2><i class="fas fa-running"></i> Sprint</h2>
+                </div>
+                <div class="pm-card-body">
+                    <a href="{% url 'pm:sprint_detail' ticket.sprint.pk %}" style="color: var(--pm-primary); text-decoration: none; font-weight: 500;">
+                        {{ ticket.sprint.nom }}
+                    </a>
+                    <p style="font-size: 0.85rem; color: var(--pm-gray-500); margin: 0.5rem 0 0;">
+                        {{ ticket.sprint.date_debut|date:"d/m" }} - {{ ticket.sprint.date_fin|date:"d/m/Y" }}
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal de suppression -->
+<div id="deleteModal" class="pm-modal-overlay">
+    <div class="pm-modal">
+        <div class="pm-modal-icon danger">
+            <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem;"></i>
+        </div>
+        <h3>Supprimer ce ticket ?</h3>
+        <p>Le ticket <strong>{{ ticket.code }}</strong> sera définitivement supprimé avec tous ses commentaires et pièces jointes.</p>
+        <form method="post" action="{% url 'pm:ticket_delete' ticket.pk %}" class="pm-modal-actions">
+            {% csrf_token %}
+            <button type="button" onclick="closeDeleteModal()" class="pm-btn pm-btn-secondary">Annuler</button>
+            <button type="submit" class="pm-btn pm-btn-danger">
+                <i class="fas fa-trash"></i> Supprimer
+            </button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extrascript %}
+<script>
+    // Tabs
+    document.querySelectorAll('.pm-tab').forEach(tab => {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault();
+            const tabName = this.dataset.tab;
+
+            // Désactiver tous les tabs
+            document.querySelectorAll('.pm-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.pm-tab-content').forEach(c => c.classList.remove('active'));
+
+            // Activer le tab cliqué
+            this.classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        });
+    });
+
+    // Modal de suppression
+    function openDeleteModal() {
+        document.getElementById('deleteModal').style.display = 'flex';
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+    }
+
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteModal();
+        }
+    });
+
+    // Autocomplete pour Assigné
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('assigne_search');
+        const dropdown = document.getElementById('assigneDropdown');
+        const hiddenInput = document.getElementById('id_assigne');
+        const wrapper = document.getElementById('assigneAutocomplete');
+        const clearBtn = document.getElementById('clearAssigne');
+        const selectedContainer = document.getElementById('selectedAssigne');
+        const form = document.getElementById('assigneForm');
+
+        let searchTimeout = null;
+        let activeIndex = -1;
+
+        // Marquer comme has-value si déjà assigné
+        {% if ticket.assigne %}
+        wrapper.classList.add('has-value');
+        {% endif %}
+
+        searchInput.addEventListener('input', function() {
+            const query = this.value.trim();
+
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+
+            if (query.length < 2) {
+                dropdown.classList.remove('show');
+                return;
+            }
+
+            searchTimeout = setTimeout(() => {
+                fetchEmployees(query);
+            }, 300);
+        });
+
+        searchInput.addEventListener('keydown', function(e) {
+            const items = dropdown.querySelectorAll('.pm-autocomplete-item');
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                activeIndex = Math.min(activeIndex + 1, items.length - 1);
+                updateActiveItem(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                activeIndex = Math.max(activeIndex - 1, 0);
+                updateActiveItem(items);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (activeIndex >= 0 && items[activeIndex]) {
+                    items[activeIndex].click();
+                }
+            } else if (e.key === 'Escape') {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        searchInput.addEventListener('focus', function() {
+            if (this.value.length >= 2) {
+                dropdown.classList.add('show');
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!wrapper.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        clearBtn.addEventListener('click', function() {
+            clearSelection();
+        });
+
+        function fetchEmployees(query) {
+            dropdown.innerHTML = '<div class="pm-autocomplete-loading"><i class="fas fa-spinner fa-spin"></i> Recherche...</div>';
+            dropdown.classList.add('show');
+
+            fetch(`{% url 'pm:search_employes_api' %}?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.results && data.results.length > 0) {
+                        dropdown.innerHTML = data.results.map((emp, index) => `
+                            <div class="pm-autocomplete-item" data-id="${emp.id}" data-nom="${emp.nom}" data-prenoms="${emp.prenoms}" data-matricule="${emp.matricule}" data-fonction="${emp.fonction || 'Employé'}">
+                                <div class="pm-autocomplete-avatar">
+                                    ${(emp.prenoms ? emp.prenoms[0] : '') + (emp.nom ? emp.nom[0] : '')}
+                                </div>
+                                <div class="pm-autocomplete-info">
+                                    <div class="pm-autocomplete-name">${emp.prenoms || ''} ${emp.nom || ''}</div>
+                                    <div class="pm-autocomplete-meta">${emp.matricule}</div>
+                                </div>
+                            </div>
+                        `).join('');
+
+                        // Add click handlers
+                        dropdown.querySelectorAll('.pm-autocomplete-item').forEach(item => {
+                            item.addEventListener('click', function() {
+                                selectEmployee({
+                                    id: this.dataset.id,
+                                    nom: this.dataset.nom,
+                                    prenoms: this.dataset.prenoms,
+                                    matricule: this.dataset.matricule,
+                                    fonction: this.dataset.fonction
+                                });
+                            });
+                        });
+                    } else {
+                        dropdown.innerHTML = '<div class="pm-autocomplete-empty">Aucun résultat trouvé</div>';
+                    }
+                    activeIndex = -1;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    dropdown.innerHTML = '<div class="pm-autocomplete-empty">Erreur lors de la recherche</div>';
+                });
+        }
+
+        function updateActiveItem(items) {
+            items.forEach((item, index) => {
+                item.classList.toggle('active', index === activeIndex);
+            });
+        }
+
+        function selectEmployee(emp) {
+            hiddenInput.value = emp.id;
+            searchInput.value = '';
+            dropdown.classList.remove('show');
+            wrapper.classList.add('has-value');
+            displaySelectedEmployee(emp);
+            // Soumettre le formulaire automatiquement
+            form.submit();
+        }
+
+        function displaySelectedEmployee(emp) {
+            selectedContainer.innerHTML = `
+                <div class="pm-selected-employee">
+                    <div class="pm-autocomplete-avatar">
+                        ${(emp.prenoms ? emp.prenoms[0] : '') + (emp.nom ? emp.nom[0] : '')}
+                    </div>
+                    <div class="pm-autocomplete-info">
+                        <div class="pm-autocomplete-name">${emp.prenoms || ''} ${emp.nom || ''}</div>
+                        <div class="pm-autocomplete-meta">${emp.fonction || 'Employé'}</div>
+                    </div>
+                    <button type="button" class="pm-remove-btn" onclick="clearAssigneSelection()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            wrapper.classList.add('has-value');
+        }
+
+        function clearSelection() {
+            hiddenInput.value = '';
+            searchInput.value = '';
+            selectedContainer.innerHTML = '<p style="color: var(--pm-gray-400); text-align: center; margin-top: 0.5rem; font-size: 0.875rem;">Non assigné</p>';
+            wrapper.classList.remove('has-value');
+            searchInput.focus();
+            // Soumettre pour retirer l'assignation
+            form.submit();
+        }
+
+        // Expose clearSelection globally
+        window.clearAssigneSelection = clearSelection;
+    });
+</script>
+{% endblock %}

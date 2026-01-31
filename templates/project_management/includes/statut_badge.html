@@ -1,0 +1,32 @@
+{% comment %}
+Badge pour le statut d'un ticket
+Usage: {% include 'project_management/includes/statut_badge.html' with statut=ticket.statut %}
+{% endcomment %}
+
+{% if statut == 'OUVERT' %}
+    <span class="pm-badge pm-badge-info">
+        <i class="fas fa-folder-open"></i> Ouvert
+    </span>
+{% elif statut == 'EN_COURS' %}
+    <span class="pm-badge pm-badge-primary">
+        <i class="fas fa-spinner"></i> En cours
+    </span>
+{% elif statut == 'EN_REVUE' %}
+    <span class="pm-badge pm-badge-warning">
+        <i class="fas fa-eye"></i> En revue
+    </span>
+{% elif statut == 'TERMINE' %}
+    <span class="pm-badge pm-badge-success">
+        <i class="fas fa-check-circle"></i> Terminé
+    </span>
+{% elif statut == 'FERME' %}
+    <span class="pm-badge pm-badge-secondary">
+        <i class="fas fa-lock"></i> Fermé
+    </span>
+{% elif statut == 'BLOQUE' %}
+    <span class="pm-badge pm-badge-danger">
+        <i class="fas fa-ban"></i> Bloqué
+    </span>
+{% else %}
+    <span class="pm-badge pm-badge-secondary">{{ statut }}</span>
+{% endif %}

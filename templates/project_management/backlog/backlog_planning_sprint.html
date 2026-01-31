@@ -1,0 +1,548 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% block extrastylet %}
+<style>
+    :root {
+        --bl-primary: #7c3aed;
+        --bl-primary-dark: #6d28d9;
+        --bl-success: #10b981;
+        --bl-warning: #f59e0b;
+        --bl-danger: #ef4444;
+        --bl-info: #3b82f6;
+        --bl-gray-50: #f9fafb;
+        --bl-gray-100: #f3f4f6;
+        --bl-gray-200: #e5e7eb;
+        --bl-gray-300: #d1d5db;
+        --bl-gray-400: #9ca3af;
+        --bl-gray-500: #6b7280;
+        --bl-gray-600: #4b5563;
+        --bl-gray-700: #374151;
+        --bl-gray-800: #1f2937;
+        --bl-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        --bl-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        --bl-radius: 12px;
+    }
+
+    .bl-page-header {
+        background: linear-gradient(135deg, var(--bl-primary) 0%, var(--bl-primary-dark) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: var(--bl-radius);
+        margin-bottom: 1.5rem;
+        box-shadow: var(--bl-shadow-lg);
+    }
+
+    .bl-page-header h1 {
+        margin: 0;
+        font-size: 1.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .bl-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        opacity: 0.9;
+        margin-bottom: 0.5rem;
+    }
+
+    .bl-breadcrumb a {
+        color: white;
+        text-decoration: none;
+    }
+
+    .bl-breadcrumb a:hover {
+        text-decoration: underline;
+    }
+
+    .bl-grid {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 992px) {
+        .bl-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .bl-card {
+        background: white;
+        border-radius: var(--bl-radius);
+        box-shadow: var(--bl-shadow);
+        overflow: hidden;
+    }
+
+    .bl-card-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--bl-gray-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .bl-card-header h2 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--bl-gray-800);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .bl-card-body {
+        padding: 1.25rem;
+    }
+
+    .bl-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .bl-btn-primary {
+        background: var(--bl-primary);
+        color: white;
+    }
+
+    .bl-btn-primary:hover {
+        background: var(--bl-primary-dark);
+        color: white;
+    }
+
+    .bl-btn-secondary {
+        background: var(--bl-gray-100);
+        color: var(--bl-gray-700);
+    }
+
+    .bl-btn-secondary:hover {
+        background: var(--bl-gray-200);
+    }
+
+    .bl-btn-success {
+        background: var(--bl-success);
+        color: white;
+    }
+
+    .bl-btn-success:hover {
+        background: #0d9668;
+        color: white;
+    }
+
+    .bl-btn-lg {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.95rem;
+    }
+
+    .bl-form-group {
+        margin-bottom: 1rem;
+    }
+
+    .bl-form-group label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--bl-gray-700);
+        margin-bottom: 0.375rem;
+    }
+
+    .bl-form-control {
+        width: 100%;
+        padding: 0.625rem 0.875rem;
+        border: 1px solid var(--bl-gray-300);
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .bl-form-control:focus {
+        outline: none;
+        border-color: var(--bl-primary);
+        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    }
+
+    .bl-capacity-info {
+        background: var(--bl-gray-50);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .bl-capacity-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        font-size: 0.9rem;
+    }
+
+    .bl-capacity-row.total {
+        border-top: 1px solid var(--bl-gray-200);
+        margin-top: 0.5rem;
+        padding-top: 0.75rem;
+        font-weight: 600;
+    }
+
+    .bl-capacity-bar {
+        height: 8px;
+        background: var(--bl-gray-200);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 0.75rem;
+    }
+
+    .bl-capacity-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.3s;
+    }
+
+    .bl-capacity-fill.ok { background: var(--bl-success); }
+    .bl-capacity-fill.warning { background: var(--bl-warning); }
+    .bl-capacity-fill.over { background: var(--bl-danger); }
+
+    .bl-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    .bl-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--bl-gray-100);
+        transition: background 0.15s;
+    }
+
+    .bl-item:last-child {
+        border-bottom: none;
+    }
+
+    .bl-item:hover {
+        background: var(--bl-gray-50);
+    }
+
+    .bl-item.suggested {
+        background: rgba(124, 58, 237, 0.05);
+    }
+
+    .bl-item-checkbox {
+        flex-shrink: 0;
+    }
+
+    .bl-item-checkbox input {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    .bl-item-priority {
+        width: 4px;
+        height: 32px;
+        border-radius: 2px;
+        flex-shrink: 0;
+    }
+
+    .bl-item-priority.basse { background: var(--bl-gray-400); }
+    .bl-item-priority.normale { background: var(--bl-info); }
+    .bl-item-priority.haute { background: var(--bl-warning); }
+    .bl-item-priority.critique { background: var(--bl-danger); }
+
+    .bl-item-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .bl-item-code {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--bl-primary);
+        background: rgba(124, 58, 237, 0.1);
+        padding: 0.125rem 0.375rem;
+        border-radius: 4px;
+        margin-right: 0.5rem;
+    }
+
+    .bl-item-title {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--bl-gray-800);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .bl-item-meta {
+        font-size: 0.75rem;
+        color: var(--bl-gray-500);
+        margin-top: 0.125rem;
+    }
+
+    .bl-item-estimation {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--bl-gray-600);
+        flex-shrink: 0;
+    }
+
+    .bl-empty {
+        text-align: center;
+        padding: 2rem 1.5rem;
+        color: var(--bl-gray-500);
+    }
+
+    .bl-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        background: var(--bl-gray-100);
+        color: var(--bl-gray-600);
+    }
+
+    .bl-badge-suggested {
+        background: rgba(124, 58, 237, 0.1);
+        color: var(--bl-primary);
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="bl-page-header">
+        <div class="bl-breadcrumb">
+            <a href="{% url 'pm:backlog_list' %}"><i class="fas fa-layer-group"></i> Backlog</a>
+            <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
+            <a href="{% url 'pm:backlog_projet' projet.pk %}">{{ projet.nom }}</a>
+            <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
+            <span>Planifier un sprint</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h1>
+                    <i class="fas fa-calendar-plus"></i>
+                    Planifier un Sprint
+                </h1>
+            </div>
+            <a href="{% url 'pm:backlog_projet' projet.pk %}" class="bl-btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;">
+                <i class="fas fa-arrow-left"></i> Retour
+            </a>
+        </div>
+    </div>
+
+    <form method="post" action="{% url 'pm:backlog_creer_sprint' projet.pk %}" id="sprintForm">
+        {% csrf_token %}
+        <div class="bl-grid">
+            <!-- Tickets du backlog -->
+            <div class="bl-card">
+                <div class="bl-card-header">
+                    <h2><i class="fas fa-layer-group" style="color: var(--bl-primary);"></i> Tickets du backlog</h2>
+                    <span class="bl-badge">{{ tickets_backlog|length }} ticket{{ tickets_backlog|length|pluralize }}</span>
+                </div>
+                <div class="bl-card-body" style="padding: 0;">
+                    {% if tickets_backlog %}
+                    <ul class="bl-list">
+                        {% for ticket in tickets_backlog %}
+                        <li class="bl-item {% if ticket in tickets_suggerees %}suggested{% endif %}">
+                            <div class="bl-item-checkbox">
+                                <input type="checkbox"
+                                       name="tickets"
+                                       value="{{ ticket.pk }}"
+                                       id="ticket_{{ ticket.pk }}"
+                                       data-estimation="{{ ticket.estimation_heures|default:0 }}"
+                                       {% if ticket in tickets_suggerees %}checked{% endif %}
+                                       onchange="updateCapacity()">
+                            </div>
+                            <div class="bl-item-priority {{ ticket.priorite|lower }}"></div>
+                            <div class="bl-item-content">
+                                <div class="bl-item-title">
+                                    <span class="bl-item-code">{{ ticket.code }}</span>
+                                    {{ ticket.titre }}
+                                </div>
+                                <div class="bl-item-meta">
+                                    {{ ticket.get_priorite_display }} - {{ ticket.get_type_ticket_display }}
+                                    {% if ticket in tickets_suggerees %}
+                                    <span class="bl-badge bl-badge-suggested" style="margin-left: 0.5rem;">Suggere</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="bl-item-estimation">
+                                {% if ticket.estimation_heures %}
+                                {{ ticket.estimation_heures }}h
+                                {% else %}
+                                -
+                                {% endif %}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="bl-empty">
+                        <p>Aucun ticket dans le backlog</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Configuration du sprint -->
+            <div>
+                <div class="bl-card">
+                    <div class="bl-card-header">
+                        <h2><i class="fas fa-cog" style="color: var(--bl-primary);"></i> Configuration du sprint</h2>
+                    </div>
+                    <div class="bl-card-body">
+                        <div class="bl-form-group">
+                            <label for="nom">Nom du sprint *</label>
+                            <input type="text"
+                                   name="nom"
+                                   id="nom"
+                                   class="bl-form-control"
+                                   required
+                                   placeholder="Ex: Sprint 1 - Janvier 2026">
+                        </div>
+                        <div class="bl-form-group">
+                            <label for="objectif">Objectif</label>
+                            <textarea name="objectif"
+                                      id="objectif"
+                                      class="bl-form-control"
+                                      rows="3"
+                                      placeholder="Objectif principal du sprint..."></textarea>
+                        </div>
+                        <div class="bl-form-group">
+                            <label for="date_debut">Date de debut *</label>
+                            <input type="date" name="date_debut" id="date_debut" class="bl-form-control" required>
+                        </div>
+                        <div class="bl-form-group">
+                            <label for="date_fin">Date de fin *</label>
+                            <input type="date" name="date_fin" id="date_fin" class="bl-form-control" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bl-card" style="margin-top: 1rem;">
+                    <div class="bl-card-header">
+                        <h2><i class="fas fa-chart-bar" style="color: var(--bl-success);"></i> Capacite</h2>
+                    </div>
+                    <div class="bl-card-body">
+                        <div class="bl-capacity-info">
+                            <div class="bl-capacity-row">
+                                <span>Capacite disponible</span>
+                                <span>{{ capacite_heures }}h</span>
+                            </div>
+                            <div class="bl-capacity-row">
+                                <span>Charge backlog total</span>
+                                <span>{{ charge_totale }}h</span>
+                            </div>
+                            <div class="bl-capacity-row total">
+                                <span>Charge selectionnee</span>
+                                <span id="chargeSelectionnee">0h</span>
+                            </div>
+                            <div class="bl-capacity-bar">
+                                <div class="bl-capacity-fill ok" id="capacityBar" style="width: 0%;"></div>
+                            </div>
+                            <p style="font-size: 0.75rem; color: var(--bl-gray-500); margin: 0.5rem 0 0; text-align: center;" id="capacityText">
+                                Selectionnez des tickets
+                            </p>
+                        </div>
+
+                        <button type="submit" class="bl-btn bl-btn-success bl-btn-lg" style="width: 100%;" id="submitBtn" disabled>
+                            <i class="fas fa-rocket"></i> Creer le sprint
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script>
+const capacite = {{ capacite_heures }};
+
+function updateCapacity() {
+    const checkboxes = document.querySelectorAll('input[name="tickets"]:checked');
+    let totalCharge = 0;
+    let count = 0;
+
+    checkboxes.forEach(cb => {
+        totalCharge += parseFloat(cb.dataset.estimation) || 0;
+        count++;
+    });
+
+    document.getElementById('chargeSelectionnee').textContent = totalCharge + 'h';
+
+    const percentage = capacite > 0 ? (totalCharge / capacite) * 100 : 0;
+    const bar = document.getElementById('capacityBar');
+    bar.style.width = Math.min(percentage, 100) + '%';
+
+    // Couleur de la barre
+    bar.classList.remove('ok', 'warning', 'over');
+    if (percentage <= 80) {
+        bar.classList.add('ok');
+    } else if (percentage <= 100) {
+        bar.classList.add('warning');
+    } else {
+        bar.classList.add('over');
+    }
+
+    // Texte de capacite
+    const text = document.getElementById('capacityText');
+    if (count === 0) {
+        text.textContent = 'Selectionnez des tickets';
+    } else if (percentage > 100) {
+        text.textContent = 'Attention: depassement de capacite!';
+        text.style.color = 'var(--bl-danger)';
+    } else {
+        text.textContent = count + ' ticket' + (count > 1 ? 's' : '') + ' selectionne' + (count > 1 ? 's' : '') + ' (' + Math.round(percentage) + '% de capacite)';
+        text.style.color = 'var(--bl-gray-500)';
+    }
+
+    // Activer/desactiver le bouton
+    const submitBtn = document.getElementById('submitBtn');
+    const nom = document.getElementById('nom').value.trim();
+    const dateDebut = document.getElementById('date_debut').value;
+    const dateFin = document.getElementById('date_fin').value;
+
+    submitBtn.disabled = !(count > 0 && nom && dateDebut && dateFin);
+}
+
+// Initial update
+document.addEventListener('DOMContentLoaded', function() {
+    updateCapacity();
+
+    // Ecouter les changements de formulaire
+    document.getElementById('nom').addEventListener('input', updateCapacity);
+    document.getElementById('date_debut').addEventListener('change', updateCapacity);
+    document.getElementById('date_fin').addEventListener('change', updateCapacity);
+
+    // Date par defaut
+    const today = new Date();
+    const nextWeek = new Date(today);
+    nextWeek.setDate(nextWeek.getDate() + 14);
+
+    document.getElementById('date_debut').value = today.toISOString().split('T')[0];
+    document.getElementById('date_fin').value = nextWeek.toISOString().split('T')[0];
+
+    updateCapacity();
+});
+</script>
+{% endblock %}

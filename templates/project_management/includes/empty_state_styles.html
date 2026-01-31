@@ -1,0 +1,54 @@
+{% comment %}
+Styles CSS pour les états vides
+Usage: {% include 'project_management/includes/empty_state_styles.html' %}
+{% endcomment %}
+
+<style>
+.pm-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    text-align: center;
+}
+
+.pm-empty-state-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+}
+
+.pm-empty-state-icon i {
+    font-size: 2rem;
+    color: #9ca3af;
+}
+
+.pm-empty-state-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 0.5rem;
+}
+
+.pm-empty-state-message {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0 0 1.25rem;
+    max-width: 300px;
+}
+
+/* Variante pour sprint (teal) */
+.sp-empty-state .pm-empty-state-icon {
+    background: linear-gradient(135deg, #e6f3f3 0%, #c9e4e4 100%);
+}
+
+.sp-empty-state .pm-empty-state-icon i {
+    color: #1c5d5f;
+}
+</style>

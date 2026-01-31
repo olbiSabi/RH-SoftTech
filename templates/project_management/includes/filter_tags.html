@@ -1,0 +1,24 @@
+{% comment %}
+Tags de filtres actifs avec bouton de réinitialisation
+Usage: {% include 'project_management/includes/filter_tags.html' with filters=active_filters reset_url=reset_url %}
+
+Paramètres:
+- filters: Liste de dictionnaires avec 'label' et 'value' (ou un contexte contenant les filtres actifs)
+- reset_url: URL pour réinitialiser les filtres
+{% endcomment %}
+
+{% if has_filters %}
+<div class="pm-active-filters">
+    <span class="pm-active-filters-label">Filtres actifs:</span>
+    <div class="pm-filter-tags">
+        {% for filter in active_filters %}
+        <span class="pm-filter-tag">
+            {{ filter.label }}: {{ filter.value }}
+        </span>
+        {% endfor %}
+        <a href="{{ reset_url|default:'?' }}" class="pm-filter-reset">
+            <i class="fas fa-times"></i> Réinitialiser
+        </a>
+    </div>
+</div>
+{% endif %}

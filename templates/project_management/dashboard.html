@@ -1,0 +1,708 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% block extrastylet %}
+<style>
+    :root {
+        --pm-primary: #4f46e5;
+        --pm-primary-dark: #4338ca;
+        --pm-primary-light: #818cf8;
+        --pm-success: #10b981;
+        --pm-warning: #f59e0b;
+        --pm-danger: #ef4444;
+        --pm-info: #3b82f6;
+        --pm-gray-50: #f9fafb;
+        --pm-gray-100: #f3f4f6;
+        --pm-gray-200: #e5e7eb;
+        --pm-gray-300: #d1d5db;
+        --pm-gray-500: #6b7280;
+        --pm-gray-600: #4b5563;
+        --pm-gray-700: #374151;
+        --pm-gray-800: #1f2937;
+        --pm-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        --pm-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        --pm-radius: 12px;
+    }
+
+    .pm-page-header {
+        background: linear-gradient(135deg, var(--pm-primary) 0%, var(--pm-primary-dark) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: var(--pm-radius);
+        margin-bottom: 1.5rem;
+        box-shadow: var(--pm-shadow-lg);
+    }
+
+    .pm-page-header h1 {
+        margin: 0;
+        font-size: 1.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .pm-page-header p {
+        margin: 0.5rem 0 0;
+        opacity: 0.9;
+        font-size: 0.95rem;
+    }
+
+    .pm-quick-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+
+    .pm-quick-action {
+        padding: 0.5rem 1rem;
+        background: rgba(255,255,255,0.2);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 8px;
+        color: white;
+        text-decoration: none;
+        font-size: 0.875rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        transition: all 0.2s;
+    }
+
+    .pm-quick-action:hover {
+        background: rgba(255,255,255,0.3);
+        color: white;
+    }
+
+    .pm-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .pm-stat-card {
+        background: white;
+        border-radius: var(--pm-radius);
+        padding: 1.5rem;
+        box-shadow: var(--pm-shadow);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .pm-stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--pm-shadow-lg);
+    }
+
+    .pm-stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .pm-stat-icon.projets { background: rgba(79, 70, 229, 0.1); color: var(--pm-primary); }
+    .pm-stat-icon.tickets { background: rgba(59, 130, 246, 0.1); color: var(--pm-info); }
+    .pm-stat-icon.sprints { background: rgba(28, 93, 95, 0.1); color: #1c5d5f; }
+    .pm-stat-icon.heures { background: rgba(16, 185, 129, 0.1); color: var(--pm-success); }
+
+    .pm-stat-content h3 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--pm-gray-800);
+    }
+
+    .pm-stat-content p {
+        font-size: 0.85rem;
+        color: var(--pm-gray-500);
+        margin: 0;
+    }
+
+    .pm-stat-content .trend {
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+    }
+
+    .pm-stat-content .trend.up { color: var(--pm-success); }
+    .pm-stat-content .trend.down { color: var(--pm-danger); }
+
+    .pm-dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 1200px) {
+        .pm-dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .pm-card {
+        background: white;
+        border-radius: var(--pm-radius);
+        box-shadow: var(--pm-shadow);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .pm-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--pm-gray-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .pm-card-header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--pm-gray-800);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .pm-card-body {
+        padding: 1.5rem;
+    }
+
+    .pm-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .pm-btn-primary {
+        background: var(--pm-primary);
+        color: white;
+    }
+
+    .pm-btn-primary:hover {
+        background: var(--pm-primary-dark);
+        color: white;
+    }
+
+    .pm-btn-secondary {
+        background: var(--pm-gray-100);
+        color: var(--pm-gray-700);
+    }
+
+    .pm-btn-secondary:hover {
+        background: var(--pm-gray-200);
+    }
+
+    /* Tickets récents */
+    .pm-ticket-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid var(--pm-gray-200);
+        gap: 1rem;
+        transition: background 0.2s;
+    }
+
+    .pm-ticket-item:last-child {
+        border-bottom: none;
+    }
+
+    .pm-ticket-item:hover {
+        background: var(--pm-gray-50);
+    }
+
+    .pm-ticket-priority {
+        width: 4px;
+        height: 40px;
+        border-radius: 2px;
+        flex-shrink: 0;
+    }
+
+    .pm-ticket-priority.critique { background: var(--pm-danger); }
+    .pm-ticket-priority.haute { background: #f97316; }
+    .pm-ticket-priority.moyenne { background: var(--pm-warning); }
+    .pm-ticket-priority.basse { background: var(--pm-success); }
+
+    .pm-ticket-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .pm-ticket-code {
+        font-family: monospace;
+        font-size: 0.75rem;
+        color: var(--pm-primary);
+        font-weight: 600;
+    }
+
+    .pm-ticket-title {
+        font-weight: 500;
+        color: var(--pm-gray-800);
+        margin: 0.25rem 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .pm-ticket-title a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .pm-ticket-title a:hover {
+        color: var(--pm-primary);
+    }
+
+    .pm-ticket-meta {
+        font-size: 0.8rem;
+        color: var(--pm-gray-500);
+    }
+
+    .pm-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.625rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .pm-badge-statut-ouvert { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
+    .pm-badge-statut-en_cours { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+    .pm-badge-statut-en_revue { background: rgba(139, 92, 246, 0.1); color: #7c3aed; }
+    .pm-badge-statut-termine { background: rgba(16, 185, 129, 0.1); color: #059669; }
+
+    /* Projets actifs */
+    .pm-project-item {
+        padding: 1rem;
+        border-bottom: 1px solid var(--pm-gray-200);
+    }
+
+    .pm-project-item:last-child {
+        border-bottom: none;
+    }
+
+    .pm-project-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+    }
+
+    .pm-project-name {
+        font-weight: 600;
+        color: var(--pm-gray-800);
+    }
+
+    .pm-project-name a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .pm-project-name a:hover {
+        color: var(--pm-primary);
+    }
+
+    .pm-project-code {
+        font-family: monospace;
+        font-size: 0.75rem;
+        color: var(--pm-gray-500);
+    }
+
+    .pm-progress-mini {
+        height: 6px;
+        background: var(--pm-gray-200);
+        border-radius: 3px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+
+    .pm-progress-mini-fill {
+        height: 100%;
+        background: var(--pm-primary);
+        border-radius: 3px;
+    }
+
+    .pm-project-stats {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.8rem;
+        color: var(--pm-gray-500);
+    }
+
+    /* Sprint actif */
+    .pm-sprint-active {
+        background: linear-gradient(135deg, #1c5d5f 0%, #154647 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: var(--pm-radius);
+        margin-bottom: 1rem;
+    }
+
+    .pm-sprint-active h3 {
+        margin: 0 0 0.5rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .pm-sprint-active p {
+        margin: 0;
+        font-size: 0.85rem;
+        opacity: 0.9;
+    }
+
+    .pm-sprint-progress {
+        margin-top: 1rem;
+    }
+
+    .pm-sprint-progress-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.375rem;
+        font-size: 0.85rem;
+    }
+
+    .pm-sprint-progress-bar {
+        height: 8px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .pm-sprint-progress-fill {
+        height: 100%;
+        background: white;
+        border-radius: 4px;
+    }
+
+    .pm-sprint-stats {
+        display: flex;
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .pm-sprint-stat {
+        text-align: center;
+    }
+
+    .pm-sprint-stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .pm-sprint-stat-label {
+        font-size: 0.75rem;
+        opacity: 0.8;
+    }
+
+    /* Activité récente */
+    .pm-activity-item {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--pm-gray-200);
+    }
+
+    .pm-activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .pm-activity-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+        flex-shrink: 0;
+    }
+
+    .pm-activity-icon.ticket { background: rgba(59, 130, 246, 0.1); color: var(--pm-info); }
+    .pm-activity-icon.commentaire { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+    .pm-activity-icon.statut { background: rgba(16, 185, 129, 0.1); color: var(--pm-success); }
+
+    .pm-activity-content {
+        flex: 1;
+    }
+
+    .pm-activity-text {
+        font-size: 0.875rem;
+        color: var(--pm-gray-700);
+        margin-bottom: 0.25rem;
+    }
+
+    .pm-activity-date {
+        font-size: 0.75rem;
+        color: var(--pm-gray-500);
+    }
+
+    .pm-empty {
+        text-align: center;
+        padding: 2rem;
+        color: var(--pm-gray-500);
+    }
+
+    .pm-empty i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        opacity: 0.5;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="pm-page-header">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h1><i class="fas fa-tachometer-alt"></i> Tableau de bord</h1>
+                <p>Bienvenue dans votre espace de gestion de projet</p>
+                <div class="pm-quick-actions">
+                    <a href="{% url 'pm:ticket_create' %}" class="pm-quick-action">
+                        <i class="fas fa-plus"></i> Nouveau ticket
+                    </a>
+                    <a href="{% url 'pm:projet_create' %}" class="pm-quick-action">
+                        <i class="fas fa-plus"></i> Nouveau projet
+                    </a>
+                    <a href="{% url 'pm:imputation_create' %}" class="pm-quick-action">
+                        <i class="fas fa-clock"></i> Imputer du temps
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="pm-stats-grid">
+        <div class="pm-stat-card">
+            <div class="pm-stat-icon projets">
+                <i class="fas fa-project-diagram"></i>
+            </div>
+            <div class="pm-stat-content">
+                <h3>{{ total_projets|default:0 }}</h3>
+                <p>Projets</p>
+                <span class="trend up"><i class="fas fa-play-circle"></i> {{ projets_actifs|default:0 }} actifs</span>
+            </div>
+        </div>
+        <div class="pm-stat-card">
+            <div class="pm-stat-icon tickets">
+                <i class="fas fa-ticket-alt"></i>
+            </div>
+            <div class="pm-stat-content">
+                <h3>{{ total_tickets|default:0 }}</h3>
+                <p>Tickets</p>
+                <span class="trend"><i class="fas fa-hourglass-half"></i> {{ tickets_ouverts|default:0 }} ouverts</span>
+            </div>
+        </div>
+        <div class="pm-stat-card">
+            <div class="pm-stat-icon sprints">
+                <i class="fas fa-running"></i>
+            </div>
+            <div class="pm-stat-content">
+                <h3>{{ total_sprints|default:0 }}</h3>
+                <p>Sprints</p>
+                <span class="trend up"><i class="fas fa-bolt"></i> {{ sprints_actifs|default:0 }} actifs</span>
+            </div>
+        </div>
+        <div class="pm-stat-card">
+            <div class="pm-stat-icon heures">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="pm-stat-content">
+                <h3>{{ heures_ce_mois|default:0 }}h</h3>
+                <p>Heures ce mois</p>
+                <span class="trend up"><i class="fas fa-chart-line"></i></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="pm-dashboard-grid">
+        <!-- Colonne principale -->
+        <div>
+            <!-- Tickets récents -->
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h2><i class="fas fa-ticket-alt"></i> Tickets récents</h2>
+                    <a href="{% url 'pm:ticket_list' %}" class="pm-btn pm-btn-secondary">
+                        Voir tous <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                <div>
+                    {% for ticket in tickets_recents %}
+                    <div class="pm-ticket-item">
+                        <div class="pm-ticket-priority {{ ticket.priorite|lower }}"></div>
+                        <div class="pm-ticket-info">
+                            <span class="pm-ticket-code">{{ ticket.code }}</span>
+                            <div class="pm-ticket-title">
+                                <a href="{% url 'pm:ticket_detail' ticket.pk %}">{{ ticket.titre }}</a>
+                            </div>
+                            <div class="pm-ticket-meta">
+                                {{ ticket.projet.nom|default:"Sans projet" }} · {{ ticket.created_at|timesince }}
+                            </div>
+                        </div>
+                        <span class="pm-badge pm-badge-statut-{{ ticket.statut|lower }}">
+                            {{ ticket.get_statut_display }}
+                        </span>
+                    </div>
+                    {% empty %}
+                    <div class="pm-empty">
+                        <i class="fas fa-ticket-alt"></i>
+                        <p>Aucun ticket récent</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Projets actifs -->
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h2><i class="fas fa-project-diagram"></i> Projets actifs</h2>
+                    <a href="{% url 'pm:projet_list' %}" class="pm-btn pm-btn-secondary">
+                        Voir tous <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                <div>
+                    {% for projet in projets_actifs_list %}
+                    <div class="pm-project-item">
+                        <div class="pm-project-header">
+                            <div>
+                                <div class="pm-project-name">
+                                    <a href="{% url 'pm:projet_detail' projet.pk %}">{{ projet.nom }}</a>
+                                </div>
+                                <div class="pm-project-code">{{ projet.code }}</div>
+                            </div>
+                            <span style="font-size: 0.85rem; font-weight: 600; color: var(--pm-primary);">
+                                {{ projet.pourcentage_completion|default:0 }}%
+                            </span>
+                        </div>
+                        <div class="pm-progress-mini">
+                            <div class="pm-progress-mini-fill" style="width: {{ projet.pourcentage_completion|default:0 }}%;"></div>
+                        </div>
+                        <div class="pm-project-stats">
+                            <span><i class="fas fa-ticket-alt"></i> {{ projet.tickets.count }} tickets</span>
+                            <span><i class="fas fa-running"></i> {{ projet.sprints.count }} sprints</span>
+                            {% if projet.client %}
+                            <span><i class="fas fa-building"></i> {{ projet.client.nom }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="pm-empty">
+                        <i class="fas fa-project-diagram"></i>
+                        <p>Aucun projet actif</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne latérale -->
+        <div>
+            <!-- Sprint actif -->
+            {% if sprint_actif %}
+            <div class="pm-sprint-active">
+                <h3><i class="fas fa-running"></i> {{ sprint_actif.nom }}</h3>
+                <p>{{ sprint_actif.date_debut|date:"d/m" }} - {{ sprint_actif.date_fin|date:"d/m/Y" }}</p>
+
+                <div class="pm-sprint-progress">
+                    <div class="pm-sprint-progress-header">
+                        <span>Progression</span>
+                        <span>{{ sprint_actif.pourcentage_completion|default:0 }}%</span>
+                    </div>
+                    <div class="pm-sprint-progress-bar">
+                        <div class="pm-sprint-progress-fill" style="width: {{ sprint_actif.pourcentage_completion|default:0 }}%;"></div>
+                    </div>
+                </div>
+
+                <div class="pm-sprint-stats">
+                    <div class="pm-sprint-stat">
+                        <div class="pm-sprint-stat-value">{{ sprint_actif.jours_restants|default:0 }}</div>
+                        <div class="pm-sprint-stat-label">Jours restants</div>
+                    </div>
+                    <div class="pm-sprint-stat">
+                        <div class="pm-sprint-stat-value">{{ sprint_actif.tickets.count }}</div>
+                        <div class="pm-sprint-stat-label">Tickets</div>
+                    </div>
+                    <div class="pm-sprint-stat">
+                        <div class="pm-sprint-stat-value">{{ sprint_actif.tickets_termines|default:0 }}</div>
+                        <div class="pm-sprint-stat-label">Terminés</div>
+                    </div>
+                </div>
+
+                <a href="{% url 'pm:sprint_board' sprint_actif.pk %}" class="pm-quick-action" style="margin-top: 1rem; width: 100%; justify-content: center;">
+                    <i class="fas fa-columns"></i> Voir le board
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Activité récente -->
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h2><i class="fas fa-history"></i> Activité récente</h2>
+                </div>
+                <div class="pm-card-body">
+                    {% for activite in activites_recentes %}
+                    <div class="pm-activity-item">
+                        <div class="pm-activity-icon {{ activite.type }}">
+                            <i class="fas fa-{% if activite.type == 'ticket' %}ticket-alt{% elif activite.type == 'commentaire' %}comment{% else %}flag{% endif %}"></i>
+                        </div>
+                        <div class="pm-activity-content">
+                            <div class="pm-activity-text">{{ activite.description }}</div>
+                            <div class="pm-activity-date">{{ activite.date|timesince }}</div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="pm-empty">
+                        <i class="fas fa-history"></i>
+                        <p>Aucune activité récente</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Mes tickets -->
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h2><i class="fas fa-user"></i> Mes tickets</h2>
+                </div>
+                <div>
+                    {% for ticket in mes_tickets %}
+                    <div class="pm-ticket-item">
+                        <div class="pm-ticket-priority {{ ticket.priorite|lower }}"></div>
+                        <div class="pm-ticket-info">
+                            <span class="pm-ticket-code">{{ ticket.code }}</span>
+                            <div class="pm-ticket-title">
+                                <a href="{% url 'pm:ticket_detail' ticket.pk %}">{{ ticket.titre|truncatechars:30 }}</a>
+                            </div>
+                        </div>
+                        <span class="pm-badge pm-badge-statut-{{ ticket.statut|lower }}">
+                            {{ ticket.get_statut_display }}
+                        </span>
+                    </div>
+                    {% empty %}
+                    <div class="pm-empty">
+                        <i class="fas fa-check-circle"></i>
+                        <p>Aucun ticket assigné</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

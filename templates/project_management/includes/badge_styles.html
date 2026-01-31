@@ -1,0 +1,99 @@
+{% comment %}
+Styles CSS pour les badges du module project_management
+Usage: {% include 'project_management/includes/badge_styles.html' %}
+Inclure dans le bloc extra_css de vos templates
+{% endcomment %}
+
+<style>
+/* Badges Projet/Ticket (Violet) */
+.pm-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.pm-badge i {
+    font-size: 0.7rem;
+}
+
+.pm-badge-primary {
+    background: rgba(79, 70, 229, 0.1);
+    color: #4f46e5;
+}
+
+.pm-badge-success {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+
+.pm-badge-warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+}
+
+.pm-badge-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+}
+
+.pm-badge-info {
+    background: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+}
+
+.pm-badge-secondary {
+    background: rgba(107, 114, 128, 0.1);
+    color: #4b5563;
+}
+
+/* Badges Sprint (Teal) */
+.sp-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.sp-badge i {
+    font-size: 0.7rem;
+}
+
+.sp-badge-primary {
+    background: rgba(28, 93, 95, 0.1);
+    color: #1c5d5f;
+}
+
+.sp-badge-success {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+
+.sp-badge-warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+}
+
+.sp-badge-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+}
+
+.sp-badge-info {
+    background: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+}
+
+.sp-badge-secondary {
+    background: rgba(107, 114, 128, 0.1);
+    color: #4b5563;
+}
+</style>

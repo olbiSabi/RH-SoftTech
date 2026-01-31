@@ -1,0 +1,410 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% block extrastylet %}
+<style>
+    :root {
+        --im-primary: #0891b2;
+        --im-primary-dark: #0e7490;
+        --im-primary-light: #22d3ee;
+        --im-success: #10b981;
+        --im-warning: #f59e0b;
+        --im-danger: #ef4444;
+        --im-info: #3b82f6;
+        --im-gray-50: #f9fafb;
+        --im-gray-100: #f3f4f6;
+        --im-gray-200: #e5e7eb;
+        --im-gray-300: #d1d5db;
+        --im-gray-400: #9ca3af;
+        --im-gray-500: #6b7280;
+        --im-gray-600: #4b5563;
+        --im-gray-700: #374151;
+        --im-gray-800: #1f2937;
+        --im-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        --im-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        --im-radius: 12px;
+    }
+
+    .im-page-header {
+        background: linear-gradient(135deg, var(--im-primary) 0%, var(--im-primary-dark) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: var(--im-radius);
+        margin-bottom: 1.5rem;
+        box-shadow: var(--im-shadow-lg);
+    }
+
+    .im-page-header h1 {
+        margin: 0;
+        font-size: 1.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .im-page-header p {
+        margin: 0.5rem 0 0;
+        opacity: 0.9;
+        font-size: 0.95rem;
+    }
+
+    .im-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .im-stat-card {
+        background: white;
+        border-radius: var(--im-radius);
+        padding: 1.25rem;
+        box-shadow: var(--im-shadow);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .im-stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .im-stat-icon.total { background: rgba(8, 145, 178, 0.1); color: var(--im-primary); }
+    .im-stat-icon.attente { background: rgba(245, 158, 11, 0.1); color: var(--im-warning); }
+    .im-stat-icon.valide { background: rgba(16, 185, 129, 0.1); color: var(--im-success); }
+    .im-stat-icon.rejete { background: rgba(239, 68, 68, 0.1); color: var(--im-danger); }
+    .im-stat-icon.heures { background: rgba(59, 130, 246, 0.1); color: var(--im-info); }
+
+    .im-stat-content h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--im-gray-800);
+    }
+
+    .im-stat-content p {
+        font-size: 0.8rem;
+        color: var(--im-gray-500);
+        margin: 0;
+    }
+
+    .im-card {
+        background: white;
+        border-radius: var(--im-radius);
+        box-shadow: var(--im-shadow);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .im-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--im-gray-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .im-card-header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--im-gray-800);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .im-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .im-btn-primary {
+        background: var(--im-primary);
+        color: white;
+    }
+
+    .im-btn-primary:hover {
+        background: var(--im-primary-dark);
+        color: white;
+    }
+
+    .im-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .im-table th {
+        background: var(--im-gray-50);
+        padding: 0.875rem 1rem;
+        text-align: left;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--im-gray-600);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid var(--im-gray-200);
+    }
+
+    .im-table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--im-gray-100);
+        font-size: 0.9rem;
+        color: var(--im-gray-700);
+    }
+
+    .im-table tbody tr:hover {
+        background: var(--im-gray-50);
+    }
+
+    .im-badge {
+        padding: 0.25rem 0.625rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .im-badge-attente { background: rgba(245, 158, 11, 0.1); color: var(--im-warning); }
+    .im-badge-valide { background: rgba(16, 185, 129, 0.1); color: var(--im-success); }
+    .im-badge-rejete { background: rgba(239, 68, 68, 0.1); color: var(--im-danger); }
+
+    .im-empty {
+        text-align: center;
+        padding: 3rem 1.5rem;
+        color: var(--im-gray-500);
+    }
+
+    .im-empty i {
+        font-size: 3rem;
+        color: var(--im-gray-300);
+        margin-bottom: 1rem;
+    }
+
+    .im-pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 1rem;
+    }
+
+    .im-pagination a, .im-pagination span {
+        padding: 0.5rem 0.875rem;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        text-decoration: none;
+        color: var(--im-gray-600);
+        background: var(--im-gray-100);
+    }
+
+    .im-pagination a:hover {
+        background: var(--im-gray-200);
+    }
+
+    .im-pagination .current {
+        background: var(--im-primary);
+        color: white;
+    }
+
+    .im-btn-sm {
+        padding: 0.375rem 0.625rem;
+        font-size: 0.75rem;
+    }
+
+    .im-btn-secondary {
+        background: var(--im-gray-100);
+        color: var(--im-gray-700);
+    }
+
+    .im-btn-secondary:hover {
+        background: var(--im-gray-200);
+        color: var(--im-gray-800);
+    }
+
+    .im-btn-danger {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--im-danger);
+    }
+
+    .im-btn-danger:hover {
+        background: rgba(239, 68, 68, 0.2);
+    }
+
+    .im-actions {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+    }
+
+    .im-actions .im-btn {
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="im-page-header">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h1>
+                    <i class="fas fa-clock"></i>
+                    Mes Imputations
+                </h1>
+                <p>Suivi de vos temps passes sur les projets</p>
+            </div>
+            <a href="{% url 'pm:imputation_create' %}" class="im-btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;">
+                <i class="fas fa-plus"></i> Nouvelle imputation
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="im-stats-grid">
+        <div class="im-stat-card">
+            <div class="im-stat-icon total">
+                <i class="fas fa-list"></i>
+            </div>
+            <div class="im-stat-content">
+                <h3>{{ stats.total }}</h3>
+                <p>Total</p>
+            </div>
+        </div>
+        <div class="im-stat-card">
+            <div class="im-stat-icon attente">
+                <i class="fas fa-hourglass-half"></i>
+            </div>
+            <div class="im-stat-content">
+                <h3>{{ stats.en_attente }}</h3>
+                <p>En attente</p>
+            </div>
+        </div>
+        <div class="im-stat-card">
+            <div class="im-stat-icon valide">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="im-stat-content">
+                <h3>{{ stats.validees }}</h3>
+                <p>Validees</p>
+            </div>
+        </div>
+        <div class="im-stat-card">
+            <div class="im-stat-icon rejete">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <div class="im-stat-content">
+                <h3>{{ stats.rejetees }}</h3>
+                <p>Rejetees</p>
+            </div>
+        </div>
+        <div class="im-stat-card">
+            <div class="im-stat-icon heures">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="im-stat-content">
+                <h3>{{ stats.total_heures|floatformat:1 }}h</h3>
+                <p>Heures validees</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des imputations -->
+    <div class="im-card">
+        <div class="im-card-header">
+            <h2><i class="fas fa-history"></i> Historique</h2>
+        </div>
+        {% if page_obj %}
+        <table class="im-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Projet</th>
+                    <th>Ticket</th>
+                    <th>Heures</th>
+                    <th>Type</th>
+                    <th>Statut</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for imp in page_obj %}
+                <tr>
+                    <td>{{ imp.date_imputation|date:"d/m/Y" }}</td>
+                    <td>
+                        <a href="{% url 'pm:projet_detail' imp.ticket.projet.pk %}">{{ imp.ticket.projet.code }}</a>
+                    </td>
+                    <td>
+                        <a href="{% url 'pm:ticket_detail' imp.ticket.pk %}">{{ imp.ticket.code }}</a>
+                        <br><small style="color: var(--im-gray-500);">{{ imp.ticket.titre|truncatechars:40 }}</small>
+                    </td>
+                    <td><strong>{{ imp.heures_affichage }}h{% if imp.minutes_affichage %} {{ imp.minutes_affichage }}min{% endif %}</strong></td>
+                    <td>{{ imp.get_type_activite_display }}</td>
+                    <td>
+                        <span class="im-badge im-badge-{{ imp.statut_validation|lower }}">
+                            {{ imp.get_statut_validation_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="im-actions">
+                            {% if imp.statut_validation == 'EN_ATTENTE' %}
+                            <a href="{% url 'pm:imputation_update' imp.pk %}" class="im-btn im-btn-secondary im-btn-sm" title="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'pm:imputation_delete' imp.pk %}" class="im-btn im-btn-danger im-btn-sm" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                            {% else %}
+                            <span style="color: var(--im-gray-400); font-size: 0.75rem;">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if page_obj.has_other_pages %}
+        <div class="im-pagination">
+            {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo;</a>
+            <a href="?page={{ page_obj.previous_page_number }}">&lsaquo;</a>
+            {% endif %}
+
+            <span class="current">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">&rsaquo;</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="im-empty">
+            <i class="fas fa-clock"></i>
+            <h3>Aucune imputation</h3>
+            <p>Vous n'avez pas encore saisi d'imputation de temps.</p>
+            <a href="{% url 'pm:imputation_create' %}" class="im-btn im-btn-primary" style="margin-top: 1rem;">
+                <i class="fas fa-plus"></i> Creer une imputation
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

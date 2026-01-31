@@ -1,0 +1,609 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% block extrastylet %}
+<style>
+    :root {
+        --pm-primary: #4f46e5;
+        --pm-primary-dark: #4338ca;
+        --pm-primary-light: #818cf8;
+        --pm-success: #10b981;
+        --pm-warning: #f59e0b;
+        --pm-danger: #ef4444;
+        --pm-info: #3b82f6;
+        --pm-gray-50: #f9fafb;
+        --pm-gray-100: #f3f4f6;
+        --pm-gray-200: #e5e7eb;
+        --pm-gray-300: #d1d5db;
+        --pm-gray-500: #6b7280;
+        --pm-gray-600: #4b5563;
+        --pm-gray-700: #374151;
+        --pm-gray-800: #1f2937;
+        --pm-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        --pm-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        --pm-radius: 12px;
+    }
+
+    .pm-page-header {
+        background: linear-gradient(135deg, var(--pm-primary) 0%, var(--pm-primary-dark) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: var(--pm-radius);
+        margin-bottom: 1.5rem;
+        box-shadow: var(--pm-shadow-lg);
+    }
+
+    .pm-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        margin-bottom: 0.75rem;
+        opacity: 0.9;
+    }
+
+    .pm-breadcrumb a {
+        color: white;
+        text-decoration: none;
+    }
+
+    .pm-breadcrumb a:hover {
+        text-decoration: underline;
+    }
+
+    .pm-page-header h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .pm-client-avatar-lg {
+        width: 64px;
+        height: 64px;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .pm-card {
+        background: white;
+        border-radius: var(--pm-radius);
+        box-shadow: var(--pm-shadow);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .pm-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--pm-gray-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .pm-card-header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--pm-gray-800);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .pm-card-body {
+        padding: 1.5rem;
+    }
+
+    .pm-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 992px) {
+        .pm-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .pm-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .pm-btn-primary {
+        background: var(--pm-primary);
+        color: white;
+    }
+
+    .pm-btn-primary:hover {
+        background: var(--pm-primary-dark);
+        color: white;
+    }
+
+    .pm-btn-secondary {
+        background: var(--pm-gray-100);
+        color: var(--pm-gray-700);
+    }
+
+    .pm-btn-secondary:hover {
+        background: var(--pm-gray-200);
+    }
+
+    .pm-btn-danger {
+        background: var(--pm-danger);
+        color: white;
+    }
+
+    .pm-btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    .pm-info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .pm-info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--pm-gray-50);
+        border-radius: 8px;
+    }
+
+    .pm-info-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: rgba(79, 70, 229, 0.1);
+        color: var(--pm-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .pm-info-content label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--pm-gray-500);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+    }
+
+    .pm-info-content span,
+    .pm-info-content a {
+        font-size: 0.9rem;
+        color: var(--pm-gray-800);
+    }
+
+    .pm-info-content a {
+        text-decoration: none;
+    }
+
+    .pm-info-content a:hover {
+        color: var(--pm-primary);
+    }
+
+    .pm-stats-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+
+    .pm-stat-item {
+        text-align: center;
+        padding: 1.25rem;
+        background: var(--pm-gray-50);
+        border-radius: 8px;
+    }
+
+    .pm-stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--pm-primary);
+    }
+
+    .pm-stat-label {
+        font-size: 0.8rem;
+        color: var(--pm-gray-500);
+        margin-top: 0.25rem;
+    }
+
+    /* Table */
+    .pm-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .pm-table th {
+        text-align: left;
+        padding: 0.875rem 1rem;
+        background: var(--pm-gray-50);
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--pm-gray-600);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid var(--pm-gray-200);
+    }
+
+    .pm-table td {
+        padding: 0.875rem 1rem;
+        border-bottom: 1px solid var(--pm-gray-200);
+        font-size: 0.9rem;
+        color: var(--pm-gray-700);
+    }
+
+    .pm-table tbody tr:hover {
+        background: var(--pm-gray-50);
+    }
+
+    .pm-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.625rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .pm-badge-statut-planifie { background: rgba(107, 114, 128, 0.1); color: #4b5563; }
+    .pm-badge-statut-actif { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
+    .pm-badge-statut-en_pause { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+    .pm-badge-statut-termine { background: rgba(16, 185, 129, 0.1); color: #059669; }
+    .pm-badge-statut-annule { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+
+    .pm-badge-actif { background: rgba(16, 185, 129, 0.1); color: #059669; }
+    .pm-badge-inactif { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+    .pm-badge-prospect { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
+
+    .pm-empty {
+        text-align: center;
+        padding: 2rem;
+        color: var(--pm-gray-500);
+    }
+
+    .pm-empty i {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+        opacity: 0.5;
+    }
+
+    /* Modal */
+    .pm-modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .pm-modal {
+        background: white;
+        border-radius: var(--pm-radius);
+        padding: 2rem;
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+    }
+
+    .pm-modal-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+    }
+
+    .pm-modal-icon.danger {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--pm-danger);
+    }
+
+    .pm-modal h3 {
+        margin: 0 0 0.5rem;
+        color: var(--pm-gray-800);
+    }
+
+    .pm-modal p {
+        color: var(--pm-gray-500);
+        margin-bottom: 1.5rem;
+    }
+
+    .pm-modal-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="pm-page-header">
+        <div class="pm-breadcrumb">
+            <a href="{% url 'pm:client_list' %}"><i class="fas fa-building"></i> Clients</a>
+            <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
+            <span>{{ client.raison_sociale }}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="pm-client-avatar-lg">
+                    {{ client.raison_sociale|slice:":2"|upper }}
+                </div>
+                <div>
+                    <h1>{{ client.raison_sociale }}</h1>
+                    <p style="margin: 0.25rem 0 0; opacity: 0.9;">
+                        <span class="pm-badge pm-badge-{{ client.statut|lower }}">{{ client.get_statut_display }}</span>
+                        {% if client.code_client %}<span style="margin-left: 0.5rem;">{{ client.code_client }}</span>{% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'pm:client_update' client.pk %}" class="pm-btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;">
+                    <i class="fas fa-edit"></i> Modifier
+                </a>
+                <button type="button" class="pm-btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;" onclick="openDeleteModal()">
+                    <i class="fas fa-trash"></i> Supprimer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="pm-grid">
+        <!-- Colonne principale -->
+        <div>
+            <!-- Statistiques -->
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h2><i class="fas fa-chart-bar"></i> Statistiques</h2>
+                </div>
+                <div class="pm-card-body">
+                    <div class="pm-stats-row">
+                        <div class="pm-stat-item">
+                            <div class="pm-stat-value">{{ client.projets.count }}</div>
+                            <div class="pm-stat-label">Projets</div>
+                        </div>
+                        <div class="pm-stat-item">
+                            <div class="pm-stat-value">{{ client.projets_actifs|default:0 }}</div>
+                            <div class="pm-stat-label">Actifs</div>
+                        </div>
+                        <div class="pm-stat-item">
+                            <div class="pm-stat-value">{{ client.projets_termines|default:0 }}</div>
+                            <div class="pm-stat-label">Terminés</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projets -->
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h2><i class="fas fa-project-diagram"></i> Projets du client</h2>
+                    <a href="{% url 'pm:projet_create' %}?client={{ client.pk }}" class="pm-btn pm-btn-primary pm-btn-sm">
+                        <i class="fas fa-plus"></i> Nouveau projet
+                    </a>
+                </div>
+                <div class="pm-table-responsive">
+                    <table class="pm-table">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Nom</th>
+                                <th>Statut</th>
+                                <th>Date début</th>
+                                <th>Tickets</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for projet in client.projets.all %}
+                            <tr>
+                                <td>
+                                    <strong style="color: var(--pm-primary);">{{ projet.code }}</strong>
+                                </td>
+                                <td>
+                                    <a href="{% url 'pm:projet_detail' projet.pk %}" style="color: var(--pm-gray-800); text-decoration: none; font-weight: 500;">
+                                        {{ projet.nom }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="pm-badge pm-badge-statut-{{ projet.statut|lower }}">
+                                        {{ projet.get_statut_display }}
+                                    </span>
+                                </td>
+                                <td style="font-size: 0.85rem; color: var(--pm-gray-500);">
+                                    {{ projet.date_debut|date:"d/m/Y" }}
+                                </td>
+                                <td>{{ projet.tickets.count }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5">
+                                    <div class="pm-empty">
+                                        <i class="fas fa-project-diagram"></i>
+                                        <p>Aucun projet pour ce client</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne latérale -->
+        <div>
+            <!-- Coordonnées -->
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h2><i class="fas fa-address-card"></i> Coordonnées</h2>
+                </div>
+                <div class="pm-card-body">
+                    <div class="pm-info-list">
+                        {% if client.contact_principal %}
+                        <div class="pm-info-item">
+                            <div class="pm-info-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="pm-info-content">
+                                <label>Contact principal</label>
+                                <span>{{ client.contact_principal }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if client.email_contact %}
+                        <div class="pm-info-item">
+                            <div class="pm-info-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="pm-info-content">
+                                <label>Email</label>
+                                <a href="mailto:{{ client.email_contact }}">{{ client.email_contact }}</a>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if client.telephone_contact %}
+                        <div class="pm-info-item">
+                            <div class="pm-info-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="pm-info-content">
+                                <label>Téléphone</label>
+                                <span>{{ client.telephone_contact }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if client.adresse %}
+                        <div class="pm-info-item">
+                            <div class="pm-info-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="pm-info-content">
+                                <label>Adresse</label>
+                                <span>
+                                    {{ client.adresse }}<br>
+                                    {% if client.code_postal or client.ville %}{{ client.code_postal }} {{ client.ville }}<br>{% endif %}
+                                    {% if client.pays %}{{ client.pays }}{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if not client.contact_principal and not client.email_contact and not client.telephone_contact and not client.adresse %}
+                        <p style="color: var(--pm-gray-400); text-align: center; margin: 0;">Aucune coordonnée renseignée</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informations fiscales -->
+            {% if client.numero_tva or client.conditions_paiement %}
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h2><i class="fas fa-file-invoice"></i> Informations fiscales</h2>
+                </div>
+                <div class="pm-card-body">
+                    <div class="pm-info-list">
+                        {% if client.numero_tva %}
+                        <div class="pm-info-item">
+                            <div class="pm-info-icon">
+                                <i class="fas fa-receipt"></i>
+                            </div>
+                            <div class="pm-info-content">
+                                <label>Numéro TVA</label>
+                                <span>{{ client.numero_tva }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if client.conditions_paiement %}
+                        <div class="pm-info-item">
+                            <div class="pm-info-icon">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div class="pm-info-content">
+                                <label>Conditions de paiement</label>
+                                <span>{{ client.conditions_paiement }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal de suppression -->
+<div id="deleteModal" class="pm-modal-overlay">
+    <div class="pm-modal">
+        <div class="pm-modal-icon danger">
+            <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem;"></i>
+        </div>
+        <h3>Supprimer ce client ?</h3>
+        <p>Le client <strong>{{ client.raison_sociale }}</strong> sera définitivement supprimé.</p>
+        <form method="post" action="{% url 'pm:client_delete' client.pk %}" class="pm-modal-actions">
+            {% csrf_token %}
+            <button type="button" onclick="closeDeleteModal()" class="pm-btn pm-btn-secondary">Annuler</button>
+            <button type="submit" class="pm-btn pm-btn-danger">
+                <i class="fas fa-trash"></i> Supprimer
+            </button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extrascript %}
+<script>
+    function openDeleteModal() {
+        document.getElementById('deleteModal').style.display = 'flex';
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+    }
+
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteModal();
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,895 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% block extrastylet %}
+<style>
+    :root {
+        --pm-primary: #4f46e5;
+        --pm-primary-dark: #4338ca;
+        --pm-primary-light: #818cf8;
+        --pm-success: #10b981;
+        --pm-warning: #f59e0b;
+        --pm-danger: #ef4444;
+        --pm-info: #3b82f6;
+        --pm-gray-50: #f9fafb;
+        --pm-gray-100: #f3f4f6;
+        --pm-gray-200: #e5e7eb;
+        --pm-gray-300: #d1d5db;
+        --pm-gray-500: #6b7280;
+        --pm-gray-600: #4b5563;
+        --pm-gray-700: #374151;
+        --pm-gray-800: #1f2937;
+        --pm-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        --pm-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        --pm-radius: 12px;
+    }
+
+    .pm-page-header {
+        background: linear-gradient(135deg, var(--pm-primary) 0%, var(--pm-primary-dark) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: var(--pm-radius);
+        margin-bottom: 1.5rem;
+        box-shadow: var(--pm-shadow-lg);
+    }
+
+    .pm-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        margin-bottom: 0.75rem;
+        opacity: 0.9;
+    }
+
+    .pm-breadcrumb a {
+        color: white;
+        text-decoration: none;
+    }
+
+    .pm-breadcrumb a:hover {
+        text-decoration: underline;
+    }
+
+    .pm-page-header h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .pm-project-code {
+        font-family: monospace;
+        background: rgba(255,255,255,0.2);
+        padding: 0.25rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        margin-right: 0.75rem;
+    }
+
+    .pm-header-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .pm-header-badge {
+        background: rgba(255,255,255,0.2);
+        padding: 0.375rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .pm-card {
+        background: white;
+        border-radius: var(--pm-radius);
+        box-shadow: var(--pm-shadow);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .pm-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--pm-gray-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .pm-card-header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--pm-gray-800);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .pm-card-body {
+        padding: 1.5rem;
+    }
+
+    .pm-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 992px) {
+        .pm-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .pm-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .pm-btn-primary {
+        background: var(--pm-primary);
+        color: white;
+    }
+
+    .pm-btn-primary:hover {
+        background: var(--pm-primary-dark);
+        color: white;
+    }
+
+    .pm-btn-secondary {
+        background: var(--pm-gray-100);
+        color: var(--pm-gray-700);
+    }
+
+    .pm-btn-secondary:hover {
+        background: var(--pm-gray-200);
+    }
+
+    .pm-btn-danger {
+        background: var(--pm-danger);
+        color: white;
+    }
+
+    .pm-btn-danger:hover {
+        background: #dc2626;
+    }
+
+    .pm-btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    .pm-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.625rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .pm-badge-statut-planifie { background: rgba(107, 114, 128, 0.1); color: #4b5563; }
+    .pm-badge-statut-actif { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
+    .pm-badge-statut-en_pause { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+    .pm-badge-statut-termine { background: rgba(16, 185, 129, 0.1); color: #059669; }
+    .pm-badge-statut-annule { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+
+    .pm-description {
+        line-height: 1.7;
+        color: var(--pm-gray-700);
+    }
+
+    .pm-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .pm-info-item {
+        padding: 1rem;
+        background: var(--pm-gray-50);
+        border-radius: 8px;
+    }
+
+    .pm-info-item label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--pm-gray-500);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.375rem;
+    }
+
+    .pm-info-item span,
+    .pm-info-item a {
+        font-size: 0.9rem;
+        color: var(--pm-gray-800);
+    }
+
+    .pm-info-item a {
+        text-decoration: none;
+    }
+
+    .pm-info-item a:hover {
+        color: var(--pm-primary);
+    }
+
+    .pm-progress {
+        margin: 1.5rem 0;
+    }
+
+    .pm-progress-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+
+    .pm-progress-header span {
+        font-size: 0.9rem;
+        color: var(--pm-gray-600);
+    }
+
+    .pm-progress-header strong {
+        font-size: 1.1rem;
+        color: var(--pm-primary);
+    }
+
+    .pm-progress-bar {
+        height: 12px;
+        background: var(--pm-gray-200);
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .pm-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--pm-primary-light), var(--pm-primary));
+        border-radius: 6px;
+        transition: width 0.3s;
+    }
+
+    .pm-stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .pm-stat-item {
+        text-align: center;
+        padding: 1rem;
+        background: var(--pm-gray-50);
+        border-radius: 8px;
+    }
+
+    .pm-stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--pm-gray-800);
+    }
+
+    .pm-stat-label {
+        font-size: 0.8rem;
+        color: var(--pm-gray-500);
+        margin-top: 0.25rem;
+    }
+
+    .pm-stat-item.highlight {
+        background: rgba(79, 70, 229, 0.1);
+    }
+
+    .pm-stat-item.highlight .pm-stat-value {
+        color: var(--pm-primary);
+    }
+
+    /* Table */
+    .pm-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .pm-table th {
+        text-align: left;
+        padding: 0.875rem 1rem;
+        background: var(--pm-gray-50);
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--pm-gray-600);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid var(--pm-gray-200);
+    }
+
+    .pm-table td {
+        padding: 0.875rem 1rem;
+        border-bottom: 1px solid var(--pm-gray-200);
+        font-size: 0.9rem;
+        color: var(--pm-gray-700);
+    }
+
+    .pm-table tbody tr:hover {
+        background: var(--pm-gray-50);
+    }
+
+    .pm-ticket-code {
+        font-family: monospace;
+        font-weight: 600;
+        color: var(--pm-primary);
+    }
+
+    .pm-ticket-title {
+        font-weight: 500;
+        color: var(--pm-gray-800);
+        text-decoration: none;
+    }
+
+    .pm-ticket-title:hover {
+        color: var(--pm-primary);
+    }
+
+    .pm-badge-priorite-critique { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+    .pm-badge-priorite-haute { background: rgba(249, 115, 22, 0.1); color: #ea580c; }
+    .pm-badge-priorite-moyenne { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+    .pm-badge-priorite-basse { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
+
+    .pm-badge-statut-ouvert { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
+    .pm-badge-statut-en_cours { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+    .pm-badge-statut-en_revue { background: rgba(139, 92, 246, 0.1); color: #7c3aed; }
+    .pm-badge-statut-termine { background: rgba(16, 185, 129, 0.1); color: #059669; }
+
+    .pm-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--pm-primary);
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .pm-avatar-sm {
+        width: 28px;
+        height: 28px;
+        font-size: 0.7rem;
+    }
+
+    .pm-member-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--pm-gray-50);
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+    }
+
+    .pm-member-info h4 {
+        margin: 0;
+        font-size: 0.95rem;
+        color: var(--pm-gray-800);
+    }
+
+    .pm-member-info p {
+        margin: 0.25rem 0 0;
+        font-size: 0.85rem;
+        color: var(--pm-gray-500);
+    }
+
+    .pm-empty {
+        text-align: center;
+        padding: 2rem;
+        color: var(--pm-gray-500);
+    }
+
+    .pm-empty i {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+        opacity: 0.5;
+    }
+
+    /* Tabs */
+    .pm-tabs {
+        display: flex;
+        border-bottom: 2px solid var(--pm-gray-200);
+        margin-bottom: 1.5rem;
+    }
+
+    .pm-tab {
+        padding: 1rem 1.5rem;
+        color: var(--pm-gray-500);
+        text-decoration: none;
+        font-weight: 500;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        transition: all 0.2s;
+    }
+
+    .pm-tab:hover {
+        color: var(--pm-gray-700);
+    }
+
+    .pm-tab.active {
+        color: var(--pm-primary);
+        border-bottom-color: var(--pm-primary);
+    }
+
+    .pm-tab-badge {
+        background: var(--pm-gray-200);
+        color: var(--pm-gray-600);
+        padding: 0.125rem 0.5rem;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        margin-left: 0.5rem;
+    }
+
+    .pm-tab.active .pm-tab-badge {
+        background: rgba(79, 70, 229, 0.1);
+        color: var(--pm-primary);
+    }
+
+    .pm-tab-content {
+        display: none;
+    }
+
+    .pm-tab-content.active {
+        display: block;
+    }
+
+    /* Modal */
+    .pm-modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .pm-modal {
+        background: white;
+        border-radius: var(--pm-radius);
+        padding: 2rem;
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+    }
+
+    .pm-modal-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+    }
+
+    .pm-modal-icon.danger {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--pm-danger);
+    }
+
+    .pm-modal h3 {
+        margin: 0 0 0.5rem;
+        color: var(--pm-gray-800);
+    }
+
+    .pm-modal p {
+        color: var(--pm-gray-500);
+        margin-bottom: 1.5rem;
+    }
+
+    .pm-modal-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    @media (max-width: 768px) {
+        .pm-stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="pm-page-header">
+        <div class="pm-breadcrumb">
+            <a href="{% url 'pm:projet_list' %}"><i class="fas fa-project-diagram"></i> Projets</a>
+            <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
+            <span>{{ projet.code }}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h1>
+                    <span class="pm-project-code">{{ projet.code }}</span>
+                    {{ projet.nom }}
+                </h1>
+                <div class="pm-header-badges">
+                    <span class="pm-header-badge">
+                        <i class="fas fa-flag"></i> {{ projet.get_statut_display }}
+                    </span>
+                    {% if projet.client %}
+                    <span class="pm-header-badge">
+                        <i class="fas fa-building"></i> {{ projet.client.raison_sociale }}
+                    </span>
+                    {% endif %}
+                    <span class="pm-header-badge">
+                        <i class="fas fa-calendar"></i> {{ projet.date_debut|date:"d/m/Y" }}
+                    </span>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'pm:projet_update' projet.pk %}" class="pm-btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;">
+                    <i class="fas fa-edit"></i> Modifier
+                </a>
+                <button type="button" class="pm-btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;" onclick="openDeleteModal()">
+                    <i class="fas fa-trash"></i> Supprimer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="pm-grid">
+        <!-- Colonne principale -->
+        <div>
+            <!-- Progression -->
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h2><i class="fas fa-chart-line"></i> Progression du projet</h2>
+                </div>
+                <div class="pm-card-body">
+                    <div class="pm-progress">
+                        <div class="pm-progress-header">
+                            <span>Avancement global</span>
+                            <strong>{{ projet.pourcentage_completion|default:0 }}%</strong>
+                        </div>
+                        <div class="pm-progress-bar">
+                            <div class="pm-progress-fill" style="width: {{ projet.pourcentage_completion|default:0 }}%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="pm-stats-row">
+                        <div class="pm-stat-item">
+                            <div class="pm-stat-value">{{ projet.tickets.count }}</div>
+                            <div class="pm-stat-label">Tickets</div>
+                        </div>
+                        <div class="pm-stat-item highlight">
+                            <div class="pm-stat-value">{{ projet.tickets_termines|default:0 }}</div>
+                            <div class="pm-stat-label">Terminés</div>
+                        </div>
+                        <div class="pm-stat-item">
+                            <div class="pm-stat-value">{{ projet.sprints.count }}</div>
+                            <div class="pm-stat-label">Sprints</div>
+                        </div>
+                        <div class="pm-stat-item">
+                            <div class="pm-stat-value">{{ projet.heures_imputees|default:0 }}h</div>
+                            <div class="pm-stat-label">Heures</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            {% if projet.description %}
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h2><i class="fas fa-align-left"></i> Description</h2>
+                </div>
+                <div class="pm-card-body">
+                    <div class="pm-description">
+                        {{ projet.description|linebreaks }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Tabs pour tickets et sprints -->
+            <div class="pm-card">
+                <div class="pm-card-body" style="padding-bottom: 0;">
+                    <div class="pm-tabs">
+                        <a href="#" class="pm-tab active" data-tab="tickets">
+                            <i class="fas fa-ticket-alt"></i> Tickets
+                            <span class="pm-tab-badge">{{ projet.tickets.count }}</span>
+                        </a>
+                        <a href="#" class="pm-tab" data-tab="sprints">
+                            <i class="fas fa-running"></i> Sprints
+                            <span class="pm-tab-badge">{{ projet.sprints.count }}</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Tickets -->
+                <div id="tab-tickets" class="pm-tab-content active">
+                    <div class="pm-card-header" style="border-top: none;">
+                        <h2><i class="fas fa-ticket-alt"></i> Tickets récents</h2>
+                        <a href="{% url 'pm:ticket_create' %}?projet={{ projet.pk }}" class="pm-btn pm-btn-primary pm-btn-sm">
+                            <i class="fas fa-plus"></i> Nouveau ticket
+                        </a>
+                    </div>
+                    <div class="pm-table-responsive">
+                        <table class="pm-table">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Titre</th>
+                                    <th>Priorité</th>
+                                    <th>Statut</th>
+                                    <th>Assigné</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ticket in projet.tickets.all|slice:":10" %}
+                                <tr>
+                                    <td><span class="pm-ticket-code">{{ ticket.code }}</span></td>
+                                    <td>
+                                        <a href="{% url 'pm:ticket_detail' ticket.pk %}" class="pm-ticket-title">
+                                            {{ ticket.titre|truncatechars:40 }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <span class="pm-badge pm-badge-priorite-{{ ticket.priorite|lower }}">
+                                            {{ ticket.get_priorite_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="pm-badge pm-badge-statut-{{ ticket.statut|lower }}">
+                                            {{ ticket.get_statut_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if ticket.assigne %}
+                                        <span class="pm-avatar pm-avatar-sm" title="{{ ticket.assigne.prenoms }} {{ ticket.assigne.nom }}">
+                                            {{ ticket.assigne.prenoms|slice:":1" }}{{ ticket.assigne.nom|slice:":1" }}
+                                        </span>
+                                        {% else %}
+                                        <span style="color: var(--pm-gray-400);">-</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5">
+                                        <div class="pm-empty">
+                                            <i class="fas fa-ticket-alt"></i>
+                                            <p>Aucun ticket pour ce projet</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Sprints -->
+                <div id="tab-sprints" class="pm-tab-content">
+                    <div class="pm-card-header" style="border-top: none;">
+                        <h2><i class="fas fa-running"></i> Sprints</h2>
+                        <a href="{% url 'pm:sprint_create' %}?projet={{ projet.pk }}" class="pm-btn pm-btn-primary pm-btn-sm">
+                            <i class="fas fa-plus"></i> Nouveau sprint
+                        </a>
+                    </div>
+                    <div class="pm-table-responsive">
+                        <table class="pm-table">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Dates</th>
+                                    <th>Statut</th>
+                                    <th>Progression</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for sprint in projet.sprints.all %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'pm:sprint_detail' sprint.pk %}" style="color: var(--pm-gray-800); text-decoration: none; font-weight: 500;">
+                                            {{ sprint.nom }}
+                                        </a>
+                                    </td>
+                                    <td style="font-size: 0.85rem; color: var(--pm-gray-500);">
+                                        {{ sprint.date_debut|date:"d/m" }} - {{ sprint.date_fin|date:"d/m/Y" }}
+                                    </td>
+                                    <td>
+                                        <span class="pm-badge pm-badge-statut-{{ sprint.statut|lower }}">
+                                            {{ sprint.get_statut_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <div style="flex: 1; height: 6px; background: var(--pm-gray-200); border-radius: 3px; overflow: hidden;">
+                                                <div style="height: 100%; width: {{ sprint.pourcentage_completion|default:0 }}%; background: var(--pm-primary); border-radius: 3px;"></div>
+                                            </div>
+                                            <span style="font-size: 0.8rem; color: var(--pm-gray-600);">{{ sprint.pourcentage_completion|default:0 }}%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4">
+                                        <div class="pm-empty">
+                                            <i class="fas fa-running"></i>
+                                            <p>Aucun sprint pour ce projet</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne latérale -->
+        <div>
+            <!-- Informations -->
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h2><i class="fas fa-info-circle"></i> Informations</h2>
+                </div>
+                <div class="pm-card-body">
+                    <div class="pm-info-grid">
+                        <div class="pm-info-item">
+                            <label>Statut</label>
+                            <span class="pm-badge pm-badge-statut-{{ projet.statut|lower }}">
+                                {{ projet.get_statut_display }}
+                            </span>
+                        </div>
+                        <div class="pm-info-item">
+                            <label>Code</label>
+                            <span>{{ projet.code }}</span>
+                        </div>
+                        <div class="pm-info-item">
+                            <label>Date de début</label>
+                            <span>{{ projet.date_debut|date:"d/m/Y" }}</span>
+                        </div>
+                        <div class="pm-info-item">
+                            <label>Date de fin prévue</label>
+                            <span>{{ projet.date_fin_prevue|date:"d/m/Y"|default:"-" }}</span>
+                        </div>
+                        <div class="pm-info-item" style="grid-column: span 2;">
+                            <label>Client</label>
+                            {% if projet.client %}
+                            <a href="{% url 'pm:client_detail' projet.client.pk %}">
+                                {{ projet.client.raison_sociale }}
+                            </a>
+                            {% else %}
+                            <span style="color: var(--pm-gray-400);">Non assigné</span>
+                            {% endif %}
+                        </div>
+                        {% if projet.budget %}
+                        <div class="pm-info-item" style="grid-column: span 2;">
+                            <label>Budget</label>
+                            <span>{{ projet.budget|floatformat:0 }} FCFA</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chef de projet -->
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h2><i class="fas fa-user-tie"></i> Chef de projet</h2>
+                </div>
+                <div class="pm-card-body">
+                    {% if projet.chef_projet %}
+                    <div class="pm-member-card" style="margin-bottom: 0;">
+                        <span class="pm-avatar">
+                            {{ projet.chef_projet.prenoms|slice:":1" }}{{ projet.chef_projet.nom|slice:":1" }}
+                        </span>
+                        <div class="pm-member-info">
+                            <h4>{{ projet.chef_projet.prenoms }} {{ projet.chef_projet.nom }}</h4>
+                            <p>{{ projet.chef_projet.fonction|default:"Chef de projet" }}</p>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p style="color: var(--pm-gray-400); text-align: center; margin: 0;">Non assigné</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Équipe -->
+            {% if projet.membres.exists %}
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h2><i class="fas fa-users"></i> Équipe</h2>
+                </div>
+                <div class="pm-card-body">
+                    {% for membre in projet.membres.all %}
+                    <div class="pm-member-card">
+                        <span class="pm-avatar pm-avatar-sm">
+                            {{ membre.prenoms|slice:":1" }}{{ membre.nom|slice:":1" }}
+                        </span>
+                        <div class="pm-member-info">
+                            <h4>{{ membre.prenoms }} {{ membre.nom }}</h4>
+                            <p>{{ membre.fonction|default:"Membre" }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal de suppression -->
+<div id="deleteModal" class="pm-modal-overlay">
+    <div class="pm-modal">
+        <div class="pm-modal-icon danger">
+            <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem;"></i>
+        </div>
+        <h3>Supprimer ce projet ?</h3>
+        <p>Le projet <strong>{{ projet.nom }}</strong> sera définitivement supprimé avec tous ses tickets et sprints.</p>
+        <form method="post" action="{% url 'pm:projet_delete' projet.pk %}" class="pm-modal-actions">
+            {% csrf_token %}
+            <button type="button" onclick="closeDeleteModal()" class="pm-btn pm-btn-secondary">Annuler</button>
+            <button type="submit" class="pm-btn pm-btn-danger">
+                <i class="fas fa-trash"></i> Supprimer
+            </button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extrascript %}
+<script>
+    // Tabs
+    document.querySelectorAll('.pm-tab').forEach(tab => {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault();
+            const tabName = this.dataset.tab;
+
+            document.querySelectorAll('.pm-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.pm-tab-content').forEach(c => c.classList.remove('active'));
+
+            this.classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        });
+    });
+
+    // Modal
+    function openDeleteModal() {
+        document.getElementById('deleteModal').style.display = 'flex';
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+    }
+
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteModal();
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,737 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% block extrastylet %}
+<style>
+    :root {
+        --pm-primary: #4f46e5;
+        --pm-primary-dark: #4338ca;
+        --pm-primary-light: #818cf8;
+        --pm-success: #10b981;
+        --pm-warning: #f59e0b;
+        --pm-danger: #ef4444;
+        --pm-info: #3b82f6;
+        --pm-gray-50: #f9fafb;
+        --pm-gray-100: #f3f4f6;
+        --pm-gray-200: #e5e7eb;
+        --pm-gray-300: #d1d5db;
+        --pm-gray-500: #6b7280;
+        --pm-gray-600: #4b5563;
+        --pm-gray-700: #374151;
+        --pm-gray-800: #1f2937;
+        --pm-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        --pm-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        --pm-radius: 12px;
+    }
+
+    .pm-page-header {
+        background: linear-gradient(135deg, var(--pm-primary) 0%, var(--pm-primary-dark) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: var(--pm-radius);
+        margin-bottom: 1.5rem;
+        box-shadow: var(--pm-shadow-lg);
+    }
+
+    .pm-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        margin-bottom: 0.75rem;
+        opacity: 0.9;
+    }
+
+    .pm-breadcrumb a {
+        color: white;
+        text-decoration: none;
+    }
+
+    .pm-breadcrumb a:hover {
+        text-decoration: underline;
+    }
+
+    .pm-page-header h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .pm-card {
+        background: white;
+        border-radius: var(--pm-radius);
+        box-shadow: var(--pm-shadow);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .pm-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--pm-gray-200);
+    }
+
+    .pm-card-header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--pm-gray-800);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .pm-card-body {
+        padding: 1.5rem;
+    }
+
+    .pm-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .pm-btn-primary {
+        background: var(--pm-primary);
+        color: white;
+    }
+
+    .pm-btn-primary:hover {
+        background: var(--pm-primary-dark);
+        color: white;
+    }
+
+    .pm-btn-secondary {
+        background: var(--pm-gray-100);
+        color: var(--pm-gray-700);
+    }
+
+    .pm-btn-secondary:hover {
+        background: var(--pm-gray-200);
+    }
+
+    .pm-btn-lg {
+        padding: 0.875rem 1.5rem;
+        font-size: 0.95rem;
+    }
+
+    .pm-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .pm-form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .pm-form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .pm-form-group.full-width {
+        grid-column: span 2;
+    }
+
+    @media (max-width: 768px) {
+        .pm-form-group.full-width {
+            grid-column: span 1;
+        }
+    }
+
+    .pm-form-group label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--pm-gray-700);
+        margin-bottom: 0.5rem;
+    }
+
+    .pm-form-group label .required {
+        color: var(--pm-danger);
+    }
+
+    .pm-form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--pm-gray-300);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background: white;
+    }
+
+    .pm-form-control:focus {
+        outline: none;
+        border-color: var(--pm-primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .pm-form-control.is-invalid {
+        border-color: var(--pm-danger);
+    }
+
+    textarea.pm-form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    select.pm-form-control {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1.25rem;
+        padding-right: 2.5rem;
+    }
+
+    .pm-form-help {
+        font-size: 0.8rem;
+        color: var(--pm-gray-500);
+        margin-top: 0.375rem;
+    }
+
+    .pm-form-error {
+        font-size: 0.8rem;
+        color: var(--pm-danger);
+        margin-top: 0.375rem;
+    }
+
+    .pm-form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--pm-gray-200);
+        margin-top: 1rem;
+    }
+
+    /* Styles pour Django form widgets */
+    .pm-card-body select,
+    .pm-card-body input[type="text"],
+    .pm-card-body input[type="number"],
+    .pm-card-body input[type="date"],
+    .pm-card-body input[type="email"],
+    .pm-card-body textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--pm-gray-300);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background: white;
+    }
+
+    .pm-card-body select:focus,
+    .pm-card-body input:focus,
+    .pm-card-body textarea:focus {
+        outline: none;
+        border-color: var(--pm-primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .pm-card-body select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1.25rem;
+        padding-right: 2.5rem;
+    }
+
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 0.375rem 0 0;
+    }
+
+    .errorlist li {
+        font-size: 0.8rem;
+        color: var(--pm-danger);
+    }
+
+    /* Multi-select widget */
+    .pm-card-body select[multiple] {
+        min-height: 150px;
+        background-image: none;
+        padding-right: 1rem;
+    }
+
+    /* Autocomplete styles */
+    .pm-autocomplete-wrapper {
+        position: relative;
+    }
+
+    .pm-autocomplete-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        padding-right: 2.5rem;
+        border: 1px solid var(--pm-gray-300);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background: white;
+    }
+
+    .pm-autocomplete-input:focus {
+        outline: none;
+        border-color: var(--pm-primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .pm-autocomplete-clear {
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--pm-gray-400);
+        cursor: pointer;
+        padding: 0.25rem;
+        display: none;
+    }
+
+    .pm-autocomplete-clear:hover {
+        color: var(--pm-gray-600);
+    }
+
+    .pm-autocomplete-wrapper.has-value .pm-autocomplete-clear {
+        display: block;
+    }
+
+    .pm-autocomplete-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid var(--pm-gray-200);
+        border-radius: 8px;
+        box-shadow: var(--pm-shadow-lg);
+        max-height: 250px;
+        overflow-y: auto;
+        z-index: 100;
+        display: none;
+    }
+
+    .pm-autocomplete-dropdown.show {
+        display: block;
+    }
+
+    .pm-autocomplete-item {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: background 0.15s;
+    }
+
+    .pm-autocomplete-item:hover,
+    .pm-autocomplete-item.active {
+        background: var(--pm-gray-50);
+    }
+
+    .pm-autocomplete-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--pm-primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+
+    .pm-autocomplete-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .pm-autocomplete-name {
+        font-weight: 500;
+        color: var(--pm-gray-800);
+    }
+
+    .pm-autocomplete-meta {
+        font-size: 0.8rem;
+        color: var(--pm-gray-500);
+    }
+
+    .pm-autocomplete-empty {
+        padding: 1rem;
+        text-align: center;
+        color: var(--pm-gray-500);
+    }
+
+    .pm-autocomplete-loading {
+        padding: 1rem;
+        text-align: center;
+        color: var(--pm-gray-500);
+    }
+
+    .pm-selected-employee {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 0.75rem;
+        background: var(--pm-gray-50);
+        border-radius: 8px;
+        margin-top: 0.5rem;
+    }
+
+    .pm-selected-employee .pm-autocomplete-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.75rem;
+    }
+
+    .pm-selected-employee .pm-remove-btn {
+        margin-left: auto;
+        background: none;
+        border: none;
+        color: var(--pm-gray-400);
+        cursor: pointer;
+        padding: 0.25rem;
+    }
+
+    .pm-selected-employee .pm-remove-btn:hover {
+        color: var(--pm-danger);
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="pm-page-header">
+        <div class="pm-breadcrumb">
+            <a href="{% url 'pm:projet_list' %}"><i class="fas fa-project-diagram"></i> Projets</a>
+            <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
+            <span>{% if form.instance.pk %}Modifier {{ form.instance.code }}{% else %}Nouveau projet{% endif %}</span>
+        </div>
+        <h1>
+            <i class="fas fa-{% if form.instance.pk %}edit{% else %}plus-circle{% endif %}"></i>
+            {% if form.instance.pk %}Modifier le projet{% else %}Créer un nouveau projet{% endif %}
+        </h1>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="pm-card">
+            <div class="pm-card-header">
+                <h2><i class="fas fa-info-circle"></i> Informations générales</h2>
+            </div>
+            <div class="pm-card-body">
+                <div class="pm-form-grid">
+                    <div class="pm-form-group full-width">
+                        <label for="id_nom">Nom <span class="required">*</span></label>
+                        {{ form.nom }}
+                        {% if form.nom.errors %}
+                            <div class="pm-form-error">{{ form.nom.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="pm-form-group full-width">
+                        <label for="id_description">Description</label>
+                        {{ form.description }}
+                    </div>
+
+                    <div class="pm-form-group">
+                        <label for="id_client">Client</label>
+                        {{ form.client }}
+                    </div>
+
+                    <div class="pm-form-group">
+                        <label for="id_statut">Statut</label>
+                        {{ form.statut }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pm-card">
+            <div class="pm-card-header">
+                <h2><i class="fas fa-calendar-alt"></i> Planification</h2>
+            </div>
+            <div class="pm-card-body">
+                <div class="pm-form-grid">
+                    <div class="pm-form-group">
+                        <label for="id_date_debut">Date de début <span class="required">*</span></label>
+                        {{ form.date_debut }}
+                        {% if form.date_debut.errors %}
+                            <div class="pm-form-error">{{ form.date_debut.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="pm-form-group">
+                        <label for="id_date_fin_prevue">Date de fin prévue <span class="required">*</span></label>
+                        {{ form.date_fin_prevue }}
+                        {% if form.date_fin_prevue.errors %}
+                            <div class="pm-form-error">{{ form.date_fin_prevue.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="pm-form-group">
+                        <label for="id_montant_total">Montant total (FCFA)</label>
+                        {{ form.montant_total }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pm-card">
+            <div class="pm-card-header">
+                <h2><i class="fas fa-users"></i> Équipe</h2>
+            </div>
+            <div class="pm-card-body">
+                <div class="pm-form-grid">
+                    <div class="pm-form-group">
+                        <label for="chef_projet_search">Chef de projet</label>
+                        <div class="pm-autocomplete-wrapper" id="chefProjetAutocomplete">
+                            <input type="text"
+                                   id="chef_projet_search"
+                                   class="pm-autocomplete-input"
+                                   placeholder="Rechercher un employé..."
+                                   autocomplete="off">
+                            <button type="button" class="pm-autocomplete-clear" id="clearChefProjet">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <div class="pm-autocomplete-dropdown" id="chefProjetDropdown"></div>
+                            <input type="hidden" name="chef_projet" id="id_chef_projet" value="{{ form.chef_projet.value|default:'' }}">
+                        </div>
+                        <div id="selectedChefProjet"></div>
+                        {% if form.chef_projet.errors %}
+                            <div class="pm-form-error">{{ form.chef_projet.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if form.instance.pk and form.instance.code %}
+        <div class="pm-card">
+            <div class="pm-card-header">
+                <h2><i class="fas fa-history"></i> Informations système</h2>
+            </div>
+            <div class="pm-card-body">
+                <div class="pm-form-grid">
+                    <div class="pm-form-group">
+                        <label>Code</label>
+                        <input type="text" class="pm-form-control" value="{{ form.instance.code }}" disabled>
+                    </div>
+                    <div class="pm-form-group">
+                        <label>Créé le</label>
+                        <input type="text" class="pm-form-control" value="{{ form.instance.created_at|date:'d/m/Y H:i' }}" disabled>
+                    </div>
+                    <div class="pm-form-group">
+                        <label>Tickets</label>
+                        <input type="text" class="pm-form-control" value="{{ form.instance.tickets.count }} ticket(s)" disabled>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="pm-form-actions">
+            <a href="{% if form.instance.pk %}{% url 'pm:projet_detail' form.instance.pk %}{% else %}{% url 'pm:projet_list' %}{% endif %}" class="pm-btn pm-btn-secondary pm-btn-lg">
+                <i class="fas fa-times"></i> Annuler
+            </a>
+            <button type="submit" class="pm-btn pm-btn-primary pm-btn-lg">
+                <i class="fas fa-save"></i> {% if form.instance.pk %}Enregistrer{% else %}Créer le projet{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block extrascript %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Apply form-control class to form elements
+    document.querySelectorAll('.pm-card-body input[type="text"], .pm-card-body input[type="number"], .pm-card-body input[type="date"], .pm-card-body select, .pm-card-body textarea').forEach(function(el) {
+        if (!el.classList.contains('pm-form-control') && !el.classList.contains('pm-autocomplete-input')) {
+            el.classList.add('pm-form-control');
+        }
+    });
+
+    // Autocomplete for Chef de Projet
+    const searchInput = document.getElementById('chef_projet_search');
+    const dropdown = document.getElementById('chefProjetDropdown');
+    const hiddenInput = document.getElementById('id_chef_projet');
+    const wrapper = document.getElementById('chefProjetAutocomplete');
+    const clearBtn = document.getElementById('clearChefProjet');
+    const selectedContainer = document.getElementById('selectedChefProjet');
+
+    let searchTimeout = null;
+    let activeIndex = -1;
+
+    // Load initial value if exists
+    {% if form.instance.chef_projet %}
+    const initialChef = {
+        id: "{{ form.instance.chef_projet.matricule }}",
+        nom: "{{ form.instance.chef_projet.nom }}",
+        prenoms: "{{ form.instance.chef_projet.prenoms|default:'' }}",
+        matricule: "{{ form.instance.chef_projet.matricule }}"
+    };
+    displaySelectedEmployee(initialChef);
+    {% endif %}
+
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+
+        if (query.length < 2) {
+            dropdown.classList.remove('show');
+            return;
+        }
+
+        searchTimeout = setTimeout(() => {
+            fetchEmployees(query);
+        }, 300);
+    });
+
+    searchInput.addEventListener('keydown', function(e) {
+        const items = dropdown.querySelectorAll('.pm-autocomplete-item');
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            activeIndex = Math.min(activeIndex + 1, items.length - 1);
+            updateActiveItem(items);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            activeIndex = Math.max(activeIndex - 1, 0);
+            updateActiveItem(items);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (activeIndex >= 0 && items[activeIndex]) {
+                items[activeIndex].click();
+            }
+        } else if (e.key === 'Escape') {
+            dropdown.classList.remove('show');
+        }
+    });
+
+    searchInput.addEventListener('focus', function() {
+        if (this.value.length >= 2) {
+            dropdown.classList.add('show');
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!wrapper.contains(e.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
+
+    clearBtn.addEventListener('click', function() {
+        clearSelection();
+    });
+
+    function fetchEmployees(query) {
+        dropdown.innerHTML = '<div class="pm-autocomplete-loading"><i class="fas fa-spinner fa-spin"></i> Recherche...</div>';
+        dropdown.classList.add('show');
+
+        fetch(`{% url 'pm:search_employes_api' %}?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.results && data.results.length > 0) {
+                    dropdown.innerHTML = data.results.map((emp, index) => `
+                        <div class="pm-autocomplete-item" data-id="${emp.id}" data-nom="${emp.nom}" data-prenoms="${emp.prenoms}" data-matricule="${emp.matricule}">
+                            <div class="pm-autocomplete-avatar">
+                                ${(emp.prenoms ? emp.prenoms[0] : '') + (emp.nom ? emp.nom[0] : '')}
+                            </div>
+                            <div class="pm-autocomplete-info">
+                                <div class="pm-autocomplete-name">${emp.prenoms || ''} ${emp.nom || ''}</div>
+                                <div class="pm-autocomplete-meta">${emp.matricule}</div>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    // Add click handlers
+                    dropdown.querySelectorAll('.pm-autocomplete-item').forEach(item => {
+                        item.addEventListener('click', function() {
+                            selectEmployee({
+                                id: this.dataset.id,
+                                nom: this.dataset.nom,
+                                prenoms: this.dataset.prenoms,
+                                matricule: this.dataset.matricule
+                            });
+                        });
+                    });
+                } else {
+                    dropdown.innerHTML = '<div class="pm-autocomplete-empty">Aucun résultat trouvé</div>';
+                }
+                activeIndex = -1;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                dropdown.innerHTML = '<div class="pm-autocomplete-empty">Erreur lors de la recherche</div>';
+            });
+    }
+
+    function updateActiveItem(items) {
+        items.forEach((item, index) => {
+            item.classList.toggle('active', index === activeIndex);
+        });
+    }
+
+    function selectEmployee(emp) {
+        hiddenInput.value = emp.id;
+        searchInput.value = '';
+        dropdown.classList.remove('show');
+        wrapper.classList.add('has-value');
+        displaySelectedEmployee(emp);
+    }
+
+    function displaySelectedEmployee(emp) {
+        selectedContainer.innerHTML = `
+            <div class="pm-selected-employee">
+                <div class="pm-autocomplete-avatar">
+                    ${(emp.prenoms ? emp.prenoms[0] : '') + (emp.nom ? emp.nom[0] : '')}
+                </div>
+                <div class="pm-autocomplete-info">
+                    <div class="pm-autocomplete-name">${emp.prenoms || ''} ${emp.nom || ''}</div>
+                    <div class="pm-autocomplete-meta">${emp.matricule}</div>
+                </div>
+                <button type="button" class="pm-remove-btn" onclick="clearChefProjetSelection()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        wrapper.classList.add('has-value');
+    }
+
+    function clearSelection() {
+        hiddenInput.value = '';
+        searchInput.value = '';
+        selectedContainer.innerHTML = '';
+        wrapper.classList.remove('has-value');
+        searchInput.focus();
+    }
+
+    // Expose clearSelection globally
+    window.clearChefProjetSelection = clearSelection;
+});
+</script>
+{% endblock %}

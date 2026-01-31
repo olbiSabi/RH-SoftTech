@@ -1,0 +1,24 @@
+{% comment %}
+Badge pour le statut d'un sprint
+Usage: {% include 'project_management/includes/sprint_statut_badge.html' with statut=sprint.statut %}
+{% endcomment %}
+
+{% if statut == 'PLANIFIE' %}
+    <span class="sp-badge sp-badge-secondary">
+        <i class="fas fa-calendar"></i> Planifié
+    </span>
+{% elif statut == 'ACTIF' %}
+    <span class="sp-badge sp-badge-success">
+        <i class="fas fa-bolt"></i> Actif
+    </span>
+{% elif statut == 'TERMINE' %}
+    <span class="sp-badge sp-badge-info">
+        <i class="fas fa-check-circle"></i> Terminé
+    </span>
+{% elif statut == 'ANNULE' %}
+    <span class="sp-badge sp-badge-danger">
+        <i class="fas fa-times-circle"></i> Annulé
+    </span>
+{% else %}
+    <span class="sp-badge sp-badge-secondary">{{ statut }}</span>
+{% endif %}

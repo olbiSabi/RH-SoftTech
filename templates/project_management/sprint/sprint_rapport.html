@@ -1,0 +1,558 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% block extrastylet %}
+<style>
+    :root {
+        --sp-primary: #1c5d5f;
+        --sp-primary-dark: #154647;
+        --sp-primary-light: #2a8a8d;
+        --sp-success: #10b981;
+        --sp-warning: #f59e0b;
+        --sp-danger: #ef4444;
+        --sp-info: #3b82f6;
+        --sp-gray-50: #f9fafb;
+        --sp-gray-100: #f3f4f6;
+        --sp-gray-200: #e5e7eb;
+        --sp-gray-300: #d1d5db;
+        --sp-gray-500: #6b7280;
+        --sp-gray-600: #4b5563;
+        --sp-gray-700: #374151;
+        --sp-gray-800: #1f2937;
+        --sp-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        --sp-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        --sp-radius: 12px;
+    }
+
+    @media print {
+        .no-print { display: none !important; }
+        .sp-page-header { background: var(--sp-primary) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .sp-card { box-shadow: none; border: 1px solid var(--sp-gray-200); }
+    }
+
+    .sp-page-header {
+        background: linear-gradient(135deg, var(--sp-primary) 0%, var(--sp-primary-dark) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: var(--sp-radius);
+        margin-bottom: 1.5rem;
+        box-shadow: var(--sp-shadow-lg);
+    }
+
+    .sp-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        margin-bottom: 0.75rem;
+        opacity: 0.9;
+    }
+
+    .sp-breadcrumb a {
+        color: white;
+        text-decoration: none;
+    }
+
+    .sp-breadcrumb a:hover {
+        text-decoration: underline;
+    }
+
+    .sp-page-header h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .sp-page-header p {
+        margin: 0.5rem 0 0;
+        opacity: 0.9;
+    }
+
+    .sp-card {
+        background: white;
+        border-radius: var(--sp-radius);
+        box-shadow: var(--sp-shadow);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .sp-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--sp-gray-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .sp-card-header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--sp-gray-800);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .sp-card-body {
+        padding: 1.5rem;
+    }
+
+    .sp-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .sp-btn-primary {
+        background: var(--sp-primary);
+        color: white;
+    }
+
+    .sp-btn-primary:hover {
+        background: var(--sp-primary-dark);
+        color: white;
+    }
+
+    .sp-btn-secondary {
+        background: var(--sp-gray-100);
+        color: var(--sp-gray-700);
+    }
+
+    .sp-btn-secondary:hover {
+        background: var(--sp-gray-200);
+    }
+
+    /* Summary stats */
+    .sp-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+
+    .sp-summary-item {
+        text-align: center;
+        padding: 1.5rem 1rem;
+        background: var(--sp-gray-50);
+        border-radius: 10px;
+    }
+
+    .sp-summary-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--sp-primary);
+        line-height: 1;
+    }
+
+    .sp-summary-label {
+        font-size: 0.85rem;
+        color: var(--sp-gray-600);
+        margin-top: 0.5rem;
+    }
+
+    .sp-summary-item.success .sp-summary-value { color: var(--sp-success); }
+    .sp-summary-item.warning .sp-summary-value { color: var(--sp-warning); }
+    .sp-summary-item.danger .sp-summary-value { color: var(--sp-danger); }
+    .sp-summary-item.info .sp-summary-value { color: var(--sp-info); }
+
+    /* Progress section */
+    .sp-progress-section {
+        margin: 1.5rem 0;
+    }
+
+    .sp-progress-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+
+    .sp-progress-header span {
+        font-size: 0.9rem;
+        color: var(--sp-gray-600);
+    }
+
+    .sp-progress-header strong {
+        font-size: 1.1rem;
+        color: var(--sp-primary);
+    }
+
+    .sp-progress-bar {
+        height: 16px;
+        background: var(--sp-gray-200);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .sp-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--sp-primary-light), var(--sp-primary));
+        border-radius: 8px;
+        transition: width 0.3s;
+    }
+
+    /* Table */
+    .sp-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .sp-table th {
+        text-align: left;
+        padding: 0.875rem 1rem;
+        background: var(--sp-gray-50);
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--sp-gray-600);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid var(--sp-gray-200);
+    }
+
+    .sp-table td {
+        padding: 0.875rem 1rem;
+        border-bottom: 1px solid var(--sp-gray-200);
+        font-size: 0.9rem;
+        color: var(--sp-gray-700);
+    }
+
+    .sp-table tbody tr:hover {
+        background: var(--sp-gray-50);
+    }
+
+    .sp-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.625rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .sp-badge-statut-ouvert { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
+    .sp-badge-statut-en_cours { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+    .sp-badge-statut-en_revue { background: rgba(139, 92, 246, 0.1); color: #7c3aed; }
+    .sp-badge-statut-termine { background: rgba(16, 185, 129, 0.1); color: #059669; }
+
+    .sp-badge-priorite-critique { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+    .sp-badge-priorite-haute { background: rgba(249, 115, 22, 0.1); color: #ea580c; }
+    .sp-badge-priorite-moyenne { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+    .sp-badge-priorite-basse { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
+
+    /* Charts placeholder */
+    .sp-chart-container {
+        height: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--sp-gray-50);
+        border-radius: 8px;
+        color: var(--sp-gray-400);
+    }
+
+    /* Team section */
+    .sp-team-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .sp-team-member {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--sp-gray-50);
+        border-radius: 10px;
+    }
+
+    .sp-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: var(--sp-primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+    }
+
+    .sp-team-info h4 {
+        margin: 0;
+        font-size: 0.95rem;
+        color: var(--sp-gray-800);
+    }
+
+    .sp-team-info p {
+        margin: 0.25rem 0 0;
+        font-size: 0.85rem;
+        color: var(--sp-gray-500);
+    }
+
+    .sp-report-meta {
+        text-align: center;
+        padding: 1rem;
+        font-size: 0.85rem;
+        color: var(--sp-gray-500);
+        border-top: 1px solid var(--sp-gray-200);
+    }
+
+    .sp-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .sp-grid-2 {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="sp-page-header no-print">
+        <div class="sp-breadcrumb">
+            <a href="{% url 'pm:sprint_list' %}"><i class="fas fa-running"></i> Sprints</a>
+            <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
+            <a href="{% url 'pm:sprint_detail' sprint.pk %}">{{ sprint.nom }}</a>
+            <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
+            <span>Rapport</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h1><i class="fas fa-file-alt"></i> Rapport du sprint</h1>
+                <p>{{ sprint.date_debut|date:"d/m/Y" }} - {{ sprint.date_fin|date:"d/m/Y" }}</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button onclick="window.print()" class="sp-btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;">
+                    <i class="fas fa-print"></i> Imprimer
+                </button>
+                <a href="{% url 'pm:sprint_detail' sprint.pk %}" class="sp-btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;">
+                    <i class="fas fa-arrow-left"></i> Retour
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print header -->
+    <div class="sp-card" style="display: none;" id="print-header">
+        <div class="sp-card-body" style="background: var(--sp-primary); color: white; text-align: center;">
+            <h1 style="margin: 0;">{{ sprint.nom }}</h1>
+            <p style="margin: 0.5rem 0 0; opacity: 0.9;">Rapport de sprint · {{ sprint.date_debut|date:"d/m/Y" }} - {{ sprint.date_fin|date:"d/m/Y" }}</p>
+        </div>
+    </div>
+
+    <!-- Résumé -->
+    <div class="sp-card">
+        <div class="sp-card-header">
+            <h2><i class="fas fa-chart-pie"></i> Résumé du sprint</h2>
+        </div>
+        <div class="sp-card-body">
+            <div class="sp-summary-grid">
+                <div class="sp-summary-item">
+                    <div class="sp-summary-value">{{ sprint.tickets.count }}</div>
+                    <div class="sp-summary-label">Total tickets</div>
+                </div>
+                <div class="sp-summary-item success">
+                    <div class="sp-summary-value">{{ tickets_termines|default:0 }}</div>
+                    <div class="sp-summary-label">Terminés</div>
+                </div>
+                <div class="sp-summary-item warning">
+                    <div class="sp-summary-value">{{ tickets_en_cours|default:0 }}</div>
+                    <div class="sp-summary-label">En cours</div>
+                </div>
+                <div class="sp-summary-item danger">
+                    <div class="sp-summary-value">{{ tickets_restants|default:0 }}</div>
+                    <div class="sp-summary-label">Restants</div>
+                </div>
+                <div class="sp-summary-item info">
+                    <div class="sp-summary-value">{{ heures_totales|default:0 }}h</div>
+                    <div class="sp-summary-label">Heures imputées</div>
+                </div>
+            </div>
+
+            <div class="sp-progress-section">
+                <div class="sp-progress-header">
+                    <span>Progression globale</span>
+                    <strong>{{ sprint.pourcentage_completion|default:0 }}%</strong>
+                </div>
+                <div class="sp-progress-bar">
+                    <div class="sp-progress-fill" style="width: {{ sprint.pourcentage_completion|default:0 }}%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Objectif -->
+    {% if sprint.objectif %}
+    <div class="sp-card">
+        <div class="sp-card-header">
+            <h2><i class="fas fa-bullseye"></i> Objectif du sprint</h2>
+        </div>
+        <div class="sp-card-body">
+            <p style="color: var(--sp-gray-700); line-height: 1.7; margin: 0;">
+                {{ sprint.objectif }}
+            </p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Détail des tickets -->
+    <div class="sp-card">
+        <div class="sp-card-header">
+            <h2><i class="fas fa-ticket-alt"></i> Détail des tickets</h2>
+        </div>
+        <div class="sp-table-responsive">
+            <table class="sp-table">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Titre</th>
+                        <th>Type</th>
+                        <th>Priorité</th>
+                        <th>Statut</th>
+                        <th>Assigné</th>
+                        <th>Heures</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ticket in sprint.tickets.all %}
+                    <tr>
+                        <td><strong>{{ ticket.code }}</strong></td>
+                        <td>{{ ticket.titre|truncatechars:40 }}</td>
+                        <td>{{ ticket.get_type_ticket_display }}</td>
+                        <td>
+                            <span class="sp-badge sp-badge-priorite-{{ ticket.priorite|lower }}">
+                                {{ ticket.get_priorite_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="sp-badge sp-badge-statut-{{ ticket.statut|lower }}">
+                                {{ ticket.get_statut_display }}
+                            </span>
+                        </td>
+                        <td>{% if ticket.assigne %}{{ ticket.assigne.prenoms }} {{ ticket.assigne.nom|slice:":1" }}.{% else %}-{% endif %}</td>
+                        <td>{{ ticket.heures_imputees|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--sp-gray-400); padding: 2rem;">
+                            Aucun ticket dans ce sprint
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="sp-grid-2">
+        <!-- Répartition par statut -->
+        <div class="sp-card">
+            <div class="sp-card-header">
+                <h2><i class="fas fa-chart-bar"></i> Répartition par statut</h2>
+            </div>
+            <div class="sp-card-body">
+                <table class="sp-table">
+                    <tbody>
+                        <tr>
+                            <td><span class="sp-badge sp-badge-statut-ouvert">Ouvert</span></td>
+                            <td style="text-align: right; font-weight: 600;">{{ tickets_par_statut.OUVERT|default:0 }}</td>
+                        </tr>
+                        <tr>
+                            <td><span class="sp-badge sp-badge-statut-en_cours">En cours</span></td>
+                            <td style="text-align: right; font-weight: 600;">{{ tickets_par_statut.EN_COURS|default:0 }}</td>
+                        </tr>
+                        <tr>
+                            <td><span class="sp-badge sp-badge-statut-en_revue">En revue</span></td>
+                            <td style="text-align: right; font-weight: 600;">{{ tickets_par_statut.EN_REVUE|default:0 }}</td>
+                        </tr>
+                        <tr>
+                            <td><span class="sp-badge sp-badge-statut-termine">Terminé</span></td>
+                            <td style="text-align: right; font-weight: 600;">{{ tickets_par_statut.TERMINE|default:0 }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Répartition par priorité -->
+        <div class="sp-card">
+            <div class="sp-card-header">
+                <h2><i class="fas fa-exclamation-circle"></i> Répartition par priorité</h2>
+            </div>
+            <div class="sp-card-body">
+                <table class="sp-table">
+                    <tbody>
+                        <tr>
+                            <td><span class="sp-badge sp-badge-priorite-critique">Critique</span></td>
+                            <td style="text-align: right; font-weight: 600;">{{ tickets_par_priorite.CRITIQUE|default:0 }}</td>
+                        </tr>
+                        <tr>
+                            <td><span class="sp-badge sp-badge-priorite-haute">Haute</span></td>
+                            <td style="text-align: right; font-weight: 600;">{{ tickets_par_priorite.HAUTE|default:0 }}</td>
+                        </tr>
+                        <tr>
+                            <td><span class="sp-badge sp-badge-priorite-moyenne">Moyenne</span></td>
+                            <td style="text-align: right; font-weight: 600;">{{ tickets_par_priorite.MOYENNE|default:0 }}</td>
+                        </tr>
+                        <tr>
+                            <td><span class="sp-badge sp-badge-priorite-basse">Basse</span></td>
+                            <td style="text-align: right; font-weight: 600;">{{ tickets_par_priorite.BASSE|default:0 }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Équipe -->
+    {% if team_stats %}
+    <div class="sp-card">
+        <div class="sp-card-header">
+            <h2><i class="fas fa-users"></i> Performance de l'équipe</h2>
+        </div>
+        <div class="sp-card-body">
+            <div class="sp-team-grid">
+                {% for member in team_stats %}
+                <div class="sp-team-member">
+                    <div class="sp-avatar">
+                        {{ member.prenoms|slice:":1" }}{{ member.nom|slice:":1" }}
+                    </div>
+                    <div class="sp-team-info">
+                        <h4>{{ member.prenoms }} {{ member.nom }}</h4>
+                        <p>{{ member.tickets_count }} tickets · {{ member.tickets_termines }} terminés</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Footer -->
+    <div class="sp-report-meta">
+        Rapport généré le {% now "d/m/Y à H:i" %} · Sprint : {{ sprint.nom }} · Projet : {{ sprint.projet.nom|default:"Non assigné" }}
+    </div>
+</div>
+
+<style>
+    @media print {
+        #print-header { display: block !important; }
+    }
+</style>
+{% endblock %}

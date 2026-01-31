@@ -1,0 +1,24 @@
+{% comment %}
+Badge pour la priorité d'un ticket
+Usage: {% include 'project_management/includes/priorite_badge.html' with priorite=ticket.priorite %}
+{% endcomment %}
+
+{% if priorite == 'CRITIQUE' %}
+    <span class="pm-badge pm-badge-danger">
+        <i class="fas fa-fire"></i> Critique
+    </span>
+{% elif priorite == 'HAUTE' %}
+    <span class="pm-badge pm-badge-warning">
+        <i class="fas fa-arrow-up"></i> Haute
+    </span>
+{% elif priorite == 'MOYENNE' %}
+    <span class="pm-badge pm-badge-info">
+        <i class="fas fa-minus"></i> Moyenne
+    </span>
+{% elif priorite == 'BASSE' %}
+    <span class="pm-badge pm-badge-secondary">
+        <i class="fas fa-arrow-down"></i> Basse
+    </span>
+{% else %}
+    <span class="pm-badge pm-badge-secondary">{{ priorite }}</span>
+{% endif %}

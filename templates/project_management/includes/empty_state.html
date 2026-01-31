@@ -1,0 +1,26 @@
+{% comment %}
+État vide réutilisable pour les listes sans données
+Usage: {% include 'project_management/includes/empty_state.html' with icon='folder-open' title='Aucun projet' message='Commencez par créer un nouveau projet' action_url=create_url action_label='Créer un projet' %}
+
+Paramètres:
+- icon: Icône FontAwesome (sans 'fa-')
+- title: Titre principal
+- message: Message descriptif (optionnel)
+- action_url: URL du bouton d'action (optionnel)
+- action_label: Label du bouton d'action (optionnel)
+{% endcomment %}
+
+<div class="pm-empty-state">
+    <div class="pm-empty-state-icon">
+        <i class="fas fa-{{ icon|default:'inbox' }}"></i>
+    </div>
+    <h3 class="pm-empty-state-title">{{ title|default:'Aucune donnée' }}</h3>
+    {% if message %}
+    <p class="pm-empty-state-message">{{ message }}</p>
+    {% endif %}
+    {% if action_url and action_label %}
+    <a href="{{ action_url }}" class="pm-btn pm-btn-primary">
+        <i class="fas fa-plus"></i> {{ action_label }}
+    </a>
+    {% endif %}
+</div>

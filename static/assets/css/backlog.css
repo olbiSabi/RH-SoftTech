@@ -1,0 +1,1187 @@
+/* ============================================
+   Backlog Management - CSS Unifié
+   ============================================ */
+
+/* ============================================
+   1. VARIABLES GLOBALES
+   ============================================ */
+:root {
+    --bl-primary: #6f42c1;
+    --bl-primary-light: #f3e8ff;
+    --bl-primary-dark: #5a32a3;
+    --bl-success: #28a745;
+    --bl-warning: #ffc107;
+    --bl-danger: #dc3545;
+    --bl-info: #17a2b8;
+    --bl-gray-50: #f9fafb;
+    --bl-gray-100: #f3f4f6;
+    --bl-gray-200: #e5e7eb;
+    --bl-gray-400: #9ca3af;
+    --bl-gray-500: #6b7280;
+    --bl-gray-700: #374151;
+    --bl-gray-900: #111827;
+    --bl-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    --bl-shadow-lg: 0 4px 15px rgba(0,0,0,0.1);
+    --bl-radius: 12px;
+}
+
+/* ============================================
+   2. STYLES DE BASE (COMMUNS À TOUS LES TEMPLATES BACKLOG)
+   ============================================ */
+
+/* Page Header */
+.bl-page-header {
+    background: linear-gradient(135deg, var(--bl-primary) 0%, var(--bl-primary-dark) 100%);
+    border-radius: var(--bl-radius);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    color: white;
+}
+
+.bl-page-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.bl-page-header p {
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+
+/* Breadcrumb */
+.bl-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+    opacity: 0.9;
+}
+
+.bl-breadcrumb a {
+    color: white;
+    text-decoration: none;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.bl-breadcrumb a:hover {
+    opacity: 1;
+    text-decoration: underline;
+}
+
+.bl-breadcrumb span {
+    opacity: 0.6;
+}
+
+/* Header Actions */
+.bl-header-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* Buttons */
+.bl-btn {
+    padding: 0.625rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.bl-btn-white {
+    background: white;
+    color: var(--bl-primary);
+}
+
+.bl-btn-white:hover {
+    background: var(--bl-gray-100);
+    color: var(--bl-primary);
+    transform: translateY(-1px);
+}
+
+.bl-btn-primary {
+    background: var(--bl-primary);
+    color: white;
+}
+
+.bl-btn-primary:hover {
+    background: var(--bl-primary-dark);
+    color: white;
+}
+
+.bl-btn-success {
+    background: var(--bl-success);
+    color: white;
+}
+
+.bl-btn-success:hover {
+    background: #218838;
+    color: white;
+}
+
+.bl-btn-warning {
+    background: var(--bl-warning);
+    color: #212529;
+}
+
+.bl-btn-warning:hover {
+    background: #e0a800;
+    color: #212529;
+}
+
+.bl-btn-danger {
+    background: var(--bl-danger);
+    color: white;
+}
+
+.bl-btn-danger:hover {
+    background: #c82333;
+    color: white;
+}
+
+.bl-btn-secondary {
+    background: var(--bl-gray-100);
+    color: var(--bl-gray-700);
+}
+
+.bl-btn-secondary:hover {
+    background: var(--bl-gray-200);
+    color: var(--bl-gray-900);
+}
+
+.bl-btn-outline {
+    background: transparent;
+    border: 1px solid var(--bl-gray-200);
+    color: var(--bl-gray-700);
+}
+
+.bl-btn-outline:hover {
+    background: var(--bl-gray-50);
+    color: var(--bl-gray-900);
+}
+
+.bl-btn-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Cards */
+.bl-card {
+    background: white;
+    border-radius: var(--bl-radius);
+    box-shadow: var(--bl-shadow);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.bl-card-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--bl-gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.bl-card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--bl-gray-900);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.bl-card-badge {
+    background: var(--bl-primary-light);
+    color: var(--bl-primary);
+    padding: 0.25rem 0.625rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.bl-card-body {
+    padding: 1.25rem;
+}
+
+/* Stats Grid */
+.bl-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 992px) {
+    .bl-stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 576px) {
+    .bl-stats-grid { grid-template-columns: 1fr; }
+}
+
+.bl-stat-card {
+    background: white;
+    border-radius: var(--bl-radius);
+    padding: 1.25rem;
+    box-shadow: var(--bl-shadow);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.2s;
+}
+
+.bl-stat-card:hover {
+    box-shadow: var(--bl-shadow-lg);
+    transform: translateY(-2px);
+}
+
+.bl-stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.bl-stat-icon.primary { background: var(--bl-primary-light); color: var(--bl-primary); }
+.bl-stat-icon.success { background: #d4edda; color: var(--bl-success); }
+.bl-stat-icon.info { background: #d1ecf1; color: var(--bl-info); }
+.bl-stat-icon.warning { background: #fff3cd; color: var(--bl-warning); }
+.bl-stat-icon.danger { background: #f8d7da; color: var(--bl-danger); }
+
+.bl-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--bl-gray-900);
+    line-height: 1;
+}
+
+.bl-stat-label {
+    font-size: 0.8rem;
+    color: var(--bl-gray-500);
+    margin-top: 0.25rem;
+}
+
+/* Badges */
+.bl-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.625rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.bl-badge-code {
+    background: var(--bl-gray-100);
+    color: var(--bl-gray-700);
+    font-family: monospace;
+}
+
+.bl-badge-success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.bl-badge-warning {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.bl-badge-danger {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.bl-badge-info {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.bl-badge-secondary {
+    background: var(--bl-gray-100);
+    color: var(--bl-gray-500);
+}
+
+/* Priority Indicators */
+.priority-indicator {
+    width: 4px;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-radius: 8px 0 0 8px;
+}
+
+.priority-critique { background-color: var(--bl-danger); }
+.priority-haute { background-color: var(--bl-warning); }
+.priority-moyenne { background-color: var(--bl-info); }
+.priority-basse { background-color: var(--bl-gray-400); }
+
+/* Tables */
+.bl-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.bl-table th {
+    text-align: left;
+    padding: 0.875rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--bl-gray-500);
+    background: var(--bl-gray-50);
+    border-bottom: 1px solid var(--bl-gray-200);
+}
+
+.bl-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--bl-gray-100);
+    vertical-align: middle;
+}
+
+.bl-table tbody tr:hover {
+    background: var(--bl-gray-50);
+}
+
+.bl-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Actions */
+.bl-actions {
+    display: flex;
+    gap: 0.375rem;
+}
+
+.bl-action-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: 1px solid var(--bl-gray-200);
+    background: white;
+    color: var(--bl-gray-500);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.bl-action-btn:hover {
+    border-color: var(--bl-primary);
+    color: var(--bl-primary);
+    background: var(--bl-primary-light);
+}
+
+/* Empty States */
+.bl-empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+}
+
+.bl-empty-icon {
+    width: 64px;
+    height: 64px;
+    background: var(--bl-gray-100);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: var(--bl-gray-400);
+    font-size: 1.5rem;
+}
+
+.bl-empty-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--bl-gray-900);
+    margin-bottom: 0.5rem;
+}
+
+.bl-empty-text {
+    font-size: 0.875rem;
+    color: var(--bl-gray-500);
+    margin-bottom: 1rem;
+}
+
+/* ============================================
+   3. STYLES SPÉCIFIQUES - BACKLOG GENERAL
+   ============================================ */
+
+/* Backlog Board */
+.bl-backlog-board {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 1200px) {
+    .bl-backlog-board { grid-template-columns: 1fr; }
+}
+
+/* Backlog Columns */
+.bl-backlog-column {
+    background: var(--bl-gray-50);
+    border-radius: var(--bl-radius);
+    padding: 1rem;
+    min-height: 400px;
+}
+
+.bl-backlog-column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--bl-gray-200);
+}
+
+.bl-backlog-column-title {
+    font-weight: 600;
+    color: var(--bl-gray-900);
+    font-size: 1rem;
+}
+
+.bl-backlog-column-count {
+    background: var(--bl-primary);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Backlog Items */
+.bl-backlog-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-height: 300px;
+}
+
+.backlog-item {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: var(--bl-shadow);
+    cursor: move;
+    transition: all 0.2s ease;
+    position: relative;
+    border-left: 4px solid transparent;
+}
+
+.backlog-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--bl-shadow-lg);
+}
+
+.backlog-item.dragging {
+    opacity: 0.5;
+    transform: rotate(2deg);
+}
+
+.backlog-item.priority-critique {
+    border-left-color: var(--bl-danger);
+}
+
+.backlog-item.priority-haute {
+    border-left-color: var(--bl-warning);
+}
+
+.backlog-item.priority-moyenne {
+    border-left-color: var(--bl-info);
+}
+
+.backlog-item.priority-basse {
+    border-left-color: var(--bl-gray-400);
+}
+
+/* Backlog Item Content */
+.bl-backlog-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.bl-backlog-item-code {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--bl-gray-500);
+    font-family: monospace;
+}
+
+.bl-backlog-item-priority {
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.bl-backlog-item-priority.critique {
+    background: var(--bl-danger);
+    color: white;
+}
+
+.bl-backlog-item-priority.haute {
+    background: var(--bl-warning);
+    color: #212529;
+}
+
+.bl-backlog-item-priority.moyenne {
+    background: var(--bl-info);
+    color: white;
+}
+
+.bl-backlog-item-priority.basse {
+    background: var(--bl-gray-200);
+    color: var(--bl-gray-700);
+}
+
+.bl-backlog-item-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--bl-gray-900);
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.bl-backlog-item-description {
+    font-size: 0.8rem;
+    color: var(--bl-gray-500);
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+}
+
+.bl-backlog-item-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.bl-backlog-item-story-points {
+    background: var(--bl-primary-light);
+    color: var(--bl-primary);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.bl-backlog-item-assignee {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    color: var(--bl-gray-500);
+}
+
+/* Drop Zones */
+.drop-zone {
+    min-height: 100px;
+    border: 2px dashed var(--bl-gray-200);
+    border-radius: 8px;
+    padding: 1rem;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bl-gray-400);
+    font-size: 0.875rem;
+}
+
+.drop-zone.drag-over {
+    background-color: #e3f2fd;
+    border-color: var(--bl-primary);
+    color: var(--bl-primary);
+}
+
+/* ============================================
+   4. STYLES SPÉCIFIQUES - BACKLOG PLANNING SPRINT
+   ============================================ */
+
+/* Sprint Planning Layout */
+.bl-sprint-planning {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 992px) {
+    .bl-sprint-planning { grid-template-columns: 1fr; }
+}
+
+/* Sprint Info Panel */
+.bl-sprint-info {
+    background: white;
+    border-radius: var(--bl-radius);
+    box-shadow: var(--bl-shadow);
+    padding: 1.5rem;
+    height: fit-content;
+}
+
+.bl-sprint-info-header {
+    border-bottom: 1px solid var(--bl-gray-100);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.bl-sprint-info-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--bl-gray-900);
+    margin-bottom: 0.5rem;
+}
+
+.bl-sprint-info-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.bl-sprint-info-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+}
+
+.bl-sprint-info-label {
+    color: var(--bl-gray-500);
+}
+
+.bl-sprint-info-value {
+    font-weight: 500;
+    color: var(--bl-gray-900);
+}
+
+/* Sprint Capacity */
+.bl-sprint-capacity {
+    background: var(--bl-gray-50);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.bl-capacity-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.bl-capacity-title {
+    font-weight: 600;
+    color: var(--bl-gray-900);
+    font-size: 0.875rem;
+}
+
+.bl-capacity-value {
+    font-weight: 600;
+    color: var(--bl-primary);
+}
+
+.bl-capacity-bar {
+    height: 8px;
+    background: var(--bl-gray-200);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.bl-capacity-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--bl-primary), var(--bl-primary-dark));
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+/* Selected Items */
+.bl-selected-items {
+    margin-top: 1.5rem;
+}
+
+.bl-selected-items-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.bl-selected-items-count {
+    background: var(--bl-primary);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.bl-selected-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.bl-selected-item {
+    background: var(--bl-gray-50);
+    padding: 0.75rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bl-selected-item-title {
+    font-weight: 500;
+    color: var(--bl-gray-900);
+}
+
+.bl-selected-item-points {
+    background: var(--bl-primary-light);
+    color: var(--bl-primary);
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Planning Board */
+.bl-planning-board {
+    background: white;
+    border-radius: var(--bl-radius);
+    box-shadow: var(--bl-shadow);
+    overflow: hidden;
+}
+
+.bl-planning-header {
+    background: var(--bl-primary);
+    color: white;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bl-planning-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.bl-planning-filters {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.bl-planning-body {
+    padding: 1.5rem;
+}
+
+/* Filter Controls */
+.bl-filter-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.bl-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.bl-filter-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--bl-gray-700);
+}
+
+.bl-filter-select {
+    padding: 0.5rem;
+    border: 1px solid var(--bl-gray-200);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    background: white;
+}
+
+/* ============================================
+   5. STYLES SPÉCIFIQUES - BACKLOG PRIORISATION
+   ============================================ */
+
+/* Prioritisation Layout */
+.bl-prioritisation {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 1.5rem;
+}
+
+@media (max-width: 992px) {
+    .bl-prioritisation { grid-template-columns: 1fr; }
+}
+
+/* Prioritisation Board */
+.bl-prioritisation-board {
+    background: white;
+    border-radius: var(--bl-radius);
+    box-shadow: var(--bl-shadow);
+    overflow: hidden;
+}
+
+.bl-prioritisation-header {
+    background: var(--bl-primary);
+    color: white;
+    padding: 1rem 1.5rem;
+}
+
+.bl-prioritisation-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.bl-prioritisation-body {
+    padding: 1.5rem;
+}
+
+/* Priority Matrix */
+.bl-priority-matrix {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+    .bl-priority-matrix { grid-template-columns: 1fr; }
+}
+
+.bl-priority-quadrant {
+    background: var(--bl-gray-50);
+    border-radius: var(--bl-radius);
+    padding: 1rem;
+    min-height: 200px;
+}
+
+.bl-priority-quadrant-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--bl-gray-200);
+}
+
+.bl-priority-quadrant-title {
+    font-weight: 600;
+    color: var(--bl-gray-900);
+    font-size: 0.875rem;
+}
+
+.bl-priority-quadrant-count {
+    background: var(--bl-primary);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.bl-priority-quadrant.urgent-important {
+    border-left: 4px solid var(--bl-danger);
+}
+
+.bl-priority-quadrant.urgent-not-important {
+    border-left: 4px solid var(--bl-warning);
+}
+
+.bl-priority-quadrant.not-urgent-important {
+    border-left: 4px solid var(--bl-info);
+}
+
+.bl-priority-quadrant.not-urgent-not-important {
+    border-left: 4px solid var(--bl-gray-400);
+}
+
+/* Priority Sidebar */
+.bl-priority-sidebar {
+    background: white;
+    border-radius: var(--bl-radius);
+    box-shadow: var(--bl-shadow);
+    padding: 1.5rem;
+    height: fit-content;
+}
+
+.bl-priority-stats {
+    margin-bottom: 1.5rem;
+}
+
+.bl-priority-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--bl-gray-100);
+}
+
+.bl-priority-stat:last-child {
+    border-bottom: none;
+}
+
+.bl-priority-stat-label {
+    font-size: 0.875rem;
+    color: var(--bl-gray-500);
+}
+
+.bl-priority-stat-value {
+    font-weight: 600;
+    color: var(--bl-gray-900);
+}
+
+/* Priority Actions */
+.bl-priority-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* ============================================
+   6. STYLES SPÉCIFIQUES - BACKLOG PROJET
+   ============================================ */
+
+/* Project Backlog Layout */
+.bl-project-backlog {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 992px) {
+    .bl-project-backlog { grid-template-columns: 1fr; }
+}
+
+/* Project Sidebar */
+.bl-project-sidebar {
+    background: white;
+    border-radius: var(--bl-radius);
+    box-shadow: var(--bl-shadow);
+    padding: 1.5rem;
+    height: fit-content;
+}
+
+.bl-project-info {
+    margin-bottom: 1.5rem;
+}
+
+.bl-project-info-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.bl-project-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--bl-primary-light);
+    color: var(--bl-primary);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.bl-project-name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--bl-gray-900);
+}
+
+.bl-project-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.bl-project-detail-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+}
+
+.bl-project-detail-label {
+    color: var(--bl-gray-500);
+}
+
+.bl-project-detail-value {
+    font-weight: 500;
+    color: var(--bl-gray-900);
+}
+
+/* Backlog Statistics */
+.bl-backlog-stats {
+    background: var(--bl-gray-50);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.bl-backlog-stats-title {
+    font-weight: 600;
+    color: var(--bl-gray-900);
+    margin-bottom: 0.75rem;
+    font-size: 0.875rem;
+}
+
+.bl-backlog-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+.bl-backlog-stat {
+    text-align: center;
+    padding: 0.5rem;
+    background: white;
+    border-radius: 6px;
+}
+
+.bl-backlog-stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--bl-primary);
+}
+
+.bl-backlog-stat-label {
+    font-size: 0.75rem;
+    color: var(--bl-gray-500);
+}
+
+/* Quick Actions */
+.bl-quick-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.bl-quick-action {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: var(--bl-gray-50);
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--bl-gray-700);
+}
+
+.bl-quick-action:hover {
+    background: var(--bl-primary-light);
+    color: var(--bl-primary);
+}
+
+/* Main Content */
+.bl-backlog-content {
+    background: white;
+    border-radius: var(--bl-radius);
+    box-shadow: var(--bl-shadow);
+    overflow: hidden;
+}
+
+.bl-backlog-content-header {
+    background: var(--bl-primary);
+    color: white;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bl-backlog-content-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.bl-backlog-content-body {
+    padding: 1.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .bl-backlog-board {
+        grid-template-columns: 1fr;
+    }
+    
+    .bl-sprint-planning {
+        grid-template-columns: 1fr;
+    }
+    
+    .bl-prioritisation {
+        grid-template-columns: 1fr;
+    }
+    
+    .bl-project-backlog {
+        grid-template-columns: 1fr;
+    }
+    
+    .bl-priority-matrix {
+        grid-template-columns: 1fr;
+    }
+    
+    .bl-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Print Styles */
+@media print {
+    .bl-header-actions,
+    .bl-btn,
+    .bl-filter-controls,
+    .bl-priority-actions,
+    .bl-quick-actions {
+        display: none !important;
+    }
+    
+    .bl-page-header {
+        background: none !important;
+        color: var(--bl-gray-900) !important;
+        border-bottom: 2px solid var(--bl-gray-300);
+    }
+    
+    .bl-card {
+        box-shadow: none !important;
+        border: 1px solid var(--bl-gray-200);
+        break-inside: avoid;
+    }
+    
+    .backlog-item {
+        break-inside: avoid;
+    }
+}

@@ -1,0 +1,1130 @@
+/* ============================================
+   Projet Management - CSS Unifié
+   ============================================ */
+
+/* ============================================
+   1. VARIABLES GLOBALES
+   ============================================ */
+:root {
+    --pm-primary: #4f46e5;
+    --pm-primary-light: #eef2ff;
+    --pm-success: #10b981;
+    --pm-warning: #f59e0b;
+    --pm-danger: #ef4444;
+    --pm-info: #06b6d4;
+    --pm-gray-50: #f9fafb;
+    --pm-gray-100: #f3f4f6;
+    --pm-gray-200: #e5e7eb;
+    --pm-gray-400: #9ca3af;
+    --pm-gray-500: #6b7280;
+    --pm-gray-700: #374151;
+    --pm-gray-900: #111827;
+    --pm-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    --pm-shadow-lg: 0 4px 15px rgba(0,0,0,0.1);
+    --pm-radius: 12px;
+}
+
+/* ============================================
+   2. STYLES DE BASE (COMMUNS À TOUS LES TEMPLATES PROJET)
+   ============================================ */
+
+/* Page Header */
+.pm-page-header {
+    background: linear-gradient(135deg, var(--pm-primary) 0%, #7c3aed 100%);
+    border-radius: var(--pm-radius);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    color: white;
+}
+
+.pm-page-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.pm-page-header p {
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+
+/* Breadcrumb */
+.pm-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+    opacity: 0.9;
+}
+
+.pm-breadcrumb a {
+    color: white;
+    text-decoration: none;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.pm-breadcrumb a:hover {
+    opacity: 1;
+    text-decoration: underline;
+}
+
+.pm-breadcrumb span {
+    opacity: 0.6;
+}
+
+.pm-breadcrumb i {
+    font-size: 0.625rem;
+}
+
+/* Header Meta */
+.pm-header-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.pm-header-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.375rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    background: rgba(255,255,255,0.2);
+}
+
+.pm-header-code {
+    opacity: 0.9;
+    font-size: 0.9rem;
+}
+
+/* Header Actions */
+.pm-header-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* Buttons */
+.pm-btn {
+    padding: 0.625rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.pm-btn-white {
+    background: white;
+    color: var(--pm-primary);
+}
+
+.pm-btn-white:hover {
+    background: var(--pm-gray-100);
+    color: var(--pm-primary);
+    transform: translateY(-1px);
+}
+
+.pm-btn-outline-white {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.5);
+    color: white;
+}
+
+.pm-btn-outline-white:hover {
+    background: rgba(255,255,255,0.1);
+    color: white;
+}
+
+.pm-btn-primary {
+    background: var(--pm-primary);
+    color: white;
+}
+
+.pm-btn-primary:hover {
+    background: #4338ca;
+    color: white;
+}
+
+.pm-btn-success {
+    background: var(--pm-success);
+    color: white;
+}
+
+.pm-btn-success:hover {
+    background: #059669;
+    color: white;
+}
+
+.pm-btn-secondary {
+    background: var(--pm-gray-100);
+    color: var(--pm-gray-700);
+}
+
+.pm-btn-secondary:hover {
+    background: var(--pm-gray-200);
+    color: var(--pm-gray-900);
+}
+
+.pm-btn-outline {
+    background: transparent;
+    border: 1px solid var(--pm-gray-200);
+    color: var(--pm-gray-700);
+}
+
+.pm-btn-outline:hover {
+    background: var(--pm-gray-50);
+    color: var(--pm-gray-900);
+}
+
+.pm-btn-danger {
+    background: var(--pm-danger);
+    color: white;
+}
+
+.pm-btn-danger:hover {
+    background: #dc2626;
+    color: white;
+}
+
+.pm-btn-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Cards */
+.pm-card {
+    background: white;
+    border-radius: var(--pm-radius);
+    box-shadow: var(--pm-shadow);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.pm-card-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--pm-gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.pm-card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--pm-gray-900);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pm-card-badge {
+    background: var(--pm-primary-light);
+    color: var(--pm-primary);
+    padding: 0.25rem 0.625rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.pm-card-body {
+    padding: 1.25rem;
+}
+
+/* Stats Grid */
+.pm-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 992px) {
+    .pm-stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 576px) {
+    .pm-stats-grid { grid-template-columns: 1fr; }
+}
+
+.pm-stat-card {
+    background: white;
+    border-radius: var(--pm-radius);
+    padding: 1.25rem;
+    box-shadow: var(--pm-shadow);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.2s;
+}
+
+.pm-stat-card:hover {
+    box-shadow: var(--pm-shadow-lg);
+    transform: translateY(-2px);
+}
+
+.pm-stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.pm-stat-icon.primary { background: var(--pm-primary-light); color: var(--pm-primary); }
+.pm-stat-icon.success { background: #d1fae5; color: var(--pm-success); }
+.pm-stat-icon.info { background: #cffafe; color: var(--pm-info); }
+.pm-stat-icon.warning { background: #fef3c7; color: var(--pm-warning); }
+.pm-stat-icon.danger { background: #fef2f2; color: var(--pm-danger); }
+
+.pm-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--pm-gray-900);
+    line-height: 1;
+}
+
+.pm-stat-label {
+    font-size: 0.8rem;
+    color: var(--pm-gray-500);
+    margin-top: 0.25rem;
+}
+
+/* Badges */
+.pm-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.625rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.pm-badge-code {
+    background: var(--pm-gray-100);
+    color: var(--pm-gray-700);
+    font-family: monospace;
+}
+
+.pm-badge-success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.pm-badge-warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.pm-badge-danger {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.pm-badge-info {
+    background: #cffafe;
+    color: #0e7490;
+}
+
+.pm-badge-secondary {
+    background: var(--pm-gray-100);
+    color: var(--pm-gray-500);
+}
+
+/* Tables */
+.pm-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.pm-table th {
+    text-align: left;
+    padding: 0.875rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--pm-gray-500);
+    background: var(--pm-gray-50);
+    border-bottom: 1px solid var(--pm-gray-200);
+}
+
+.pm-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--pm-gray-100);
+    vertical-align: middle;
+}
+
+.pm-table tbody tr:hover {
+    background: var(--pm-gray-50);
+}
+
+.pm-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Actions */
+.pm-actions {
+    display: flex;
+    gap: 0.375rem;
+}
+
+.pm-action-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: 1px solid var(--pm-gray-200);
+    background: white;
+    color: var(--pm-gray-500);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.pm-action-btn:hover {
+    border-color: var(--pm-primary);
+    color: var(--pm-primary);
+    background: var(--pm-primary-light);
+}
+
+.pm-action-btn.danger:hover {
+    border-color: var(--pm-danger);
+    color: var(--pm-danger);
+    background: #fef2f2;
+}
+
+/* Empty States */
+.pm-empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+}
+
+.pm-empty-icon {
+    width: 64px;
+    height: 64px;
+    background: var(--pm-gray-100);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: var(--pm-gray-400);
+    font-size: 1.5rem;
+}
+
+.pm-empty-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--pm-gray-900);
+    margin-bottom: 0.5rem;
+}
+
+.pm-empty-text {
+    font-size: 0.875rem;
+    color: var(--pm-gray-500);
+    margin-bottom: 1rem;
+}
+
+/* ============================================
+   3. STYLES SPÉCIFIQUES - PROJET LIST
+   ============================================ */
+
+/* Filter Form */
+.pm-filter-form {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr auto;
+    gap: 1rem;
+    align-items: end;
+}
+
+@media (max-width: 1200px) {
+    .pm-filter-form { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+    .pm-filter-form { grid-template-columns: 1fr; }
+}
+
+.pm-form-group label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--pm-gray-700);
+    margin-bottom: 0.375rem;
+}
+
+.pm-form-control {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    border: 1px solid var(--pm-gray-200);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.pm-form-control:focus {
+    outline: none;
+    border-color: var(--pm-primary);
+    box-shadow: 0 0 0 3px var(--pm-primary-light);
+}
+
+/* Projet specific styles */
+.pm-projet-name {
+    font-weight: 600;
+    color: var(--pm-gray-900);
+}
+
+.pm-projet-desc {
+    font-size: 0.8rem;
+    color: var(--pm-gray-500);
+    margin-top: 0.25rem;
+}
+
+.pm-client-link {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--pm-gray-700);
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+.pm-client-link:hover {
+    color: var(--pm-primary);
+}
+
+.pm-client-link i {
+    font-size: 0.75rem;
+    color: var(--pm-gray-400);
+}
+
+.pm-sprints-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    background: var(--pm-primary-light);
+    color: var(--pm-primary);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.pm-sprints-btn:hover {
+    background: var(--pm-primary);
+    color: white;
+}
+
+/* Pagination */
+.pm-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.375rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--pm-gray-100);
+    margin-top: 1rem;
+}
+
+.pm-page-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 0.75rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--pm-gray-700);
+    background: white;
+    border: 1px solid var(--pm-gray-200);
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.pm-page-link:hover {
+    border-color: var(--pm-primary);
+    color: var(--pm-primary);
+}
+
+.pm-page-link.active {
+    background: var(--pm-primary);
+    border-color: var(--pm-primary);
+    color: white;
+}
+
+/* ============================================
+   4. STYLES SPÉCIFIQUES - PROJET DETAIL
+   ============================================ */
+
+/* Layout */
+.pm-layout {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 992px) {
+    .pm-layout { grid-template-columns: 1fr; }
+}
+
+/* Info List */
+.pm-info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.pm-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.pm-info-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--pm-gray-500);
+}
+
+.pm-info-value {
+    font-size: 0.9rem;
+    color: var(--pm-gray-900);
+}
+
+.pm-info-value a {
+    color: var(--pm-primary);
+    text-decoration: none;
+}
+
+.pm-info-value a:hover {
+    text-decoration: underline;
+}
+
+.pm-divider {
+    height: 1px;
+    background: var(--pm-gray-100);
+    margin: 0.5rem 0;
+}
+
+/* Progress */
+.pm-progress-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.pm-progress-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--pm-gray-100);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.pm-progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.pm-progress-fill.low { background: var(--pm-danger); }
+.pm-progress-fill.medium { background: var(--pm-warning); }
+.pm-progress-fill.high { background: var(--pm-success); }
+
+.pm-progress-value {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--pm-gray-700);
+    min-width: 45px;
+    text-align: right;
+}
+
+/* Sidebar */
+.pm-sidebar-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Team */
+.pm-team-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.pm-team-member {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: var(--pm-gray-50);
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.pm-team-member:hover {
+    background: var(--pm-gray-100);
+}
+
+.pm-member-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--pm-primary-light);
+    color: var(--pm-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.pm-member-info {
+    flex: 1;
+}
+
+.pm-member-name {
+    font-weight: 600;
+    color: var(--pm-gray-900);
+    font-size: 0.875rem;
+}
+
+.pm-member-role {
+    font-size: 0.75rem;
+    color: var(--pm-gray-500);
+}
+
+/* Budget */
+.pm-budget-section {
+    padding: 1rem;
+    background: var(--pm-gray-50);
+    border-radius: 8px;
+}
+
+.pm-budget-main {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.pm-budget-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--pm-primary);
+}
+
+.pm-budget-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+}
+
+.pm-budget-info span {
+    color: var(--pm-gray-500);
+}
+
+.pm-budget-info strong {
+    color: var(--pm-gray-900);
+}
+
+.pm-budget-info strong.danger {
+    color: var(--pm-danger);
+}
+
+/* Timeline */
+.pm-timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.pm-timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.5rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--pm-gray-200);
+}
+
+.pm-timeline-item {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.pm-timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -1.5rem;
+    top: 0.25rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--pm-primary);
+    border: 2px solid white;
+    box-shadow: 0 0 0 2px var(--pm-primary-light);
+}
+
+.pm-timeline-date {
+    font-size: 0.75rem;
+    color: var(--pm-gray-500);
+    margin-bottom: 0.25rem;
+}
+
+.pm-timeline-content {
+    font-size: 0.875rem;
+    color: var(--pm-gray-700);
+}
+
+/* ============================================
+   5. STYLES SPÉCIFIQUES - PROJET FORM
+   ============================================ */
+
+/* Form Layout */
+.pm-form-section {
+    margin-bottom: 2rem;
+}
+
+.pm-form-section:last-child {
+    margin-bottom: 0;
+}
+
+.pm-form-section-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--pm-gray-500);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--pm-gray-100);
+}
+
+.pm-form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .pm-form-row { grid-template-columns: 1fr; }
+}
+
+.pm-form-row-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .pm-form-row-3 { grid-template-columns: 1fr; }
+}
+
+.pm-form-group {
+    margin-bottom: 1rem;
+}
+
+.pm-form-group:last-child {
+    margin-bottom: 0;
+}
+
+.pm-form-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--pm-gray-700);
+    margin-bottom: 0.375rem;
+}
+
+.pm-form-label .required {
+    color: var(--pm-danger);
+    margin-left: 0.125rem;
+}
+
+.pm-form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--pm-gray-200);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: var(--pm-gray-900);
+    background: white;
+    transition: all 0.2s;
+}
+
+.pm-form-control:focus {
+    outline: none;
+    border-color: var(--pm-primary);
+    box-shadow: 0 0 0 3px var(--pm-primary-light);
+}
+
+.pm-form-control::placeholder {
+    color: var(--pm-gray-400);
+}
+
+.pm-form-control.is-invalid {
+    border-color: var(--pm-danger);
+}
+
+.pm-form-control.is-invalid:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+textarea.pm-form-control {
+    min-height: 80px;
+    resize: vertical;
+}
+
+select.pm-form-control {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1.25rem;
+    padding-right: 2.5rem;
+}
+
+/* Form Errors */
+.pm-form-error {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-top: 0.375rem;
+    font-size: 0.8rem;
+    color: var(--pm-danger);
+}
+
+.pm-form-error i {
+    font-size: 0.75rem;
+}
+
+/* Alerts */
+.pm-alert {
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.pm-alert-danger {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+}
+
+.pm-alert i {
+    margin-top: 0.125rem;
+}
+
+/* Form Actions */
+.pm-form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--pm-gray-100);
+    margin-top: 1.5rem;
+}
+
+/* Quick Actions */
+.pm-quick-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.pm-quick-action {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.pm-quick-action-primary {
+    background: var(--pm-primary-light);
+    color: var(--pm-primary);
+}
+
+.pm-quick-action-primary:hover {
+    background: var(--pm-primary);
+    color: white;
+}
+
+.pm-quick-action-secondary {
+    background: var(--pm-gray-50);
+    color: var(--pm-gray-700);
+}
+
+.pm-quick-action-secondary:hover {
+    background: var(--pm-gray-100);
+    color: var(--pm-gray-900);
+}
+
+/* ============================================
+   6. STYLES SPÉCIFIQUES - PROJET TICKETS & IMPUTATIONS
+   ============================================ */
+
+/* Tabs */
+.pm-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--pm-gray-200);
+    margin-bottom: 1.5rem;
+}
+
+.pm-tab {
+    padding: 0.75rem 1.25rem;
+    background: none;
+    border: none;
+    color: var(--pm-gray-500);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+}
+
+.pm-tab:hover {
+    color: var(--pm-gray-700);
+}
+
+.pm-tab.active {
+    color: var(--pm-primary);
+    border-bottom-color: var(--pm-primary);
+}
+
+/* Ticket Grid */
+.pm-ticket-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.pm-ticket-card {
+    background: white;
+    border-radius: var(--pm-radius);
+    box-shadow: var(--pm-shadow);
+    padding: 1rem;
+    transition: all 0.2s;
+}
+
+.pm-ticket-card:hover {
+    box-shadow: var(--pm-shadow-lg);
+    transform: translateY(-2px);
+}
+
+.pm-ticket-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+
+.pm-ticket-title {
+    font-weight: 600;
+    color: var(--pm-gray-900);
+    font-size: 0.875rem;
+}
+
+.pm-ticket-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--pm-gray-500);
+    margin-top: 0.5rem;
+}
+
+/* Imputation Table */
+.pm-imputation-table {
+    background: white;
+    border-radius: var(--pm-radius);
+    box-shadow: var(--pm-shadow);
+    overflow: hidden;
+}
+
+.pm-imputation-header {
+    background: var(--pm-gray-50);
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--pm-gray-200);
+    font-weight: 600;
+    color: var(--pm-gray-900);
+}
+
+.pm-imputation-row {
+    display: grid;
+    grid-template-columns: 200px 1fr 100px 100px 120px;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--pm-gray-100);
+    align-items: center;
+}
+
+.pm-imputation-row:hover {
+    background: var(--pm-gray-50);
+}
+
+.pm-imputation-date {
+    font-size: 0.875rem;
+    color: var(--pm-gray-700);
+    font-weight: 500;
+}
+
+.pm-imputation-desc {
+    font-size: 0.875rem;
+    color: var(--pm-gray-900);
+}
+
+.pm-imputation-hours {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--pm-primary);
+}
+
+.pm-imputation-status {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.pm-imputation-status.validated {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.pm-imputation-status.pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.pm-imputation-status.rejected {
+    background: #fee2e2;
+    color: #991b1b;
+}

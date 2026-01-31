@@ -1,0 +1,791 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% block extrastylet %}
+<style>
+    :root {
+        --sp-primary: #1c5d5f;
+        --sp-primary-dark: #154647;
+        --sp-primary-light: #2a8a8d;
+        --sp-success: #10b981;
+        --sp-warning: #f59e0b;
+        --sp-danger: #ef4444;
+        --sp-info: #3b82f6;
+        --sp-gray-50: #f9fafb;
+        --sp-gray-100: #f3f4f6;
+        --sp-gray-200: #e5e7eb;
+        --sp-gray-300: #d1d5db;
+        --sp-gray-500: #6b7280;
+        --sp-gray-600: #4b5563;
+        --sp-gray-700: #374151;
+        --sp-gray-800: #1f2937;
+        --sp-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        --sp-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        --sp-radius: 12px;
+    }
+
+    .sp-page-header {
+        background: linear-gradient(135deg, var(--sp-primary) 0%, var(--sp-primary-dark) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: var(--sp-radius);
+        margin-bottom: 1.5rem;
+        box-shadow: var(--sp-shadow-lg);
+    }
+
+    .sp-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        margin-bottom: 0.75rem;
+        opacity: 0.9;
+    }
+
+    .sp-breadcrumb a {
+        color: white;
+        text-decoration: none;
+    }
+
+    .sp-breadcrumb a:hover {
+        text-decoration: underline;
+    }
+
+    .sp-page-header h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .sp-header-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .sp-header-badge {
+        background: rgba(255,255,255,0.2);
+        padding: 0.375rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .sp-card {
+        background: white;
+        border-radius: var(--sp-radius);
+        box-shadow: var(--sp-shadow);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .sp-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--sp-gray-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .sp-card-header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--sp-gray-800);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .sp-card-body {
+        padding: 1.5rem;
+    }
+
+    .sp-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 992px) {
+        .sp-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .sp-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .sp-btn-primary {
+        background: var(--sp-primary);
+        color: white;
+    }
+
+    .sp-btn-primary:hover {
+        background: var(--sp-primary-dark);
+        color: white;
+    }
+
+    .sp-btn-secondary {
+        background: var(--sp-gray-100);
+        color: var(--sp-gray-700);
+    }
+
+    .sp-btn-secondary:hover {
+        background: var(--sp-gray-200);
+    }
+
+    .sp-btn-danger {
+        background: var(--sp-danger);
+        color: white;
+    }
+
+    .sp-btn-danger:hover {
+        background: #dc2626;
+    }
+
+    .sp-btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    .sp-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.625rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .sp-badge-statut-planifie { background: rgba(107, 114, 128, 0.1); color: #4b5563; }
+    .sp-badge-statut-actif { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
+    .sp-badge-statut-termine { background: rgba(16, 185, 129, 0.1); color: #059669; }
+    .sp-badge-statut-annule { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+
+    .sp-description {
+        line-height: 1.7;
+        color: var(--sp-gray-700);
+    }
+
+    .sp-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .sp-info-item {
+        padding: 1rem;
+        background: var(--sp-gray-50);
+        border-radius: 8px;
+    }
+
+    .sp-info-item label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--sp-gray-500);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.375rem;
+    }
+
+    .sp-info-item span,
+    .sp-info-item a {
+        font-size: 0.9rem;
+        color: var(--sp-gray-800);
+    }
+
+    .sp-info-item a {
+        text-decoration: none;
+    }
+
+    .sp-info-item a:hover {
+        color: var(--sp-primary);
+    }
+
+    .sp-progress {
+        margin: 1.5rem 0;
+    }
+
+    .sp-progress-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+
+    .sp-progress-header span {
+        font-size: 0.9rem;
+        color: var(--sp-gray-600);
+    }
+
+    .sp-progress-header strong {
+        font-size: 1.1rem;
+        color: var(--sp-primary);
+    }
+
+    .sp-progress-bar {
+        height: 12px;
+        background: var(--sp-gray-200);
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .sp-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--sp-primary-light), var(--sp-primary));
+        border-radius: 6px;
+        transition: width 0.3s;
+    }
+
+    .sp-stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .sp-stat-item {
+        text-align: center;
+        padding: 1rem;
+        background: var(--sp-gray-50);
+        border-radius: 8px;
+    }
+
+    .sp-stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--sp-gray-800);
+    }
+
+    .sp-stat-label {
+        font-size: 0.8rem;
+        color: var(--sp-gray-500);
+        margin-top: 0.25rem;
+    }
+
+    .sp-stat-item.highlight {
+        background: rgba(28, 93, 95, 0.1);
+    }
+
+    .sp-stat-item.highlight .sp-stat-value {
+        color: var(--sp-primary);
+    }
+
+    /* Tickets table */
+    .sp-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .sp-table th {
+        text-align: left;
+        padding: 0.875rem 1rem;
+        background: var(--sp-gray-50);
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--sp-gray-600);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid var(--sp-gray-200);
+    }
+
+    .sp-table td {
+        padding: 0.875rem 1rem;
+        border-bottom: 1px solid var(--sp-gray-200);
+        font-size: 0.9rem;
+        color: var(--sp-gray-700);
+    }
+
+    .sp-table tbody tr:hover {
+        background: var(--sp-gray-50);
+    }
+
+    .sp-ticket-code {
+        font-family: monospace;
+        font-weight: 600;
+        color: var(--sp-primary);
+    }
+
+    .sp-ticket-title {
+        font-weight: 500;
+        color: var(--sp-gray-800);
+        text-decoration: none;
+    }
+
+    .sp-ticket-title:hover {
+        color: var(--sp-primary);
+    }
+
+    .sp-badge-priorite-critique { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+    .sp-badge-priorite-haute { background: rgba(249, 115, 22, 0.1); color: #ea580c; }
+    .sp-badge-priorite-moyenne { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+    .sp-badge-priorite-basse { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
+
+    .sp-badge-statut-ouvert { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
+    .sp-badge-statut-en_cours { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+    .sp-badge-statut-en_revue { background: rgba(139, 92, 246, 0.1); color: #7c3aed; }
+    .sp-badge-statut-termine { background: rgba(16, 185, 129, 0.1); color: #059669; }
+
+    .sp-avatar-sm {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--sp-primary);
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .sp-empty {
+        text-align: center;
+        padding: 2rem;
+        color: var(--sp-gray-500);
+    }
+
+    .sp-empty i {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+        opacity: 0.5;
+    }
+
+    /* Timeline */
+    .sp-timeline {
+        position: relative;
+        padding-left: 1.5rem;
+    }
+
+    .sp-timeline::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--sp-gray-200);
+    }
+
+    .sp-timeline-item {
+        position: relative;
+        padding-bottom: 1.5rem;
+    }
+
+    .sp-timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -1.5rem;
+        top: 0.5rem;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--sp-primary);
+        border: 2px solid white;
+    }
+
+    .sp-timeline-date {
+        font-size: 0.8rem;
+        color: var(--sp-gray-500);
+        margin-bottom: 0.25rem;
+    }
+
+    .sp-timeline-content {
+        color: var(--sp-gray-700);
+        font-size: 0.9rem;
+    }
+
+    /* Modal */
+    .sp-modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .sp-modal {
+        background: white;
+        border-radius: var(--sp-radius);
+        padding: 2rem;
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+    }
+
+    .sp-modal-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+    }
+
+    .sp-modal-icon.danger {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--sp-danger);
+    }
+
+    .sp-modal h3 {
+        margin: 0 0 0.5rem;
+        color: var(--sp-gray-800);
+    }
+
+    .sp-modal p {
+        color: var(--sp-gray-500);
+        margin-bottom: 1.5rem;
+    }
+
+    .sp-modal-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    /* Days countdown */
+    .sp-days-left {
+        text-align: center;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, var(--sp-primary) 0%, var(--sp-primary-dark) 100%);
+        color: white;
+        border-radius: var(--sp-radius);
+        margin-bottom: 1rem;
+    }
+
+    .sp-days-left-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .sp-days-left-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin-top: 0.25rem;
+    }
+
+    @media (max-width: 768px) {
+        .sp-stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="sp-page-header">
+        <div class="sp-breadcrumb">
+            <a href="{% url 'pm:sprint_list' %}"><i class="fas fa-running"></i> Sprints</a>
+            <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
+            <span>{{ sprint.nom }}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h1>
+                    <i class="fas fa-running"></i>
+                    {{ sprint.nom }}
+                </h1>
+                <div class="sp-header-badges">
+                    <span class="sp-header-badge">
+                        <i class="fas fa-flag"></i> {{ sprint.get_statut_display }}
+                    </span>
+                    <span class="sp-header-badge">
+                        <i class="fas fa-calendar"></i> {{ sprint.date_debut|date:"d/m" }} - {{ sprint.date_fin|date:"d/m/Y" }}
+                    </span>
+                    {% if sprint.projet %}
+                    <span class="sp-header-badge">
+                        <i class="fas fa-project-diagram"></i> {{ sprint.projet.nom }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'pm:sprint_board' sprint.pk %}" class="sp-btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;">
+                    <i class="fas fa-columns"></i> Board
+                </a>
+                <a href="{% url 'pm:sprint_update' sprint.pk %}" class="sp-btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;">
+                    <i class="fas fa-edit"></i> Modifier
+                </a>
+                <button type="button" class="sp-btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;" onclick="openDeleteModal()">
+                    <i class="fas fa-trash"></i> Supprimer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="sp-grid">
+        <!-- Colonne principale -->
+        <div>
+            <!-- Progression -->
+            <div class="sp-card">
+                <div class="sp-card-header">
+                    <h2><i class="fas fa-chart-line"></i> Progression du sprint</h2>
+                </div>
+                <div class="sp-card-body">
+                    <div class="sp-progress">
+                        <div class="sp-progress-header">
+                            <span>Tickets complétés</span>
+                            <strong>{{ sprint.pourcentage_completion|default:0 }}%</strong>
+                        </div>
+                        <div class="sp-progress-bar">
+                            <div class="sp-progress-fill" style="width: {{ sprint.pourcentage_completion|default:0 }}%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="sp-stats-row">
+                        <div class="sp-stat-item">
+                            <div class="sp-stat-value">{{ sprint.tickets.count }}</div>
+                            <div class="sp-stat-label">Total tickets</div>
+                        </div>
+                        <div class="sp-stat-item highlight">
+                            <div class="sp-stat-value">{{ sprint.tickets_termines|default:0 }}</div>
+                            <div class="sp-stat-label">Terminés</div>
+                        </div>
+                        <div class="sp-stat-item">
+                            <div class="sp-stat-value">{{ sprint.tickets_en_cours|default:0 }}</div>
+                            <div class="sp-stat-label">En cours</div>
+                        </div>
+                        <div class="sp-stat-item">
+                            <div class="sp-stat-value">{{ sprint.tickets_restants|default:0 }}</div>
+                            <div class="sp-stat-label">Restants</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            {% if sprint.objectif %}
+            <div class="sp-card">
+                <div class="sp-card-header">
+                    <h2><i class="fas fa-bullseye"></i> Objectif du sprint</h2>
+                </div>
+                <div class="sp-card-body">
+                    <div class="sp-description">
+                        {{ sprint.objectif|linebreaks }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Tickets -->
+            <div class="sp-card">
+                <div class="sp-card-header">
+                    <h2><i class="fas fa-ticket-alt"></i> Tickets du sprint</h2>
+                    <a href="{% url 'pm:sprint_tickets' sprint.pk %}" class="sp-btn sp-btn-secondary sp-btn-sm">
+                        <i class="fas fa-cog"></i> Gérer les tickets
+                    </a>
+                </div>
+                <div class="sp-table-responsive">
+                    <table class="sp-table">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Titre</th>
+                                <th>Priorité</th>
+                                <th>Statut</th>
+                                <th>Assigné</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ticket in sprint.tickets.all %}
+                            <tr>
+                                <td>
+                                    <span class="sp-ticket-code">{{ ticket.code }}</span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'pm:ticket_detail' ticket.pk %}" class="sp-ticket-title">
+                                        {{ ticket.titre|truncatechars:40 }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="sp-badge sp-badge-priorite-{{ ticket.priorite|lower }}">
+                                        {{ ticket.get_priorite_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="sp-badge sp-badge-statut-{{ ticket.statut|lower }}">
+                                        {{ ticket.get_statut_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if ticket.assigne %}
+                                    <span class="sp-avatar-sm" title="{{ ticket.assigne.prenoms }} {{ ticket.assigne.nom }}">
+                                        {{ ticket.assigne.prenoms|slice:":1" }}{{ ticket.assigne.nom|slice:":1" }}
+                                    </span>
+                                    {% else %}
+                                    <span style="color: var(--sp-gray-400);">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5">
+                                    <div class="sp-empty">
+                                        <i class="fas fa-ticket-alt"></i>
+                                        <p>Aucun ticket dans ce sprint</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne latérale -->
+        <div>
+            <!-- Jours restants -->
+            {% if sprint.statut == 'ACTIF' %}
+            <div class="sp-days-left">
+                <div class="sp-days-left-value">{{ sprint.jours_restants|default:0 }}</div>
+                <div class="sp-days-left-label">jours restants</div>
+            </div>
+            {% endif %}
+
+            <!-- Informations -->
+            <div class="sp-card">
+                <div class="sp-card-header">
+                    <h2><i class="fas fa-info-circle"></i> Informations</h2>
+                </div>
+                <div class="sp-card-body">
+                    <div class="sp-info-grid">
+                        <div class="sp-info-item">
+                            <label>Statut</label>
+                            <span class="sp-badge sp-badge-statut-{{ sprint.statut|lower }}">
+                                {{ sprint.get_statut_display }}
+                            </span>
+                        </div>
+                        <div class="sp-info-item">
+                            <label>Durée</label>
+                            <span>{{ sprint.duree_jours|default:0 }} jours</span>
+                        </div>
+                        <div class="sp-info-item">
+                            <label>Date de début</label>
+                            <span>{{ sprint.date_debut|date:"d/m/Y" }}</span>
+                        </div>
+                        <div class="sp-info-item">
+                            <label>Date de fin</label>
+                            <span>{{ sprint.date_fin|date:"d/m/Y" }}</span>
+                        </div>
+                        <div class="sp-info-item" style="grid-column: span 2;">
+                            <label>Projet</label>
+                            {% if sprint.projet %}
+                            <a href="{% url 'pm:projet_detail' sprint.projet.pk %}">
+                                {{ sprint.projet.nom }}
+                            </a>
+                            {% else %}
+                            <span style="color: var(--sp-gray-400);">Non assigné</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions rapides -->
+            <div class="sp-card">
+                <div class="sp-card-header">
+                    <h2><i class="fas fa-bolt"></i> Actions rapides</h2>
+                </div>
+                <div class="sp-card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'pm:sprint_board' sprint.pk %}" class="sp-btn sp-btn-primary" style="justify-content: center;">
+                            <i class="fas fa-columns"></i> Voir le board
+                        </a>
+                        <a href="{% url 'pm:sprint_tickets' sprint.pk %}" class="sp-btn sp-btn-secondary" style="justify-content: center;">
+                            <i class="fas fa-ticket-alt"></i> Gérer les tickets
+                        </a>
+                        <a href="{% url 'pm:sprint_rapport' sprint.pk %}" class="sp-btn sp-btn-secondary" style="justify-content: center;">
+                            <i class="fas fa-file-alt"></i> Générer le rapport
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historique -->
+            {% if historique %}
+            <div class="sp-card">
+                <div class="sp-card-header">
+                    <h2><i class="fas fa-history"></i> Activité récente</h2>
+                </div>
+                <div class="sp-card-body">
+                    <div class="sp-timeline">
+                        {% for h in historique|slice:":5" %}
+                        <div class="sp-timeline-item">
+                            <div class="sp-timeline-date">{{ h.created_at|date:"d/m/Y H:i" }}</div>
+                            <div class="sp-timeline-content">{{ h.description }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal de suppression -->
+<div id="deleteModal" class="sp-modal-overlay">
+    <div class="sp-modal">
+        <div class="sp-modal-icon danger">
+            <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem;"></i>
+        </div>
+        <h3>Supprimer ce sprint ?</h3>
+        <p>Le sprint <strong>{{ sprint.nom }}</strong> sera définitivement supprimé. Les tickets ne seront pas supprimés mais seront retirés du sprint.</p>
+        <form method="post" action="{% url 'pm:sprint_supprimer' sprint.pk %}" class="sp-modal-actions">
+            {% csrf_token %}
+            <button type="button" onclick="closeDeleteModal()" class="sp-btn sp-btn-secondary">Annuler</button>
+            <button type="submit" class="sp-btn sp-btn-danger">
+                <i class="fas fa-trash"></i> Supprimer
+            </button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extrascript %}
+<script>
+    function openDeleteModal() {
+        document.getElementById('deleteModal').style.display = 'flex';
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+    }
+
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteModal();
+        }
+    });
+</script>
+{% endblock %}

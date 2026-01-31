@@ -1,0 +1,439 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% block extrastylet %}
+<style>
+    :root {
+        --im-primary: #0891b2;
+        --im-primary-dark: #0e7490;
+        --im-success: #10b981;
+        --im-warning: #f59e0b;
+        --im-danger: #ef4444;
+        --im-info: #3b82f6;
+        --im-gray-50: #f9fafb;
+        --im-gray-100: #f3f4f6;
+        --im-gray-200: #e5e7eb;
+        --im-gray-300: #d1d5db;
+        --im-gray-500: #6b7280;
+        --im-gray-600: #4b5563;
+        --im-gray-700: #374151;
+        --im-gray-800: #1f2937;
+        --im-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        --im-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        --im-radius: 12px;
+    }
+
+    .im-page-header {
+        background: linear-gradient(135deg, var(--im-info) 0%, #2563eb 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: var(--im-radius);
+        margin-bottom: 1.5rem;
+        box-shadow: var(--im-shadow-lg);
+    }
+
+    .im-page-header h1 {
+        margin: 0;
+        font-size: 1.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .im-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .im-stat-card {
+        background: white;
+        border-radius: var(--im-radius);
+        padding: 1.5rem;
+        box-shadow: var(--im-shadow);
+        text-align: center;
+    }
+
+    .im-stat-card h3 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--im-primary);
+        margin: 0;
+    }
+
+    .im-stat-card p {
+        font-size: 0.9rem;
+        color: var(--im-gray-500);
+        margin: 0.5rem 0 0;
+    }
+
+    .im-card {
+        background: white;
+        border-radius: var(--im-radius);
+        box-shadow: var(--im-shadow);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .im-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--im-gray-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .im-card-header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--im-gray-800);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .im-card-body {
+        padding: 1.5rem;
+    }
+
+    .im-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .im-btn-success {
+        background: var(--im-success);
+        color: white;
+    }
+
+    .im-btn-success:hover {
+        background: #0d9668;
+        color: white;
+    }
+
+    .im-btn-primary {
+        background: var(--im-primary);
+        color: white;
+    }
+
+    .im-filter-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+    }
+
+    .im-form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    .im-form-group label {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--im-gray-600);
+    }
+
+    .im-form-control {
+        padding: 0.625rem 0.875rem;
+        border: 1px solid var(--im-gray-300);
+        border-radius: 8px;
+        font-size: 0.875rem;
+    }
+
+    .im-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .im-table th {
+        background: var(--im-gray-50);
+        padding: 0.75rem 1rem;
+        text-align: left;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--im-gray-600);
+    }
+
+    .im-table td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--im-gray-100);
+        font-size: 0.875rem;
+    }
+
+    .im-charts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .im-chart-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--im-gray-100);
+    }
+
+    .im-chart-item:last-child {
+        border-bottom: none;
+    }
+
+    .im-chart-bar {
+        flex: 1;
+        height: 24px;
+        background: var(--im-gray-100);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .im-chart-fill {
+        height: 100%;
+        background: var(--im-primary);
+        border-radius: 4px;
+    }
+
+    .im-chart-label {
+        min-width: 120px;
+        font-size: 0.85rem;
+        color: var(--im-gray-700);
+    }
+
+    .im-chart-value {
+        min-width: 60px;
+        text-align: right;
+        font-weight: 600;
+        color: var(--im-gray-800);
+    }
+
+    .im-pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 1rem;
+    }
+
+    .im-pagination a, .im-pagination span {
+        padding: 0.5rem 0.875rem;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        text-decoration: none;
+        color: var(--im-gray-600);
+        background: var(--im-gray-100);
+    }
+
+    .im-pagination .current {
+        background: var(--im-primary);
+        color: white;
+    }
+
+    .im-badge {
+        padding: 0.25rem 0.625rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .im-badge-valide { background: rgba(16, 185, 129, 0.1); color: var(--im-success); }
+    .im-badge-rejete { background: rgba(239, 68, 68, 0.1); color: var(--im-danger); }
+
+    .im-stat-card.success h3 { color: var(--im-success); }
+    .im-stat-card.danger h3 { color: var(--im-danger); }
+    .im-stat-card.info h3 { color: var(--im-info); }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="im-page-header">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h1>
+                    <i class="fas fa-chart-bar"></i>
+                    Rapports de Temps
+                </h1>
+                <p style="margin: 0.5rem 0 0; opacity: 0.9;">Analyse des temps imputes</p>
+            </div>
+            <a href="{% url 'pm:export_temps_excel' %}" class="im-btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;">
+                <i class="fas fa-file-excel"></i> Exporter Excel
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistiques globales -->
+    <div class="im-stats-grid">
+        <div class="im-stat-card">
+            <h3>{{ stats.total_imputations }}</h3>
+            <p>Total imputations</p>
+        </div>
+        <div class="im-stat-card success">
+            <h3>{{ stats_par_statut.validees }}</h3>
+            <p>Validees</p>
+        </div>
+        <div class="im-stat-card danger">
+            <h3>{{ stats_par_statut.rejetees }}</h3>
+            <p>Rejetees</p>
+        </div>
+        <div class="im-stat-card info">
+            <h3>{{ stats_par_statut.heures_validees|floatformat:1 }}h</h3>
+            <p>Heures validees</p>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="im-card">
+        <div class="im-card-header">
+            <h2><i class="fas fa-filter"></i> Filtres</h2>
+        </div>
+        <div class="im-card-body">
+            <form method="get" class="im-filter-form">
+                <div class="im-form-group">
+                    <label>Projet</label>
+                    <select name="projet" class="im-form-control">
+                        <option value="">Tous les projets</option>
+                        {% for p in projets %}
+                        <option value="{{ p.pk }}" {% if request.GET.projet == p.pk|stringformat:"s" %}selected{% endif %}>{{ p.nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="im-form-group">
+                    <label>Employe</label>
+                    <select name="employe" class="im-form-control">
+                        <option value="">Tous les employes</option>
+                        {% for e in employes %}
+                        <option value="{{ e.pk }}" {% if request.GET.employe == e.pk|stringformat:"s" %}selected{% endif %}>{{ e.prenoms }} {{ e.nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="im-form-group">
+                    <label>Date debut</label>
+                    <input type="date" name="date_debut" class="im-form-control" value="{{ request.GET.date_debut }}">
+                </div>
+                <div class="im-form-group">
+                    <label>Date fin</label>
+                    <input type="date" name="date_fin" class="im-form-control" value="{{ request.GET.date_fin }}">
+                </div>
+                <div class="im-form-group">
+                    <label>Statut</label>
+                    <select name="statut" class="im-form-control">
+                        {% for value, label in statut_choices %}
+                        <option value="{{ value }}" {% if request.GET.statut == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="im-form-group" style="justify-content: flex-end;">
+                    <button type="submit" class="im-btn im-btn-primary">
+                        <i class="fas fa-search"></i> Filtrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Graphiques -->
+    <div class="im-charts-grid">
+        <!-- Par type d'activite -->
+        <div class="im-card">
+            <div class="im-card-header">
+                <h2><i class="fas fa-tasks"></i> Par type d'activite</h2>
+            </div>
+            <div class="im-card-body">
+                {% for item in stats.par_type_activite %}
+                <div class="im-chart-item">
+                    <span class="im-chart-label">{{ item.type_activite }}</span>
+                    <div class="im-chart-bar">
+                        <div class="im-chart-fill" style="width: {% widthratio item.total_heures stats.total_heures 100 %}%;"></div>
+                    </div>
+                    <span class="im-chart-value">{{ item.total_heures|floatformat:1 }}h</span>
+                </div>
+                {% empty %}
+                <p style="color: var(--im-gray-500); text-align: center;">Aucune donnee</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Par projet -->
+        <div class="im-card">
+            <div class="im-card-header">
+                <h2><i class="fas fa-project-diagram"></i> Par projet</h2>
+            </div>
+            <div class="im-card-body">
+                {% for item in stats.par_projet %}
+                <div class="im-chart-item">
+                    <span class="im-chart-label">{{ item.ticket__projet__code }}</span>
+                    <div class="im-chart-bar">
+                        <div class="im-chart-fill" style="width: {% widthratio item.total_heures stats.total_heures 100 %}%; background: var(--im-success);"></div>
+                    </div>
+                    <span class="im-chart-value">{{ item.total_heures|floatformat:1 }}h</span>
+                </div>
+                {% empty %}
+                <p style="color: var(--im-gray-500); text-align: center;">Aucune donnee</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail -->
+    <div class="im-card">
+        <div class="im-card-header">
+            <h2><i class="fas fa-list"></i> Detail des imputations</h2>
+        </div>
+        {% if page_obj %}
+        <table class="im-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Employe</th>
+                    <th>Projet</th>
+                    <th>Ticket</th>
+                    <th>Type</th>
+                    <th>Heures</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for imp in page_obj %}
+                <tr>
+                    <td>{{ imp.date_imputation|date:"d/m/Y" }}</td>
+                    <td>{{ imp.employe.prenoms }} {{ imp.employe.nom }}</td>
+                    <td>{{ imp.ticket.projet.code }}</td>
+                    <td>{{ imp.ticket.code }}</td>
+                    <td>{{ imp.get_type_activite_display }}</td>
+                    <td><strong>{{ imp.heures_affichage }}h{% if imp.minutes_affichage %} {{ imp.minutes_affichage }}min{% endif %}</strong></td>
+                    <td>
+                        <span class="im-badge im-badge-{{ imp.statut_validation|lower }}">
+                            {{ imp.get_statut_validation_display }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if page_obj.has_other_pages %}
+        <div class="im-pagination">
+            {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo;</a>
+            {% endif %}
+            <span class="current">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

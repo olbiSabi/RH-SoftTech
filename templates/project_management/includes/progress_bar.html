@@ -1,0 +1,25 @@
+{% comment %}
+Barre de progression réutilisable
+Usage: {% include 'project_management/includes/progress_bar.html' with percentage=75 color='primary' show_label=True %}
+
+Paramètres:
+- percentage: 0-100
+- color: 'primary', 'success', 'warning', 'danger', 'info', 'teal' (optionnel, défaut: 'primary')
+- show_label: True/False pour afficher le pourcentage (optionnel, défaut: False)
+- height: hauteur en pixels (optionnel, défaut: 8)
+{% endcomment %}
+
+{% with height=height|default:8 %}
+<div class="pm-progress" style="height: {{ height }}px;">
+    <div class="pm-progress-bar pm-progress-{{ color|default:'primary' }}"
+         style="width: {{ percentage|default:0 }}%;"
+         role="progressbar"
+         aria-valuenow="{{ percentage|default:0 }}"
+         aria-valuemin="0"
+         aria-valuemax="100">
+    </div>
+</div>
+{% if show_label %}
+<span class="pm-progress-label">{{ percentage|default:0|floatformat:0 }}%</span>
+{% endif %}
+{% endwith %}

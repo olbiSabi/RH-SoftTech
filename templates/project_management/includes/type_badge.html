@@ -1,0 +1,28 @@
+{% comment %}
+Badge pour le type d'un ticket
+Usage: {% include 'project_management/includes/type_badge.html' with type=ticket.type_ticket %}
+{% endcomment %}
+
+{% if type == 'BUG' %}
+    <span class="pm-badge pm-badge-danger">
+        <i class="fas fa-bug"></i> Bug
+    </span>
+{% elif type == 'FEATURE' %}
+    <span class="pm-badge pm-badge-success">
+        <i class="fas fa-lightbulb"></i> Fonctionnalité
+    </span>
+{% elif type == 'AMELIORATION' %}
+    <span class="pm-badge pm-badge-info">
+        <i class="fas fa-magic"></i> Amélioration
+    </span>
+{% elif type == 'TACHE' %}
+    <span class="pm-badge pm-badge-primary">
+        <i class="fas fa-tasks"></i> Tâche
+    </span>
+{% elif type == 'SUPPORT' %}
+    <span class="pm-badge pm-badge-warning">
+        <i class="fas fa-headset"></i> Support
+    </span>
+{% else %}
+    <span class="pm-badge pm-badge-secondary">{{ type }}</span>
+{% endif %}

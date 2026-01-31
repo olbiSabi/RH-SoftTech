@@ -119,47 +119,105 @@
                     </li>
 
                     <!-- ========================================
-                    MENU GTA - VERSION SIMPLIFIÉE
+                    MENU PROJECT MANAGEMENT
+                    Remplace le GTA
                     ======================================== -->
                 {% if user.is_authenticated and user.employe %}
                     <li class="menu-item">
-                        {% if user.employe.peut_gerer_clients %}
-                        <a href="{% url 'gestion_temps_activite:dashboard' %}" class="menu-link"><i class="fas fa-clock"></i><span>GTA</span><i class="fas fa-chevron-down menu-arrow"></i></a>
-                        {% else %}
-                        <a href="#" class="menu-link"><i class="fas fa-clock"></i><span>GTA</span><i class="fas fa-chevron-down menu-arrow"></i></a>
-                        {% endif %}
+                        <a href="{% url 'pm:dashboard' %}" class="menu-link">
+                            <i class="fas fa-project-diagram"></i>
+                            <span>Projets</span>
+                            <i class="fas fa-chevron-down menu-arrow"></i>
+                        </a>
                         <ul class="submenu">
-                            {% if user.employe.peut_gerer_clients %}
-                            <li><a href="{% url 'gestion_temps_activite:client_liste' %}"><i class="fas fa-building"></i> Clients</a></li>
-                            {% endif %}
-
-                            {% if user.employe.peut_gerer_activites %}
-                            <li><a href="{% url 'gestion_temps_activite:activite_liste' %}"><i class="fas fa-list-check"></i> Activités</a></li>
-                            {% endif %}
-
-                            <li><a href="{% url 'gestion_temps_activite:projet_liste' %}"><i class="fas fa-folder-open"></i> Projets</a></li>
-
-                            <li><a href="{% url 'gestion_temps_activite:tache_liste' %}"><i class="fas fa-tasks"></i> Tâches</a></li>
-
+                            <!-- Dashboard -->
+                            <li>
+                                <a href="{% url 'pm:dashboard' %}">
+                                    <i class="fas fa-tachometer-alt"></i> Tableau de bord
+                                </a>
+                            </li>
+                            
+                            <!-- Clients -->
+                            <li>
+                                <a href="{% url 'pm:client_list' %}">
+                                    <i class="fas fa-building"></i> Clients
+                                </a>
+                            </li>
+                            
+                            <!-- Projets -->
+                            <li>
+                                <a href="{% url 'pm:projet_list' %}">
+                                    <i class="fas fa-folder-open"></i> Projets
+                                </a>
+                            </li>
+                            
+                            <!-- Tickets -->
+                            <li>
+                                <a href="{% url 'pm:ticket_list' %}">
+                                    <i class="fas fa-tasks"></i> Tickets
+                                </a>
+                            </li>
+                            
+                            <!-- Sprints -->
+                            <li>
+                                <a href="{% url 'pm:sprint_list' %}">
+                                    <i class="fas fa-running"></i> Sprints
+                                </a>
+                            </li>
+                            
+                            <!-- Imputations -->
+                            <li>
+                                <a href="{% url 'pm:imputation_list' %}">
+                                    <i class="fas fa-user-clock"></i> Imputations
+                                </a>
+                            </li>
+                            
+                            <!-- Backlog -->
+                            <li>
+                                <a href="{% url 'pm:backlog_list' %}">
+                                    <i class="fas fa-list"></i> Backlog
+                                </a>
+                            </li>
+                            
                             {% if user.employe.peut_gerer_clients or user.employe.peut_gerer_activites or user.employe.peut_gerer_projets %}
                             <li class="submenu-divider"></li>
                             {% endif %}
-
-                            <li><a href="{% url 'gestion_temps_activite:imputation_mes_temps' %}"><i class="fas fa-user-clock"></i> Mes temps</a></li>
-
-                            <li><a href="{% url 'gestion_temps_activite:imputation_create' %}"><i class="fas fa-plus-circle"></i> Saisir du temps</a></li>
-
+                            
+                            <!-- Mes imputations -->
+                            <li>
+                                <a href="{% url 'pm:mes_imputations' %}">
+                                    <i class="fas fa-clock"></i> Mes temps
+                                </a>
+                            </li>
+                            
+                            <!-- Nouvelle imputation -->
+                            <li>
+                                <a href="{% url 'pm:imputation_create' %}">
+                                    <i class="fas fa-plus-circle"></i> Saisir du temps
+                                </a>
+                            </li>
+                            
                             {% if user.employe.peut_voir_toutes_imputations %}
-                            <li><a href="{% url 'gestion_temps_activite:imputation_liste' %}"><i class="fas fa-list"></i> Toutes les imputations</a></li>
+                            <li>
+                                <a href="{% url 'pm:validation_imputations' %}">
+                                    <i class="fas fa-check-double"></i> Validation
+                                </a>
+                            </li>
                             {% endif %}
-
-                            {% if user.employe.peut_valider_imputations %}
-                            <li><a href="{% url 'gestion_temps_activite:imputation_validation' %}"><i class="fas fa-check-double"></i> Validation</a></li>
-                            {% endif %}
-
-                            {% if user.employe.peut_uploader_documents %}
-                            <li><a href="{% url 'gestion_temps_activite:document_upload' %}"><i class="fas fa-paperclip"></i> Documents</a></li>
-                            {% endif %}
+                            
+                            <!-- Rapports -->
+                            <li>
+                                <a href="{% url 'pm:rapports_temps' %}">
+                                    <i class="fas fa-chart-bar"></i> Rapports
+                                </a>
+                            </li>
+                            
+                            <!-- Export -->
+                            <li>
+                                <a href="{% url 'pm:export_temps_excel' %}">
+                                    <i class="fas fa-file-excel"></i> Export Excel
+                                </a>
+                            </li>
                         </ul>
                     </li>
                 {% endif %}

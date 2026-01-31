@@ -1,0 +1,680 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% block extrastylet %}
+<style>
+    :root {
+        --pm-primary: #4f46e5;
+        --pm-primary-dark: #4338ca;
+        --pm-primary-light: #818cf8;
+        --pm-success: #10b981;
+        --pm-warning: #f59e0b;
+        --pm-danger: #ef4444;
+        --pm-info: #3b82f6;
+        --pm-gray-50: #f9fafb;
+        --pm-gray-100: #f3f4f6;
+        --pm-gray-200: #e5e7eb;
+        --pm-gray-300: #d1d5db;
+        --pm-gray-500: #6b7280;
+        --pm-gray-600: #4b5563;
+        --pm-gray-700: #374151;
+        --pm-gray-800: #1f2937;
+        --pm-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        --pm-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        --pm-radius: 12px;
+    }
+
+    .pm-page-header {
+        background: linear-gradient(135deg, var(--pm-primary) 0%, var(--pm-primary-dark) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: var(--pm-radius);
+        margin-bottom: 1.5rem;
+        box-shadow: var(--pm-shadow-lg);
+    }
+
+    .pm-page-header h1 {
+        margin: 0;
+        font-size: 1.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .pm-page-header p {
+        margin: 0.5rem 0 0;
+        opacity: 0.9;
+        font-size: 0.95rem;
+    }
+
+    .pm-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .pm-stat-card {
+        background: white;
+        border-radius: var(--pm-radius);
+        padding: 1.25rem;
+        box-shadow: var(--pm-shadow);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .pm-stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--pm-shadow-lg);
+    }
+
+    .pm-stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .pm-stat-icon.total { background: rgba(79, 70, 229, 0.1); color: var(--pm-primary); }
+    .pm-stat-icon.planifie { background: rgba(107, 114, 128, 0.1); color: var(--pm-gray-500); }
+    .pm-stat-icon.actif { background: rgba(59, 130, 246, 0.1); color: var(--pm-info); }
+    .pm-stat-icon.termine { background: rgba(16, 185, 129, 0.1); color: var(--pm-success); }
+
+    .pm-stat-content h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--pm-gray-800);
+    }
+
+    .pm-stat-content p {
+        font-size: 0.85rem;
+        color: var(--pm-gray-500);
+        margin: 0;
+    }
+
+    .pm-card {
+        background: white;
+        border-radius: var(--pm-radius);
+        box-shadow: var(--pm-shadow);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .pm-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--pm-gray-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .pm-card-header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--pm-gray-800);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .pm-card-body {
+        padding: 1.5rem;
+    }
+
+    .pm-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .pm-btn-primary {
+        background: var(--pm-primary);
+        color: white;
+    }
+
+    .pm-btn-primary:hover {
+        background: var(--pm-primary-dark);
+        color: white;
+    }
+
+    .pm-btn-secondary {
+        background: var(--pm-gray-100);
+        color: var(--pm-gray-700);
+    }
+
+    .pm-btn-secondary:hover {
+        background: var(--pm-gray-200);
+    }
+
+    .pm-btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    .pm-search-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .pm-form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    .pm-form-group label {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--pm-gray-600);
+    }
+
+    .pm-form-control {
+        padding: 0.625rem 0.875rem;
+        border: 1px solid var(--pm-gray-300);
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .pm-form-control:focus {
+        outline: none;
+        border-color: var(--pm-primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .pm-search-actions {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-end;
+    }
+
+    .pm-projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .pm-project-card {
+        background: white;
+        border-radius: var(--pm-radius);
+        box-shadow: var(--pm-shadow);
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .pm-project-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--pm-shadow-lg);
+    }
+
+    .pm-project-header {
+        padding: 1.5rem;
+        border-left: 4px solid var(--pm-primary);
+    }
+
+    .pm-project-header.planifie { border-color: var(--pm-gray-400); }
+    .pm-project-header.actif { border-color: var(--pm-info); }
+    .pm-project-header.en_pause { border-color: var(--pm-warning); }
+    .pm-project-header.termine { border-color: var(--pm-success); }
+    .pm-project-header.annule { border-color: var(--pm-danger); }
+
+    .pm-project-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+    }
+
+    .pm-project-title h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--pm-gray-800);
+    }
+
+    .pm-project-title h3 a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .pm-project-title h3 a:hover {
+        color: var(--pm-primary);
+    }
+
+    .pm-project-code {
+        font-family: monospace;
+        font-size: 0.8rem;
+        color: var(--pm-primary);
+        background: rgba(79, 70, 229, 0.1);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+    }
+
+    .pm-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.625rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .pm-badge-statut-planifie { background: rgba(107, 114, 128, 0.1); color: #4b5563; }
+    .pm-badge-statut-actif { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
+    .pm-badge-statut-en_pause { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+    .pm-badge-statut-termine { background: rgba(16, 185, 129, 0.1); color: #059669; }
+    .pm-badge-statut-annule { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+
+    .pm-project-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        font-size: 0.85rem;
+        color: var(--pm-gray-500);
+    }
+
+    .pm-project-meta span {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .pm-project-body {
+        padding: 1.25rem 1.5rem;
+        border-top: 1px solid var(--pm-gray-200);
+    }
+
+    .pm-project-client {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .pm-project-client i {
+        color: var(--pm-gray-400);
+    }
+
+    .pm-project-client a {
+        color: var(--pm-primary);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .pm-project-client a:hover {
+        text-decoration: underline;
+    }
+
+    .pm-progress {
+        margin-bottom: 1rem;
+    }
+
+    .pm-progress-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.375rem;
+        font-size: 0.8rem;
+        color: var(--pm-gray-600);
+    }
+
+    .pm-progress-bar {
+        height: 8px;
+        background: var(--pm-gray-200);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .pm-progress-fill {
+        height: 100%;
+        background: var(--pm-primary);
+        border-radius: 4px;
+        transition: width 0.3s;
+    }
+
+    .pm-project-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+        text-align: center;
+    }
+
+    .pm-project-stat {
+        padding: 0.75rem;
+        background: var(--pm-gray-50);
+        border-radius: 8px;
+    }
+
+    .pm-project-stat-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--pm-gray-800);
+    }
+
+    .pm-project-stat-label {
+        font-size: 0.75rem;
+        color: var(--pm-gray-500);
+    }
+
+    .pm-project-footer {
+        padding: 1rem 1.5rem;
+        background: var(--pm-gray-50);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .pm-project-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .pm-btn-icon {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        background: white;
+        color: var(--pm-gray-600);
+        border: 1px solid var(--pm-gray-200);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .pm-btn-icon:hover {
+        background: var(--pm-gray-100);
+        color: var(--pm-gray-800);
+    }
+
+    .pm-btn-icon.danger:hover {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--pm-danger);
+        border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .pm-empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: var(--pm-gray-500);
+    }
+
+    .pm-empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    @media (max-width: 768px) {
+        .pm-projects-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .pm-search-form {
+            grid-template-columns: 1fr;
+        }
+
+        .pm-search-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="pm-page-header">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h1><i class="fas fa-project-diagram"></i> Projets</h1>
+                <p>Gérez tous vos projets et suivez leur avancement</p>
+            </div>
+            <a href="{% url 'pm:projet_create' %}" class="pm-btn pm-btn-primary" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);">
+                <i class="fas fa-plus"></i> Nouveau projet
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="pm-stats-grid">
+        <div class="pm-stat-card">
+            <div class="pm-stat-icon total">
+                <i class="fas fa-folder"></i>
+            </div>
+            <div class="pm-stat-content">
+                <h3>{{ total_projets|default:0 }}</h3>
+                <p>Total projets</p>
+            </div>
+        </div>
+        <div class="pm-stat-card">
+            <div class="pm-stat-icon planifie">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="pm-stat-content">
+                <h3>{{ projets_planifies|default:0 }}</h3>
+                <p>Planifiés</p>
+            </div>
+        </div>
+        <div class="pm-stat-card">
+            <div class="pm-stat-icon actif">
+                <i class="fas fa-play-circle"></i>
+            </div>
+            <div class="pm-stat-content">
+                <h3>{{ projets_actifs|default:0 }}</h3>
+                <p>Actifs</p>
+            </div>
+        </div>
+        <div class="pm-stat-card">
+            <div class="pm-stat-icon termine">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="pm-stat-content">
+                <h3>{{ projets_termines|default:0 }}</h3>
+                <p>Terminés</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="pm-card">
+        <div class="pm-card-header">
+            <h2><i class="fas fa-filter"></i> Filtres</h2>
+        </div>
+        <div class="pm-card-body">
+            <form method="get" class="pm-search-form">
+                <div class="pm-form-group">
+                    <label for="recherche">Recherche</label>
+                    <input type="text" name="recherche" id="recherche" class="pm-form-control"
+                           placeholder="Nom, code..."
+                           value="{{ request.GET.recherche|default:'' }}">
+                </div>
+                <div class="pm-form-group">
+                    <label for="client">Client</label>
+                    <select name="client" id="client" class="pm-form-control">
+                        <option value="">Tous les clients</option>
+                        {% for c in clients %}
+                        <option value="{{ c.pk }}" {% if request.GET.client == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.raison_sociale }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="pm-form-group">
+                    <label for="statut">Statut</label>
+                    <select name="statut" id="statut" class="pm-form-control">
+                        <option value="">Tous les statuts</option>
+                        <option value="PLANIFIE" {% if request.GET.statut == 'PLANIFIE' %}selected{% endif %}>Planifié</option>
+                        <option value="ACTIF" {% if request.GET.statut == 'ACTIF' %}selected{% endif %}>Actif</option>
+                        <option value="EN_PAUSE" {% if request.GET.statut == 'EN_PAUSE' %}selected{% endif %}>En pause</option>
+                        <option value="TERMINE" {% if request.GET.statut == 'TERMINE' %}selected{% endif %}>Terminé</option>
+                        <option value="ANNULE" {% if request.GET.statut == 'ANNULE' %}selected{% endif %}>Annulé</option>
+                    </select>
+                </div>
+                <div class="pm-search-actions">
+                    <button type="submit" class="pm-btn pm-btn-primary">
+                        <i class="fas fa-search"></i> Rechercher
+                    </button>
+                    <a href="{% url 'pm:projet_list' %}" class="pm-btn pm-btn-secondary">
+                        <i class="fas fa-times"></i> Réinitialiser
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Liste des projets -->
+    <div class="pm-projects-grid">
+        {% for projet in projets %}
+        <div class="pm-project-card">
+            <div class="pm-project-header {{ projet.statut|lower }}">
+                <div class="pm-project-title">
+                    <div>
+                        <span class="pm-project-code">{{ projet.code }}</span>
+                        <h3><a href="{% url 'pm:projet_detail' projet.pk %}">{{ projet.nom }}</a></h3>
+                    </div>
+                    <span class="pm-badge pm-badge-statut-{{ projet.statut|lower }}">
+                        {{ projet.get_statut_display }}
+                    </span>
+                </div>
+                <div class="pm-project-meta">
+                    <span><i class="fas fa-calendar"></i> {{ projet.date_debut|date:"d/m/Y" }}</span>
+                    {% if projet.date_fin_prevue %}
+                    <span><i class="fas fa-flag-checkered"></i> {{ projet.date_fin_prevue|date:"d/m/Y" }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="pm-project-body">
+                {% if projet.client %}
+                <div class="pm-project-client">
+                    <i class="fas fa-building"></i>
+                    <a href="{% url 'pm:client_detail' projet.client.pk %}">{{ projet.client.raison_sociale }}</a>
+                </div>
+                {% endif %}
+
+                <div class="pm-progress">
+                    <div class="pm-progress-header">
+                        <span>Avancement</span>
+                        <span>{{ projet.pourcentage_completion|default:0 }}%</span>
+                    </div>
+                    <div class="pm-progress-bar">
+                        <div class="pm-progress-fill" style="width: {{ projet.pourcentage_completion|default:0 }}%;"></div>
+                    </div>
+                </div>
+
+                <div class="pm-project-stats">
+                    <div class="pm-project-stat">
+                        <div class="pm-project-stat-value">{{ projet.tickets.count }}</div>
+                        <div class="pm-project-stat-label">Tickets</div>
+                    </div>
+                    <div class="pm-project-stat">
+                        <div class="pm-project-stat-value">{{ projet.sprints.count }}</div>
+                        <div class="pm-project-stat-label">Sprints</div>
+                    </div>
+                    <div class="pm-project-stat">
+                        <div class="pm-project-stat-value">{{ projet.heures_imputees|default:0 }}h</div>
+                        <div class="pm-project-stat-label">Heures</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pm-project-footer">
+                {% if projet.chef_projet %}
+                <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--pm-gray-600);">
+                    <i class="fas fa-user"></i>
+                    {{ projet.chef_projet.prenoms }} {{ projet.chef_projet.nom|slice:":1" }}.
+                </div>
+                {% else %}
+                <span></span>
+                {% endif %}
+                <div class="pm-project-actions">
+                    <a href="{% url 'pm:projet_detail' projet.pk %}" class="pm-btn-icon" title="Voir">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    <a href="{% url 'pm:projet_update' projet.pk %}" class="pm-btn-icon" title="Modifier">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <button type="button" class="pm-btn-icon danger" title="Supprimer"
+                            onclick="confirmDelete('{{ projet.pk }}', '{{ projet.nom|escapejs }}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="pm-card" style="grid-column: 1 / -1;">
+            <div class="pm-empty-state">
+                <i class="fas fa-project-diagram"></i>
+                <p>Aucun projet trouvé</p>
+                <a href="{% url 'pm:projet_create' %}" class="pm-btn pm-btn-primary">
+                    <i class="fas fa-plus"></i> Créer un projet
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+<div id="deleteModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+    <div style="background: white; border-radius: var(--pm-radius); padding: 2rem; max-width: 400px; width: 90%; text-align: center;">
+        <div style="width: 64px; height: 64px; background: rgba(239, 68, 68, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem; color: var(--pm-danger);"></i>
+        </div>
+        <h3 style="margin: 0 0 0.5rem; color: var(--pm-gray-800);">Supprimer ce projet ?</h3>
+        <p style="color: var(--pm-gray-500); margin-bottom: 1.5rem;">
+            Le projet <strong id="projectNameToDelete"></strong> sera définitivement supprimé avec tous ses tickets et sprints.
+        </p>
+        <form id="deleteForm" method="post" style="display: flex; gap: 1rem; justify-content: center;">
+            {% csrf_token %}
+            <button type="button" onclick="closeDeleteModal()" class="pm-btn pm-btn-secondary">
+                Annuler
+            </button>
+            <button type="submit" class="pm-btn" style="background: var(--pm-danger); color: white;">
+                <i class="fas fa-trash"></i> Supprimer
+            </button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extrascript %}
+<script>
+    function confirmDelete(projectId, projectName) {
+        document.getElementById('projectNameToDelete').textContent = projectName;
+        document.getElementById('deleteForm').action = '{% url "pm:projet_delete" "00000000-0000-0000-0000-000000000000" %}'.replace('00000000-0000-0000-0000-000000000000', projectId);
+        document.getElementById('deleteModal').style.display = 'flex';
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+    }
+
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteModal();
+        }
+    });
+</script>
+{% endblock %}

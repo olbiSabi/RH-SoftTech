@@ -1,0 +1,379 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% block extrastylet %}
+<style>
+    :root {
+        --sp-primary: #1c5d5f;
+        --sp-primary-dark: #154647;
+        --sp-primary-light: #2a8a8d;
+        --sp-success: #10b981;
+        --sp-warning: #f59e0b;
+        --sp-danger: #ef4444;
+        --sp-info: #3b82f6;
+        --sp-gray-50: #f9fafb;
+        --sp-gray-100: #f3f4f6;
+        --sp-gray-200: #e5e7eb;
+        --sp-gray-300: #d1d5db;
+        --sp-gray-500: #6b7280;
+        --sp-gray-600: #4b5563;
+        --sp-gray-700: #374151;
+        --sp-gray-800: #1f2937;
+        --sp-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        --sp-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        --sp-radius: 12px;
+    }
+
+    .sp-page-header {
+        background: linear-gradient(135deg, var(--sp-primary) 0%, var(--sp-primary-dark) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: var(--sp-radius);
+        margin-bottom: 1.5rem;
+        box-shadow: var(--sp-shadow-lg);
+    }
+
+    .sp-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        margin-bottom: 0.75rem;
+        opacity: 0.9;
+    }
+
+    .sp-breadcrumb a {
+        color: white;
+        text-decoration: none;
+    }
+
+    .sp-breadcrumb a:hover {
+        text-decoration: underline;
+    }
+
+    .sp-page-header h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .sp-card {
+        background: white;
+        border-radius: var(--sp-radius);
+        box-shadow: var(--sp-shadow);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .sp-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--sp-gray-200);
+    }
+
+    .sp-card-header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--sp-gray-800);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .sp-card-body {
+        padding: 1.5rem;
+    }
+
+    .sp-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .sp-btn-primary {
+        background: var(--sp-primary);
+        color: white;
+    }
+
+    .sp-btn-primary:hover {
+        background: var(--sp-primary-dark);
+        color: white;
+    }
+
+    .sp-btn-secondary {
+        background: var(--sp-gray-100);
+        color: var(--sp-gray-700);
+    }
+
+    .sp-btn-secondary:hover {
+        background: var(--sp-gray-200);
+    }
+
+    .sp-btn-lg {
+        padding: 0.875rem 1.5rem;
+        font-size: 0.95rem;
+    }
+
+    .sp-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .sp-form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .sp-form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .sp-form-group.full-width {
+        grid-column: span 2;
+    }
+
+    @media (max-width: 768px) {
+        .sp-form-group.full-width {
+            grid-column: span 1;
+        }
+    }
+
+    .sp-form-group label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--sp-gray-700);
+        margin-bottom: 0.5rem;
+    }
+
+    .sp-form-group label .required {
+        color: var(--sp-danger);
+    }
+
+    .sp-form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--sp-gray-300);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background: white;
+    }
+
+    .sp-form-control:focus {
+        outline: none;
+        border-color: var(--sp-primary);
+        box-shadow: 0 0 0 3px rgba(28, 93, 95, 0.1);
+    }
+
+    .sp-form-control.is-invalid {
+        border-color: var(--sp-danger);
+    }
+
+    textarea.sp-form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    select.sp-form-control {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1.25rem;
+        padding-right: 2.5rem;
+    }
+
+    .sp-form-help {
+        font-size: 0.8rem;
+        color: var(--sp-gray-500);
+        margin-top: 0.375rem;
+    }
+
+    .sp-form-error {
+        font-size: 0.8rem;
+        color: var(--sp-danger);
+        margin-top: 0.375rem;
+    }
+
+    .sp-form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--sp-gray-200);
+        margin-top: 1rem;
+    }
+
+    /* Styles pour Django form widgets */
+    .sp-card-body select,
+    .sp-card-body input[type="text"],
+    .sp-card-body input[type="number"],
+    .sp-card-body input[type="date"],
+    .sp-card-body input[type="email"],
+    .sp-card-body textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--sp-gray-300);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background: white;
+    }
+
+    .sp-card-body select:focus,
+    .sp-card-body input:focus,
+    .sp-card-body textarea:focus {
+        outline: none;
+        border-color: var(--sp-primary);
+        box-shadow: 0 0 0 3px rgba(28, 93, 95, 0.1);
+    }
+
+    .sp-card-body select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1.25rem;
+        padding-right: 2.5rem;
+    }
+
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 0.375rem 0 0;
+    }
+
+    .errorlist li {
+        font-size: 0.8rem;
+        color: var(--sp-danger);
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="sp-page-header">
+        <div class="sp-breadcrumb">
+            <a href="{% url 'pm:sprint_list' %}"><i class="fas fa-running"></i> Sprints</a>
+            <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
+            <span>{% if form.instance.created_at %}Modifier {{ form.instance.nom }}{% else %}Nouveau sprint{% endif %}</span>
+        </div>
+        <h1>
+            <i class="fas fa-{% if form.instance.created_at %}edit{% else %}plus-circle{% endif %}"></i>
+            {% if form.instance.created_at %}Modifier le sprint{% else %}Créer un nouveau sprint{% endif %}
+        </h1>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="sp-card">
+            <div class="sp-card-header">
+                <h2><i class="fas fa-info-circle"></i> Informations générales</h2>
+            </div>
+            <div class="sp-card-body">
+                <div class="sp-form-grid">
+                    <div class="sp-form-group full-width">
+                        <label for="id_nom">Nom du sprint <span class="required">*</span></label>
+                        {{ form.nom }}
+                        {% if form.nom.errors %}
+                            <div class="sp-form-error">{{ form.nom.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="sp-form-group">
+                        <label for="id_projet">Projet <span class="required">*</span></label>
+                        {{ form.projet }}
+                        {% if form.projet.errors %}
+                            <div class="sp-form-error">{{ form.projet.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="sp-form-group">
+                        <label for="id_statut">Statut</label>
+                        {{ form.statut }}
+                    </div>
+
+                    <div class="sp-form-group">
+                        <label for="id_date_debut">Date de début <span class="required">*</span></label>
+                        {{ form.date_debut }}
+                        {% if form.date_debut.errors %}
+                            <div class="sp-form-error">{{ form.date_debut.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="sp-form-group">
+                        <label for="id_date_fin">Date de fin <span class="required">*</span></label>
+                        {{ form.date_fin }}
+                        {% if form.date_fin.errors %}
+                            <div class="sp-form-error">{{ form.date_fin.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="sp-form-group full-width">
+                        <label for="id_objectif">Objectif du sprint</label>
+                        {{ form.objectif }}
+                        <div class="sp-form-help">Décrivez l'objectif principal de ce sprint</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if form.instance.created_at %}
+        <div class="sp-card">
+            <div class="sp-card-header">
+                <h2><i class="fas fa-history"></i> Informations système</h2>
+            </div>
+            <div class="sp-card-body">
+                <div class="sp-form-grid">
+                    <div class="sp-form-group">
+                        <label>Créé le</label>
+                        <input type="text" class="sp-form-control" value="{{ form.instance.created_at|date:'d/m/Y H:i' }}" disabled>
+                    </div>
+                    <div class="sp-form-group">
+                        <label>Tickets</label>
+                        <input type="text" class="sp-form-control" value="{{ form.instance.tickets.count }} ticket(s)" disabled>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="sp-form-actions">
+            <a href="{% if form.instance.created_at %}{% url 'pm:sprint_detail' form.instance.pk %}{% else %}{% url 'pm:sprint_list' %}{% endif %}" class="sp-btn sp-btn-secondary sp-btn-lg">
+                <i class="fas fa-times"></i> Annuler
+            </a>
+            <button type="submit" class="sp-btn sp-btn-primary sp-btn-lg">
+                <i class="fas fa-save"></i> {% if form.instance.created_at %}Enregistrer{% else %}Créer le sprint{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block extrascript %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.sp-card-body input[type="text"], .sp-card-body input[type="number"], .sp-card-body input[type="date"], .sp-card-body select, .sp-card-body textarea').forEach(function(el) {
+            if (!el.classList.contains('sp-form-control')) {
+                el.classList.add('sp-form-control');
+            }
+        });
+    });
+</script>
+{% endblock %}
