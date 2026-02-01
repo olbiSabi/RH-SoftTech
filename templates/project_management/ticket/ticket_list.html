@@ -204,9 +204,13 @@
                         </td>
                         <td>
                             {% if ticket.projet %}
+                                {% if peut_gerer_projets %}
                                 <a href="{% url 'pm:projet_detail' ticket.projet.pk %}" style="color: var(--pm-gray-700); text-decoration: none;">
                                     {{ ticket.projet.nom|truncatechars:25 }}
                                 </a>
+                                {% else %}
+                                <span style="color: var(--pm-gray-700);">{{ ticket.projet.nom|truncatechars:25 }}</span>
+                                {% endif %}
                             {% else %}
                                 <span style="color: var(--pm-gray-400);">-</span>
                             {% endif %}

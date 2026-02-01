@@ -1,15 +1,19 @@
+import logging
+from datetime import datetime
+
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods
-from datetime import datetime
+from django.core.exceptions import ValidationError
+from django.contrib.auth.decorators import login_required, permission_required
+
 from absence.decorators import drh_or_admin_required, gestion_app_required, assistant_rh_required
-import departement
 from employee.models import ZYAF, ZY00
 from .models import ZDDE, ZDPO, ZYMA
 from .forms import ZDDEForm, ZDPOForm
-from django.core.exceptions import ValidationError
-from django.contrib.auth.decorators import login_required, permission_required
+
+logger = logging.getLogger(__name__)
 
 
 #@permission_required('departement.view_zdde', raise_exception=True)
@@ -29,7 +33,7 @@ def department_list(request):
             return redirect('departement:list')
         else:
             #messages.error(request, '✗ Erreur de validation. Veuillez corriger les erreurs ci-dessous.')
-            print("Erreur de validation. Veuillez corriger les erreurs ci-dessous.")
+            logger.warning("Erreur de validation du formulaire")
     else:
         form = ZDDEForm()
 
@@ -55,7 +59,7 @@ def department_edit(request, pk):
             return redirect('departement:list')
         else:
             #messages.error(request, '✗ Erreur de validation. Veuillez corriger les erreurs ci-dessous.')
-            print("Erreur de validation. Veuillez corriger les erreurs ci-dessous.")
+            logger.warning("Erreur de validation du formulaire")
     else:
         form = ZDDEForm(instance=department)
 
@@ -97,7 +101,7 @@ def poste_list(request):
             return redirect('departement:poste_list')
         else:
             #messages.error(request, '✗ Erreur de validation. Veuillez corriger les erreurs ci-dessous.')
-            print("Erreur de validation. Veuillez corriger les erreurs ci-dessous.")
+            logger.warning("Erreur de validation du formulaire")
     else:
         form = ZDPOForm()
 
@@ -122,7 +126,7 @@ def poste_edit(request, pk):
             return redirect('departement:poste_list')
         else:
             #messages.error(request, '✗ Erreur de validation. Veuillez corriger les erreurs ci-dessous.')
-            print("Erreur de validation. Veuillez corriger les erreurs ci-dessous.")
+            logger.warning("Erreur de validation du formulaire")
     else:
         form = ZDPOForm(instance=poste)
 

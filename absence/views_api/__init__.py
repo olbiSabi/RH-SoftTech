@@ -37,6 +37,7 @@ from .parametre_calcul_api import (
 )
 
 from .acquisition_api import (
+    api_acquisition_create,
     api_acquisition_detail,
     api_acquisition_update,
     api_acquisition_delete,
@@ -91,6 +92,7 @@ __all__ = [
     'api_parametre_calcul_update',
     'api_parametre_calcul_delete',
     # Acquisition
+    'api_acquisition_create',
     'api_acquisition_detail',
     'api_acquisition_update',
     'api_acquisition_delete',

@@ -13,9 +13,11 @@
                 <h1 class="large"><i class="fas fa-project-diagram"></i> Projets</h1>
                 <p>Gérez tous vos projets et suivez leur avancement</p>
             </div>
+            {% if peut_gerer_projets %}
             <a href="{% url 'pm:projet_create' %}" class="pm-btn pm-btn-primary" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);">
                 <i class="fas fa-plus"></i> Nouveau projet
             </a>
+            {% endif %}
         </div>
     </div>
 
@@ -130,7 +132,11 @@
                 {% if projet.client %}
                 <div class="pm-project-client">
                     <i class="fas fa-building"></i>
+                    {% if peut_gerer_clients %}
                     <a href="{% url 'pm:client_detail' projet.client.pk %}">{{ projet.client.raison_sociale }}</a>
+                    {% else %}
+                    <span>{{ projet.client.raison_sociale }}</span>
+                    {% endif %}
                 </div>
                 {% endif %}
 
@@ -173,6 +179,7 @@
                     <a href="{% url 'pm:projet_detail' projet.pk %}" class="pm-btn-icon" title="Voir">
                         <i class="fas fa-eye"></i>
                     </a>
+                    {% if peut_gerer_projets %}
                     <a href="{% url 'pm:projet_update' projet.pk %}" class="pm-btn-icon" title="Modifier">
                         <i class="fas fa-edit"></i>
                     </a>
@@ -180,6 +187,7 @@
                             onclick="confirmDelete('{{ projet.pk }}', '{{ projet.nom|escapejs }}')">
                         <i class="fas fa-trash"></i>
                     </button>
+                    {% endif %}
                 </div>
             </div>
         </div>

@@ -13,20 +13,21 @@ from django.utils import timezone
 
 from ..models import JRProject, JRClient, JRTicket, JRImputation
 from ..forms import ProjetForm, ProjetSearchForm
+from ..mixins import ProjectPermissionMixin, project_permission_required
 from employee.models import ZY00
 
 
 @method_decorator(login_required, name='dispatch')
 class ProjetListView(LoginRequiredMixin, ListView):
-    """Vue pour la liste des projets"""
+    """Vue pour la liste des projets - Accessible à tous les utilisateurs connectés"""
     model = JRProject
     template_name = 'project_management/projet/projet_list.html'
     context_object_name = 'projets'
     paginate_by = 20
-    
+
     def get_queryset(self):
         queryset = JRProject.objects.select_related('client', 'chef_projet')
-        
+
         # Recherche
         search_form = ProjetSearchForm(self.request.GET)
         if search_form.is_valid():
@@ -36,31 +37,31 @@ class ProjetListView(LoginRequiredMixin, ListView):
             statut = search_form.cleaned_data.get('statut')
             date_debut_min = search_form.cleaned_data.get('date_debut_min')
             date_debut_max = search_form.cleaned_data.get('date_debut_max')
-            
+
             if recherche:
                 queryset = queryset.filter(
                     Q(nom__icontains=recherche) |
                     Q(code__icontains=recherche) |
                     Q(description__icontains=recherche)
                 )
-            
+
             if client:
                 queryset = queryset.filter(client=client)
-            
+
             if chef_projet:
                 queryset = queryset.filter(chef_projet=chef_projet)
-            
+
             if statut:
                 queryset = queryset.filter(statut=statut)
-            
+
             if date_debut_min:
                 queryset = queryset.filter(date_debut__gte=date_debut_min)
-            
+
             if date_debut_max:
                 queryset = queryset.filter(date_debut__lte=date_debut_max)
-        
+
         return queryset.order_by('-created_at')
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['search_form'] = ProjetSearchForm(self.request.GET)
@@ -79,30 +80,48 @@ class ProjetListView(LoginRequiredMixin, ListView):
             total=Sum('montant_total')
         )['total'] or 0
 
+        # Permission de gestion des projets
+        context['peut_gerer_projets'] = (
+            self.request.user.is_superuser or
+            self.request.user.is_staff or
+            (hasattr(self.request.user, 'employe') and
+             self.request.user.employe and
+             self.request.user.employe.peut_gerer_projets())
+        )
+
+        # Permission de gestion des clients
+        context['peut_gerer_clients'] = (
+            self.request.user.is_superuser or
+            self.request.user.is_staff or
+            (hasattr(self.request.user, 'employe') and
+             self.request.user.employe and
+             self.request.user.employe.peut_gerer_clients())
+        )
+
         return context
 
 
 @method_decorator(login_required, name='dispatch')
-class ProjetCreateView(LoginRequiredMixin, CreateView):
+class ProjetCreateView(ProjectPermissionMixin, LoginRequiredMixin, CreateView):
     """Vue pour la création d'un projet"""
     model = JRProject
     form_class = ProjetForm
     template_name = 'project_management/projet/projet_form.html'
     success_url = reverse_lazy('pm:projet_list')
-    
+
     def form_valid(self, form):
         messages.success(self.request, f'Projet {form.instance.nom} créé avec succès.')
         return super().form_valid(form)
 
 
 @method_decorator(login_required, name='dispatch')
-class ProjetUpdateView(LoginRequiredMixin, UpdateView):
+class ProjetUpdateView(ProjectPermissionMixin, LoginRequiredMixin, UpdateView):
     """Vue pour la modification d'un projet"""
     model = JRProject
     form_class = ProjetForm
     template_name = 'project_management/projet/projet_form.html'
     success_url = reverse_lazy('pm:projet_list')
-    
+
     def form_valid(self, form):
         messages.success(self.request, f'Projet {form.instance.nom} modifié avec succès.')
         return super().form_valid(form)
@@ -110,15 +129,15 @@ class ProjetUpdateView(LoginRequiredMixin, UpdateView):
 
 @login_required
 def projet_detail(request, pk):
-    """Vue pour le détail d'un projet"""
+    """Vue pour le détail d'un projet - Accessible à tous les utilisateurs connectés"""
     projet = get_object_or_404(
         JRProject.objects.select_related('client', 'chef_projet'),
         pk=pk
     )
-    
+
     # Tickets du projet
     tickets = JRTicket.objects.filter(projet=projet).select_related('assigne')
-    
+
     # Statistiques des tickets
     stats_tickets = {
         'total': tickets.count(),
@@ -127,13 +146,13 @@ def projet_detail(request, pk):
         'en_revue': tickets.filter(statut='EN_REVUE').count(),
         'termines': tickets.filter(statut='TERMINE').count(),
     }
-    
+
     # Imputations du projet
     imputations = JRImputation.objects.filter(
         ticket__projet=projet,
         statut_validation='VALIDE'
     ).select_related('employe', 'ticket')
-    
+
     # Temps total par employé
     temps_par_employe = imputations.values('employe__nom', 'employe__prenoms').annotate(
         total_heures=ExpressionWrapper(
@@ -146,14 +165,34 @@ def projet_detail(request, pk):
     temps_list = list(temps_par_employe)
     total_heures_projet = sum(item['total_heures'] or 0 for item in temps_list)
 
+    # Permission de gestion
+    peut_gerer_projets = (
+        request.user.is_superuser or
+        request.user.is_staff or
+        (hasattr(request.user, 'employe') and
+         request.user.employe and
+         request.user.employe.peut_gerer_projets())
+    )
+
+    # Permission de gestion des clients
+    peut_gerer_clients = (
+        request.user.is_superuser or
+        request.user.is_staff or
+        (hasattr(request.user, 'employe') and
+         request.user.employe and
+         request.user.employe.peut_gerer_clients())
+    )
+
     context = {
         'projet': projet,
         'tickets': tickets[:10],  # 10 derniers tickets
         'stats_tickets': stats_tickets,
         'temps_par_employe': temps_list,
         'total_heures_projet': total_heures_projet,
+        'peut_gerer_projets': peut_gerer_projets,
+        'peut_gerer_clients': peut_gerer_clients,
     }
-    
+
     return render(request, 'project_management/projet/projet_detail.html', context)
 
 
@@ -162,17 +201,17 @@ def projet_tickets(request, pk):
     """Vue pour les tickets d'un projet"""
     projet = get_object_or_404(JRProject, pk=pk)
     tickets = JRTicket.objects.filter(projet=projet).select_related('assigne')
-    
+
     # Pagination
     paginator = Paginator(tickets, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
+
     context = {
         'projet': projet,
         'page_obj': page_obj,
     }
-    
+
     return render(request, 'project_management/projet/projet_tickets.html', context)
 
 
@@ -183,26 +222,27 @@ def projet_imputations(request, pk):
     imputations = JRImputation.objects.filter(
         ticket__projet=projet
     ).select_related('employe', 'ticket', 'valide_par').order_by('-date_imputation')
-    
+
     # Pagination
     paginator = Paginator(imputations, 25)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
+
     context = {
         'projet': projet,
         'page_obj': page_obj,
     }
-    
+
     return render(request, 'project_management/projet/projet_imputations.html', context)
 
 
 @login_required
+@project_permission_required
 @require_POST
 def projet_delete(request, pk):
     """Vue pour supprimer un projet"""
     projet = get_object_or_404(JRProject, pk=pk)
-    
+
     # Vérifier si le projet a des tickets
     if projet.tickets.exists():
         messages.error(request, 'Impossible de supprimer ce projet car il a des tickets associés.')

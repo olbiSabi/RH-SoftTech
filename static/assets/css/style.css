@@ -380,7 +380,7 @@ select.form-control[multiple], select.form-control[size] {
 }
 
 .menu-link:hover {
-    background-color: #34495e;
+    background-color: #ced5dd56;
 }
 
 .menu-link i:first-child {
@@ -402,7 +402,7 @@ select.form-control[multiple], select.form-control[size] {
     top: 100%;
     left: 0;
     background: white;
-    min-width: 220px;
+    min-width: 230px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.15);
     border-radius: 4px;
     list-style: none;
@@ -443,7 +443,7 @@ select.form-control[multiple], select.form-control[size] {
 }
 
 .submenu a:hover {
-    background-color: #f8f9fa;
+    background-color: #e4ecf5;
     color: #1c5d5f;
 }
 
@@ -495,8 +495,8 @@ select.form-control[multiple], select.form-control[size] {
     position: fixed;
     top: 60px;
     transition: all 0.3s ease;
-    width: 240px;
-    z-index: 1001;
+    width: 220px;
+    /*z-index: 1001;*/
     color: white;
     overflow-y: auto;
     transform: translateX(-100%);

@@ -28,6 +28,76 @@ def calculer_jours_acquis_au_mensuel(employe, annee, date_reference):
     return calculer_jours_acquis_au(employe, annee, date_reference)
 
 
+@require_POST
+@login_required
+@drh_or_admin_required
+@gestion_app_required
+def api_acquisition_create(request):
+    """Créer une nouvelle acquisition de congés"""
+    try:
+        employe_uuid = request.POST.get('employe')
+        annee_reference = request.POST.get('annee_reference')
+        jours_report_anterieur = request.POST.get('jours_report_anterieur', '0')
+
+        # Validation des champs requis
+        if not employe_uuid or not annee_reference:
+            return JsonResponse({
+                'success': False,
+                'error': 'Employé et année de référence requis'
+            }, status=400)
+
+        try:
+            employe = ZY00.objects.get(uuid=employe_uuid)
+        except ZY00.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Employé non trouvé'
+            }, status=404)
+
+        annee = int(annee_reference)
+
+        # Vérifier si une acquisition existe déjà
+        if AcquisitionConges.objects.filter(employe=employe, annee_reference=annee).exists():
+            return JsonResponse({
+                'success': False,
+                'error': f'Une acquisition existe déjà pour {employe} en {annee}'
+            }, status=400)
+
+        # Calculer les jours acquis
+        date_reference = timezone.now().date()
+        resultat = calculer_jours_acquis_au(employe, annee, date_reference)
+
+        with transaction.atomic():
+            acquisition = AcquisitionConges.objects.create(
+                employe=employe,
+                annee_reference=annee,
+                jours_acquis=resultat['jours_acquis'],
+                jours_pris=Decimal('0.00'),
+                jours_report_anterieur=Decimal(jours_report_anterieur),
+                jours_report_nouveau=Decimal('0.00'),
+            )
+
+        return JsonResponse({
+            'success': True,
+            'message': f'Acquisition créée pour {employe} - Année {annee}',
+            'id': acquisition.id,
+            'jours_acquis': str(acquisition.jours_acquis),
+            'jours_restants': str(acquisition.jours_restants)
+        })
+
+    except ValueError as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Valeur invalide: {str(e)}'
+        }, status=400)
+    except Exception as e:
+        logger.exception("Erreur création acquisition")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
 @require_http_methods(["GET"])
 @login_required
 @drh_or_admin_required

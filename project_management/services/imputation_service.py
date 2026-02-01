@@ -153,7 +153,7 @@ class ImputationService:
             )
         
         return {
-            'employe': f"{employe.nom} {employe.prenom}",
+            'employe': f"{employe.nom} {employe.prenoms}",
             'semaine': semaine,
             'annee': annee,
             'date_debut': date_debut,
@@ -184,7 +184,7 @@ class ImputationService:
         total_heures = 0
         
         for imp in imputations:
-            employe_key = f"{imp.employe.nom} {imp.employe.prenom}"
+            employe_key = f"{imp.employe.nom} {imp.employe.prenoms}"
             if employe_key not in temps_par_employe:
                 temps_par_employe[employe_key] = {
                     'employe': imp.employe,
@@ -329,13 +329,13 @@ class ImputationService:
         for imp in queryset:
             data.append({
                 'Date': imp.date_imputation,
-                'Employé': f"{imp.employe.nom} {imp.employe.prenom}",
+                'Employé': f"{imp.employe.nom} {imp.employe.prenoms}",
                 'Projet': imp.ticket.projet.code,
                 'Ticket': imp.ticket.code,
                 'Type activité': imp.get_type_activite_display(),
                 'Heures': imp.total_heures,
                 'Description': imp.description,
-                'Validé par': f"{imp.valide_par.nom} {imp.valide_par.prenom}" if imp.valide_par else '',
+                'Validé par': f"{imp.valide_par.nom} {imp.valide_par.prenoms}" if imp.valide_par else '',
                 'Date validation': imp.date_validation,
             })
         
@@ -376,13 +376,13 @@ class ImputationService:
         for imp in queryset:
             writer.writerow([
                 imp.date_imputation,
-                f"{imp.employe.nom} {imp.employe.prenom}",
+                f"{imp.employe.nom} {imp.employe.prenoms}",
                 imp.ticket.projet.code,
                 imp.ticket.code,
                 imp.get_type_activite_display(),
                 imp.total_heures,
                 imp.description,
-                f"{imp.valide_par.nom} {imp.valide_par.prenom}" if imp.valide_par else '',
+                f"{imp.valide_par.nom} {imp.valide_par.prenoms}" if imp.valide_par else '',
                 imp.date_validation,
             ])
         

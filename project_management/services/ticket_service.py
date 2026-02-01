@@ -105,7 +105,7 @@ class TicketService:
                 try:
                     from employee.models import ZY00
                     employe = ZY00.objects.get(pk=valeur)
-                    return f"{employe.nom} {employe.prenom}"
+                    return f"{employe.nom} {employe.prenoms}"
                 except ZY00.DoesNotExist:
                     return f"Employé #{valeur}"
             return 'Non assigné'

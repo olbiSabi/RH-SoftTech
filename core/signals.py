@@ -4,16 +4,36 @@ Système d'audit centralisé pour le projet HR_ONIAN.
 
 Ce module utilise une approche générique pour logger automatiquement
 toutes les opérations CRUD sur les modèles configurés.
+
+Configuration via settings.py:
+    AUDIT_ENABLED = True/False  # Active/désactive l'audit global
+    AUDIT_EXCLUDED_MODELS = ['NotificationAbsence']  # Modèles à exclure
 """
-from django.db.models.signals import post_save, post_delete, pre_save
-from django.dispatch import receiver
+import logging
 from threading import local
 
-from .models import ZDLOG
+from django.conf import settings
+from django.db.models.signals import post_save, post_delete, pre_save
+
+logger = logging.getLogger(__name__)
 
 # Thread-local storage pour la requête courante
 _thread_locals = local()
 _old_values = {}
+
+# Flag pour éviter l'enregistrement multiple des signals
+_signals_registered = False
+
+
+def is_audit_enabled():
+    """Vérifie si l'audit est activé globalement."""
+    return getattr(settings, 'AUDIT_ENABLED', True)
+
+
+def is_model_excluded(model_name):
+    """Vérifie si un modèle est exclu de l'audit."""
+    excluded = getattr(settings, 'AUDIT_EXCLUDED_MODELS', [])
+    return model_name in excluded
 
 
 # ==============================================================================
@@ -194,51 +214,60 @@ def _get_description_entreprise(instance, created):
 # DESCRIPTIONS POUR GESTION TEMPS ET ACTIVITÉS
 # ==============================================================================
 
-def _get_description_zdcl(instance, created):
-    """Client"""
+def _get_description_jrclient(instance, created):
+    """Client Project Management"""
     action = "Création" if created else "Modification"
     return f"{action} du client {instance.code_client} - {instance.raison_sociale}"
 
 
-def _get_description_zdac(instance, created):
-    """Type d'activité"""
-    action = "Création" if created else "Modification"
-    return f"{action} du type d'activité {instance.code_activite} - {instance.libelle}"
-
-
-def _get_description_zdpj(instance, created):
-    """Projet"""
+def _get_description_jrproject(instance, created):
+    """Projet Project Management"""
     action = "Création" if created else "Modification"
     client_info = f" (Client: {instance.client.raison_sociale})" if instance.client else ""
-    return f"{action} du projet {instance.code_projet} - {instance.nom_projet}{client_info}"
+    return f"{action} du projet {instance.code} - {instance.nom}{client_info}"
 
 
-def _get_description_zdta(instance, created):
-    """Tâche"""
+def _get_description_jrticket(instance, created):
+    """Ticket Project Management"""
     action = "Création" if created else "Modification"
-    projet_info = f" (Projet: {instance.projet.nom_projet})" if instance.projet else ""
-    return f"{action} de la tâche {instance.code_tache} - {instance.titre}{projet_info}"
+    projet_info = f" (Projet: {instance.projet.nom})" if instance.projet else ""
+    return f"{action} du ticket {instance.code} - {instance.titre}{projet_info}"
 
 
-def _get_description_zddo_gta(instance, created):
-    """Document GTA"""
+def _get_description_jrcommentaire(instance, created):
+    """Commentaire Project Management"""
     action = "Ajout" if created else "Modification"
-    rattachement = f"projet {instance.projet.nom_projet}" if instance.projet else f"tâche {instance.tache.titre}" if instance.tache else "non rattaché"
-    return f"{action} du document {instance.nom_document} au {rattachement}"
+    auteur = f"{instance.auteur.nom} {instance.auteur.prenoms}" if instance.auteur else "Anonyme"
+    return f"{action} d'un commentaire par {auteur} sur le ticket {instance.ticket.code if instance.ticket else 'N/A'}"
 
 
-def _get_description_zdit(instance, created):
-    """Imputation temps"""
+def _get_description_jrimputation(instance, created):
+    """Imputation Project Management"""
     action = "Création" if created else "Modification"
     employe_info = f"{instance.employe.nom} {instance.employe.prenoms}" if instance.employe else "Employé inconnu"
-    return f"{action} imputation {instance.duree}h pour {employe_info} - Tâche: {instance.tache.titre if instance.tache else 'N/A'}"
+    return f"{action} imputation pour {employe_info} - Ticket: {instance.ticket.code if instance.ticket else 'N/A'}"
 
 
-def _get_description_zdcm(instance, created):
-    """Commentaire"""
+def _get_description_jrpiecejointe(instance, created):
+    """Pièce jointe Project Management"""
     action = "Ajout" if created else "Modification"
-    auteur = f"{instance.employe.nom} {instance.employe.prenoms}" if instance.employe else "Anonyme"
-    return f"{action} commentaire par {auteur} sur la tâche {instance.tache.titre if instance.tache else 'N/A'}"
+    ticket_code = instance.ticket.code if instance.ticket else "N/A"
+    return f"{action} pièce jointe '{instance.nom_original}' sur le ticket {ticket_code}"
+
+
+def _get_description_jrhistorique(instance, created):
+    """Historique Project Management"""
+    action = "Création" if created else "Modification"
+    utilisateur = f"{instance.utilisateur.nom} {instance.utilisateur.prenoms}" if instance.utilisateur else "Utilisateur inconnu"
+    ticket_code = instance.ticket.code if instance.ticket else "N/A"
+    return f"{action} entrée historique par {utilisateur} sur le ticket {ticket_code} - {instance.get_type_changement_display()}"
+
+
+def _get_description_jrsprint(instance, created):
+    """Sprint Project Management"""
+    action = "Création" if created else "Modification"
+    projet_code = instance.projet.code if instance.projet else "N/A"
+    return f"{action} du sprint '{instance.nom}' - Projet: {projet_code} ({instance.get_statut_display()})"
 
 
 # ==============================================================================
@@ -359,9 +388,13 @@ def create_audit_handlers(model_class, table_name, get_description_func):
         table_name: Nom de la table pour les logs
         get_description_func: Fonction (instance, created) -> str
     """
+    # Import tardif pour éviter les imports circulaires
+    from .models import ZDLOG
 
     def store_old_values(sender, instance, **kwargs):
         """Handler pre_save: stocke les anciennes valeurs."""
+        if not is_audit_enabled():
+            return
         if instance.pk:
             try:
                 old_instance = sender.objects.get(pk=instance.pk)
@@ -371,6 +404,8 @@ def create_audit_handlers(model_class, table_name, get_description_func):
 
     def log_save(sender, instance, created, **kwargs):
         """Handler post_save: log la création ou modification."""
+        if not is_audit_enabled():
+            return
         request = get_current_request()
         user = get_current_user()
         nouvelle_valeur = model_to_dict(instance)
@@ -417,6 +452,8 @@ def create_audit_handlers(model_class, table_name, get_description_func):
 
     def log_delete(sender, instance, **kwargs):
         """Handler post_delete: log la suppression."""
+        if not is_audit_enabled():
+            return
         request = get_current_request()
         user = get_current_user()
         ancienne_valeur = model_to_dict(instance)
@@ -449,7 +486,22 @@ def register_all_audit_signals():
     """
     Enregistre les signals d'audit pour tous les modèles configurés.
     Appelé lors du chargement de l'application.
+
+    Configuration via settings.py:
+        AUDIT_ENABLED = False  # Désactive complètement l'audit
+        AUDIT_EXCLUDED_MODELS = ['NotificationAbsence', 'JRCommentaire']  # Exclut des modèles spécifiques
     """
+    global _signals_registered
+
+    # Éviter l'enregistrement multiple
+    if _signals_registered:
+        return
+
+    # Vérifier si l'audit est activé
+    if not is_audit_enabled():
+        logger.info("Audit désactivé via AUDIT_ENABLED=False")
+        return
+
     # Import des modèles ici pour éviter les imports circulaires
     from employee.models import ZY00, ZYNP, ZYCO, ZYTE, ZYME, ZYAF, ZYAD, ZYDO, ZYFA, ZYPP, ZYIB
     from departement.models import ZDDE, ZDPO, ZYMA
@@ -464,7 +516,10 @@ def register_all_audit_signals():
         NotificationAbsence
     )
     from entreprise.models import Entreprise
-    from gestion_temps_activite.models import ZDCL, ZDAC, ZDPJ, ZDTA, ZDDO, ZDIT, ZDCM
+    from project_management.models import (
+        JRClient, JRProject, JRTicket, JRCommentaire, JRImputation,
+        JRPieceJointe, JRHistorique, JRSprint
+    )
     from frais.models import NFCA, NFPL, NFNF, NFLF, NFAV
     from materiel.models import MTCA, MTFO, MTMT, MTAF, MTMV, MTMA
     from audit.models import AURC, AUAL, AURA
@@ -502,14 +557,15 @@ def register_all_audit_signals():
         # Entreprise
         (Entreprise, 'Entreprise', _get_description_entreprise),
 
-        # Gestion Temps et Activités
-        (ZDCL, 'ZDCL', _get_description_zdcl),
-        (ZDAC, 'ZDAC', _get_description_zdac),
-        (ZDPJ, 'ZDPJ', _get_description_zdpj),
-        (ZDTA, 'ZDTA', _get_description_zdta),
-        (ZDDO, 'ZDDO', _get_description_zddo_gta),
-        (ZDIT, 'ZDIT', _get_description_zdit),
-        (ZDCM, 'ZDCM', _get_description_zdcm),
+        # Project Management
+        (JRClient, 'JRClient', _get_description_jrclient),
+        (JRProject, 'JRProject', _get_description_jrproject),
+        (JRTicket, 'JRTicket', _get_description_jrticket),
+        (JRCommentaire, 'JRCommentaire', _get_description_jrcommentaire),
+        (JRImputation, 'JRImputation', _get_description_jrimputation),
+        (JRPieceJointe, 'JRPieceJointe', _get_description_jrpiecejointe),
+        (JRHistorique, 'JRHistorique', _get_description_jrhistorique),
+        (JRSprint, 'JRSprint', _get_description_jrsprint),
 
         # Frais
         (NFCA, 'NFCA', _get_description_nfca),
@@ -532,8 +588,17 @@ def register_all_audit_signals():
         (AURA, 'AURA', _get_description_aura),
     ]
 
+    registered_count = 0
     for model_class, table_name, desc_func in AUDIT_CONFIG:
+        # Vérifier si le modèle est exclu
+        if is_model_excluded(table_name):
+            logger.debug(f"Modèle {table_name} exclu de l'audit")
+            continue
         create_audit_handlers(model_class, table_name, desc_func)
+        registered_count += 1
+
+    _signals_registered = True
+    logger.info(f"Audit: {registered_count} modèles enregistrés")
 
 
 # Enregistrer tous les signals au chargement du module

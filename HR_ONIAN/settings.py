@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'core',
     'absence',
     'entreprise',
-    'gestion_temps_activite',
     'frais',
     'materiel',
     'audit',
@@ -60,8 +59,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'core.middleware.CurrentRequestMiddleware',
     'core.middleware.PermissionDeniedMiddleware',
-    #'employee.middleware.LoginRequiredMiddleware',
+    'employee.middleware.LoginRequiredMiddleware',
     'employee.middleware.ContratExpirationMiddleware',
+]
+
+# URLs exemptées de l'authentification (en plus des URLs par défaut)
+LOGIN_EXEMPT_URLS = [
+    r'^/api/public/',  # API publiques si nécessaire
 ]
 
 ROOT_URLCONF = 'HR_ONIAN.urls'

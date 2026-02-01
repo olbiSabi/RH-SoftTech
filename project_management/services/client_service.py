@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
 from ..models import JRClient, JRProject, JRTicket
 
 
@@ -19,7 +20,7 @@ class ClientService:
     @staticmethod
     def get_client_avec_stats(client_id):
         """Retourne un client avec ses statistiques détaillées"""
-        client = JRClient.objects.get(pk=client_id)
+        client = get_object_or_404(JRClient, pk=client_id)
         
         # Statistiques des projets
         projets = JRProject.objects.filter(client=client)
@@ -102,7 +103,7 @@ class ClientService:
     @staticmethod
     def dupliquer_client(client_id, nouvelle_raison_sociale):
         """Duplique un client avec une nouvelle raison sociale"""
-        client_original = JRClient.objects.get(pk=client_id)
+        client_original = get_object_or_404(JRClient, pk=client_id)
         
         # Créer le nouveau client
         nouveau_client = JRClient.objects.create(
@@ -124,7 +125,7 @@ class ClientService:
     @staticmethod
     def archiver_client(client_id):
         """Archive un client (change le statut en INACTIF)"""
-        client = JRClient.objects.get(pk=client_id)
+        client = get_object_or_404(JRClient, pk=client_id)
         
         # Vérifier qu'il n'y a pas de projets actifs
         projets_actifs = JRProject.objects.filter(
@@ -145,7 +146,7 @@ class ClientService:
     @staticmethod
     def get_rapport_client(client_id, date_debut=None, date_fin=None):
         """Génère un rapport détaillé pour un client"""
-        client = JRClient.objects.get(pk=client_id)
+        client = get_object_or_404(JRClient, pk=client_id)
         
         # Projets dans la période
         projets = JRProject.objects.filter(client=client)

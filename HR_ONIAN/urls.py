@@ -47,16 +47,14 @@ urlpatterns = [
     path('employe/', include('employee.urls', namespace='employee')),
     path('absence/', include('absence.urls')),
     path('departement/', include('departement.urls')),
-    # Module Gestion Temps et Activités
-    path('gestion-temps/', include('gestion_temps_activite.urls', namespace='gestion_temps_activite')),
     # Module Notes de Frais
     path('frais/', include('frais.urls', namespace='frais')),
     # Module Suivi du Matériel & Parc
     path('materiel/', include('materiel.urls', namespace='materiel')),
     # Module Conformité & Audit
     path('audit/', include('audit.urls', namespace='audit')),
-    # Module Gestion de Projet (remplace gestion_temps_activite)
-    path('project-management/', include('project_management.urls', namespace='pm')),
+    # Module Gestion de Projet
+    path('pm/', include('project_management.urls', namespace='pm')),
 
 ]
 if settings.DEBUG:

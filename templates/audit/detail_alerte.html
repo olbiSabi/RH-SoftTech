@@ -84,7 +84,7 @@
                                     {{ alerte.DATE_ECHEANCE|date:"d/m/Y" }}
                                     {% if alerte.jours_restants is not None %}
                                         {% if alerte.jours_restants < 0 %}
-                                        <span class="badge badge-danger">{{ alerte.jours_restants|abs }} jours de retard</span>
+                                        <span class="badge badge-danger">{{ alerte.jours_retard }} jours de retard</span>
                                         {% elif alerte.jours_restants == 0 %}
                                         <span class="badge badge-warning">Aujourd'hui</span>
                                         {% else %}
@@ -164,7 +164,7 @@
                             <i class="fas fa-arrow-left"></i> Retour à la liste
                         </a>
                         {% if alerte.EMPLOYE %}
-                        <a href="#" class="btn btn-outline-primary btn-block">
+                        <a href="{% url 'employee:dossier_individuel_detail' alerte.EMPLOYE.uuid %}?tab=contrats" class="btn btn-outline-primary btn-block">
                             <i class="fas fa-user"></i> Voir le dossier employé
                         </a>
                         {% endif %}

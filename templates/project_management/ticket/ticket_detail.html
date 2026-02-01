@@ -266,9 +266,13 @@
                         <div class="pm-info-item" style="grid-column: span 2;">
                             <label>Projet</label>
                             {% if ticket.projet %}
-                            <a href="{% url 'pm:projet_detail' ticket.projet.pk %}">
-                                {{ ticket.projet.nom }}
-                            </a>
+                                {% if peut_gerer_projets %}
+                                <a href="{% url 'pm:projet_detail' ticket.projet.pk %}">
+                                    {{ ticket.projet.nom }}
+                                </a>
+                                {% else %}
+                                <span>{{ ticket.projet.nom }}</span>
+                                {% endif %}
                             {% else %}
                             <span style="color: var(--pm-gray-400);">Non assigné</span>
                             {% endif %}

@@ -1,15 +1,20 @@
 # absence/forms.py
-from .models import JourFerie, ValidationAbsence
+import logging
 from datetime import datetime
-from .models import ConfigurationConventionnelle
-from .models import ParametreCalculConges
-from employee.models import ZY00
+from decimal import Decimal
+
 from django import forms
 from django.core.exceptions import ValidationError
-from django.utils import timezone
-from decimal import Decimal
 from django.db import models
-from .models import Absence, TypeAbsence, AcquisitionConges
+from django.utils import timezone
+
+from employee.models import ZY00
+from .models import (
+    Absence, AcquisitionConges, ConfigurationConventionnelle,
+    JourFerie, ParametreCalculConges, TypeAbsence, ValidationAbsence
+)
+
+logger = logging.getLogger(__name__)
 
 
 class ConfigurationConventionnelleForm(forms.ModelForm):
@@ -310,11 +315,10 @@ class TypeAbsenceForm(forms.ModelForm):
         periode = cleaned_data.get('periode')
         justificatif = cleaned_data.get('justificatif')
 
-        # ✅ DEBUG
-        print(f"🔍 VALIDATION FORMULAIRE")
-        print(f"   - User employe: {self.user_employe}")
-        print(f"   - Date début: {date_debut}")
-        print(f"   - Date fin: {date_fin}")
+        logger.debug(
+            "Validation formulaire absence: employe=%s, debut=%s, fin=%s",
+            self.user_employe, date_debut, date_fin
+        )
 
         if not all([type_absence, date_debut, date_fin]):
             return cleaned_data
@@ -332,12 +336,12 @@ class TypeAbsenceForm(forms.ModelForm):
                     'periode': 'Les demi-journées ne sont autorisées que pour une absence d\'un seul jour'
                 })
 
-        # ✅ 3. CRITIQUE : Vérifier les chevauchements
+        # 3. CRITIQUE : Vérifier les chevauchements
         if self.user_employe:
-            print(f"   ✅ Appel de verifier_chevauchements...")
+            logger.debug("Vérification chevauchements pour employe=%s", self.user_employe)
             self.verifier_chevauchements(self.user_employe, date_debut, date_fin)
         else:
-            print(f"   ❌ ATTENTION : user_employe est None, validation des chevauchements ignorée !")
+            logger.warning("user_employe est None, validation des chevauchements ignorée")
 
         # 4. Justificatif obligatoire
         if type_absence.justificatif_obligatoire:
@@ -376,9 +380,10 @@ class TypeAbsenceForm(forms.ModelForm):
         """
         Vérifie qu'il n'y a pas de chevauchement avec des absences existantes
         """
-        print(f"🔍 VÉRIFICATION CHEVAUCHEMENTS")
-        print(f"   - Employé: {employe}")
-        print(f"   - Période: {date_debut} → {date_fin}")
+        logger.debug(
+            "Vérification chevauchements: employe=%s, periode=%s → %s",
+            employe, date_debut, date_fin
+        )
 
         # Chercher les absences qui chevauchent
         query = Absence.objects.filter(
@@ -388,15 +393,16 @@ class TypeAbsenceForm(forms.ModelForm):
             date_fin__gte=date_debut
         )
 
-        print(f"   - Absences trouvées avant exclusion: {query.count()}")
+        count_before = query.count()
+        logger.debug("Absences trouvées avant exclusion: %d", count_before)
 
         # Exclure l'absence en cours de modification
         if self.instance and self.instance.pk:
             query = query.exclude(pk=self.instance.pk)
-            print(f"   - Absences après exclusion (pk={self.instance.pk}): {query.count()}")
+            logger.debug("Absences après exclusion (pk=%s): %d", self.instance.pk, query.count())
 
         if query.exists():
-            print(f"   ❌ CHEVAUCHEMENT DÉTECTÉ !")
+            logger.debug("Chevauchement détecté pour employe=%s", employe)
 
             absences_chevauches = query.order_by('date_debut')
             details = []
@@ -407,7 +413,7 @@ class TypeAbsenceForm(forms.ModelForm):
                     f"{abs.date_debut.strftime('%d/%m/%Y')} au {abs.date_fin.strftime('%d/%m/%Y')} "
                     f"(Statut: {abs.get_statut_display()})"
                 )
-                print(f"     - Chevauchement avec: {abs.date_debut} → {abs.date_fin} (ID: {abs.pk})")
+                logger.debug("Chevauchement avec: %s → %s (ID: %s)", abs.date_debut, abs.date_fin, abs.pk)
 
             message = "Cette période chevauche une ou plusieurs absences existantes :\n\n" + "\n".join(details)
 
@@ -418,7 +424,7 @@ class TypeAbsenceForm(forms.ModelForm):
                 '__all__': message
             })
 
-        print(f"   ✅ Aucun chevauchement détecté")
+        logger.debug("Aucun chevauchement détecté pour employe=%s", employe)
 
 
 class ParametreCalculCongesForm(forms.ModelForm):
@@ -745,13 +751,13 @@ class AbsenceForm(forms.ModelForm):
         if not all([type_absence, date_debut, date_fin]):
             return cleaned_data
 
-        # ✅ 0. FORCER JOURNEE_COMPLETE POUR PLUSIEURS JOURS (AVANT VALIDATION)
+        # 0. FORCER JOURNEE_COMPLETE POUR PLUSIEURS JOURS (AVANT VALIDATION)
         if date_debut != date_fin:
             if periode and periode != 'JOURNEE_COMPLETE':
-                # ⚠️ NE PAS lever d'erreur, FORCER LA VALEUR
+                # Ne pas lever d'erreur, forcer la valeur
                 cleaned_data['periode'] = 'JOURNEE_COMPLETE'
                 periode = 'JOURNEE_COMPLETE'
-                print(f"⚠️ Période forcée à JOURNEE_COMPLETE car plusieurs jours")
+                logger.debug("Période forcée à JOURNEE_COMPLETE car plusieurs jours")
 
         # ✅ 1. Date de fin >= Date de début
         if date_fin < date_debut:
@@ -766,12 +772,12 @@ class AbsenceForm(forms.ModelForm):
                     'periode': 'Les demi-journées ne sont autorisées que pour une absence d\'un seul jour'
                 })
 
-        # ✅ 3. CRITIQUE : Vérifier les chevauchements
+        # 3. CRITIQUE : Vérifier les chevauchements
         if self.user_employe:
-            print(f"   ✅ Appel de verifier_chevauchements...")
+            logger.debug("Vérification chevauchements pour employe=%s", self.user_employe)
             self.verifier_chevauchements(self.user_employe, date_debut, date_fin)
         else:
-            print(f"   ❌ ATTENTION : user_employe est None, validation des chevauchements ignorée !")
+            logger.warning("user_employe est None, validation des chevauchements ignorée")
 
         # 4. Justificatif obligatoire
         if type_absence.justificatif_obligatoire:

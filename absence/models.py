@@ -1,13 +1,13 @@
 # absence/models.py
-from django.db import models
+import os
+from datetime import date
+from decimal import Decimal
+
+from django.db import models, transaction
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from decimal import Decimal
-from datetime import date
-from django.db import transaction
-from django.utils import timezone
+
 from .utils import calculer_jours_acquis_au
-import os
 
 
 # ========================================
@@ -1426,7 +1426,7 @@ class Absence(models.Model):
 # ========================================
 
 class NotificationAbsence(models.Model):
-    """Notifications pour le workflow des absences ET des tâches GTA"""
+    """Notifications pour le workflow des absences ET du module Project Management"""
 
     TYPE_CHOICES = [
         # Absences
@@ -1438,21 +1438,30 @@ class NotificationAbsence(models.Model):
         ('REJET_RH', 'Rejet RH'),
         ('ABSENCE_ANNULEE', 'Absence annulée'),
 
-        # ✅ NOUVEAU : Tâches GTA
-        ('TACHE_ASSIGNEE', 'Tâche assignée'),
-        ('TACHE_REASSIGNEE', 'Tâche réassignée'),
-        ('TACHE_MODIFIEE', 'Tâche modifiée'),
-        ('STATUT_TACHE_CHANGE', 'Statut de tâche modifié'),
-        ('ECHEANCE_TACHE_PROCHE', 'Échéance de tâche proche'),
-        ('TACHE_TERMINEE', 'Tâche terminée'),
-        ('COMMENTAIRE_TACHE', 'Nouveau commentaire sur tâche'),
+        # Project Management - Assignations
+        ('PROJET_ASSIGNE', 'Projet assigné'),
+        ('PROJET_REASSIGNE', 'Projet réassigné'),
+        ('TICKET_ASSIGNE', 'Ticket assigné'),
+        ('TICKET_REASSIGNE', 'Ticket réassigné'),
+
+        # Project Management - Changements de statut
+        ('STATUT_PROJET_CHANGE', 'Statut de projet modifié'),
+        ('STATUT_TICKET_CHANGE', 'Statut de ticket modifié'),
+
+        # Project Management - Commentaires et échéances
+        ('COMMENTAIRE_TICKET', 'Nouveau commentaire sur ticket'),
+        ('ECHEANCE_PROCHE', 'Échéance de ticket proche'),
+
+        # Audit - Alertes de conformité
+        ('ALERTE_CONFORMITE', 'Nouvelle alerte de conformité'),
     ]
 
     CONTEXTE_CHOICES = [
         ('EMPLOYE', 'En tant qu\'employé'),
         ('MANAGER', 'En tant que manager'),
         ('RH', 'En tant que RH'),
-        ('GTA', 'Gestion Temps et Activités'),  # ✅ NOUVEAU
+        ('PM', 'Project Management'),
+        ('AUDIT', 'Conformité & Audit'),
     ]
 
     destinataire = models.ForeignKey(
@@ -1462,22 +1471,32 @@ class NotificationAbsence(models.Model):
         verbose_name="Destinataire"
     )
 
-    # ✅ MODIFIER : Rendre absence optionnelle
+    # Référence vers l'absence (optionnelle)
     absence = models.ForeignKey(
         'Absence',
         on_delete=models.CASCADE,
         related_name='notifications',
         verbose_name="Absence",
-        null=True,  # ✅ NOUVEAU
-        blank=True  # ✅ NOUVEAU
+        null=True,
+        blank=True
     )
 
-    # ✅ NOUVEAU : Référence vers la tâche
-    tache = models.ForeignKey(
-        'gestion_temps_activite.ZDTA',
+    # Référence vers le ticket (Project Management)
+    ticket = models.ForeignKey(
+        'project_management.JRTicket',
         on_delete=models.CASCADE,
         related_name='notifications',
-        verbose_name="Tâche",
+        verbose_name="Ticket",
+        null=True,
+        blank=True
+    )
+
+    # Référence vers le projet (Project Management)
+    projet = models.ForeignKey(
+        'project_management.JRProject',
+        on_delete=models.CASCADE,
+        related_name='notifications',
+        verbose_name="Projet",
         null=True,
         blank=True
     )
@@ -1516,7 +1535,7 @@ class NotificationAbsence(models.Model):
     )
 
     class Meta:
-        db_table = 'notification_absence'  # Garder le même nom de table
+        db_table = 'notification_absence'
         verbose_name = "Notification"
         verbose_name_plural = "Notifications"
         ordering = ['-date_creation']
@@ -1524,7 +1543,7 @@ class NotificationAbsence(models.Model):
             models.Index(fields=['destinataire', 'lue']),
             models.Index(fields=['-date_creation']),
             models.Index(fields=['contexte']),
-            models.Index(fields=['tache']),  # ✅ NOUVEL INDEX
+            models.Index(fields=['ticket'], name='notificatio_ticket__a1b2c3_idx'),
         ]
 
     def __str__(self):
@@ -1537,43 +1556,75 @@ class NotificationAbsence(models.Model):
             self.date_lecture = timezone.now()
             self.save(update_fields=['lue', 'date_lecture'])
 
-    # ✅ NOUVEAU : Méthode pour obtenir l'objet lié (absence ou tâche)
     def get_objet_lie(self):
-        """Retourne l'objet lié (absence ou tâche)"""
+        """Retourne l'objet lié (absence, ticket ou projet)"""
         if self.absence:
             return self.absence
-        elif self.tache:
-            return self.tache
+        elif self.ticket:
+            return self.ticket
+        elif self.projet:
+            return self.projet
         return None
 
-    # ✅ NOUVEAU : Méthode pour obtenir l'URL de l'objet lié
     def get_url(self):
         """Retourne l'URL vers l'objet concerné"""
+        from django.urls import reverse
+        import re
+
+        # Notifications d'absence
         if self.absence:
-            from django.urls import reverse
             return reverse('absence:notification_detail', args=[self.id])
-        elif self.tache:
-            from django.urls import reverse
-            return reverse('gestion_temps_activite:notification_tache_detail', args=[self.id])
+
+        # Notifications de ticket
+        if self.ticket:
+            return reverse('pm:ticket_detail', args=[self.ticket.pk])
+
+        # Notifications de projet (champ projet renseigné)
+        if self.projet:
+            return reverse('pm:projet_detail', args=[self.projet.pk])
+
+        # Notifications d'alerte de conformité (Audit)
+        if self.type_notification == 'ALERTE_CONFORMITE' or self.contexte == 'AUDIT':
+            # Extraire l'UUID de l'alerte depuis le message
+            # Format attendu: "👉 Voir le détail : http://127.0.0.1:8000/audit/alertes/{uuid}/"
+            uuid_pattern = r'/audit/alertes/([0-9a-f-]{36})/'
+            match = re.search(uuid_pattern, self.message)
+            if match:
+                alerte_uuid = match.group(1)
+                return reverse('audit:detail_alerte', args=[alerte_uuid])
+            # Fallback vers la liste des alertes si UUID non trouvé
+            return reverse('audit:liste_alertes')
+
+        # Fallback basé sur le type de notification pour les anciennes notifs
+        if self.type_notification in ['PROJET_ASSIGNE', 'PROJET_REASSIGNE', 'STATUT_PROJET_CHANGE']:
+            # Rediriger vers la liste des projets si pas de projet spécifique
+            return reverse('pm:projet_list')
+
+        if self.type_notification in ['TICKET_ASSIGNE', 'TICKET_REASSIGNE', 'STATUT_TICKET_CHANGE', 'COMMENTAIRE_TICKET', 'ECHEANCE_PROCHE']:
+            # Rediriger vers la liste des tickets si pas de ticket spécifique
+            return reverse('pm:ticket_list')
+
         return '#'
 
     @classmethod
-    def creer_notification(cls, destinataire, type_notif, message, contexte='EMPLOYE', absence=None, tache=None):
+    def creer_notification(cls, destinataire, type_notif, message, contexte='EMPLOYE', absence=None, ticket=None, projet=None):
         """
-        Créer une nouvelle notification (absence OU tâche)
+        Créer une nouvelle notification (absence, ticket ou projet)
 
         Args:
             destinataire: Employé destinataire
             type_notif: Type de notification
             message: Message de la notification
-            contexte: Contexte (EMPLOYE, MANAGER, RH, GTA)
+            contexte: Contexte (EMPLOYE, MANAGER, RH, PM)
             absence: Instance d'Absence (optionnel)
-            tache: Instance de ZDTA (optionnel)
+            ticket: Instance de JRTicket (optionnel)
+            projet: Instance de JRProject (optionnel)
         """
         return cls.objects.create(
             destinataire=destinataire,
             absence=absence,
-            tache=tache,
+            ticket=ticket,
+            projet=projet,
             type_notification=type_notif,
             contexte=contexte,
             message=message
@@ -1585,7 +1636,7 @@ class NotificationAbsence(models.Model):
         return cls.objects.filter(
             destinataire=employe,
             lue=False
-        ).select_related('absence', 'tache', 'absence__employe', 'absence__type_absence', 'tache__projet')
+        ).select_related('absence', 'ticket', 'projet', 'absence__employe', 'absence__type_absence', 'ticket__projet')
 
     @classmethod
     def count_non_lues(cls, employe):
@@ -1595,7 +1646,6 @@ class NotificationAbsence(models.Model):
             lue=False
         ).count()
 
-    # ✅ NOUVEAU : Filtrer par type (absence ou tâche)
     @classmethod
     def get_notifications_absences(cls, employe):
         """Notifications d'absences uniquement"""
@@ -1605,12 +1655,12 @@ class NotificationAbsence(models.Model):
         ).select_related('absence', 'absence__employe', 'absence__type_absence')
 
     @classmethod
-    def get_notifications_taches(cls, employe):
-        """Notifications de tâches uniquement"""
+    def get_notifications_tickets(cls, employe):
+        """Notifications de tickets (Project Management) uniquement"""
         return cls.objects.filter(
             destinataire=employe,
-            tache__isnull=False
-        ).select_related('tache', 'tache__projet', 'tache__assignee')
+            ticket__isnull=False
+        ).select_related('ticket', 'ticket__projet', 'ticket__assigne')
 
 
 # 7. ValidationAbsence (Optionnel - pour traçabilité détaillée)

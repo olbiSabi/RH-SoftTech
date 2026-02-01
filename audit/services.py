@@ -18,50 +18,193 @@ class ConformiteService:
     """Service de vérification de conformité."""
 
     @staticmethod
-    def verifier_contrats_expirants(jours_avant=30):
+    def verifier_contrats_expirants(jours_avant=None):
         """
-        Vérifie les contrats qui expirent bientôt.
+        Vérifie les contrats qui expirent bientôt selon les règles de conformité.
         Génère des alertes pour les contrats proches de l'expiration.
+
+        Args:
+            jours_avant: Nombre de jours avant expiration (optionnel).
+                        Si None, utilise les règles AURC de type CONTRAT.
+
+        Returns:
+            Liste des alertes créées.
         """
         from employee.models import ZYCO
 
-        date_limite = timezone.now().date() + timedelta(days=jours_avant)
-
-        contrats_expirants = ZYCO.objects.filter(
-            ACTIF=True,
-            DATE_FIN__isnull=False,
-            DATE_FIN__lte=date_limite,
-            DATE_FIN__gte=timezone.now().date()
-        ).select_related('MATRICULE')
-
         alertes_creees = []
-        for contrat in contrats_expirants:
-            # Vérifier si une alerte existe déjà
-            alerte_existante = AUAL.objects.filter(
-                TYPE_ALERTE='CONTRAT',
-                TABLE_REFERENCE='ZYCO',
-                RECORD_ID=str(contrat.pk),
-                STATUT__in=['NOUVEAU', 'EN_COURS']
-            ).exists()
 
-            if not alerte_existante:
-                jours_restants = (contrat.DATE_FIN - timezone.now().date()).days
-                priorite = 'CRITIQUE' if jours_restants <= 7 else ('HAUTE' if jours_restants <= 14 else 'MOYENNE')
+        # Récupérer les règles de conformité actives pour les contrats
+        regles_contrat = AURC.objects.filter(
+            TYPE_REGLE='CONTRAT',
+            STATUT=True
+        )
 
-                alerte = AUAL.objects.create(
+        # Si aucune règle n'existe, utiliser un comportement par défaut
+        if not regles_contrat.exists():
+            if jours_avant is None:
+                jours_avant = 30  # Valeur par défaut
+            regles_contrat = [None]  # Liste vide pour itérer au moins une fois
+
+        for regle in regles_contrat:
+            # Déterminer le nombre de jours avant expiration
+            if regle:
+                jours_avant_expiration = regle.JOURS_AVANT_EXPIRATION
+                severite = regle.SEVERITE
+            else:
+                jours_avant_expiration = jours_avant
+                severite = 'WARNING'
+
+            date_limite = timezone.now().date() + timedelta(days=jours_avant_expiration)
+
+            contrats_expirants = ZYCO.objects.filter(
+                actif=True,
+                date_fin__isnull=False,
+                date_fin__lte=date_limite,
+                date_fin__gte=timezone.now().date()
+            ).select_related('employe')
+
+            for contrat in contrats_expirants:
+                # Vérifier si une alerte existe déjà pour ce contrat et cette règle
+                alerte_existante = AUAL.objects.filter(
                     TYPE_ALERTE='CONTRAT',
-                    TITRE=f"Contrat expirant - {contrat.MATRICULE.nom} {contrat.MATRICULE.prenoms}",
-                    DESCRIPTION=f"Le contrat {contrat.TYPE_CONTRAT} de {contrat.MATRICULE.nom} {contrat.MATRICULE.prenoms} "
-                               f"expire le {contrat.DATE_FIN.strftime('%d/%m/%Y')} ({jours_restants} jours restants).",
-                    PRIORITE=priorite,
-                    EMPLOYE=contrat.MATRICULE,
                     TABLE_REFERENCE='ZYCO',
                     RECORD_ID=str(contrat.pk),
-                    DATE_ECHEANCE=contrat.DATE_FIN
+                    STATUT__in=['NOUVEAU', 'EN_COURS']
                 )
-                alertes_creees.append(alerte)
+
+                # Si une règle existe, vérifier aussi qu'elle correspond à cette règle
+                if regle:
+                    alerte_existante = alerte_existante.filter(REGLE=regle)
+
+                if not alerte_existante.exists():
+                    jours_restants = (contrat.date_fin - timezone.now().date()).days
+
+                    # Déterminer la priorité en fonction des jours restants
+                    if jours_restants <= 7:
+                        priorite = 'CRITIQUE'
+                    elif jours_restants <= 14:
+                        priorite = 'HAUTE'
+                    elif jours_restants <= 30:
+                        priorite = 'MOYENNE'
+                    else:
+                        priorite = 'BASSE'
+
+                    # Créer l'alerte
+                    alerte = AUAL.objects.create(
+                        REGLE=regle,
+                        TYPE_ALERTE='CONTRAT',
+                        TITRE=f"Contrat expirant - {contrat.employe.nom} {contrat.employe.prenoms}",
+                        DESCRIPTION=f"Le contrat {contrat.type_contrat} de {contrat.employe.nom} {contrat.employe.prenoms} "
+                                   f"expire le {contrat.date_fin.strftime('%d/%m/%Y')} ({jours_restants} jours restants).\n\n"
+                                   f"Type de contrat: {contrat.type_contrat}\n"
+                                   f"Date de début: {contrat.date_debut.strftime('%d/%m/%Y')}\n"
+                                   f"Date de fin: {contrat.date_fin.strftime('%d/%m/%Y')}",
+                        PRIORITE=priorite,
+                        EMPLOYE=contrat.employe,
+                        TABLE_REFERENCE='ZYCO',
+                        RECORD_ID=str(contrat.pk),
+                        DATE_ECHEANCE=contrat.date_fin
+                    )
+                    alertes_creees.append(alerte)
+
+                    # Envoyer les notifications si configurées dans la règle
+                    if regle:
+                        ConformiteService._envoyer_notifications_alerte(alerte, regle)
 
         return alertes_creees
+
+    @staticmethod
+    def _envoyer_notifications_alerte(alerte, regle):
+        """
+        Envoie les notifications configurées pour une alerte.
+
+        Args:
+            alerte: L'alerte créée
+            regle: La règle de conformité associée
+        """
+        destinataires = []
+
+        # Notifier l'employé
+        if regle.NOTIFIER_EMPLOYE and alerte.EMPLOYE and hasattr(alerte.EMPLOYE, 'user'):
+            try:
+                if alerte.EMPLOYE.user.email:
+                    destinataires.append(alerte.EMPLOYE.user.email)
+            except:
+                pass
+
+        # Notifier le manager
+        if regle.NOTIFIER_MANAGER and alerte.EMPLOYE:
+            try:
+                # Récupérer le manager de l'employé
+                from employee.services.hierarchy_service import HierarchyService
+                manager = HierarchyService.get_manager_direct(alerte.EMPLOYE)
+                if manager and hasattr(manager, 'user') and manager.user.email:
+                    destinataires.append(manager.user.email)
+            except:
+                pass
+
+        # Notifier les RH
+        if regle.NOTIFIER_RH:
+            try:
+                from employee.models import ZY00
+                # Récupérer les employés avec le rôle DRH ou ASSISTANT_RH
+                rh_users = ZY00.objects.filter(
+                    Q(roles__role__code='DRH') | Q(roles__role__code='ASSISTANT_RH'),
+                    etat='actif'
+                ).distinct()
+
+                for rh in rh_users:
+                    if hasattr(rh, 'user') and rh.user.email:
+                        destinataires.append(rh.user.email)
+            except:
+                pass
+
+        # Ajouter les emails supplémentaires
+        if regle.EMAILS_SUPPLEMENTAIRES:
+            emails_supp = [email.strip() for email in regle.EMAILS_SUPPLEMENTAIRES.split('\n') if email.strip()]
+            destinataires.extend(emails_supp)
+
+        # Envoyer l'email si il y a des destinataires
+        if destinataires:
+            destinataires = list(set(destinataires))  # Supprimer les doublons
+
+            sujet = f"[{alerte.PRIORITE}] {alerte.TITRE}"
+            message = f"""
+Bonjour,
+
+Une nouvelle alerte de conformité a été générée :
+
+Type: {alerte.TYPE_ALERTE}
+Priorité: {alerte.PRIORITE}
+Employé concerné: {alerte.EMPLOYE.nom} {alerte.EMPLOYE.prenoms} ({alerte.EMPLOYE.matricule})
+
+{alerte.DESCRIPTION}
+
+Veuillez prendre les mesures nécessaires dans les meilleurs délais.
+
+Cordialement,
+Le système ONIAN-EasyM
+            """
+
+            try:
+                send_mail(
+                    subject=sujet,
+                    message=message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=destinataires,
+                    fail_silently=True,
+                )
+
+                # Marquer la notification comme envoyée
+                alerte.NOTIFICATION_ENVOYEE = True
+                alerte.DATE_NOTIFICATION = timezone.now()
+                alerte.save(update_fields=['NOTIFICATION_ENVOYEE', 'DATE_NOTIFICATION'])
+            except Exception as e:
+                # Logger l'erreur mais ne pas bloquer la création de l'alerte
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Erreur lors de l'envoi de notification pour l'alerte {alerte.REFERENCE}: {str(e)}")
 
     @staticmethod
     def verifier_documents_manquants():
@@ -256,12 +399,29 @@ class AlerteService:
 
     @staticmethod
     def get_alertes_par_type():
-        """Retourne le nombre d'alertes actives par type."""
-        return AUAL.objects.filter(
+        """Retourne le nombre d'alertes actives par type avec libellés."""
+        from audit.models import AURC
+
+        # Récupérer les stats par type
+        stats = AUAL.objects.filter(
             STATUT__in=['NOUVEAU', 'EN_COURS']
         ).values('TYPE_ALERTE').annotate(
             count=Count('id')
         ).order_by('-count')
+
+        # Créer un dictionnaire de mapping code -> libellé
+        type_dict = dict(AURC.TYPE_CHOICES)
+
+        # Transformer les codes en libellés
+        result = []
+        for item in stats:
+            code = item['TYPE_ALERTE']
+            result.append({
+                'TYPE_ALERTE': type_dict.get(code, code),  # Utilise le libellé si disponible
+                'count': item['count']
+            })
+
+        return result
 
     @staticmethod
     def resoudre_alerte(alerte, employe, commentaire=''):

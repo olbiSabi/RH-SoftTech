@@ -365,15 +365,16 @@ class PermissionService:
             PermissionService.has_permission(employee, 'absence.valider_absence_rh')
         )
 
-    # ==================== PERMISSIONS GESTION TEMPS & ACTIVITÉS ====================
+    # ==================== PERMISSIONS MODULE PROJECT MANAGEMENT ====================
 
     @staticmethod
     def can_manage_clients(employee: 'ZY00') -> bool:
         """
-        Vérifie si l'employé peut gérer les clients.
-        Rôles autorisés: DRH, GESTION_APP, DIRECTEUR
+        Vérifie si l'employé peut gérer les clients (créer, modifier, supprimer).
+        Rôles autorisés: RESP_ADMIN, DRH, GESTION_APP, DIRECTEUR
         """
         return (
+            PermissionService.has_role(employee, 'RESP_ADMIN') or
             PermissionService.has_role(employee, 'DRH') or
             PermissionService.has_role(employee, 'GESTION_APP') or
             PermissionService.has_role(employee, 'DIRECTEUR')
@@ -383,10 +384,11 @@ class PermissionService:
     def can_manage_activities(employee: 'ZY00') -> bool:
         """
         Vérifie si l'employé peut gérer les activités.
-        Rôles autorisés: MANAGER, DRH, GESTION_APP, DIRECTEUR
+        Rôles autorisés: MANAGER, RESP_ADMIN, DRH, GESTION_APP, DIRECTEUR
         """
         return (
             PermissionService.has_role(employee, 'MANAGER') or
+            PermissionService.has_role(employee, 'RESP_ADMIN') or
             PermissionService.has_role(employee, 'DRH') or
             PermissionService.has_role(employee, 'GESTION_APP') or
             PermissionService.has_role(employee, 'DIRECTEUR')
@@ -395,11 +397,13 @@ class PermissionService:
     @staticmethod
     def can_manage_projects(employee: 'ZY00') -> bool:
         """
-        Vérifie si l'employé peut gérer les projets.
-        Rôles autorisés: MANAGER, GESTION_APP, DIRECTEUR
+        Vérifie si l'employé peut gérer les projets (créer, modifier, supprimer).
+        Rôles autorisés: MANAGER, RESP_ADMIN, DRH, GESTION_APP, DIRECTEUR
         """
         return (
             PermissionService.has_role(employee, 'MANAGER') or
+            PermissionService.has_role(employee, 'RESP_ADMIN') or
+            PermissionService.has_role(employee, 'DRH') or
             PermissionService.has_role(employee, 'GESTION_APP') or
             PermissionService.has_role(employee, 'DIRECTEUR')
         )
@@ -407,11 +411,13 @@ class PermissionService:
     @staticmethod
     def can_manage_tasks(employee: 'ZY00') -> bool:
         """
-        Vérifie si l'employé peut créer/modifier/supprimer des tâches.
-        Rôles autorisés: MANAGER, GESTION_APP, DIRECTEUR
+        Vérifie si l'employé peut créer/modifier/supprimer des tâches/tickets.
+        Rôles autorisés: MANAGER, RESP_ADMIN, DRH, GESTION_APP, DIRECTEUR
         """
         return (
             PermissionService.has_role(employee, 'MANAGER') or
+            PermissionService.has_role(employee, 'RESP_ADMIN') or
+            PermissionService.has_role(employee, 'DRH') or
             PermissionService.has_role(employee, 'GESTION_APP') or
             PermissionService.has_role(employee, 'DIRECTEUR')
         )
@@ -420,10 +426,12 @@ class PermissionService:
     def can_validate_time_entries(employee: 'ZY00') -> bool:
         """
         Vérifie si l'employé peut valider les imputations de temps.
-        Rôles autorisés: MANAGER, GESTION_APP, DIRECTEUR
+        Rôles autorisés: MANAGER, RESP_ADMIN, DRH, GESTION_APP, DIRECTEUR
         """
         return (
             PermissionService.has_role(employee, 'MANAGER') or
+            PermissionService.has_role(employee, 'RESP_ADMIN') or
+            PermissionService.has_role(employee, 'DRH') or
             PermissionService.has_role(employee, 'GESTION_APP') or
             PermissionService.has_role(employee, 'DIRECTEUR')
         )
@@ -431,16 +439,15 @@ class PermissionService:
     @staticmethod
     def can_view_all_time_entries(employee: 'ZY00') -> bool:
         """
-        Vérifie si l'employé peut voir toutes les imputations.
-        Rôles autorisés: MANAGER, DRH, GESTION_APP, DIRECTEUR, COMPTABLE, ASSISTANT_RH
+        Vérifie si l'employé peut voir toutes les imputations (validation, rapports, export).
+        Rôles autorisés: MANAGER, RESP_ADMIN, DRH, GESTION_APP, DIRECTEUR
         """
         return (
             PermissionService.has_role(employee, 'MANAGER') or
+            PermissionService.has_role(employee, 'RESP_ADMIN') or
             PermissionService.has_role(employee, 'DRH') or
             PermissionService.has_role(employee, 'GESTION_APP') or
-            PermissionService.has_role(employee, 'DIRECTEUR') or
-            PermissionService.has_role(employee, 'COMPTABLE') or
-            PermissionService.has_role(employee, 'ASSISTANT_RH')
+            PermissionService.has_role(employee, 'DIRECTEUR')
         )
 
     @staticmethod

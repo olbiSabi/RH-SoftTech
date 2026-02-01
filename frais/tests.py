@@ -456,3 +456,267 @@ class FraisCalculsTests(TestCase):
         # Dépense au-dessus du plafond
         depense_elevee = Decimal('60000')
         self.assertGreater(depense_elevee, plafond.MONTANT_PAR_DEPENSE)
+
+
+# =============================================================================
+# TESTS DES SERVICES
+# =============================================================================
+
+class CategorieServiceTests(TestCase):
+    """Tests pour CategorieService."""
+
+    def test_creer_categorie(self):
+        """Test de création d'une catégorie via le service."""
+        from .services import CategorieService
+
+        categorie = CategorieService.creer_categorie(
+            code='MISSION',
+            libelle='Frais de mission',
+            description='Frais liés aux déplacements',
+            justificatif_obligatoire=True,
+            plafond_defaut=Decimal('100000'),
+            ordre=5
+        )
+
+        self.assertEqual(categorie.CODE, 'MISSION')
+        self.assertEqual(categorie.LIBELLE, 'Frais de mission')
+        self.assertTrue(categorie.JUSTIFICATIF_OBLIGATOIRE)
+        self.assertEqual(categorie.PLAFOND_DEFAUT, Decimal('100000'))
+
+    def test_creer_categorie_doublon(self):
+        """Test que la création d'un doublon lève une erreur."""
+        from django.core.exceptions import ValidationError
+        from .services import CategorieService
+
+        CategorieService.creer_categorie(code='UNIQUE', libelle='Catégorie unique')
+
+        with self.assertRaises(ValidationError):
+            CategorieService.creer_categorie(code='UNIQUE', libelle='Doublon')
+
+    def test_modifier_categorie(self):
+        """Test de modification d'une catégorie."""
+        from .services import CategorieService
+
+        categorie = NFCA.objects.create(CODE='MODIF', LIBELLE='Original')
+        CategorieService.modifier_categorie(
+            categorie,
+            LIBELLE='Modifié',
+            DESCRIPTION='Nouvelle description'
+        )
+
+        categorie.refresh_from_db()
+        self.assertEqual(categorie.LIBELLE, 'Modifié')
+        self.assertEqual(categorie.DESCRIPTION, 'Nouvelle description')
+
+    def test_desactiver_activer_categorie(self):
+        """Test d'activation/désactivation d'une catégorie."""
+        from .services import CategorieService
+
+        categorie = NFCA.objects.create(CODE='TOGGLE', LIBELLE='Toggle', STATUT=True)
+
+        CategorieService.desactiver_categorie(categorie)
+        categorie.refresh_from_db()
+        self.assertFalse(categorie.STATUT)
+
+        CategorieService.activer_categorie(categorie)
+        categorie.refresh_from_db()
+        self.assertTrue(categorie.STATUT)
+
+    def test_get_categories_actives(self):
+        """Test de récupération des catégories actives."""
+        from .services import CategorieService
+
+        NFCA.objects.create(CODE='ACTIF1', LIBELLE='Actif 1', STATUT=True)
+        NFCA.objects.create(CODE='ACTIF2', LIBELLE='Actif 2', STATUT=True)
+        NFCA.objects.create(CODE='INACTIF', LIBELLE='Inactif', STATUT=False)
+
+        actives = CategorieService.get_categories_actives()
+        codes = [c.CODE for c in actives]
+
+        self.assertIn('ACTIF1', codes)
+        self.assertIn('ACTIF2', codes)
+        self.assertNotIn('INACTIF', codes)
+
+    def test_get_categorie_par_code(self):
+        """Test de récupération d'une catégorie par code."""
+        from .services import CategorieService
+
+        NFCA.objects.create(CODE='RECHERCHE', LIBELLE='Recherche')
+
+        cat = CategorieService.get_categorie_par_code('RECHERCHE')
+        self.assertIsNotNone(cat)
+        self.assertEqual(cat.CODE, 'RECHERCHE')
+
+        cat_inexistante = CategorieService.get_categorie_par_code('INEXISTANT')
+        self.assertIsNone(cat_inexistante)
+
+    def test_creer_plafond(self):
+        """Test de création d'un plafond via le service."""
+        from .services import CategorieService
+
+        categorie = NFCA.objects.create(CODE='PLAF', LIBELLE='Avec plafond')
+
+        plafond = CategorieService.creer_plafond(
+            categorie=categorie,
+            date_debut=date.today(),
+            montant_journalier=Decimal('25000'),
+            montant_mensuel=Decimal('500000'),
+            grade='MANAGER'
+        )
+
+        self.assertEqual(plafond.CATEGORIE, categorie)
+        self.assertEqual(plafond.MONTANT_JOURNALIER, Decimal('25000'))
+        self.assertEqual(plafond.GRADE, 'MANAGER')
+
+    def test_creer_plafond_sans_montant(self):
+        """Test que la création d'un plafond sans montant lève une erreur."""
+        from django.core.exceptions import ValidationError
+        from .services import CategorieService
+
+        categorie = NFCA.objects.create(CODE='NOPLAF', LIBELLE='Sans plafond')
+
+        with self.assertRaises(ValidationError):
+            CategorieService.creer_plafond(
+                categorie=categorie,
+                date_debut=date.today()
+                # Aucun montant fourni
+            )
+
+    def test_get_plafond_applicable_general(self):
+        """Test de récupération du plafond applicable (général)."""
+        from .services import CategorieService
+
+        categorie = NFCA.objects.create(CODE='APPLIC', LIBELLE='Applicable')
+
+        # Plafond général sans grade
+        NFPL.objects.create(
+            CATEGORIE=categorie,
+            MONTANT_JOURNALIER=Decimal('20000'),
+            DATE_DEBUT=date.today() - timedelta(days=30),
+            STATUT=True
+        )
+
+        plafond = CategorieService.get_plafond_applicable(categorie)
+        self.assertIsNotNone(plafond)
+        self.assertEqual(plafond.MONTANT_JOURNALIER, Decimal('20000'))
+
+    def test_get_plafond_applicable_periode_invalide(self):
+        """Test que les plafonds hors période ne sont pas retournés."""
+        from .services import CategorieService
+
+        categorie = NFCA.objects.create(CODE='EXPIRE', LIBELLE='Expiré')
+
+        # Plafond expiré
+        NFPL.objects.create(
+            CATEGORIE=categorie,
+            MONTANT_JOURNALIER=Decimal('15000'),
+            DATE_DEBUT=date.today() - timedelta(days=60),
+            DATE_FIN=date.today() - timedelta(days=30),
+            STATUT=True
+        )
+
+        plafond = CategorieService.get_plafond_applicable(categorie)
+        self.assertIsNone(plafond)
+
+    def test_get_plafonds_categorie(self):
+        """Test de récupération de tous les plafonds d'une catégorie."""
+        from .services import CategorieService
+
+        categorie = NFCA.objects.create(CODE='MULTI', LIBELLE='Multi plafonds')
+
+        NFPL.objects.create(
+            CATEGORIE=categorie,
+            MONTANT_JOURNALIER=Decimal('10000'),
+            DATE_DEBUT=date.today()
+        )
+        NFPL.objects.create(
+            CATEGORIE=categorie,
+            GRADE='DIRECTEUR',
+            MONTANT_JOURNALIER=Decimal('50000'),
+            DATE_DEBUT=date.today()
+        )
+
+        plafonds = CategorieService.get_plafonds_categorie(categorie)
+        self.assertEqual(plafonds.count(), 2)
+
+    def test_creer_categories_defaut(self):
+        """Test de création des catégories par défaut."""
+        from .services import CategorieService
+
+        # Supprimer les catégories existantes
+        NFCA.objects.all().delete()
+
+        categories = CategorieService.creer_categories_defaut()
+
+        # Vérifier que les catégories par défaut ont été créées
+        self.assertGreater(len(categories), 0)
+        codes = [c.CODE for c in categories]
+        self.assertIn('TRANSPORT', codes)
+        self.assertIn('REPAS', codes)
+
+
+class CategorieServiceGradeTests(TestCase):
+    """Tests pour le filtrage par grade dans CategorieService."""
+
+    def setUp(self):
+        """Configuration des tests."""
+        self.categorie = NFCA.objects.create(CODE='GRADE', LIBELLE='Test Grade')
+
+        # Plafond général (sans grade)
+        self.plafond_general = NFPL.objects.create(
+            CATEGORIE=self.categorie,
+            MONTANT_JOURNALIER=Decimal('20000'),
+            DATE_DEBUT=date.today() - timedelta(days=30),
+            STATUT=True
+        )
+
+        # Plafond spécifique pour SAL (salarié)
+        self.plafond_sal = NFPL.objects.create(
+            CATEGORIE=self.categorie,
+            GRADE='SAL',
+            MONTANT_JOURNALIER=Decimal('30000'),
+            DATE_DEBUT=date.today() - timedelta(days=30),
+            STATUT=True
+        )
+
+    def test_plafond_sans_employe_retourne_general(self):
+        """Sans employé, retourne le plafond général."""
+        from .services import CategorieService
+
+        plafond = CategorieService.get_plafond_applicable(self.categorie)
+        self.assertIsNone(plafond.GRADE)
+        self.assertEqual(plafond.MONTANT_JOURNALIER, Decimal('20000'))
+
+
+class ValidationFraisServiceTests(TestCase):
+    """Tests pour ValidationFraisService."""
+
+    def setUp(self):
+        """Configuration des tests."""
+        self.categorie = NFCA.objects.create(
+            CODE='VALID',
+            LIBELLE='Validation',
+            JUSTIFICATIF_OBLIGATOIRE=True
+        )
+
+    def test_service_existe(self):
+        """Test que le service existe et est importable."""
+        from .services import ValidationFraisService
+        self.assertTrue(hasattr(ValidationFraisService, 'verifier_plafond'))
+
+
+class StatistiquesFraisServiceTests(TestCase):
+    """Tests pour StatistiquesFraisService."""
+
+    def setUp(self):
+        """Configuration des tests."""
+        self.cat1 = NFCA.objects.create(CODE='STAT1', LIBELLE='Stats 1')
+        self.cat2 = NFCA.objects.create(CODE='STAT2', LIBELLE='Stats 2')
+
+    def test_get_categories_avec_stats(self):
+        """Test de récupération des catégories avec statistiques."""
+        from .services import CategorieService
+
+        result = CategorieService.get_categories_avec_stats()
+        self.assertIsInstance(result, list)
+        self.assertGreaterEqual(len(result), 2)

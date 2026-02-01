@@ -85,7 +85,16 @@ class TicketListView(LoginRequiredMixin, ListView):
         context['tickets_en_cours'] = JRTicket.objects.filter(statut='EN_COURS').count()
         context['tickets_en_revue'] = JRTicket.objects.filter(statut='EN_REVUE').count()
         context['tickets_termines'] = JRTicket.objects.filter(statut='TERMINE').count()
-        
+
+        # Permission de gestion des projets
+        context['peut_gerer_projets'] = (
+            self.request.user.is_superuser or
+            self.request.user.is_staff or
+            (hasattr(self.request.user, 'employe') and
+             self.request.user.employe and
+             self.request.user.employe.peut_gerer_projets())
+        )
+
         return context
 
 
@@ -136,8 +145,8 @@ class TicketUpdateView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         # Sauvegarder les anciennes valeurs pour l'historique
-        old_instance = JRTicket.objects.get(pk=self.object.pk)
-        
+        old_instance = get_object_or_404(JRTicket, pk=self.object.pk)
+
         response = super().form_valid(form)
         
         # Créer l'historique pour les changements
@@ -176,7 +185,16 @@ def ticket_detail(request, pk):
     # Formulaires
     commentaire_form = CommentaireForm()
     piece_jointe_form = PieceJointeForm()
-    
+
+    # Permission de gestion des projets
+    peut_gerer_projets = (
+        request.user.is_superuser or
+        request.user.is_staff or
+        (hasattr(request.user, 'employe') and
+         request.user.employe and
+         request.user.employe.peut_gerer_projets())
+    )
+
     context = {
         'ticket': ticket,
         'commentaires': commentaires,
@@ -185,8 +203,9 @@ def ticket_detail(request, pk):
         'imputations': imputations,
         'commentaire_form': commentaire_form,
         'piece_jointe_form': piece_jointe_form,
+        'peut_gerer_projets': peut_gerer_projets,
     }
-    
+
     return render(request, 'project_management/ticket/ticket_detail.html', context)
 
 

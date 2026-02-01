@@ -4,7 +4,6 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Max, Count, Sum
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -139,7 +138,6 @@ def backlog_retirer_ticket(request, pk):
     return redirect('pm:backlog_projet', pk=pk)
 
 
-@csrf_exempt
 @login_required
 @require_POST
 def backlog_reorganiser(request):

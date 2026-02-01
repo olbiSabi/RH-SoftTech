@@ -1,351 +1,499 @@
-from django.db import models
-from django.utils import timezone
-from django.core.mail import send_mail
-from django.conf import settings
-from django.template.loader import render_to_string
+"""
+Service de gestion des notifications pour le module Project Management.
+Utilise le modèle NotificationAbsence avec le contexte 'PM' (Project Management).
+"""
+import logging
+from absence.models import NotificationAbsence
+
+logger = logging.getLogger(__name__)
 
 
 class NotificationService:
-    """Service pour la gestion des notifications"""
-    
-    @staticmethod
-    def creer_notification(utilisateur, titre, message, type_notification='INFO', 
-                          objet_id=None, objet_type=None, priorite='normale'):
+    """Service centralisé pour les notifications du module Project Management."""
+
+    # Types de notifications PM
+    TYPE_PROJET_ASSIGNE = 'PROJET_ASSIGNE'
+    TYPE_PROJET_REASSIGNE = 'PROJET_REASSIGNE'
+    TYPE_TICKET_ASSIGNE = 'TICKET_ASSIGNE'
+    TYPE_TICKET_REASSIGNE = 'TICKET_REASSIGNE'
+    TYPE_STATUT_PROJET_CHANGE = 'STATUT_PROJET_CHANGE'
+    TYPE_STATUT_TICKET_CHANGE = 'STATUT_TICKET_CHANGE'
+    TYPE_COMMENTAIRE_TICKET = 'COMMENTAIRE_TICKET'
+    TYPE_ECHEANCE_PROCHE = 'ECHEANCE_PROCHE'
+
+    # Messages templates pour les changements de statut ticket
+    MESSAGES_STATUT_TICKET = {
+        ('OUVERT', 'EN_COURS'): "🚀 Le ticket '{code}' est passé en cours",
+        ('EN_COURS', 'EN_REVUE'): "👀 Le ticket '{code}' est en revue",
+        ('EN_REVUE', 'TERMINE'): "✅ Le ticket '{code}' est terminé",
+        ('EN_COURS', 'OUVERT'): "↩️ Le ticket '{code}' est revenu à Ouvert",
+        ('EN_REVUE', 'EN_COURS'): "🔄 Le ticket '{code}' est retourné en cours",
+    }
+
+    # Messages templates pour les changements de statut projet
+    MESSAGES_STATUT_PROJET = {
+        ('PLANIFIE', 'EN_COURS'): "🚀 Le projet '{nom}' a démarré",
+        ('EN_COURS', 'TERMINE'): "✅ Le projet '{nom}' est terminé",
+        ('EN_COURS', 'EN_PAUSE'): "⏸️ Le projet '{nom}' est en pause",
+        ('EN_PAUSE', 'EN_COURS'): "▶️ Le projet '{nom}' a repris",
+    }
+
+    @classmethod
+    def _creer_notification(cls, destinataire, type_notif, message, ticket=None, projet=None):
         """
-        Crée une notification pour un utilisateur
-        
+        Crée une notification via le modèle NotificationAbsence.
+
         Args:
-            utilisateur: L'utilisateur qui recevra la notification
-            titre: Titre de la notification
-            message: Message détaillé
-            type_notification: Type de notification (INFO, WARNING, ERROR, SUCCESS)
-            objet_id: ID de l'objet lié (ticket, projet, etc.)
-            objet_type: Type de l'objet lié
-            priorite: Priorité (basse, normale, haute, urgente)
+            destinataire: Employé destinataire
+            type_notif: Type de notification
+            message: Message de la notification
+            ticket: Instance JRTicket (optionnel)
+            projet: Instance JRProject (optionnel)
+
+        Returns:
+            NotificationAbsence ou None
         """
-        # Pour l'instant, on utilise un modèle simple
-        # Dans une implémentation complète, on aurait un modèle Notification
-        
-        notification = {
-            'utilisateur': utilisateur,
-            'titre': titre,
-            'message': message,
-            'type_notification': type_notification,
-            'objet_id': objet_id,
-            'objet_type': objet_type,
-            'priorite': priorite,
-            'created_at': timezone.now(),
-            'lue': False
-        }
-        
-        # Envoyer l'email si configuré
-        if getattr(settings, 'ENVOI_EMAIL_NOTIFICATIONS', False):
-            NotificationService._envoyer_email_notification(notification)
-        
-        return notification
-    
-    @staticmethod
-    def _envoyer_email_notification(notification):
-        """Envoie une notification par email"""
+        if not destinataire:
+            return None
+
+        return NotificationAbsence.creer_notification(
+            destinataire=destinataire,
+            type_notif=type_notif,
+            message=message,
+            contexte='PM',
+            ticket=ticket,
+            projet=projet
+        )
+
+    @classmethod
+    def _get_equipe_employe(cls, employe):
+        """
+        Récupère les membres de l'équipe (même département) d'un employé.
+
+        Args:
+            employe: Instance ZY00
+
+        Returns:
+            list: Liste des employés de la même équipe
+        """
+        if not employe:
+            return []
+
         try:
-            sujet = f"[HR_ONIAN] {notification['titre']}"
-            
-            context = {
-                'utilisateur': notification['utilisateur'],
-                'titre': notification['titre'],
-                'message': notification['message'],
-                'type_notification': notification['type_notification'],
-                'objet_id': notification['objet_id'],
-                'objet_type': notification['objet_type'],
-            }
-            
-            # Rendre le template email
-            html_message = render_to_string(
-                'project_management/emails/notification.html', 
-                context
-            )
-            text_message = render_to_string(
-                'project_management/emails/notification.txt', 
-                context
-            )
-            
-            # Envoyer l'email
-            send_mail(
-                sujet,
-                text_message,
-                settings.DEFAULT_FROM_EMAIL,
-                [notification['utilisateur'].email],
-                html_message=html_message,
-                fail_silently=False
-            )
-            
+            from employee.models import ZYAF, ZY00
+
+            dept = employe.get_departement_actuel()
+            if not dept:
+                return []
+
+            # Récupérer tous les employés du même département
+            membres_ids = ZYAF.objects.filter(
+                poste__DEPARTEMENT=dept,
+                date_fin__isnull=True,
+                employe__etat='actif'
+            ).exclude(
+                employe=employe
+            ).values_list('employe', flat=True).distinct()
+
+            return list(ZY00.objects.filter(pk__in=membres_ids))
+
         except Exception as e:
-            # Logger l'erreur mais ne pas bloquer le processus
-            print(f"Erreur lors de l'envoi de l'email: {e}")
-    
-    @staticmethod
-    def notifier_creation_ticket(ticket):
-        """Notifie la création d'un nouveau ticket"""
+            logger.warning(f"Erreur récupération équipe: {e}")
+            return []
+
+    @classmethod
+    def _get_manager_employe(cls, employe):
+        """
+        Récupère le manager d'un employé (manager du département).
+
+        Args:
+            employe: Instance ZY00
+
+        Returns:
+            ZY00 ou None
+        """
+        if not employe:
+            return None
+
+        try:
+            from departement.models import ZYMA
+
+            dept = employe.get_departement_actuel()
+            if not dept:
+                return None
+
+            manager_dept = ZYMA.objects.filter(
+                departement=dept,
+                actif=True,
+                date_fin__isnull=True
+            ).first()
+
+            if manager_dept:
+                return manager_dept.employe
+
+        except Exception as e:
+            logger.warning(f"Erreur récupération manager: {e}")
+
+        return None
+
+    # =========================================================================
+    # NOTIFICATIONS D'ASSIGNATION
+    # =========================================================================
+
+    @classmethod
+    def notifier_assignation_projet(cls, projet, employe_assigne, ancien_chef_projet=None):
+        """
+        Notifie un employé qu'il a été assigné à un projet.
+
+        Args:
+            projet: Instance JRProject
+            employe_assigne: Employé assigné (chef de projet)
+            ancien_chef_projet: Ancien chef de projet (si réassignation)
+
+        Returns:
+            list: Liste des notifications créées
+        """
         notifications = []
-        
-        # Notifier le chef de projet
-        if ticket.projet.chef_projet:
-            notification = NotificationService.creer_notification(
-                utilisateur=ticket.projet.chef_projet,
-                titre=f"Nouveau ticket créé : {ticket.code}",
-                message=f"Un nouveau ticket '{ticket.titre}' a été créé pour le projet {ticket.projet.nom}",
-                type_notification='INFO',
-                objet_id=ticket.id,
-                objet_type='ticket'
+
+        # Notifier le nouveau chef de projet
+        if employe_assigne:
+            message = f"📋 Vous avez été assigné au projet '{projet.nom}'"
+            notif = cls._creer_notification(
+                destinataire=employe_assigne,
+                type_notif=cls.TYPE_PROJET_ASSIGNE,
+                message=message,
+                projet=projet
             )
-            notifications.append(notification)
-        
-        # Notifier les membres de l'équipe du projet (optionnel)
-        # Ici on pourrait notifier tous les employés qui ont travaillé sur le projet
-        
+            if notif:
+                notifications.append(notif)
+
+        # Notifier l'ancien chef de projet si réassignation
+        if ancien_chef_projet and ancien_chef_projet != employe_assigne:
+            nouveau_nom = f"{employe_assigne.nom} {employe_assigne.prenoms}" if employe_assigne else "personne"
+            message = f"ℹ️ Le projet '{projet.nom}' a été réassigné à {nouveau_nom}"
+            notif = cls._creer_notification(
+                destinataire=ancien_chef_projet,
+                type_notif=cls.TYPE_PROJET_REASSIGNE,
+                message=message,
+                projet=projet
+            )
+            if notif:
+                notifications.append(notif)
+
         return notifications
-    
-    @staticmethod
-    def notifier_changement_statut_ticket(ticket, ancien_statut, nouveau_statut):
-        """Notifie le changement de statut d'un ticket"""
+
+    @classmethod
+    def notifier_assignation_ticket(cls, ticket, ancien_assigne=None):
+        """
+        Notifie l'assigné d'un ticket.
+
+        Args:
+            ticket: Instance JRTicket
+            ancien_assigne: Ancien assigné (si réassignation)
+
+        Returns:
+            list: Liste des notifications créées
+        """
         notifications = []
-        
-        # Notifier l'assigné du ticket
+
+        # Notifier le nouvel assigné
         if ticket.assigne:
-            notification = NotificationService.creer_notification(
-                utilisateur=ticket.assigne,
-                titre=f"Changement de statut : {ticket.code}",
-                message=f"Le ticket '{ticket.titre}' est passé de {ancien_statut} à {nouveau_statut}",
-                type_notification='INFO',
-                objet_id=ticket.id,
-                objet_type='ticket'
+            message = f"📋 Vous avez été assigné au ticket '{ticket.code}' - {ticket.titre}"
+            notif = cls._creer_notification(
+                destinataire=ticket.assigne,
+                type_notif=cls.TYPE_TICKET_ASSIGNE,
+                message=message,
+                ticket=ticket
             )
-            notifications.append(notification)
-        
-        # Notifier le chef de projet
-        if ticket.projet.chef_projet and ticket.projet.chef_projet != ticket.assigne:
-            notification = NotificationService.creer_notification(
-                utilisateur=ticket.projet.chef_projet,
-                titre=f"Changement de statut : {ticket.code}",
-                message=f"Le ticket '{ticket.titre}' est passé de {ancien_statut} à {nouveau_statut}",
-                type_notification='INFO',
-                objet_id=ticket.id,
-                objet_type='ticket'
+            if notif:
+                notifications.append(notif)
+
+        # Notifier l'ancien assigné si réassignation
+        if ancien_assigne and ancien_assigne != ticket.assigne:
+            nouvel_nom = f"{ticket.assigne.nom} {ticket.assigne.prenoms}" if ticket.assigne else "personne"
+            message = f"ℹ️ Le ticket '{ticket.code}' a été réassigné à {nouvel_nom}"
+            notif = cls._creer_notification(
+                destinataire=ancien_assigne,
+                type_notif=cls.TYPE_TICKET_REASSIGNE,
+                message=message,
+                ticket=ticket
             )
-            notifications.append(notification)
-        
-        # Notification spéciale pour les tickets critiques
-        if ticket.priorite == 'CRITIQUE' and nouveau_statut == 'TERMINE':
-            notification = NotificationService.creer_notification(
-                utilisateur=ticket.projet.chef_projet,
-                titre=f"Ticket critique terminé : {ticket.code}",
-                message=f"Le ticket critique '{ticket.titre}' a été terminé",
-                type_notification='SUCCESS',
-                objet_id=ticket.id,
-                objet_type='ticket',
-                priorite='haute'
-            )
-            notifications.append(notification)
-        
+            if notif:
+                notifications.append(notif)
+
         return notifications
-    
-    @staticmethod
-    def notifier_assignation_ticket(ticket, ancien_assigne=None):
-        """Notifie l'assignation d'un ticket"""
+
+    # =========================================================================
+    # NOTIFICATIONS DE CHANGEMENT DE STATUT
+    # =========================================================================
+
+    @classmethod
+    def notifier_changement_statut_projet(cls, projet, ancien_statut, nouveau_statut):
+        """
+        Notifie le changement de statut d'un projet.
+        Destinataires: chef de projet, équipe, manager.
+
+        Args:
+            projet: Instance JRProject
+            ancien_statut: Ancien statut
+            nouveau_statut: Nouveau statut
+
+        Returns:
+            list: Liste des notifications créées
+        """
         notifications = []
-        
-        if ticket.assigne:
-            notification = NotificationService.creer_notification(
-                utilisateur=ticket.assigne,
-                titre=f"Nouvelle assignation : {ticket.code}",
-                message=f"Vous avez été assigné au ticket '{ticket.titre}' ({ticket.priorite})",
-                type_notification='INFO',
-                objet_id=ticket.id,
-                objet_type='ticket'
-            )
-            notifications.append(notification)
-        
-        return notifications
-    
-    @staticmethod
-    def notifier_imputation_en_attente(imputation):
-        """Notifie qu'une imputation est en attente de validation"""
-        notifications = []
-        
-        # Notifier le chef de projet
-        projet = imputation.ticket.projet
+        destinataires_notifies = set()
+
+        # Construire le message
+        cle = (ancien_statut, nouveau_statut)
+        if cle in cls.MESSAGES_STATUT_PROJET:
+            message = cls.MESSAGES_STATUT_PROJET[cle].format(nom=projet.nom)
+        else:
+            message = f"🔄 Le projet '{projet.nom}' est passé de {ancien_statut} à {nouveau_statut}"
+
+        # 1. Notifier le chef de projet
         if projet.chef_projet:
-            notification = NotificationService.creer_notification(
-                utilisateur=projet.chef_projet,
-                titre=f"Imputation en attente : {imputation.ticket.code}",
-                message=f"{imputation.employe} a imputé {imputation.total_heures}h sur le ticket '{imputation.ticket.titre}'",
-                type_notification='INFO',
-                objet_id=imputation.id,
-                objet_type='imputation'
+            notif = cls._creer_notification(
+                destinataire=projet.chef_projet,
+                type_notif=cls.TYPE_STATUT_PROJET_CHANGE,
+                message=message,
+                projet=projet
             )
-            notifications.append(notification)
-        
-        return notifications
-    
-    @staticmethod
-    def notifier_validation_imputation(imputation, action):
-        """Notifie la validation/rejet d'une imputation"""
-        notifications = []
-        
-        message_validation = ""
-        type_notif = 'SUCCESS'
-        
-        if action == 'valider':
-            message_validation = f"Votre imputation de {imputation.total_heures}h a été validée"
-            type_notif = 'SUCCESS'
-        elif action == 'rejeter':
-            message_validation = f"Votre imputation de {imputation.total_heures}h a été rejetée"
-            type_notif = 'WARNING'
-        
-        notification = NotificationService.creer_notification(
-            utilisateur=imputation.employe,
-            titre=f"Imputation {action}e : {imputation.ticket.code}",
-            message=message_validation,
-            type_notification=type_notif,
-            objet_id=imputation.id,
-            objet_type='imputation'
-        )
-        notifications.append(notification)
-        
-        return notifications
-    
-    @staticmethod
-    def notifier_sprint_termine(sprint):
-        """Notifie la fin d'un sprint"""
-        notifications = []
-        
-        # Statistiques du sprint
-        tickets_termines = sprint.tickets.filter(statut='TERMINE').count()
-        tickets_total = sprint.tickets.count()
-        
-        # Notifier le chef de projet
-        if sprint.projet.chef_projet:
-            notification = NotificationService.creer_notification(
-                utilisateur=sprint.projet.chef_projet,
-                titre=f"Sprint terminé : {sprint.nom}",
-                message=f"Le sprint '{sprint.nom}' est terminé. {tickets_termines}/{tickets_total} tickets terminés.",
-                type_notification='INFO',
-                objet_id=sprint.id,
-                objet_type='sprint'
-            )
-            notifications.append(notification)
-        
-        # Notifier les participants au sprint
-        participants = sprint.tickets.values_list('assigne', flat=True).distinct()
-        for participant_id in participants:
-            try:
-                from employee.models import ZY00
-                participant = ZY00.objects.get(pk=participant_id)
-                
-                if participant != sprint.projet.chef_projet:
-                    notification = NotificationService.creer_notification(
-                        utilisateur=participant,
-                        titre=f"Sprint terminé : {sprint.nom}",
-                        message=f"Le sprint '{sprint.nom}' est terminé. {tickets_termines}/{tickets_total} tickets terminés.",
-                        type_notification='INFO',
-                        objet_id=sprint.id,
-                        objet_type='sprint'
+            if notif:
+                notifications.append(notif)
+                destinataires_notifies.add(projet.chef_projet.pk)
+
+        # 2. Notifier l'équipe du chef de projet
+        if projet.chef_projet:
+            equipe = cls._get_equipe_employe(projet.chef_projet)
+            for membre in equipe:
+                if membre.pk not in destinataires_notifies:
+                    notif = cls._creer_notification(
+                        destinataire=membre,
+                        type_notif=cls.TYPE_STATUT_PROJET_CHANGE,
+                        message=message,
+                        projet=projet
                     )
-                    notifications.append(notification)
-                    
-            except ZY00.DoesNotExist:
-                continue
-        
+                    if notif:
+                        notifications.append(notif)
+                        destinataires_notifies.add(membre.pk)
+
+        # 3. Notifier le manager du chef de projet
+        if projet.chef_projet:
+            manager = cls._get_manager_employe(projet.chef_projet)
+            if manager and manager.pk not in destinataires_notifies:
+                notif = cls._creer_notification(
+                    destinataire=manager,
+                    type_notif=cls.TYPE_STATUT_PROJET_CHANGE,
+                    message=message,
+                    projet=projet
+                )
+                if notif:
+                    notifications.append(notif)
+
         return notifications
-    
-    @staticmethod
-    def notifier_ticket_en_retard(ticket):
-        """Notifie qu'un ticket est en retard"""
+
+    @classmethod
+    def notifier_changement_statut_ticket(cls, ticket, ancien_statut, nouveau_statut):
+        """
+        Notifie le changement de statut d'un ticket.
+        Destinataires: assigné, équipe de l'assigné, manager de l'assigné.
+
+        Args:
+            ticket: Instance JRTicket
+            ancien_statut: Ancien statut
+            nouveau_statut: Nouveau statut
+
+        Returns:
+            list: Liste des notifications créées
+        """
         notifications = []
-        
-        notification = NotificationService.creer_notification(
-            utilisateur=ticket.projet.chef_projet,
-            titre=f"Ticket en retard : {ticket.code}",
-            message=f"Le ticket '{ticket.titre}' ({ticket.priorite}) aurait dû être terminé le {ticket.date_echeance}",
-            type_notification='WARNING',
-            objet_id=ticket.id,
-            objet_type='ticket',
-            priorite='haute' if ticket.priorite == 'CRITIQUE' else 'normale'
-        )
-        notifications.append(notification)
-        
-        # Notifier aussi l'assigné
-        if ticket.assigne and ticket.assigne != ticket.projet.chef_projet:
-            notification = NotificationService.creer_notification(
-                utilisateur=ticket.assigne,
-                titre=f"Ticket en retard : {ticket.code}",
-                message=f"Votre ticket '{ticket.titre}' est en retard (échéance: {ticket.date_echeance})",
-                type_notification='WARNING',
-                objet_id=ticket.id,
-                objet_type='ticket',
-                priorite='haute' if ticket.priorite == 'CRITIQUE' else 'normale'
+        destinataires_notifies = set()
+
+        # Construire le message
+        cle = (ancien_statut, nouveau_statut)
+        if cle in cls.MESSAGES_STATUT_TICKET:
+            message = cls.MESSAGES_STATUT_TICKET[cle].format(code=ticket.code)
+        else:
+            message = f"🔄 Le ticket '{ticket.code}' est passé de {ancien_statut} à {nouveau_statut}"
+
+        # 1. Notifier l'assigné du ticket
+        if ticket.assigne:
+            notif = cls._creer_notification(
+                destinataire=ticket.assigne,
+                type_notif=cls.TYPE_STATUT_TICKET_CHANGE,
+                message=message,
+                ticket=ticket
             )
-            notifications.append(notification)
-        
+            if notif:
+                notifications.append(notif)
+                destinataires_notifies.add(ticket.assigne.pk)
+
+            # 2. Notifier l'équipe de l'assigné
+            equipe = cls._get_equipe_employe(ticket.assigne)
+            for membre in equipe:
+                if membre.pk not in destinataires_notifies:
+                    notif = cls._creer_notification(
+                        destinataire=membre,
+                        type_notif=cls.TYPE_STATUT_TICKET_CHANGE,
+                        message=message,
+                        ticket=ticket
+                    )
+                    if notif:
+                        notifications.append(notif)
+                        destinataires_notifies.add(membre.pk)
+
+            # 3. Notifier le manager de l'assigné
+            manager = cls._get_manager_employe(ticket.assigne)
+            if manager and manager.pk not in destinataires_notifies:
+                notif = cls._creer_notification(
+                    destinataire=manager,
+                    type_notif=cls.TYPE_STATUT_TICKET_CHANGE,
+                    message=message,
+                    ticket=ticket
+                )
+                if notif:
+                    notifications.append(notif)
+
+        # 4. Notifier aussi le chef de projet si différent
+        if ticket.projet.chef_projet and ticket.projet.chef_projet.pk not in destinataires_notifies:
+            notif = cls._creer_notification(
+                destinataire=ticket.projet.chef_projet,
+                type_notif=cls.TYPE_STATUT_TICKET_CHANGE,
+                message=message,
+                ticket=ticket
+            )
+            if notif:
+                notifications.append(notif)
+
         return notifications
-    
-    @staticmethod
-    def notifier_rappel_imputation(employe, date):
-        """Notifie un employé pour lui rappeler d'imputer son temps"""
-        notification = NotificationService.creer_notification(
-            utilisateur=employe,
-            titre="Rappel d'imputation de temps",
-            message=f"N'oubliez pas d'imputer votre temps pour le {date}",
-            type_notification='INFO',
-            priorite='normale'
-        )
-        
-        return [notification]
-    
-    @staticmethod
-    def get_notifications_utilisateur(utilisateur, non_lues_seulement=False):
-        """Récupère les notifications d'un utilisateur"""
-        # Dans une implémentation complète, cela interrogerait un modèle Notification
-        # Pour l'instant, on retourne une liste vide
-        return []
-    
-    @staticmethod
-    def marquer_notification_lue(notification_id, utilisateur):
-        """Marque une notification comme lue"""
-        # Dans une implémentation complète, cela mettrait à jour le modèle Notification
-        pass
-    
-    @staticmethod
-    def marquer_toutes_notifications_lues(utilisateur):
-        """Marque toutes les notifications d'un utilisateur comme lues"""
-        # Dans une implémentation complète, cela mettrait à jour plusieurs notifications
-        pass
-    
-    @staticmethod
-    def supprimer_notifications_anciennes(jours=30):
-        """Supprime les anciennes notifications"""
-        date_limite = timezone.now() - timezone.timedelta(days=jours)
-        
-        # Dans une implémentation complète, cela supprimerait du modèle Notification
-        pass
-    
-    @staticmethod
-    def envoyer_rapport_hebdomadaire(utilisateur):
-        """Envoie un rapport hebdomadaire des activités"""
-        from ..services import ImputationService
-        
-        # Générer le rapport
-        rapport = ImputationService.get_rapport_hebdomadaire(utilisateur)
-        
-        if rapport['total_heures'] > 0:
-            notification = NotificationService.creer_notification(
-                utilisateur=utilisateur,
-                titre="Rapport hebdomadaire",
-                message=f"Cette semaine: {rapport['total_heures']}h imputées sur {rapport['total_imputations']} tâches",
-                type_notification='INFO',
-                priorite='basse'
+
+    # =========================================================================
+    # NOTIFICATIONS DE COMMENTAIRES
+    # =========================================================================
+
+    @classmethod
+    def notifier_commentaire_ticket(cls, commentaire, auteur):
+        """
+        Notifie l'équipe de l'assigné d'un nouveau commentaire.
+
+        Args:
+            commentaire: Instance JRCommentaire
+            auteur: Employé qui a écrit le commentaire
+
+        Returns:
+            list: Liste des notifications créées
+        """
+        notifications = []
+        destinataires_notifies = set()
+        ticket = commentaire.ticket
+
+        # Ne pas notifier l'auteur
+        if auteur:
+            destinataires_notifies.add(auteur.pk)
+
+        message = f"💬 Nouveau commentaire sur le ticket '{ticket.code}'"
+
+        # 1. Notifier l'assigné du ticket (sauf si c'est l'auteur)
+        if ticket.assigne and ticket.assigne.pk not in destinataires_notifies:
+            notif = cls._creer_notification(
+                destinataire=ticket.assigne,
+                type_notif=cls.TYPE_COMMENTAIRE_TICKET,
+                message=f"💬 Nouveau commentaire sur votre ticket '{ticket.code}'",
+                ticket=ticket
             )
-            
-            return [notification]
-        
-        return []
+            if notif:
+                notifications.append(notif)
+                destinataires_notifies.add(ticket.assigne.pk)
+
+        # 2. Notifier l'équipe de l'assigné
+        if ticket.assigne:
+            equipe = cls._get_equipe_employe(ticket.assigne)
+            for membre in equipe:
+                if membre.pk not in destinataires_notifies:
+                    notif = cls._creer_notification(
+                        destinataire=membre,
+                        type_notif=cls.TYPE_COMMENTAIRE_TICKET,
+                        message=message,
+                        ticket=ticket
+                    )
+                    if notif:
+                        notifications.append(notif)
+                        destinataires_notifies.add(membre.pk)
+
+        # 3. Notifier les personnes mentionnées
+        for mentionne in commentaire.mentions.all():
+            if mentionne.pk not in destinataires_notifies:
+                notif = cls._creer_notification(
+                    destinataire=mentionne,
+                    type_notif=cls.TYPE_COMMENTAIRE_TICKET,
+                    message=f"💬 Vous avez été mentionné dans un commentaire sur '{ticket.code}'",
+                    ticket=ticket
+                )
+                if notif:
+                    notifications.append(notif)
+                    destinataires_notifies.add(mentionne.pk)
+
+        # 4. Notifier le chef de projet
+        if ticket.projet.chef_projet and ticket.projet.chef_projet.pk not in destinataires_notifies:
+            notif = cls._creer_notification(
+                destinataire=ticket.projet.chef_projet,
+                type_notif=cls.TYPE_COMMENTAIRE_TICKET,
+                message=message,
+                ticket=ticket
+            )
+            if notif:
+                notifications.append(notif)
+
+        return notifications
+
+    # =========================================================================
+    # NOTIFICATIONS D'ÉCHÉANCE
+    # =========================================================================
+
+    @classmethod
+    def notifier_echeance_proche(cls, ticket, jours_restants):
+        """
+        Notifie que l'échéance d'un ticket approche.
+
+        Args:
+            ticket: Instance JRTicket
+            jours_restants: Nombre de jours avant l'échéance
+
+        Returns:
+            list: Liste des notifications créées
+        """
+        notifications = []
+
+        if not ticket.assigne or not ticket.date_echeance:
+            return notifications
+
+        if jours_restants == 0:
+            message = f"⚠️ Le ticket '{ticket.code}' arrive à échéance aujourd'hui!"
+        elif jours_restants == 1:
+            message = f"⏳ Le ticket '{ticket.code}' arrive à échéance demain"
+        else:
+            message = f"⏳ Le ticket '{ticket.code}' arrive à échéance dans {jours_restants} jours"
+
+        # Notifier l'assigné
+        notif = cls._creer_notification(
+            destinataire=ticket.assigne,
+            type_notif=cls.TYPE_ECHEANCE_PROCHE,
+            message=message,
+            ticket=ticket
+        )
+        if notif:
+            notifications.append(notif)
+
+        # Notifier le chef de projet si échéance très proche
+        if jours_restants <= 1 and ticket.projet.chef_projet and ticket.projet.chef_projet != ticket.assigne:
+            notif = cls._creer_notification(
+                destinataire=ticket.projet.chef_projet,
+                type_notif=cls.TYPE_ECHEANCE_PROCHE,
+                message=message,
+                ticket=ticket
+            )
+            if notif:
+                notifications.append(notif)
+
+        return notifications

@@ -151,6 +151,10 @@ class CategorieService:
         """
         Récupère le plafond applicable pour une catégorie.
 
+        Logique de sélection:
+        1. Si employé fourni avec un grade spécifique, cherche d'abord un plafond pour ce grade
+        2. Sinon, retourne le plafond général (GRADE=NULL)
+
         Args:
             categorie: Instance NFCA
             employe: Employé concerné (pour filtrer par grade)
@@ -160,23 +164,77 @@ class CategorieService:
             Instance NFPL ou None
         """
         from frais.models import NFPL
+        from django.db.models import Q
 
         if date is None:
             date = timezone.now().date()
 
-        # Chercher un plafond spécifique au grade si employé fourni
-        plafonds = NFPL.objects.filter(
+        # Filtre de base: catégorie, statut actif, période valide
+        base_filter = Q(
             CATEGORIE=categorie,
             STATUT=True,
             DATE_DEBUT__lte=date
-        ).filter(
-            models.Q(DATE_FIN__isnull=True) | models.Q(DATE_FIN__gte=date)
-        ).order_by('-DATE_DEBUT')
+        ) & (Q(DATE_FIN__isnull=True) | Q(DATE_FIN__gte=date))
 
-        # TODO: Si employe fourni, filtrer par grade de l'employé
-        # Pour l'instant, retourner le premier plafond applicable
+        # Si employé fourni, chercher un plafond spécifique à son grade
+        if employe:
+            grade_employe = CategorieService._get_grade_employe(employe)
 
-        return plafonds.first()
+            if grade_employe:
+                # Chercher d'abord un plafond spécifique au grade
+                plafond_grade = NFPL.objects.filter(
+                    base_filter,
+                    GRADE__iexact=grade_employe
+                ).order_by('-DATE_DEBUT').first()
+
+                if plafond_grade:
+                    return plafond_grade
+
+        # Plafond général (sans grade spécifique)
+        plafond_general = NFPL.objects.filter(
+            base_filter,
+            GRADE__isnull=True
+        ).order_by('-DATE_DEBUT').first()
+
+        if plafond_general:
+            return plafond_general
+
+        # Fallback: premier plafond disponible (avec ou sans grade)
+        return NFPL.objects.filter(base_filter).order_by('-DATE_DEBUT').first()
+
+    @staticmethod
+    def _get_grade_employe(employe):
+        """
+        Récupère le grade/catégorie de l'employé pour le filtrage des plafonds.
+
+        Cette méthode est extensible: si un champ 'grade' est ajouté au modèle
+        ZY00 ou ZYCO à l'avenir, il suffit de modifier cette méthode.
+
+        Args:
+            employe: Instance ZY00
+
+        Returns:
+            str ou None: Grade de l'employé
+        """
+        # Tentative 1: Champ grade direct sur l'employé (si ajouté ultérieurement)
+        if hasattr(employe, 'grade') and employe.grade:
+            return employe.grade
+
+        # Tentative 2: Grade via le contrat actif
+        contrat_actif = employe.contrats.filter(
+            actif=True,
+            date_fin__isnull=True
+        ).first()
+
+        if contrat_actif and hasattr(contrat_actif, 'grade') and contrat_actif.grade:
+            return contrat_actif.grade
+
+        # Tentative 3: Utiliser type_dossier comme grade de base
+        # (SAL pour salarié, PRE pour pré-embauche)
+        if employe.type_dossier:
+            return employe.type_dossier
+
+        return None
 
     # ==========================================================================
     # REQUÊTES

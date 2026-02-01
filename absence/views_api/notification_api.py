@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def notification_detail(request, id):
-    """Marquer une notification comme lue et rediriger selon le CONTEXTE"""
+    """Marquer une notification comme lue et rediriger vers l'objet concerné"""
     notification = get_object_or_404(
         NotificationAbsence,
         id=id,
@@ -25,8 +25,17 @@ def notification_detail(request, id):
     )
 
     notification.marquer_comme_lue()
-    contexte = notification.contexte
 
+    # Rediriger vers le ticket si c'est une notification de ticket
+    if notification.ticket:
+        return redirect('pm:ticket_detail', pk=notification.ticket.pk)
+
+    # Rediriger vers le projet si c'est une notification de projet
+    if notification.projet:
+        return redirect('pm:projet_detail', pk=notification.projet.pk)
+
+    # Rediriger vers l'absence selon le contexte
+    contexte = notification.contexte
     if contexte == 'MANAGER':
         return redirect('absence:validation_manager')
     elif contexte == 'RH':
@@ -52,7 +61,10 @@ def toutes_notifications(request):
     """Page listant toutes les notifications avec filtres"""
     notifications = NotificationAbsence.objects.filter(
         destinataire=request.user.employe
-    ).select_related('absence', 'absence__employe', 'absence__type_absence').order_by('-date_creation')
+    ).select_related(
+        'absence', 'absence__employe', 'absence__type_absence',
+        'ticket', 'ticket__projet', 'projet'
+    ).order_by('-date_creation')
 
     statut_filter = request.GET.get('statut', '')
     type_filter = request.GET.get('type', '')

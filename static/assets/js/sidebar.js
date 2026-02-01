@@ -85,7 +85,7 @@ function handleResize() {
     if (window.innerWidth >= 768) {
         // Desktop: sidebar toujours visible
         sidebar.classList.add('active');
-        mainContent.style.marginLeft = '240px';
+        mainContent.style.marginLeft = '220px';
         toggleButton.style.display = 'none';
     } else {
         // Mobile: sidebar caché par défaut
@@ -103,7 +103,7 @@ function handleResize() {
 
     if (window.innerWidth >= 768) {
         sidebar.classList.add('active');
-        mainContent.style.marginLeft = '280px';
+        mainContent.style.marginLeft = '260px';
         toggleButton.style.display = 'none';
     } else {
         sidebar.classList.remove('active');

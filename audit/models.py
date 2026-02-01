@@ -351,6 +351,14 @@ class AUAL(models.Model):
         delta = self.DATE_ECHEANCE - timezone.now().date()
         return delta.days
 
+    @property
+    def jours_retard(self):
+        """Retourne le nombre de jours de retard (valeur positive)."""
+        if not self.DATE_ECHEANCE:
+            return None
+        jours = self.jours_restants
+        return abs(jours) if jours is not None and jours < 0 else 0
+
 
 class AURA(models.Model):
     """

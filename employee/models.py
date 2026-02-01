@@ -1,21 +1,31 @@
 #employee/models.py
-from django.db import models
-from django.core.exceptions import ValidationError
-from django.contrib.auth.models import User
-from django.utils import timezone
-from django.contrib.auth.models import Group, Permission
-import uuid
-from django.db.models import Q
+import logging
 import os
+import uuid
+
+from django.db import models
+from django.db.models import Q
+from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User, Group, Permission
+from django.utils import timezone
+
+logger = logging.getLogger(__name__)
 
 # Import du modèle ZDPO depuis l'application departement
 from departement.models import ZDPO
 
 def employee_photo_path(instance, filename):
-    """Fonction pour définir le chemin de sauvegarde de la photo"""
-    ext = filename.split('.')[-1]
-    filename = f"{instance.matricule}_photo.{ext}"
-    return os.path.join('photos/employes/', filename)
+    """
+    Génère un chemin unique pour la photo de l'employé.
+
+    Format: photos/employes/{matricule}/{uuid_court}.{ext}
+    Cela évite les collisions de noms et permet de conserver l'historique.
+    """
+    ext = filename.split('.')[-1].lower()
+    # Utiliser un UUID court pour garantir l'unicité
+    unique_id = uuid.uuid4().hex[:8]
+    new_filename = f"{instance.matricule}_{unique_id}.{ext}"
+    return os.path.join('photos/employes/', instance.matricule, new_filename)
 
 
 ######################
@@ -637,7 +647,7 @@ class UserSecurity(models.Model):
         if self.login_attempts >= 3:
             self.is_locked = True
             self.locked_until = timezone.now() + timezone.timedelta(hours=24)
-            print(f"🔒 COMPTE BLOQUÉ: {self.user.username}")
+            logger.info(f"Compte bloqué: {self.user.username}")
 
         self.save()
         return self.is_locked
@@ -654,7 +664,7 @@ class UserSecurity(models.Model):
 
         # Si bloqué avec date de fin expirée, débloquer
         if self.is_locked and self.locked_until and timezone.now() > self.locked_until:
-            print(f"🔓 DÉBLOCAGE AUTOMATIQUE: période expirée pour {self.user.username}")
+            logger.info(f"Déblocage automatique: période expirée pour {self.user.username}")
             self.reset_attempts()
             return False
 
@@ -662,19 +672,20 @@ class UserSecurity(models.Model):
         return True
 
     def reset_attempts(self):
-        """Réinitialiser complètement les tentatives - VERSION CORRIGÉE"""
-        print(f"🔄 RÉINITIALISATION pour {self.user.username}")
-        print(f"AVANT: attempts={self.login_attempts}, locked={self.is_locked}")
+        """Réinitialiser complètement les tentatives"""
+        logger.debug(
+            f"Réinitialisation pour {self.user.username}: "
+            f"attempts={self.login_attempts}, locked={self.is_locked}"
+        )
 
         self.login_attempts = 0
         self.last_login_attempt = None
-        self.is_locked = False  # ← CE CHAMP DOIT DEVENIR FALSE
+        self.is_locked = False
         self.locked_until = None
 
         self.save()
 
-        print(f"APRÈS: attempts={self.login_attempts}, locked={self.is_locked}")
-        print(f"✅ COMPTE {self.user.username} DÉBLOQUÉ")
+        logger.info(f"Compte {self.user.username} débloqué")
 
 
 ######################

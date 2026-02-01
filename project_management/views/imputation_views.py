@@ -12,10 +12,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.decorators import method_decorator
 from django.utils import timezone
 from django.db import transaction
+from django.core.exceptions import PermissionDenied
 
 from ..models import JRImputation, JRTicket, JRProject
 from ..forms import ImputationForm, ImputationSearchForm, ValidationImputationForm
 from ..services import ImputationService
+from ..mixins import time_validation_permission_required
 from employee.models import ZY00
 
 
@@ -239,6 +241,7 @@ def mes_imputations(request):
 
 
 @login_required
+@time_validation_permission_required
 def validation_imputations(request):
     """Vue pour la validation des imputations (pour les chefs de projet et administrateurs)"""
     # Récupérer l'employé associé à l'utilisateur connecté
@@ -248,8 +251,10 @@ def validation_imputations(request):
         messages.error(request, "Aucun employé associé à votre compte utilisateur.")
         return redirect('pm:dashboard')
 
-    # Vérifier si l'utilisateur a des droits étendus (DRH, GESTION_APP, DIRECTEUR)
+    # Vérifier si l'utilisateur a des droits étendus (MANAGER, RESP_ADMIN, DRH, GESTION_APP, DIRECTEUR)
     is_admin = (
+        employe.has_role('MANAGER') or
+        employe.has_role('RESP_ADMIN') or
         employe.has_role('DRH') or
         employe.has_role('GESTION_APP') or
         employe.has_role('DIRECTEUR')
@@ -408,6 +413,7 @@ def valider_multiple_imputations(request):
 
 
 @login_required
+@time_validation_permission_required
 def rapports_temps(request):
     """Vue pour les rapports de temps"""
     # Filtres
@@ -529,6 +535,7 @@ def rapports_temps(request):
 
 
 @login_required
+@time_validation_permission_required
 def export_temps_excel(request):
     """Vue pour exporter les temps en Excel avec les mêmes filtres que rapports_temps"""
     import pandas as pd

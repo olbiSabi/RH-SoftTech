@@ -1,77 +1,112 @@
 # employee/middleware.py
+import logging
+import re
 
 from django.shortcuts import redirect
-from django.urls import reverse
+from django.urls import reverse, NoReverseMatch
 from django.contrib import messages
 from django.contrib.auth import logout
+from django.conf import settings
 from django.utils import timezone
-from employee.models import ZY00, ZYCO
+
+logger = logging.getLogger(__name__)
 
 
 class LoginRequiredMiddleware:
     """
-    Middleware pour forcer l'authentification sur toutes les pages
+    Middleware pour forcer l'authentification sur toutes les pages.
+
+    Configuration via settings.py:
+        LOGIN_URL = '/employe/login/'  # URL de connexion
+        LOGIN_EXEMPT_URLS = ['/api/public/', '/webhook/']  # URLs supplémentaires à exempter
     """
+
+    # URLs toujours exemptées (patterns regex)
+    ALWAYS_EXEMPT_PATTERNS = [
+        r'^/static/',
+        r'^/media/',
+        r'^/admin/',
+        r'^/hronian/',
+        r'^/login/',
+        r'^/logout/',
+        r'^/employe/login/',
+        r'^/employe/logout/',
+        r'^/employe/password-reset',
+        r'^/password-reset',
+    ]
 
     def __init__(self, get_response):
         self.get_response = get_response
+        # Compiler les patterns une seule fois
+        self.exempt_patterns = [
+            re.compile(pattern) for pattern in self.ALWAYS_EXEMPT_PATTERNS
+        ]
+        # Ajouter les patterns personnalisés depuis settings
+        custom_exempt = getattr(settings, 'LOGIN_EXEMPT_URLS', [])
+        for pattern in custom_exempt:
+            self.exempt_patterns.append(re.compile(pattern))
 
     def __call__(self, request):
         path = request.path_info
 
-        # URLs exemptées - ÉTENDUES
-        exempt_urls = [
-            reverse('login'),
-            reverse('logout'),
-            reverse('password_reset'),
-            reverse('password_reset_confirm'),
-            '/hronian/',
-            '/static/',
-            '/media/',
-            '/admin/',
-        ]
+        # Vérifier si l'URL est exemptée
+        if self._is_exempt(path):
+            return self.get_response(request)
 
-        # Autoriser les POST vers le login
-        is_login_post = path == reverse('login') and request.method == 'POST'
-        is_exempt = any(path.startswith(exempt_url) for exempt_url in exempt_urls)
+        # Si l'utilisateur n'est pas authentifié, rediriger vers login
+        if not request.user.is_authenticated:
+            login_url = getattr(settings, 'LOGIN_URL', '/employe/login/')
 
-        # Autoriser les requêtes POST vers le login et autres URLs exemptées
-        if not request.user.is_authenticated and not is_exempt and not is_login_post:
-            # Message personnalisé selon le type de page
+            # Ajouter un message contextuel uniquement pour les accès à des pages spécifiques
+            # Ne pas afficher de message pour les accès génériques (/, /dashboard/, etc.)
             if '/dossier/' in path:
-                messages.warning(request, '🔒 Vous devez vous connecter pour accéder aux dossiers des employés.')
+                messages.warning(request, 'Vous devez vous connecter pour accéder aux dossiers des employés.')
             elif '/embauche/' in path:
-                messages.warning(request, '🔒 Vous devez vous connecter pour effectuer une embauche.')
-            else:
-                messages.warning(request, '🔒 Accès non autorisé. Veuillez vous connecter.')
+                messages.warning(request, 'Vous devez vous connecter pour effectuer une embauche.')
+            elif '/absence/' in path:
+                messages.warning(request, 'Vous devez vous connecter pour accéder aux absences.')
+            elif '/projet/' in path or '/project/' in path:
+                messages.warning(request, 'Vous devez vous connecter pour accéder aux projets.')
+            # Ne plus afficher de message générique pour éviter la confusion
+            # L'utilisateur comprend déjà qu'il doit se connecter en voyant la page de login
 
-            return redirect(f"{reverse('login')}?next={path}")
+            # Rediriger vers login avec l'URL de retour
+            return redirect(f"{login_url}?next={path}")
 
-        response = self.get_response(request)
-        return response
+        return self.get_response(request)
+
+    def _is_exempt(self, path):
+        """Vérifie si le chemin est exempté d'authentification."""
+        for pattern in self.exempt_patterns:
+            if pattern.match(path):
+                return True
+        return False
 
 
 class ContratExpirationMiddleware:
     """
     Middleware pour vérifier l'expiration des contrats
-    et bloquer l'accès si le contrat est expiré
+    et bloquer l'accès si le contrat est expiré.
     """
+
+    # URLs exemptées de la vérification
+    EXEMPT_URLS = [
+        '/employe/login/',
+        '/employe/logout/',
+        '/admin/',
+        '/static/',
+        '/media/',
+        '/employe/password-reset',
+        '/hronian/',
+    ]
 
     def __init__(self, get_response):
         self.get_response = get_response
 
-        # URLs exemptées de la vérification
-        self.exempt_urls = [
-            '/login/',
-            '/logout/',
-            '/admin/',
-            '/static/',
-            '/media/',
-            '/password-reset/',
-            '/hronian/',
-        ]
-
     def __call__(self, request):
+        # Import tardif pour éviter les imports circulaires
+        from employee.models import ZY00, ZYCO
+
         # Vérifier si l'utilisateur est authentifié
         if request.user.is_authenticated:
             # Vérifier si c'est un superuser (admin) - ne pas bloquer
@@ -79,7 +114,7 @@ class ContratExpirationMiddleware:
                 return self.get_response(request)
 
             # Vérifier si l'URL est exemptée
-            if any(request.path.startswith(url) for url in self.exempt_urls):
+            if any(request.path.startswith(url) for url in self.EXEMPT_URLS):
                 return self.get_response(request)
 
             try:
@@ -90,7 +125,7 @@ class ContratExpirationMiddleware:
                     logout(request)
                     messages.error(
                         request,
-                        "⛔ Votre compte a été désactivé. Veuillez contacter le service RH."
+                        "Votre compte a été désactivé. Veuillez contacter le service RH."
                     )
                     return redirect('login')
 
