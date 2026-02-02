@@ -196,6 +196,13 @@ function deleteTypeAbsence(id, code) {
 }
 
 /**
+ * Supprime un type d'absence sans confirmation (appelé par le modal)
+ */
+function deleteTypeAbsenceConfirmed(id) {
+    executeDelete(id);
+}
+
+/**
  * Exécute la suppression
  */
 function executeDelete(id) {

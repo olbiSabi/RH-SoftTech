@@ -44,15 +44,27 @@ $(document).ready(function() {
     });
 
 // ========================================
-// ANNULER - VERSION AVEC RECHARGEMENT
+// ANNULER - VERSION AVEC MODAL
 // ========================================
 $(document).on('click', '.btn-annuler', function(e) {
     e.preventDefault();
-
-    if (!confirm('Annuler cette absence ?\n\nCette action est irréversible.')) return;
-
     const absenceId = $(this).data('absence-id');
-    const $button = $(this);
+
+    // Ouvrir le modal personnalisé
+    if (typeof ouvrirModalAnnulation === 'function') {
+        ouvrirModalAnnulation(absenceId);
+    } else {
+        // Fallback si le modal n'est pas disponible
+        if (!confirm('Annuler cette absence ?\n\nCette action est irréversible.')) return;
+        annulerAbsenceConfirmed(absenceId);
+    }
+});
+
+/**
+ * Annule une absence sans confirmation (appelé par le modal)
+ */
+function annulerAbsenceConfirmed(absenceId) {
+    const $button = $(`.btn-annuler[data-absence-id="${absenceId}"]`);
     const $row = $button.closest('tr');
 
     console.log('⚠️ Annulation ID:', absenceId);
@@ -67,7 +79,6 @@ $(document).on('click', '.btn-annuler', function(e) {
             console.log('✅ Réponse serveur:', response);
 
             if (response.success) {
-                // ✅ SOLUTION SIMPLE : Recharger la page après 1 seconde
                 toastr.success(response.message || 'Absence annulée avec succès');
 
                 setTimeout(function() {
@@ -88,19 +99,32 @@ $(document).on('click', '.btn-annuler', function(e) {
             $button.prop('disabled', false).html('<i class="fas fa-ban"></i>');
         }
     });
-});
+}
 
 // ========================================
-// SUPPRIMER
+// SUPPRIMER - VERSION AVEC MODAL
 // ========================================
 $(document).on('click', '.btn-supprimer', function(e) {
     e.preventDefault();
 
-    const typeAbsence = $(this).data('type-absence');
-    if (!confirm(`Supprimer "${typeAbsence}" ?\n\nIrréversible.`)) return;
-
     const absenceId = $(this).data('absence-id');
-    const $button = $(this);
+    const typeAbsence = $(this).data('type-absence');
+
+    // Ouvrir le modal personnalisé
+    if (typeof ouvrirModalSuppression === 'function') {
+        ouvrirModalSuppression(absenceId, typeAbsence);
+    } else {
+        // Fallback si le modal n'est pas disponible
+        if (!confirm(`Supprimer "${typeAbsence}" ?\n\nIrréversible.`)) return;
+        supprimerAbsenceConfirmed(absenceId);
+    }
+});
+
+/**
+ * Supprime une absence sans confirmation (appelé par le modal)
+ */
+function supprimerAbsenceConfirmed(absenceId) {
+    const $button = $(`.btn-supprimer[data-absence-id="${absenceId}"]`);
     const $row = $button.closest('tr');
 
     console.log('🗑️ Suppression ID:', absenceId);
@@ -159,7 +183,7 @@ $(document).on('click', '.btn-supprimer', function(e) {
             $button.prop('disabled', false).html('<i class="fas fa-trash"></i>');
         }
     });
-});
+}
 
     // ========================================
     // FERMETURE MODAL

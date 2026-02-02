@@ -166,6 +166,13 @@ function deleteJourFerie(id, nom) {
 }
 
 /**
+ * Supprime un jour férié sans confirmation (appelé par le modal)
+ */
+function deleteJourFerieConfirmed(id) {
+    executeDelete(id);
+}
+
+/**
  * Exécute la suppression
  */
 function executeDelete(id) {

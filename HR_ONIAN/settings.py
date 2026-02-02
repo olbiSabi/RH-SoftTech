@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'materiel',
     'audit',
     'project_management',
+    'gestion_achats',
 ]
 
 MIDDLEWARE = [

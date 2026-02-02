@@ -1,0 +1,138 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% load gac_permissions %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="fas fa-check-circle me-2"></i>
+            Demandes à valider
+        </h1>
+    </div>
+
+    <!-- Demandes à valider N1 -->
+    {% if demandes_n1 %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-user-check me-2"></i>
+                Validation N1 - Manager
+                <span class="badge bg-warning ms-2">{{ demandes_n1.count }}</span>
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Numéro</th>
+                            <th>Date soumission</th>
+                            <th>Demandeur</th>
+                            <th>Objet</th>
+                            <th>Montant TTC</th>
+                            <th>Priorité</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for demande in demandes_n1 %}
+                        <tr>
+                            <td><strong>{{ demande.numero }}</strong></td>
+                            <td>{{ demande.date_soumission|date:"d/m/Y H:i" }}</td>
+                            <td>{{ demande.demandeur.get_full_name }}</td>
+                            <td>{{ demande.objet|truncatewords:8 }}</td>
+                            <td>{{ demande.montant_total_ttc|floatformat:2 }} €</td>
+                            <td>
+                                <span class="badge bg-{{ demande.get_priorite_badge_class }}">
+                                    {{ demande.get_priorite_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'gestion_achats:demande_detail' demande.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i> Voir
+                                </a>
+                                <a href="{% url 'gestion_achats:demande_validate_n1' demande.pk %}" class="btn btn-sm btn-success">
+                                    <i class="fas fa-check"></i> Valider
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Demandes à valider N2 -->
+    {% if demandes_n2 %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-user-shield me-2"></i>
+                Validation N2 - Direction / Acheteur
+                <span class="badge bg-warning ms-2">{{ demandes_n2.count }}</span>
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Numéro</th>
+                            <th>Date validation N1</th>
+                            <th>Demandeur</th>
+                            <th>Objet</th>
+                            <th>Montant TTC</th>
+                            <th>Priorité</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for demande in demandes_n2 %}
+                        <tr>
+                            <td><strong>{{ demande.numero }}</strong></td>
+                            <td>{{ demande.date_validation_n1|date:"d/m/Y H:i" }}</td>
+                            <td>{{ demande.demandeur.get_full_name }}</td>
+                            <td>{{ demande.objet|truncatewords:8 }}</td>
+                            <td>{{ demande.montant_total_ttc|floatformat:2 }} €</td>
+                            <td>
+                                <span class="badge bg-{{ demande.get_priorite_badge_class }}">
+                                    {{ demande.get_priorite_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'gestion_achats:demande_detail' demande.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i> Voir
+                                </a>
+                                <a href="{% url 'gestion_achats:demande_validate_n2' demande.pk %}" class="btn btn-sm btn-success">
+                                    <i class="fas fa-check"></i> Valider
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Aucune demande à valider -->
+    {% if not demandes_n1 and not demandes_n2 %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        Vous n'avez aucune demande à valider pour le moment.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+{% endblock %}

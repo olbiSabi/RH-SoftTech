@@ -1,0 +1,299 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% load gac_permissions %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    {% include 'gestion_achats/includes/breadcrumb.html' with breadcrumb_items=breadcrumb_items %}
+
+    <!-- Messages -->
+    {% include 'gestion_achats/includes/messages.html' %}
+
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-truck me-2"></i>
+            {{ fournisseur.raison_sociale }}
+        </h2>
+        <div>
+            <a href="{% url 'gestion_achats:fournisseur_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+            </a>
+            {% is_admin_gac user as is_admin %}
+            {% if is_admin %}
+            <a href="{% url 'gestion_achats:fournisseur_update' fournisseur.uuid %}" class="btn btn-warning">
+                <i class="fas fa-edit me-2"></i>Modifier
+            </a>
+            <a href="{% url 'gestion_achats:fournisseur_evaluer' fournisseur.uuid %}" class="btn btn-info">
+                <i class="fas fa-star me-2"></i>Évaluer
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Informations principales -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Informations générales
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="text-muted small">Code fournisseur</label>
+                            <div><strong>{{ fournisseur.code }}</strong></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small">SIRET</label>
+                            <div><strong>{{ fournisseur.siret }}</strong></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small">Statut</label>
+                            <div>
+                                {% if fournisseur.statut == 'ACTIF' %}
+                                <span class="badge bg-success">Actif</span>
+                                {% elif fournisseur.statut == 'EN_ATTENTE' %}
+                                <span class="badge bg-warning">En attente</span>
+                                {% elif fournisseur.statut == 'INACTIF' %}
+                                <span class="badge bg-secondary">Inactif</span>
+                                {% elif fournisseur.statut == 'BLOQUE' %}
+                                <span class="badge bg-danger">Bloqué</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small">Numéro de TVA</label>
+                            <div><strong>{{ fournisseur.numero_tva|default:"-" }}</strong></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Conditions de paiement</label>
+                            <div><strong>{{ fournisseur.get_conditions_paiement_display }}</strong></div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="text-muted small">IBAN</label>
+                            <div><strong>{{ fournisseur.iban|default:"-" }}</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coordonnées -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-map-marker-alt me-2"></i>
+                        Coordonnées
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="text-muted small">Adresse</label>
+                            <div>{{ fournisseur.adresse }}</div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="text-muted small">Code postal</label>
+                            <div><strong>{{ fournisseur.code_postal }}</strong></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small">Ville</label>
+                            <div><strong>{{ fournisseur.ville }}</strong></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small">Pays</label>
+                            <div><strong>{{ fournisseur.pays }}</strong></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="text-muted small">Email</label>
+                            <div>
+                                <a href="mailto:{{ fournisseur.email }}">
+                                    <i class="fas fa-envelope me-1"></i>{{ fournisseur.email }}
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small">Téléphone</label>
+                            <div>
+                                <i class="fas fa-phone me-1"></i>{{ fournisseur.telephone }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small">Fax</label>
+                            <div>
+                                <i class="fas fa-fax me-1"></i>{{ fournisseur.fax|default:"-" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact principal -->
+            {% if fournisseur.nom_contact %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>
+                        Contact principal
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="text-muted small">Nom</label>
+                            <div><strong>{{ fournisseur.nom_contact }}</strong></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small">Email</label>
+                            <div>
+                                {% if fournisseur.email_contact %}
+                                <a href="mailto:{{ fournisseur.email_contact }}">
+                                    <i class="fas fa-envelope me-1"></i>{{ fournisseur.email_contact }}
+                                </a>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small">Téléphone</label>
+                            <div>
+                                <i class="fas fa-phone me-1"></i>{{ fournisseur.telephone_contact|default:"-" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Bons de commande récents -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-invoice me-2"></i>
+                        Bons de commande récents
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if bons_commande %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Numéro</th>
+                                    <th>Date</th>
+                                    <th>Montant TTC</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for bc in bons_commande %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'gestion_achats:bon_commande_detail' bc.uuid %}">
+                                            {{ bc.numero }}
+                                        </a>
+                                    </td>
+                                    <td>{{ bc.date_emission|date:"d/m/Y" }}</td>
+                                    <td>{{ bc.montant_total_ttc|floatformat:2 }} €</td>
+                                    <td>{% include 'gestion_achats/includes/statut_badge.html' with statut=bc.statut %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center mb-0">
+                        <em>Aucun bon de commande pour ce fournisseur</em>
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <!-- Évaluation -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-star me-2"></i>
+                        Évaluation
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <h2 class="display-4 mb-0">{{ fournisseur.evaluation_moyenne }}</h2>
+                        <small class="text-muted">/ 5.00</small>
+                    </div>
+                    <div class="mb-3">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= fournisseur.evaluation_moyenne %}
+                            <i class="fas fa-star fa-2x text-warning"></i>
+                            {% else %}
+                            <i class="far fa-star fa-2x text-muted"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% if is_admin %}
+                    <a href="{% url 'gestion_achats:fournisseur_evaluer' fournisseur.uuid %}" class="btn btn-sm btn-info">
+                        <i class="fas fa-star me-2"></i>Évaluer le fournisseur
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Métadonnées -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Informations système
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="text-muted small">Créé le</label>
+                        <div><strong>{{ fournisseur.date_creation|date:"d/m/Y à H:i" }}</strong></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Créé par</label>
+                        <div><strong>{{ fournisseur.cree_par.get_full_name|default:"-" }}</strong></div>
+                    </div>
+                    <div>
+                        <label class="text-muted small">Dernière modification</label>
+                        <div><strong>{{ fournisseur.date_modification|date:"d/m/Y à H:i" }}</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historique -->
+            {% if historique %}
+            {% include 'gestion_achats/includes/historique.html' %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+{% endblock %}

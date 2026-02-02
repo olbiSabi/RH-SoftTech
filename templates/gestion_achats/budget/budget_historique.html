@@ -1,0 +1,218 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    {% include 'gestion_achats/includes/breadcrumb.html' with breadcrumb_items=breadcrumb_items %}
+
+    <!-- Messages -->
+    {% include 'gestion_achats/includes/messages.html' %}
+
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-history me-2"></i>
+            Historique du budget {{ budget.code }}
+        </h2>
+        <div>
+            <a href="{% url 'gestion_achats:budget_detail' budget.uuid %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Retour au budget
+            </a>
+            <a href="#" onclick="window.print(); return false;" class="btn btn-info">
+                <i class="fas fa-print me-2"></i>Imprimer
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Résumé du budget -->
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-wallet me-2"></i>
+                        Résumé du budget
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="text-muted small">Code / Libellé</label>
+                            <div><strong>{{ budget.code }} - {{ budget.libelle }}</strong></div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-muted small">Exercice</label>
+                            <div><strong>{{ budget.exercice }}</strong></div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-muted small">Montant initial</label>
+                            <div><strong>{{ budget.montant_initial|floatformat:2 }} €</strong></div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-muted small">Disponible</label>
+                            <div><strong class="{% if budget.get_montant_disponible < 0 %}text-danger{% else %}text-success{% endif %}">
+                                {{ budget.get_montant_disponible|floatformat:2 }} €
+                            </strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mouvements -->
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exchange-alt me-2"></i>
+                        Mouvements budgétaires
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Filtres -->
+                    <div class="mb-3">
+                        <form method="get" class="row g-3">
+                            <div class="col-md-3">
+                                <label for="type_mouvement" class="form-label small">Type de mouvement</label>
+                                <select class="form-select form-select-sm" id="type_mouvement" name="type">
+                                    <option value="">Tous</option>
+                                    <option value="ENGAGEMENT" {% if request.GET.type == 'ENGAGEMENT' %}selected{% endif %}>Engagement</option>
+                                    <option value="COMMANDE" {% if request.GET.type == 'COMMANDE' %}selected{% endif %}>Commande</option>
+                                    <option value="CONSOMMATION" {% if request.GET.type == 'CONSOMMATION' %}selected{% endif %}>Consommation</option>
+                                    <option value="REINTEGRATION" {% if request.GET.type == 'REINTEGRATION' %}selected{% endif %}>Réintégration</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="date_debut" class="form-label small">Date début</label>
+                                <input type="date" class="form-control form-control-sm" id="date_debut" name="date_debut" value="{{ request.GET.date_debut }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="date_fin" class="form-label small">Date fin</label>
+                                <input type="date" class="form-control form-control-sm" id="date_fin" name="date_fin" value="{{ request.GET.date_fin }}">
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button type="submit" class="btn btn-sm btn-primary me-2">
+                                    <i class="fas fa-filter me-1"></i>Filtrer
+                                </button>
+                                <a href="?" class="btn btn-sm btn-secondary">
+                                    <i class="fas fa-redo me-1"></i>Réinitialiser
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Tableau des mouvements -->
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Référence</th>
+                                    <th>Description</th>
+                                    <th class="text-end">Montant</th>
+                                    <th class="text-end">Solde après</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for mouvement in mouvements %}
+                                <tr>
+                                    <td>{{ mouvement.date|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        {% if mouvement.type == 'ENGAGEMENT' %}
+                                        <span class="badge bg-info">Engagement</span>
+                                        {% elif mouvement.type == 'COMMANDE' %}
+                                        <span class="badge bg-warning">Commande</span>
+                                        {% elif mouvement.type == 'CONSOMMATION' %}
+                                        <span class="badge bg-danger">Consommation</span>
+                                        {% elif mouvement.type == 'REINTEGRATION' %}
+                                        <span class="badge bg-success">Réintégration</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if mouvement.demande %}
+                                        <a href="{% url 'gestion_achats:demande_detail' mouvement.demande.uuid %}">
+                                            {{ mouvement.demande.numero }}
+                                        </a>
+                                        {% elif mouvement.bon_commande %}
+                                        <a href="{% url 'gestion_achats:bon_commande_detail' mouvement.bon_commande.uuid %}">
+                                            {{ mouvement.bon_commande.numero }}
+                                        </a>
+                                        {% else %}
+                                        -
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ mouvement.description }}</td>
+                                    <td class="text-end">
+                                        <span class="{% if mouvement.type == 'REINTEGRATION' %}text-success{% else %}text-danger{% endif %}">
+                                            {% if mouvement.type == 'REINTEGRATION' %}+{% else %}-{% endif %}{{ mouvement.montant|floatformat:2 }} €
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <strong>{{ mouvement.solde_apres|floatformat:2 }} €</strong>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                                        <em>Aucun mouvement trouvé</em>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            {% if mouvements %}
+                            <tfoot class="table-light">
+                                <tr>
+                                    <th colspan="4" class="text-end">Montant initial :</th>
+                                    <th class="text-end">{{ budget.montant_initial|floatformat:2 }} €</th>
+                                    <th></th>
+                                </tr>
+                                <tr>
+                                    <th colspan="4" class="text-end">Total engagé :</th>
+                                    <th class="text-end text-info">-{{ budget.montant_engage|floatformat:2 }} €</th>
+                                    <th></th>
+                                </tr>
+                                <tr>
+                                    <th colspan="4" class="text-end">Total commandé :</th>
+                                    <th class="text-end text-warning">-{{ budget.montant_commande|floatformat:2 }} €</th>
+                                    <th></th>
+                                </tr>
+                                <tr>
+                                    <th colspan="4" class="text-end">Total consommé :</th>
+                                    <th class="text-end text-danger">-{{ budget.montant_consomme|floatformat:2 }} €</th>
+                                    <th></th>
+                                </tr>
+                                <tr class="table-primary">
+                                    <th colspan="4" class="text-end">Solde disponible :</th>
+                                    <th class="text-end">
+                                        <strong class="{% if budget.get_montant_disponible < 0 %}text-danger{% else %}text-success{% endif %}">
+                                            {{ budget.get_montant_disponible|floatformat:2 }} €
+                                        </strong>
+                                    </th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                            {% endif %}
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if page_obj %}
+                    {% include 'gestion_achats/includes/pagination.html' %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+{% endblock %}

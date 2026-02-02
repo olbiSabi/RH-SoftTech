@@ -1,0 +1,151 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% load gac_permissions %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    {% include 'gestion_achats/includes/breadcrumb.html' with breadcrumb_items=breadcrumb_items %}
+
+    <!-- Messages -->
+    {% include 'gestion_achats/includes/messages.html' %}
+
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-truck me-2"></i>
+            Fournisseurs
+        </h2>
+        {% is_admin_gac user as is_admin %}
+        {% if is_admin %}
+        <a href="{% url 'gestion_achats:fournisseur_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus-circle me-2"></i>Nouveau fournisseur
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Filtres -->
+    {% include 'gestion_achats/includes/filters.html' with statuts=statut_choices %}
+
+    <!-- Statistiques -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            {% include 'gestion_achats/includes/stats_card.html' with title="Total fournisseurs" value=stats.total icon="truck" color="primary" %}
+        </div>
+        <div class="col-md-3">
+            {% include 'gestion_achats/includes/stats_card.html' with title="Actifs" value=stats.actifs icon="check-circle" color="success" %}
+        </div>
+        <div class="col-md-3">
+            {% include 'gestion_achats/includes/stats_card.html' with title="En attente" value=stats.en_attente icon="clock" color="warning" %}
+        </div>
+        <div class="col-md-3">
+            {% include 'gestion_achats/includes/stats_card.html' with title="Inactifs" value=stats.inactifs icon="ban" color="secondary" %}
+        </div>
+    </div>
+
+    <!-- Liste des fournisseurs -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Code</th>
+                            <th>Raison sociale</th>
+                            <th>Contact</th>
+                            <th>Ville</th>
+                            <th>Évaluation</th>
+                            <th>Statut</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fournisseur in page_obj %}
+                        <tr>
+                            <td>
+                                <strong>{{ fournisseur.code }}</strong>
+                            </td>
+                            <td>
+                                <a href="{% url 'gestion_achats:fournisseur_detail' fournisseur.uuid %}">
+                                    {{ fournisseur.raison_sociale }}
+                                </a>
+                                {% if fournisseur.siret %}
+                                <br><small class="text-muted">SIRET: {{ fournisseur.siret }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if fournisseur.nom_contact %}
+                                <div><i class="fas fa-user me-1"></i>{{ fournisseur.nom_contact }}</div>
+                                {% endif %}
+                                <div><i class="fas fa-envelope me-1"></i>{{ fournisseur.email }}</div>
+                                <div><i class="fas fa-phone me-1"></i>{{ fournisseur.telephone }}</div>
+                            </td>
+                            <td>{{ fournisseur.ville }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="me-2">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= fournisseur.evaluation_moyenne %}
+                                            <i class="fas fa-star text-warning"></i>
+                                            {% else %}
+                                            <i class="far fa-star text-muted"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <span class="badge bg-light text-dark">{{ fournisseur.evaluation_moyenne }}/5</span>
+                                </div>
+                            </td>
+                            <td>
+                                {% if fournisseur.statut == 'ACTIF' %}
+                                <span class="badge bg-success">Actif</span>
+                                {% elif fournisseur.statut == 'EN_ATTENTE' %}
+                                <span class="badge bg-warning">En attente</span>
+                                {% elif fournisseur.statut == 'INACTIF' %}
+                                <span class="badge bg-secondary">Inactif</span>
+                                {% elif fournisseur.statut == 'BLOQUE' %}
+                                <span class="badge bg-danger">Bloqué</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'gestion_achats:fournisseur_detail' fournisseur.uuid %}"
+                                       class="btn btn-sm btn-primary"
+                                       title="Voir le détail">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if is_admin %}
+                                    <a href="{% url 'gestion_achats:fournisseur_update' fournisseur.uuid %}"
+                                       class="btn btn-sm btn-warning"
+                                       title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                                <em>Aucun fournisseur trouvé</em>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% include 'gestion_achats/includes/pagination.html' %}
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+{% endblock %}

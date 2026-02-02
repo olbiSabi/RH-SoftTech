@@ -1,0 +1,68 @@
+{% if page_obj.has_other_pages %}
+<nav aria-label="Navigation entre les pages">
+    <ul class="pagination justify-content-center">
+        <!-- Bouton Première page -->
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}{% if request.GET.priorite %}&priorite={{ request.GET.priorite }}{% endif %}{% if request.GET.date_debut %}&date_debut={{ request.GET.date_debut }}{% endif %}{% if request.GET.date_fin %}&date_fin={{ request.GET.date_fin }}{% endif %}">
+                <i class="fas fa-angle-double-left"></i>
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}{% if request.GET.priorite %}&priorite={{ request.GET.priorite }}{% endif %}{% if request.GET.date_debut %}&date_debut={{ request.GET.date_debut }}{% endif %}{% if request.GET.date_fin %}&date_fin={{ request.GET.date_fin }}{% endif %}">
+                <i class="fas fa-angle-left"></i>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link"><i class="fas fa-angle-double-left"></i></span>
+        </li>
+        <li class="page-item disabled">
+            <span class="page-link"><i class="fas fa-angle-left"></i></span>
+        </li>
+        {% endif %}
+
+        <!-- Numéros de page -->
+        {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <li class="page-item active">
+            <span class="page-link">{{ num }}</span>
+        </li>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}{% if request.GET.priorite %}&priorite={{ request.GET.priorite }}{% endif %}{% if request.GET.date_debut %}&date_debut={{ request.GET.date_debut }}{% endif %}{% if request.GET.date_fin %}&date_fin={{ request.GET.date_fin }}{% endif %}">
+                {{ num }}
+            </a>
+        </li>
+        {% endif %}
+        {% endfor %}
+
+        <!-- Bouton Dernière page -->
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}{% if request.GET.priorite %}&priorite={{ request.GET.priorite }}{% endif %}{% if request.GET.date_debut %}&date_debut={{ request.GET.date_debut }}{% endif %}{% if request.GET.date_fin %}&date_fin={{ request.GET.date_fin }}{% endif %}">
+                <i class="fas fa-angle-right"></i>
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}{% if request.GET.priorite %}&priorite={{ request.GET.priorite }}{% endif %}{% if request.GET.date_debut %}&date_debut={{ request.GET.date_debut }}{% endif %}{% if request.GET.date_fin %}&date_fin={{ request.GET.date_fin }}{% endif %}">
+                <i class="fas fa-angle-double-right"></i>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link"><i class="fas fa-angle-right"></i></span>
+        </li>
+        <li class="page-item disabled">
+            <span class="page-link"><i class="fas fa-angle-double-right"></i></span>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+
+<!-- Information de pagination -->
+<p class="text-center text-muted">
+    Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
+    ({{ page_obj.paginator.count }} résultat{{ page_obj.paginator.count|pluralize }})
+</p>
+{% endif %}

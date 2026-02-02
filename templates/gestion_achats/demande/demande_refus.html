@@ -1,0 +1,67 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-times-circle me-2"></i>
+                        Refus de la demande {{ demande.numero }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Informations de la demande -->
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Informations de la demande</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Demandeur :</strong> {{ demande.demandeur.get_full_name }}</p>
+                                <p><strong>Objet :</strong> {{ demande.objet }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Montant TTC :</strong> {{ demande.montant_total_ttc|floatformat:2 }} €</p>
+                                <p><strong>Date soumission :</strong> {{ demande.date_soumission|date:"d/m/Y H:i" }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulaire de refus -->
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            {{ form.motif_refus.label_tag }}
+                            {{ form.motif_refus }}
+                            {% if form.motif_refus.errors %}
+                            <div class="text-danger">{{ form.motif_refus.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                Veuillez indiquer clairement le motif du refus pour informer le demandeur.
+                            </small>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'gestion_achats:demande_detail' demande.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-ban me-2"></i>Refuser la demande
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+{% endblock %}

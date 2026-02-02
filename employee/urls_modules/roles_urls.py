@@ -12,6 +12,7 @@ from employee.views_modules.roles_views import (
     modifier_role,
     supprimer_role,
     roles_employe,
+    get_attribution_details,
 )
 
 urlpatterns = [
@@ -22,4 +23,5 @@ urlpatterns = [
     path('roles/modifier/<int:attribution_id>/', modifier_role, name='modifier_role'),
     path('roles/supprimer/<int:attribution_id>/', supprimer_role, name='supprimer_role'),
     path('roles/employe/<uuid:employe_uuid>/', roles_employe, name='roles_employe'),
+    path('api/attribution/<int:attribution_id>/', get_attribution_details, name='get_attribution_details'),
 ]

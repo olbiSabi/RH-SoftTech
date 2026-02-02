@@ -1,0 +1,239 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    {% include 'gestion_achats/includes/breadcrumb.html' with breadcrumb_items=breadcrumb_items %}
+
+    <!-- Messages -->
+    {% include 'gestion_achats/includes/messages.html' %}
+
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-truck me-2"></i>
+                        {% if fournisseur %}
+                            Modifier le fournisseur {{ fournisseur.code }}
+                        {% else %}
+                            Nouveau fournisseur
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="fournisseurForm">
+                        {% csrf_token %}
+
+                        <!-- Informations générales -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-info-circle me-2"></i>Informations générales
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.code.label_tag }}
+                                    {{ form.code }}
+                                    {% if form.code.errors %}
+                                    <div class="text-danger small">{{ form.code.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.raison_sociale.label_tag }}
+                                    {{ form.raison_sociale }}
+                                    {% if form.raison_sociale.errors %}
+                                    <div class="text-danger small">{{ form.raison_sociale.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.siret.label_tag }}
+                                    {{ form.siret }}
+                                    {% if form.siret.errors %}
+                                    <div class="text-danger small">{{ form.siret.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.numero_tva.label_tag }}
+                                    {{ form.numero_tva }}
+                                    {% if form.numero_tva.errors %}
+                                    <div class="text-danger small">{{ form.numero_tva.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.statut.label_tag }}
+                                    {{ form.statut }}
+                                    {% if form.statut.errors %}
+                                    <div class="text-danger small">{{ form.statut.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Coordonnées -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-map-marker-alt me-2"></i>Coordonnées
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    {{ form.adresse.label_tag }}
+                                    {{ form.adresse }}
+                                    {% if form.adresse.errors %}
+                                    <div class="text-danger small">{{ form.adresse.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    {{ form.code_postal.label_tag }}
+                                    {{ form.code_postal }}
+                                    {% if form.code_postal.errors %}
+                                    <div class="text-danger small">{{ form.code_postal.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    {{ form.ville.label_tag }}
+                                    {{ form.ville }}
+                                    {% if form.ville.errors %}
+                                    <div class="text-danger small">{{ form.ville.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    {{ form.pays.label_tag }}
+                                    {{ form.pays }}
+                                    {% if form.pays.errors %}
+                                    <div class="text-danger small">{{ form.pays.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    {{ form.email.label_tag }}
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                    <div class="text-danger small">{{ form.email.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    {{ form.telephone.label_tag }}
+                                    {{ form.telephone }}
+                                    {% if form.telephone.errors %}
+                                    <div class="text-danger small">{{ form.telephone.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    {{ form.fax.label_tag }}
+                                    {{ form.fax }}
+                                    {% if form.fax.errors %}
+                                    <div class="text-danger small">{{ form.fax.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact principal -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-user me-2"></i>Contact principal (optionnel)
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    {{ form.nom_contact.label_tag }}
+                                    {{ form.nom_contact }}
+                                    {% if form.nom_contact.errors %}
+                                    <div class="text-danger small">{{ form.nom_contact.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    {{ form.email_contact.label_tag }}
+                                    {{ form.email_contact }}
+                                    {% if form.email_contact.errors %}
+                                    <div class="text-danger small">{{ form.email_contact.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    {{ form.telephone_contact.label_tag }}
+                                    {{ form.telephone_contact }}
+                                    {% if form.telephone_contact.errors %}
+                                    <div class="text-danger small">{{ form.telephone_contact.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Informations bancaires et commerciales -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-credit-card me-2"></i>Informations bancaires et commerciales
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.conditions_paiement.label_tag }}
+                                    {{ form.conditions_paiement }}
+                                    {% if form.conditions_paiement.errors %}
+                                    <div class="text-danger small">{{ form.conditions_paiement.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.iban.label_tag }}
+                                    {{ form.iban }}
+                                    {% if form.iban.errors %}
+                                    <div class="text-danger small">{{ form.iban.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Boutons d'action -->
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% if fournisseur %}{% url 'gestion_achats:fournisseur_detail' fournisseur.uuid %}{% else %}{% url 'gestion_achats:fournisseur_list' %}{% endif %}"
+                               class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                {% if fournisseur %}Enregistrer les modifications{% else %}Créer le fournisseur{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+<script>
+    // Validation du formulaire
+    document.getElementById('fournisseurForm').addEventListener('submit', function(e) {
+        const required = ['code', 'raison_sociale', 'siret', 'email', 'telephone', 'adresse', 'code_postal', 'ville'];
+        let valid = true;
+
+        required.forEach(function(field) {
+            const input = document.querySelector(`[name="${field}"]`);
+            if (!input.value.trim()) {
+                valid = false;
+                input.classList.add('is-invalid');
+            } else {
+                input.classList.remove('is-invalid');
+            }
+        });
+
+        if (!valid) {
+            e.preventDefault();
+            alert('Veuillez remplir tous les champs obligatoires.');
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,657 @@
+/**
+ * Styles pour le module GAC (Gestion des Achats & Commandes)
+ */
+
+/* ============================================
+   VARIABLES CSS
+============================================ */
+:root {
+    --gac-primary: #0d6efd;
+    --gac-success: #198754;
+    --gac-warning: #ffc107;
+    --gac-danger: #dc3545;
+    --gac-info: #0dcaf0;
+    --gac-secondary: #6c757d;
+    --gac-light: #f8f9fa;
+    --gac-dark: #212529;
+
+    /* Statuts demandes */
+    --statut-brouillon: #6c757d;
+    --statut-soumise: #0dcaf0;
+    --statut-validee-n1: #fd7e14;
+    --statut-validee-n2: #198754;
+    --statut-convertie: #20c997;
+    --statut-refusee: #dc3545;
+    --statut-annulee: #6c757d;
+
+    /* Statuts bons de commande */
+    --statut-bc-brouillon: #6c757d;
+    --statut-bc-emis: #0d6efd;
+    --statut-bc-envoye: #fd7e14;
+    --statut-bc-confirme: #198754;
+    --statut-bc-livre: #20c997;
+    --statut-bc-annule: #dc3545;
+}
+
+/* ============================================
+   BADGES DE STATUT
+============================================ */
+.badge-statut {
+    font-size: 0.875rem;
+    padding: 0.35em 0.65em;
+    font-weight: 600;
+    border-radius: 0.25rem;
+}
+
+/* Statuts demandes */
+.badge-statut-BROUILLON {
+    background-color: var(--statut-brouillon);
+    color: white;
+}
+
+.badge-statut-SOUMISE {
+    background-color: var(--statut-soumise);
+    color: #000;
+}
+
+.badge-statut-VALIDEE_N1 {
+    background-color: var(--statut-validee-n1);
+    color: white;
+}
+
+.badge-statut-VALIDEE_N2 {
+    background-color: var(--statut-validee-n2);
+    color: white;
+}
+
+.badge-statut-CONVERTIE_BC {
+    background-color: var(--statut-convertie);
+    color: white;
+}
+
+.badge-statut-REFUSEE {
+    background-color: var(--statut-refusee);
+    color: white;
+}
+
+.badge-statut-ANNULEE {
+    background-color: var(--statut-annulee);
+    color: white;
+}
+
+/* Statuts bons de commande */
+.badge-statut-BC_BROUILLON {
+    background-color: var(--statut-bc-brouillon);
+    color: white;
+}
+
+.badge-statut-BC_EMIS {
+    background-color: var(--statut-bc-emis);
+    color: white;
+}
+
+.badge-statut-BC_ENVOYE {
+    background-color: var(--statut-bc-envoye);
+    color: white;
+}
+
+.badge-statut-BC_CONFIRME {
+    background-color: var(--statut-bc-confirme);
+    color: white;
+}
+
+.badge-statut-BC_PARTIELLEMENT_LIVRE {
+    background-color: var(--statut-bc-livre);
+    color: white;
+}
+
+.badge-statut-BC_LIVRE {
+    background-color: var(--statut-bc-livre);
+    color: white;
+}
+
+.badge-statut-BC_ANNULE {
+    background-color: var(--statut-bc-annule);
+    color: white;
+}
+
+/* Badges priorité */
+.badge-priorite-BASSE {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.badge-priorite-NORMALE {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+.badge-priorite-HAUTE {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.badge-priorite-URGENTE {
+    background-color: #f8d7da;
+    color: #721c24;
+    font-weight: 700;
+}
+
+/* ============================================
+   CARTES STATISTIQUES
+============================================ */
+.stat-card {
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: 100%;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+}
+
+.stat-card .card-body {
+    padding: 1.5rem;
+}
+
+.stat-card .stat-icon {
+    font-size: 2.5rem;
+    opacity: 0.7;
+}
+
+.stat-card .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0.5rem 0;
+}
+
+.stat-card .stat-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-card.stat-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.stat-card.stat-success {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+.stat-card.stat-warning {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    color: #333;
+}
+
+.stat-card.stat-info {
+    background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+    color: #333;
+}
+
+/* ============================================
+   TABLES
+============================================ */
+.table-gac {
+    background-color: white;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+}
+
+.table-gac thead {
+    background-color: #f8f9fa;
+}
+
+.table-gac thead th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+    padding: 1rem 0.75rem;
+}
+
+.table-gac tbody tr {
+    transition: background-color 0.2s;
+}
+
+.table-gac tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.table-gac td {
+    vertical-align: middle;
+    padding: 0.75rem;
+}
+
+/* ============================================
+   TIMELINE / WORKFLOW
+============================================ */
+.workflow-timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.workflow-timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.5rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #dee2e6;
+}
+
+.workflow-step {
+    position: relative;
+    padding-bottom: 1.5rem;
+}
+
+.workflow-step:last-child {
+    padding-bottom: 0;
+}
+
+.workflow-step .step-marker {
+    position: absolute;
+    left: -1.45rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background-color: white;
+    border: 3px solid #dee2e6;
+    z-index: 1;
+}
+
+.workflow-step.step-completed .step-marker {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.workflow-step.step-active .step-marker {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    animation: pulse 2s infinite;
+}
+
+.workflow-step.step-rejected .step-marker {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(13, 110, 253, 0);
+    }
+}
+
+.workflow-step .step-content {
+    padding-left: 1rem;
+}
+
+.workflow-step .step-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.workflow-step .step-date {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.workflow-step .step-user {
+    font-size: 0.875rem;
+    color: #495057;
+}
+
+/* ============================================
+   FORMULAIRES
+============================================ */
+.form-section {
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+}
+
+.form-section-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.form-label .text-danger {
+    margin-left: 0.25rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+}
+
+.form-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+/* ============================================
+   ALERTES BUDGET
+============================================ */
+.alert-budget {
+    border-left: 4px solid;
+    border-radius: 0.25rem;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.alert-budget-success {
+    background-color: #d1e7dd;
+    border-left-color: #198754;
+    color: #0a3622;
+}
+
+.alert-budget-warning {
+    background-color: #fff3cd;
+    border-left-color: #ffc107;
+    color: #664d03;
+}
+
+.alert-budget-danger {
+    background-color: #f8d7da;
+    border-left-color: #dc3545;
+    color: #58151c;
+}
+
+.budget-progress {
+    height: 1.5rem;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background-color: #e9ecef;
+    margin-top: 0.5rem;
+}
+
+.budget-progress-bar {
+    height: 100%;
+    transition: width 0.6s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.budget-progress-bar.bg-success {
+    background-color: #198754 !important;
+}
+
+.budget-progress-bar.bg-warning {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+.budget-progress-bar.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+/* ============================================
+   BOUTONS D'ACTION
+============================================ */
+.btn-action-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.btn-gac {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-gac i {
+    font-size: 1rem;
+}
+
+.btn-gac:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.15);
+}
+
+.btn-gac:active {
+    transform: translateY(0);
+}
+
+/* ============================================
+   FILTRES ET RECHERCHE
+============================================ */
+.filter-section {
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.filter-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: end;
+}
+
+.filter-col {
+    flex: 1;
+    min-width: 200px;
+}
+
+.search-box {
+    position: relative;
+}
+
+.search-box input {
+    padding-left: 2.5rem;
+}
+
+.search-box .search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    pointer-events: none;
+}
+
+/* ============================================
+   DÉTAILS LIGNE COMMANDE/DEMANDE
+============================================ */
+.ligne-table {
+    margin-top: 1rem;
+}
+
+.ligne-table .table {
+    margin-bottom: 0;
+}
+
+.ligne-total {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border-top: 2px solid #dee2e6 !important;
+}
+
+.montant {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+}
+
+/* ============================================
+   PAGINATION
+============================================ */
+.pagination-gac {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: center;
+}
+
+.pagination-gac .page-link {
+    color: #667eea;
+    border-color: #dee2e6;
+}
+
+.pagination-gac .page-link:hover {
+    background-color: #f8f9fa;
+    color: #4c5fd7;
+}
+
+.pagination-gac .page-item.active .page-link {
+    background-color: #667eea;
+    border-color: #667eea;
+}
+
+/* ============================================
+   MODALES
+============================================ */
+.modal-gac .modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom: none;
+}
+
+.modal-gac .modal-header .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+.modal-gac .modal-footer {
+    border-top: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+}
+
+/* ============================================
+   EMPTY STATE
+============================================ */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h5 {
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.empty-state p {
+    margin-bottom: 1.5rem;
+}
+
+/* ============================================
+   RESPONSIVE
+============================================ */
+@media (max-width: 768px) {
+    .stat-card .stat-value {
+        font-size: 1.5rem;
+    }
+
+    .stat-card .stat-icon {
+        font-size: 2rem;
+    }
+
+    .filter-row {
+        flex-direction: column;
+    }
+
+    .filter-col {
+        width: 100%;
+        min-width: 100%;
+    }
+
+    .btn-action-group {
+        flex-direction: column;
+    }
+
+    .btn-gac {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .table-gac {
+        font-size: 0.875rem;
+    }
+
+    .workflow-timeline {
+        padding-left: 1.5rem;
+    }
+}
+
+/* ============================================
+   UTILITAIRES
+============================================ */
+.text-muted-light {
+    color: #adb5bd !important;
+}
+
+.fw-medium {
+    font-weight: 500 !important;
+}
+
+.border-start-primary {
+    border-left: 4px solid var(--gac-primary) !important;
+}
+
+.border-start-success {
+    border-left: 4px solid var(--gac-success) !important;
+}
+
+.border-start-warning {
+    border-left: 4px solid var(--gac-warning) !important;
+}
+
+.border-start-danger {
+    border-left: 4px solid var(--gac-danger) !important;
+}
+
+/* Animation de chargement */
+.loading-spinner {
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

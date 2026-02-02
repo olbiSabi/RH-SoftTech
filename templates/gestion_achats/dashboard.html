@@ -1,0 +1,361 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% load gac_permissions %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+<style>
+    .stats-card {
+        transition: transform 0.2s;
+    }
+    .stats-card:hover {
+        transform: translateY(-2px);
+    }
+    .chart-container {
+        position: relative;
+        height: 300px;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Messages -->
+    {% include 'gestion_achats/includes/messages.html' %}
+
+    <!-- En-tête -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0">
+                <i class="fas fa-shopping-cart me-2"></i>
+                Gestion des Achats & Commandes
+            </h1>
+            <p class="text-muted">Bienvenue {{ user.get_full_name }}</p>
+        </div>
+    </div>
+
+    <!-- Cartes de statistiques -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            {% include 'gestion_achats/includes/stats_card.html' with title="Mes demandes" value=mes_demandes_count icon="file-alt" color="primary" %}
+        </div>
+        <div class="col-md-3">
+            {% include 'gestion_achats/includes/stats_card.html' with title="En cours" value=mes_demandes_en_cours icon="clock" color="warning" %}
+        </div>
+        {% if demandes_n1 > 0 or demandes_n2 > 0 %}
+        <div class="col-md-3">
+            {% include 'gestion_achats/includes/stats_card.html' with title="À valider" value=demandes_n1|add:demandes_n2 icon="exclamation-circle" color="danger" %}
+        </div>
+        {% endif %}
+        {% if stats_globales %}
+        <div class="col-md-3">
+            {% include 'gestion_achats/includes/stats_card.html' with title="Total BCs" value=stats_globales.total_bcs icon="file-invoice" color="success" %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Boutons d'action rapide -->
+    <div class="row mb-4">
+        {% can_create_demande user as can_create %}
+        {% if can_create %}
+        <div class="col-md-12">
+            <a href="{% url 'gestion_achats:demande_create' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-plus-circle me-2"></i>
+                Créer une nouvelle demande
+            </a>
+            {% if demandes_n1 > 0 or demandes_n2 > 0 %}
+            <a href="{% url 'gestion_achats:demandes_a_valider' %}" class="btn btn-danger btn-lg ms-2">
+                <i class="fas fa-check-double me-2"></i>
+                Valider les demandes ({{ demandes_n1|add:demandes_n2 }})
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Graphiques -->
+    {% if stats_globales %}
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Demandes par statut</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="chartDemandesStatut"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Évolution mensuelle</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="chartEvolution"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Alertes budgétaires -->
+    {% if budgets_en_alerte %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Alertes budgétaires
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Budget</th>
+                                    <th style="width: 40%;">Consommation</th>
+                                    <th class="text-center">Niveau d'alerte</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for alerte in budgets_en_alerte %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ alerte.code }}</strong><br>
+                                        <small class="text-muted">{{ alerte.libelle }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 25px;">
+                                            <div class="progress-bar {% if alerte.niveau == 'CRITIQUE' %}bg-danger{% else %}bg-warning{% endif %}"
+                                                 role="progressbar"
+                                                 style="width: {{ alerte.taux }}%"
+                                                 aria-valuenow="{{ alerte.taux }}"
+                                                 aria-valuemin="0"
+                                                 aria-valuemax="100">
+                                                {{ alerte.taux }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge {% if alerte.niveau == 'CRITIQUE' %}bg-danger{% else %}bg-warning{% endif %}">
+                                            {{ alerte.niveau }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Statistiques globales (acheteurs/admins) -->
+    {% if stats_globales %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Statistiques globales
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <h6 class="text-muted mb-3">Demandes par statut</h6>
+                            <ul class="list-unstyled">
+                                {% for statut, count in stats_globales.demandes_par_statut.items %}
+                                <li class="mb-2">
+                                    {% include 'gestion_achats/includes/statut_badge.html' with statut=statut %}
+                                    <strong class="ms-2">{{ count }}</strong>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <h6 class="text-muted mb-3">Résumé</h6>
+                            <p class="mb-2">
+                                <i class="fas fa-file-alt text-primary me-2"></i>
+                                Total demandes: <strong>{{ stats_globales.total_demandes }}</strong>
+                            </p>
+                            <p class="mb-2">
+                                <i class="fas fa-file-invoice text-success me-2"></i>
+                                Total bons de commande: <strong>{{ stats_globales.total_bcs }}</strong>
+                            </p>
+                            <p class="mb-2">
+                                <i class="fas fa-euro-sign text-info me-2"></i>
+                                Montant total: <strong>{{ stats_globales.montant_total|floatformat:2 }} €</strong>
+                            </p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <h6 class="text-muted mb-3">Activité récente</h6>
+                            <p class="mb-2">
+                                <i class="fas fa-calendar-day text-warning me-2"></i>
+                                Ce mois: <strong>{{ stats_globales.demandes_mois_courant|default:0 }}</strong> demandes
+                            </p>
+                            <p class="mb-2">
+                                <i class="fas fa-clock text-secondary me-2"></i>
+                                En attente validation: <strong>{{ stats_globales.demandes_en_attente|default:0 }}</strong>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Actions rapides -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>
+                        Actions rapides
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <a href="{% url 'gestion_achats:demande_liste' %}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-list me-2"></i>
+                                Toutes les demandes
+                            </a>
+                        </div>
+
+                        <div class="col-md-3">
+                            <a href="{% url 'gestion_achats:mes_demandes' %}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-user me-2"></i>
+                                Mes demandes
+                            </a>
+                        </div>
+
+                        {% can_view_all_bons_commande user as can_view_bc %}
+                        {% if can_view_bc %}
+                        <div class="col-md-3">
+                            <a href="{% url 'gestion_achats:bon_commande_liste' %}" class="btn btn-outline-success w-100">
+                                <i class="fas fa-file-invoice me-2"></i>
+                                Bons de commande
+                            </a>
+                        </div>
+                        {% endif %}
+
+                        {% can_view_fournisseur user as can_view_fournisseur %}
+                        {% if can_view_fournisseur %}
+                        <div class="col-md-3">
+                            <a href="#" class="btn btn-outline-secondary w-100 disabled">
+                                <i class="fas fa-building me-2"></i>
+                                Fournisseurs
+                            </a>
+                        </div>
+                        {% endif %}
+
+                        {% can_view_catalogue user as can_view_catalogue %}
+                        {% if can_view_catalogue %}
+                        <div class="col-md-3">
+                            <a href="#" class="btn btn-outline-secondary w-100 disabled">
+                                <i class="fas fa-boxes me-2"></i>
+                                Catalogue
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    {% if stats_globales %}
+    // Graphique des demandes par statut (Pie Chart)
+    const ctxStatut = document.getElementById('chartDemandesStatut');
+    if (ctxStatut) {
+        new Chart(ctxStatut, {
+            type: 'pie',
+            data: {
+                labels: [
+                    {% for statut, count in stats_globales.demandes_par_statut.items %}
+                    '{{ statut }}'{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                ],
+                datasets: [{
+                    data: [
+                        {% for statut, count in stats_globales.demandes_par_statut.items %}
+                        {{ count }}{% if not forloop.last %},{% endif %}
+                        {% endfor %}
+                    ],
+                    backgroundColor: [
+                        '#6c757d', // BROUILLON - secondary
+                        '#0dcaf0', // SOUMISE - info
+                        '#0d6efd', // VALIDEE_N1 - primary
+                        '#198754', // VALIDEE_N2 - success
+                        '#28a745', // CONVERTIE_BC - success
+                        '#dc3545', // REFUSEE - danger
+                        '#343a40', // ANNULEE - dark
+                    ],
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+    }
+
+    // Graphique d'évolution mensuelle (Bar Chart)
+    const ctxEvolution = document.getElementById('chartEvolution');
+    if (ctxEvolution) {
+        new Chart(ctxEvolution, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'],
+                datasets: [{
+                    label: 'Demandes créées',
+                    data: {{ stats_globales.evolution_mensuelle|default:"[0,0,0,0,0,0,0,0,0,0,0,0]"|safe }},
+                    backgroundColor: '#0d6efd',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false,
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    }
+    {% endif %}
+</script>
+{% endblock %}

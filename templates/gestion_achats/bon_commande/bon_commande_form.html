@@ -1,0 +1,208 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    {% include 'gestion_achats/includes/breadcrumb.html' with breadcrumb_items=breadcrumb_items %}
+
+    <!-- Messages -->
+    {% include 'gestion_achats/includes/messages.html' %}
+
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-invoice me-2"></i>
+                        {% if bon_commande %}
+                            Modifier le bon de commande {{ bon_commande.numero }}
+                        {% else %}
+                            Créer un bon de commande
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="bcForm">
+                        {% csrf_token %}
+
+                        <!-- Informations générales -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-info-circle me-2"></i>Informations générales
+                            </h6>
+                            <div class="row">
+                                <!-- Fournisseur -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.fournisseur.id_for_label }}" class="form-label required">
+                                        Fournisseur
+                                    </label>
+                                    {{ form.fournisseur }}
+                                    {% if form.fournisseur.errors %}
+                                    <div class="text-danger small">{{ form.fournisseur.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">
+                                        Sélectionnez le fournisseur pour ce bon de commande.
+                                    </small>
+                                </div>
+
+                                <!-- Date de livraison souhaitée -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.date_livraison_souhaitee.id_for_label }}" class="form-label">
+                                        Date de livraison souhaitée
+                                    </label>
+                                    {{ form.date_livraison_souhaitee }}
+                                    {% if form.date_livraison_souhaitee.errors %}
+                                    <div class="text-danger small">{{ form.date_livraison_souhaitee.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">
+                                        Date souhaitée pour la livraison (optionnel).
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Conditions de paiement et livraison -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-truck me-2"></i>Conditions de paiement et livraison
+                            </h6>
+                            <div class="row">
+                                <!-- Conditions de paiement -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.conditions_paiement.id_for_label }}" class="form-label">
+                                        Conditions de paiement
+                                    </label>
+                                    {{ form.conditions_paiement }}
+                                    {% if form.conditions_paiement.errors %}
+                                    <div class="text-danger small">{{ form.conditions_paiement.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">
+                                        Délai de paiement convenu avec le fournisseur.
+                                    </small>
+                                </div>
+
+                                <!-- Adresse de livraison -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.adresse_livraison.id_for_label }}" class="form-label">
+                                        Adresse de livraison
+                                    </label>
+                                    {{ form.adresse_livraison }}
+                                    {% if form.adresse_livraison.errors %}
+                                    <div class="text-danger small">{{ form.adresse_livraison.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">
+                                        Adresse où les articles doivent être livrés.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lignes du bon de commande (en modification) -->
+                        {% if bon_commande %}
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-list me-2"></i>Lignes du bon de commande
+                            </h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Article</th>
+                                            <th class="text-end">Quantité</th>
+                                            <th class="text-end">Prix unitaire HT</th>
+                                            <th class="text-end">TVA</th>
+                                            <th class="text-end">Total TTC</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for ligne in bon_commande.lignes.all %}
+                                        <tr>
+                                            <td>
+                                                {% if ligne.article %}
+                                                    {{ ligne.article.nom }}
+                                                {% else %}
+                                                    {{ ligne.designation }}
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-end">{{ ligne.quantite }}</td>
+                                            <td class="text-end">{{ ligne.prix_unitaire_ht|floatformat:2 }} €</td>
+                                            <td class="text-end">{{ ligne.taux_tva }} %</td>
+                                            <td class="text-end">{{ ligne.montant_ttc|floatformat:2 }} €</td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">
+                                                <em>Aucune ligne pour ce bon de commande</em>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                    <tfoot class="table-light">
+                                        <tr>
+                                            <th colspan="4" class="text-end">Total HT :</th>
+                                            <th class="text-end">{{ bon_commande.montant_total_ht|floatformat:2 }} €</th>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="4" class="text-end">Total TVA :</th>
+                                            <th class="text-end">{{ bon_commande.montant_total_tva|floatformat:2 }} €</th>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="4" class="text-end">Total TTC :</th>
+                                            <th class="text-end">{{ bon_commande.montant_total_ttc|floatformat:2 }} €</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Note d'information -->
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            {% if bon_commande %}
+                                Les modifications seront enregistrées. Seuls les bons de commande en statut "Brouillon" peuvent être modifiés.
+                            {% else %}
+                                Le bon de commande sera créé en statut "Brouillon". Vous pourrez ajouter les lignes ensuite avant de l'émettre.
+                            {% endif %}
+                        </div>
+
+                        <!-- Boutons d'action -->
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% if bon_commande %}{% url 'gestion_achats:bon_commande_detail' bon_commande.pk %}{% else %}{% url 'gestion_achats:bon_commande_liste' %}{% endif %}"
+                               class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                {% if bon_commande %}Enregistrer les modifications{% else %}Créer le bon de commande{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+<script>
+    // Validation du formulaire
+    document.getElementById('bcForm').addEventListener('submit', function(e) {
+        const fournisseur = document.querySelector('[name="fournisseur"]');
+
+        if (!fournisseur.value) {
+            e.preventDefault();
+            alert('Veuillez sélectionner un fournisseur.');
+            fournisseur.focus();
+            return false;
+        }
+    });
+</script>
+{% endblock %}

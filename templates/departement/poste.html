@@ -144,12 +144,10 @@
                                             <a href="{% url 'departement:poste_edit' poste.id %}"  title="Modifier" >
                                                 ✏️
                                             </a>
-                                            <form method="post" action="{% url 'departement:poste_delete' poste.id %}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer le poste {{ poste.CODE }} ?');">
-                                                {% csrf_token %}
-                                                <button type="submit" class="icon-btn delete-btn" title="Supprimer">
-                                                     <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
+                                            <button type="button" class="icon-btn delete-btn" title="Supprimer"
+                                                    onclick="ouvrirModalSuppressionPoste('{{ poste.id }}', '{{ poste.CODE }}', '{{ poste.LIBELLE }}')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -172,11 +170,76 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Confirmation Suppression Poste -->
+<div id="modalSuppressionPoste" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-content" style="background-color: #fff; margin: 10% auto; padding: 0; border-radius: 8px; max-width: 500px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div class="modal-header" style="background: #dc2626; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="margin: 0; font-size: 20px;">
+                <i class="fas fa-exclamation-triangle"></i> Confirmer la suppression
+            </h2>
+            <span class="close" onclick="fermerModalSuppressionPoste()" style="float: right; cursor: pointer; font-size: 28px; font-weight: bold; color: white; margin-top: -30px;">&times;</span>
+        </div>
+
+        <div style="padding: 20px;">
+            <p style="margin-bottom: 15px; font-size: 16px;">
+                <strong>ATTENTION :</strong> Vous êtes sur le point de supprimer définitivement ce poste.
+            </p>
+
+            <div style="background: #fee2e2; border-left: 4px solid #dc2626; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                <p style="margin: 0; color: #991b1b;">
+                    <i class="fas fa-briefcase"></i> <strong>Code : <span id="suppression_poste_code"></span></strong><br>
+                    <i class="fas fa-tag"></i> <strong>Libellé : <span id="suppression_poste_libelle"></span></strong>
+                </p>
+            </div>
+
+            <p style="color: #dc2626; font-weight: 500; margin-bottom: 20px;">
+                <i class="fas fa-info-circle"></i> Cette action est irréversible !
+            </p>
+
+            <form id="formSuppressionPoste" method="post" style="display: inline;">
+                {% csrf_token %}
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="fermerModalSuppressionPoste()">
+                        <i class="fas fa-times"></i> Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary" style="background: #dc2626; border-color: #dc2626;">
+                        <i class="fas fa-trash"></i> Supprimer définitivement
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- /Delete Employee Modal -->
 {% endblock %}
 
 {% block extrascript %}
 <script>
+        // ✅ GESTION DE LA MODALE DE SUPPRESSION POSTE
+        function ouvrirModalSuppressionPoste(posteId, posteCode, posteLibelle) {
+            document.getElementById('suppression_poste_code').textContent = posteCode;
+            document.getElementById('suppression_poste_libelle').textContent = posteLibelle;
+
+            const form = document.getElementById('formSuppressionPoste');
+            form.action = "{% url 'departement:poste_delete' 0 %}".replace('0', posteId);
+
+            document.getElementById('modalSuppressionPoste').style.display = 'block';
+        }
+
+        function fermerModalSuppressionPoste() {
+            document.getElementById('modalSuppressionPoste').style.display = 'none';
+        }
+
+        // Fermer la modale en cliquant en dehors
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalSuppressionPoste');
+            if (event.target === modal) {
+                fermerModalSuppressionPoste();
+            }
+        }
+
         // Empêcher la re-soumission du formulaire lors de l'actualisation
         if (window.history.replaceState) {
             window.history.replaceState(null, null, window.location.href);

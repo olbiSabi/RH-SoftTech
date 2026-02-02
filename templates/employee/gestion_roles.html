@@ -252,6 +252,43 @@
     </div>
 </div>
 
+<!-- Modal Confirmation Suppression -->
+<div id="modalConfirmationSuppression" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-header" style="background: #dc2626; color: white;">
+            <h2><i class="fas fa-exclamation-triangle"></i> Confirmer la suppression</h2>
+            <span class="close" onclick="fermerModalSuppression()" style="color: white;">&times;</span>
+        </div>
+
+        <div style="padding: 20px;">
+            <p style="margin-bottom: 15px; font-size: 16px;">
+                <strong>ATTENTION :</strong> Vous êtes sur le point de supprimer définitivement cette attribution de rôle.
+            </p>
+
+            <div style="background: #fee2e2; border-left: 4px solid #dc2626; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                <p style="margin: 0; color: #991b1b;">
+                    <i class="fas fa-user"></i> <strong id="suppression_employe"></strong><br>
+                    <i class="fas fa-shield-alt"></i> <strong id="suppression_role"></strong>
+                </p>
+            </div>
+
+            <p style="color: #dc2626; font-weight: 500; margin-bottom: 20px;">
+                <i class="fas fa-info-circle"></i> Cette action est irréversible !
+            </p>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="fermerModalSuppression()">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+                <button type="button" class="btn btn-primary" onclick="confirmerSuppression()"
+                        style="background: #dc2626; border-color: #dc2626;">
+                    <i class="fas fa-trash"></i> Supprimer définitivement
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Modification -->
 <div id="modalModification" class="modal">
     <div class="modal-content">
@@ -269,8 +306,13 @@
             </div>
 
             <div class="form-group">
-                <label>Rôle</label>
-                <input type="text" id="modification_role" disabled style="background: #f3f4f6;">
+                <label>Rôle *</label>
+                <select id="modification_role" required>
+                    <option value="">Sélectionner un rôle</option>
+                    {% for role in roles %}
+                        <option value="{{ role.pk }}">{{ role.LIBELLE }}</option>
+                    {% endfor %}
+                </select>
             </div>
 
             <div class="form-group">
@@ -371,7 +413,7 @@ function soumettreAttribution(event) {
     })
     .then(data => {
         if (data.success) {
-            alert(data.message);
+            fermerModalAttribution();
             location.reload();
         } else {
             alert('Erreur: ' + data.error);
@@ -402,7 +444,6 @@ function retirerRole(attributionId, employeNom, roleLibelle) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert(data.message);
             location.reload();
         } else {
             alert('Erreur: ' + data.error);
@@ -427,7 +468,6 @@ function reactiverRole(attributionId, employeNom, roleLibelle) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert(data.message);
             location.reload();
         } else {
             alert('Erreur: ' + data.error);
@@ -440,37 +480,47 @@ function reactiverRole(attributionId, employeNom, roleLibelle) {
 
 // ✅ FONCTION MODIFIER CORRIGÉE
 function ouvrirModalModification(attributionId) {
-    const row = window.event.target.closest('tr');
+    // Charger les données de l'attribution via AJAX pour avoir l'ID du rôle
+    const url = `/employe/api/attribution/${attributionId}/`;
+    console.log('Chargement de l\'attribution depuis:', url);
 
-    if (!row) {
-        console.error('Impossible de trouver la ligne du tableau');
-        alert('Erreur lors de l\'ouverture du formulaire de modification');
-        return;
-    }
-
-    const employeCell = row.cells[0].querySelector('strong').textContent;
-    const roleCell = row.cells[1].querySelector('span').textContent;
-    const dateDebut = row.cells[2].textContent.trim();
-    const dateFin = row.cells[3].textContent.trim();
-    const commentaireCell = row.cells[5].textContent.trim();
-
-    function convertirDateFRversISO(dateFR) {
-        if (!dateFR || dateFR === '-') return '';
-        const parts = dateFR.split('/');
-        if (parts.length === 3) {
-            return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
         }
-        return '';
-    }
+    })
+    .then(response => {
+        console.log('Statut de la réponse:', response.status);
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Données reçues:', data);
+        if (data.success) {
+            const attribution = data.attribution;
 
-    document.getElementById('modification_attribution_id').value = attributionId;
-    document.getElementById('modification_employe').value = employeCell;
-    document.getElementById('modification_role').value = roleCell;
-    document.getElementById('modification_date_debut').value = convertirDateFRversISO(dateDebut);
-    document.getElementById('modification_date_fin').value = convertirDateFRversISO(dateFin);
-    document.getElementById('modification_commentaire').value = commentaireCell !== '-' ? commentaireCell : '';
+            document.getElementById('modification_attribution_id').value = attributionId;
+            document.getElementById('modification_employe').value = attribution.employe_nom;
 
-    document.getElementById('modalModification').classList.add('show');
+            // Sélectionner le rôle dans le select
+            document.getElementById('modification_role').value = attribution.role_id;
+
+            document.getElementById('modification_date_debut').value = attribution.date_debut;
+            document.getElementById('modification_date_fin').value = attribution.date_fin || '';
+            document.getElementById('modification_commentaire').value = attribution.commentaire || '';
+
+            document.getElementById('modalModification').classList.add('show');
+        } else {
+            alert('Erreur: ' + (data.error || 'Erreur inconnue'));
+        }
+    })
+    .catch(error => {
+        console.error('Erreur complète:', error);
+        alert('Erreur lors du chargement des données: ' + error.message);
+    });
 }
 
 function fermerModalModification() {
@@ -483,9 +533,15 @@ function soumettreModification(event) {
 
     const attributionId = document.getElementById('modification_attribution_id').value;
     const formData = new FormData();
+    formData.append('role_id', document.getElementById('modification_role').value);
     formData.append('date_debut', document.getElementById('modification_date_debut').value);
     formData.append('date_fin', document.getElementById('modification_date_fin').value);
     formData.append('commentaire', document.getElementById('modification_commentaire').value);
+
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enregistrement...';
 
     fetch(`{% url 'employee:modifier_role' 0 %}`.replace('0', attributionId), {
         method: 'POST',
@@ -497,31 +553,60 @@ function soumettreModification(event) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert(data.message);
+            // Fermer la modale et recharger sans message
             fermerModalModification();
             location.reload();
         } else {
             alert('Erreur: ' + data.error);
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
         }
     })
     .catch(error => {
         alert('Une erreur est survenue lors de la modification');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
     });
 
     return false;
 }
 
-// ✅ NOUVELLE FONCTION SUPPRIMER
+// ✅ VARIABLES GLOBALES POUR LA SUPPRESSION
+let suppressionAttributionId = null;
+
+// ✅ NOUVELLE FONCTION SUPPRIMER - Ouvre la modale
 function supprimerRole(attributionId, employeNom, roleLibelle) {
-    if (!confirm(`ATTENTION : Voulez-vous vraiment SUPPRIMER DÉFINITIVEMENT le rôle "${roleLibelle}" de ${employeNom} ?\n\nCette action est irréversible !`)) {
+    // Stocker l'ID pour la confirmation
+    suppressionAttributionId = attributionId;
+
+    // Remplir les informations dans la modale
+    document.getElementById('suppression_employe').textContent = employeNom;
+    document.getElementById('suppression_role').textContent = roleLibelle;
+
+    // Ouvrir la modale
+    document.getElementById('modalConfirmationSuppression').classList.add('show');
+}
+
+// Fermer la modale de confirmation
+function fermerModalSuppression() {
+    document.getElementById('modalConfirmationSuppression').classList.remove('show');
+    suppressionAttributionId = null;
+}
+
+// Confirmer la suppression
+function confirmerSuppression() {
+    if (!suppressionAttributionId) {
+        alert('Erreur: ID d\'attribution manquant');
         return;
     }
 
-    if (!confirm(`Confirmez-vous la suppression définitive ?`)) {
-        return;
-    }
+    // Désactiver le bouton pendant le traitement
+    const btnSupprimer = event.target;
+    const originalText = btnSupprimer.innerHTML;
+    btnSupprimer.disabled = true;
+    btnSupprimer.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Suppression...';
 
-    fetch(`{% url 'employee:supprimer_role' 0 %}`.replace('0', attributionId), {
+    fetch(`{% url 'employee:supprimer_role' 0 %}`.replace('0', suppressionAttributionId), {
         method: 'POST',
         headers: {
             'X-CSRFToken': getCookie('csrftoken'),
@@ -530,20 +615,26 @@ function supprimerRole(attributionId, employeNom, roleLibelle) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert(data.message);
+            // Fermer la modale et recharger sans message
+            fermerModalSuppression();
             location.reload();
         } else {
             alert('Erreur: ' + data.error);
+            btnSupprimer.disabled = false;
+            btnSupprimer.innerHTML = originalText;
         }
     })
     .catch(error => {
         alert('Une erreur est survenue lors de la suppression');
+        btnSupprimer.disabled = false;
+        btnSupprimer.innerHTML = originalText;
     });
 }
 
 window.onclick = function(event) {
     const modalAttribution = document.getElementById('modalAttribution');
     const modalModification = document.getElementById('modalModification');
+    const modalSuppression = document.getElementById('modalConfirmationSuppression');
 
     if (event.target === modalAttribution) {
         fermerModalAttribution();
@@ -551,6 +642,10 @@ window.onclick = function(event) {
 
     if (event.target === modalModification) {
         fermerModalModification();
+    }
+
+    if (event.target === modalSuppression) {
+        fermerModalSuppression();
     }
 }
 </script>

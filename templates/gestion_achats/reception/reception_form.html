@@ -1,0 +1,260 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    {% include 'gestion_achats/includes/breadcrumb.html' with breadcrumb_items=breadcrumb_items %}
+
+    <!-- Messages -->
+    {% include 'gestion_achats/includes/messages.html' %}
+
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-dolly me-2"></i>
+                        {% if reception %}
+                            Modifier la réception {{ reception.numero }}
+                        {% else %}
+                            Nouvelle réception
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="receptionForm">
+                        {% csrf_token %}
+
+                        <!-- Informations générales -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-info-circle me-2"></i>Informations générales
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.bon_commande.label_tag }}
+                                    {{ form.bon_commande }}
+                                    {% if form.bon_commande.errors %}
+                                    <div class="text-danger small">{{ form.bon_commande.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">
+                                        Bon de commande à réceptionner.
+                                    </small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.date_reception.label_tag }}
+                                    {{ form.date_reception }}
+                                    {% if form.date_reception.errors %}
+                                    <div class="text-danger small">{{ form.date_reception.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.bon_livraison_fournisseur.label_tag }}
+                                    {{ form.bon_livraison_fournisseur }}
+                                    {% if form.bon_livraison_fournisseur.errors %}
+                                    <div class="text-danger small">{{ form.bon_livraison_fournisseur.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">
+                                        Numéro du bon de livraison du fournisseur (optionnel).
+                                    </small>
+                                </div>
+                                {% if reception %}
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Statut</label>
+                                    <input type="text" class="form-control" value="{{ reception.get_statut_display }}" readonly>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    {{ form.commentaire.label_tag }}
+                                    {{ form.commentaire }}
+                                    {% if form.commentaire.errors %}
+                                    <div class="text-danger small">{{ form.commentaire.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lignes de réception -->
+                        {% if bon_commande %}
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-list me-2"></i>Lignes à réceptionner
+                            </h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Article</th>
+                                            <th class="text-end">Qté commandée</th>
+                                            <th class="text-end">Déjà reçue</th>
+                                            <th class="text-end">Reste à recevoir</th>
+                                            <th class="text-end">Qté reçue</th>
+                                            <th class="text-end">Qté acceptée</th>
+                                            <th class="text-end">Qté refusée</th>
+                                            <th>Motif refus</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for ligne in bon_commande.lignes.all %}
+                                        {% with reste=ligne.quantite_commandee|add:"-"|add:ligne.quantite_recue %}
+                                        <tr>
+                                            <td>
+                                                {% if ligne.article %}
+                                                {{ ligne.article.designation }}
+                                                {% else %}
+                                                {{ ligne.designation }}
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-end">{{ ligne.quantite_commandee }}</td>
+                                            <td class="text-end">{{ ligne.quantite_recue }}</td>
+                                            <td class="text-end"><strong>{{ reste }}</strong></td>
+                                            <td class="text-end">
+                                                <input type="number"
+                                                       class="form-control form-control-sm text-end qte-recue"
+                                                       name="ligne_{{ ligne.id }}_qte_recue"
+                                                       min="0"
+                                                       max="{{ reste }}"
+                                                       value="0"
+                                                       style="width: 80px;"
+                                                       data-ligne-id="{{ ligne.id }}">
+                                            </td>
+                                            <td class="text-end">
+                                                <input type="number"
+                                                       class="form-control form-control-sm text-end qte-acceptee"
+                                                       name="ligne_{{ ligne.id }}_qte_acceptee"
+                                                       min="0"
+                                                       value="0"
+                                                       style="width: 80px;"
+                                                       data-ligne-id="{{ ligne.id }}">
+                                            </td>
+                                            <td class="text-end">
+                                                <input type="number"
+                                                       class="form-control form-control-sm text-end qte-refusee"
+                                                       name="ligne_{{ ligne.id }}_qte_refusee"
+                                                       min="0"
+                                                       value="0"
+                                                       style="width: 80px;"
+                                                       data-ligne-id="{{ ligne.id }}"
+                                                       readonly>
+                                            </td>
+                                            <td>
+                                                <input type="text"
+                                                       class="form-control form-control-sm motif-refus"
+                                                       name="ligne_{{ ligne.id }}_motif_refus"
+                                                       placeholder="Motif si refus..."
+                                                       data-ligne-id="{{ ligne.id }}">
+                                            </td>
+                                        </tr>
+                                        {% endwith %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Note d'information -->
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            {% if reception %}
+                                Les modifications seront enregistrées. Seules les réceptions en statut "Brouillon" peuvent être modifiées.
+                            {% else %}
+                                La réception sera créée en statut "Brouillon". Vous devrez la valider pour mettre à jour les quantités reçues.
+                            {% endif %}
+                        </div>
+
+                        <!-- Boutons d'action -->
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% if reception %}{% url 'gestion_achats:reception_detail' reception.uuid %}{% else %}{% url 'gestion_achats:reception_list' %}{% endif %}"
+                               class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                {% if reception %}Enregistrer les modifications{% else %}Créer la réception{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+<script>
+    // Calcul automatique des quantités refusées
+    document.querySelectorAll('.qte-recue, .qte-acceptee').forEach(function(input) {
+        input.addEventListener('input', function() {
+            const ligneId = this.dataset.ligneId;
+            const qteRecue = parseFloat(document.querySelector(`[name="ligne_${ligneId}_qte_recue"]`).value) || 0;
+            const qteAcceptee = parseFloat(document.querySelector(`[name="ligne_${ligneId}_qte_acceptee"]`).value) || 0;
+            const qteRefusee = qteRecue - qteAcceptee;
+
+            document.querySelector(`[name="ligne_${ligneId}_qte_refusee"]`).value = Math.max(0, qteRefusee);
+        });
+    });
+
+    // Auto-remplissage de la quantité acceptée = quantité reçue
+    document.querySelectorAll('.qte-recue').forEach(function(input) {
+        input.addEventListener('change', function() {
+            const ligneId = this.dataset.ligneId;
+            const qteRecue = parseFloat(this.value) || 0;
+            const qteAccepteeInput = document.querySelector(`[name="ligne_${ligneId}_qte_acceptee"]`);
+
+            // Auto-remplir seulement si vide
+            if (!qteAccepteeInput.value || qteAccepteeInput.value === '0') {
+                qteAccepteeInput.value = qteRecue;
+                qteAccepteeInput.dispatchEvent(new Event('input'));
+            }
+        });
+    });
+
+    // Validation du formulaire
+    document.getElementById('receptionForm').addEventListener('submit', function(e) {
+        let hasLignes = false;
+
+        document.querySelectorAll('.qte-recue').forEach(function(input) {
+            if (parseFloat(input.value) > 0) {
+                hasLignes = true;
+            }
+        });
+
+        if (!hasLignes) {
+            e.preventDefault();
+            alert('Vous devez saisir au moins une quantité reçue.');
+            return false;
+        }
+
+        // Vérifier que qte acceptée + qte refusée = qte reçue
+        let valid = true;
+        document.querySelectorAll('.qte-recue').forEach(function(input) {
+            const ligneId = input.dataset.ligneId;
+            const qteRecue = parseFloat(input.value) || 0;
+            const qteAcceptee = parseFloat(document.querySelector(`[name="ligne_${ligneId}_qte_acceptee"]`).value) || 0;
+            const qteRefusee = parseFloat(document.querySelector(`[name="ligne_${ligneId}_qte_refusee"]`).value) || 0;
+
+            if (qteRecue > 0 && (qteAcceptee + qteRefusee !== qteRecue)) {
+                valid = false;
+            }
+        });
+
+        if (!valid) {
+            e.preventDefault();
+            alert('Pour chaque ligne, la somme de la quantité acceptée et refusée doit égaler la quantité reçue.');
+            return false;
+        }
+    });
+</script>
+{% endblock %}

@@ -137,12 +137,10 @@
                                         <a href="{% url 'departement:edit' dept.id %}" title="Modifier">
                                             ✏️
                                         </a>
-                                        <form method="post" action="{% url 'departement:delete' dept.id %}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer le département {{ dept.CODE }} ?');">
-                                            {% csrf_token %}
-                                            <button type="submit" class="icon-btn delete-btn" title="Supprimer">
-                                               <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
+                                        <button type="button" class="icon-btn delete-btn" title="Supprimer"
+                                                onclick="ouvrirModalSuppressionDept('{{ dept.id }}', '{{ dept.CODE }}', '{{ dept.LIBELLE }}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -166,6 +164,47 @@
     </div>
 </div>
 
+<!-- Modal Confirmation Suppression Département -->
+<div id="modalSuppressionDept" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-content" style="background-color: #fff; margin: 10% auto; padding: 0; border-radius: 8px; max-width: 500px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div class="modal-header" style="background: #dc2626; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="margin: 0; font-size: 20px;">
+                <i class="fas fa-exclamation-triangle"></i> Confirmer la suppression
+            </h2>
+            <span class="close" onclick="fermerModalSuppressionDept()" style="float: right; cursor: pointer; font-size: 28px; font-weight: bold; color: white; margin-top: -30px;">&times;</span>
+        </div>
+
+        <div style="padding: 20px;">
+            <p style="margin-bottom: 15px; font-size: 16px;">
+                <strong>ATTENTION :</strong> Vous êtes sur le point de supprimer définitivement ce département.
+            </p>
+
+            <div style="background: #fee2e2; border-left: 4px solid #dc2626; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                <p style="margin: 0; color: #991b1b;">
+                    <i class="fas fa-building"></i> <strong>Code : <span id="suppression_dept_code"></span></strong><br>
+                    <i class="fas fa-tag"></i> <strong>Libellé : <span id="suppression_dept_libelle"></span></strong>
+                </p>
+            </div>
+
+            <p style="color: #dc2626; font-weight: 500; margin-bottom: 20px;">
+                <i class="fas fa-info-circle"></i> Cette action est irréversible !
+            </p>
+
+            <form id="formSuppressionDept" method="post" style="display: inline;">
+                {% csrf_token %}
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="fermerModalSuppressionDept()">
+                        <i class="fas fa-times"></i> Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary" style="background: #dc2626; border-color: #dc2626;">
+                        <i class="fas fa-trash"></i> Supprimer définitivement
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 
@@ -173,6 +212,29 @@
 <!--JS-->
 <script src="{% static 'assets/js/app.js' %}"></script>
 <script>
+    // ✅ GESTION DE LA MODALE DE SUPPRESSION DÉPARTEMENT
+    function ouvrirModalSuppressionDept(deptId, deptCode, deptLibelle) {
+        document.getElementById('suppression_dept_code').textContent = deptCode;
+        document.getElementById('suppression_dept_libelle').textContent = deptLibelle;
+
+        const form = document.getElementById('formSuppressionDept');
+        form.action = "{% url 'departement:delete' 0 %}".replace('0', deptId);
+
+        document.getElementById('modalSuppressionDept').style.display = 'block';
+    }
+
+    function fermerModalSuppressionDept() {
+        document.getElementById('modalSuppressionDept').style.display = 'none';
+    }
+
+    // Fermer la modale en cliquant en dehors
+    window.onclick = function(event) {
+        const modal = document.getElementById('modalSuppressionDept');
+        if (event.target === modal) {
+            fermerModalSuppressionDept();
+        }
+    }
+
     // Empêcher la re-soumission du formulaire lors de l'actualisation
         if (window.history.replaceState) {
             window.history.replaceState(null, null, window.location.href);

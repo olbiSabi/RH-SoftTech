@@ -1,0 +1,194 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    {% include 'gestion_achats/includes/breadcrumb.html' with breadcrumb_items=breadcrumb_items %}
+
+    <!-- Messages -->
+    {% include 'gestion_achats/includes/messages.html' %}
+
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-box me-2"></i>
+                        {% if article %}
+                            Modifier l'article {{ article.reference }}
+                        {% else %}
+                            Nouvel article
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="articleForm">
+                        {% csrf_token %}
+
+                        <!-- Identification -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-info-circle me-2"></i>Identification
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.reference.label_tag }}
+                                    {{ form.reference }}
+                                    {% if form.reference.errors %}
+                                    <div class="text-danger small">{{ form.reference.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">
+                                        Référence unique de l'article.
+                                    </small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.categorie.label_tag }}
+                                    {{ form.categorie }}
+                                    {% if form.categorie.errors %}
+                                    <div class="text-danger small">{{ form.categorie.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    {{ form.designation.label_tag }}
+                                    {{ form.designation }}
+                                    {% if form.designation.errors %}
+                                    <div class="text-danger small">{{ form.designation.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    {{ form.description.label_tag }}
+                                    {{ form.description }}
+                                    {% if form.description.errors %}
+                                    <div class="text-danger small">{{ form.description.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Caractéristiques -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-cog me-2"></i>Caractéristiques
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    {{ form.unite.label_tag }}
+                                    {{ form.unite }}
+                                    {% if form.unite.errors %}
+                                    <div class="text-danger small">{{ form.unite.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    {{ form.statut.label_tag }}
+                                    {{ form.statut }}
+                                    {% if form.statut.errors %}
+                                    <div class="text-danger small">{{ form.statut.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tarification -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-euro-sign me-2"></i>Tarification
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    {{ form.prix_unitaire.label_tag }}
+                                    <div class="input-group">
+                                        {{ form.prix_unitaire }}
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                    {% if form.prix_unitaire.errors %}
+                                    <div class="text-danger small">{{ form.prix_unitaire.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    {{ form.taux_tva.label_tag }}
+                                    <div class="input-group">
+                                        {{ form.taux_tva }}
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                    {% if form.taux_tva.errors %}
+                                    <div class="text-danger small">{{ form.taux_tva.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Prix unitaire TTC (calculé)</label>
+                                    <input type="text" class="form-control" id="prix_ttc" readonly value="0.00 €">
+                                    <small class="form-text text-muted">
+                                        Calculé automatiquement.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Note d'information -->
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            {% if article %}
+                                Les fournisseurs peuvent être associés après la création de l'article.
+                            {% else %}
+                                Vous pourrez associer des fournisseurs à cet article après sa création.
+                            {% endif %}
+                        </div>
+
+                        <!-- Boutons d'action -->
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% if article %}{% url 'gestion_achats:article_detail' article.uuid %}{% else %}{% url 'gestion_achats:article_list' %}{% endif %}"
+                               class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                {% if article %}Enregistrer les modifications{% else %}Créer l'article{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+<script>
+    // Calcul automatique du prix TTC
+    function calculerPrixTTC() {
+        const prixHT = parseFloat(document.querySelector('[name="prix_unitaire"]').value) || 0;
+        const tauxTVA = parseFloat(document.querySelector('[name="taux_tva"]').value) || 0;
+        const prixTTC = prixHT * (1 + tauxTVA / 100);
+        document.getElementById('prix_ttc').value = prixTTC.toFixed(2) + ' €';
+    }
+
+    // Événements pour recalculer le prix TTC
+    document.querySelector('[name="prix_unitaire"]').addEventListener('input', calculerPrixTTC);
+    document.querySelector('[name="taux_tva"]').addEventListener('input', calculerPrixTTC);
+
+    // Calcul initial
+    calculerPrixTTC();
+
+    // Validation du formulaire
+    document.getElementById('articleForm').addEventListener('submit', function(e) {
+        const prixUnitaire = parseFloat(document.querySelector('[name="prix_unitaire"]').value);
+
+        if (prixUnitaire < 0) {
+            e.preventDefault();
+            alert('Le prix unitaire ne peut pas être négatif.');
+            return false;
+        }
+    });
+</script>
+{% endblock %}

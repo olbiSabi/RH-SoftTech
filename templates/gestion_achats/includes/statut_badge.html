@@ -1,0 +1,29 @@
+{% if statut == 'BROUILLON' %}
+    <span class="badge bg-secondary">Brouillon</span>
+{% elif statut == 'SOUMISE' %}
+    <span class="badge bg-info">Soumise</span>
+{% elif statut == 'VALIDEE_N1' %}
+    <span class="badge bg-primary">Validée N1</span>
+{% elif statut == 'VALIDEE_N2' %}
+    <span class="badge bg-success">Validée N2</span>
+{% elif statut == 'CONVERTIE_BC' %}
+    <span class="badge bg-success">Convertie BC</span>
+{% elif statut == 'REFUSEE' %}
+    <span class="badge bg-danger">Refusée</span>
+{% elif statut == 'ANNULEE' %}
+    <span class="badge bg-dark">Annulée</span>
+{% elif statut == 'EMIS' %}
+    <span class="badge bg-warning">Émis</span>
+{% elif statut == 'ENVOYE' %}
+    <span class="badge bg-info">Envoyé</span>
+{% elif statut == 'CONFIRME' %}
+    <span class="badge bg-primary">Confirmé</span>
+{% elif statut == 'RECU_PARTIEL' %}
+    <span class="badge bg-warning">Reçu partiel</span>
+{% elif statut == 'RECU_COMPLET' %}
+    <span class="badge bg-success">Reçu complet</span>
+{% elif statut == 'ANNULE' %}
+    <span class="badge bg-danger">Annulé</span>
+{% else %}
+    <span class="badge bg-light text-dark">{{ statut }}</span>
+{% endif %}

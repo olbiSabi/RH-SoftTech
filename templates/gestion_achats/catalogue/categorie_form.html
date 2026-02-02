@@ -1,0 +1,155 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    {% include 'gestion_achats/includes/breadcrumb.html' with breadcrumb_items=breadcrumb_items %}
+
+    <!-- Messages -->
+    {% include 'gestion_achats/includes/messages.html' %}
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-tags me-2"></i>
+                        {% if categorie %}
+                            Modifier la catégorie {{ categorie.nom }}
+                        {% else %}
+                            Nouvelle catégorie
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="categorieForm">
+                        {% csrf_token %}
+
+                        <!-- Informations générales -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-info-circle me-2"></i>Informations générales
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.code.label_tag }}
+                                    {{ form.code }}
+                                    {% if form.code.errors %}
+                                    <div class="text-danger small">{{ form.code.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">
+                                        Code unique pour cette catégorie.
+                                    </small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.nom.label_tag }}
+                                    {{ form.nom }}
+                                    {% if form.nom.errors %}
+                                    <div class="text-danger small">{{ form.nom.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    {{ form.description.label_tag }}
+                                    {{ form.description }}
+                                    {% if form.description.errors %}
+                                    <div class="text-danger small">{{ form.description.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hiérarchie -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-sitemap me-2"></i>Hiérarchie
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    {{ form.parent.label_tag }}
+                                    {{ form.parent }}
+                                    {% if form.parent.errors %}
+                                    <div class="text-danger small">{{ form.parent.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">
+                                        Laissez vide pour créer une catégorie principale.
+                                    </small>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    {{ form.ordre.label_tag }}
+                                    {{ form.ordre }}
+                                    {% if form.ordre.errors %}
+                                    <div class="text-danger small">{{ form.ordre.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">
+                                        Ordre d'affichage (0 = premier).
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Aperçu du chemin -->
+                        {% if categorie %}
+                        <div class="mb-4">
+                            <div class="alert alert-info">
+                                <strong>Chemin complet :</strong> {{ categorie.get_chemin_complet }}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Note d'information -->
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            {% if categorie %}
+                                {% if categorie.articles.count > 0 %}
+                                    Cette catégorie contient <strong>{{ categorie.articles.count }}</strong> article(s).
+                                    Assurez-vous que les modifications ne créent pas d'incohérences.
+                                {% endif %}
+                                {% if categorie.sous_categories.count > 0 %}
+                                    Cette catégorie possède <strong>{{ categorie.sous_categories.count }}</strong> sous-catégorie(s).
+                                {% endif %}
+                            {% else %}
+                                Vous pourrez créer des sous-catégories après la création de celle-ci.
+                            {% endif %}
+                        </div>
+
+                        <!-- Boutons d'action -->
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'gestion_achats:categorie_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                {% if categorie %}Enregistrer les modifications{% else %}Créer la catégorie{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+<script>
+    // Validation du formulaire
+    document.getElementById('categorieForm').addEventListener('submit', function(e) {
+        const code = document.querySelector('[name="code"]').value.trim();
+        const nom = document.querySelector('[name="nom"]').value.trim();
+
+        if (!code || !nom) {
+            e.preventDefault();
+            alert('Le code et le nom sont obligatoires.');
+            return false;
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bon de Commande {{ bc.numero }}</title>
+</head>
+<body>
+    <div class="header">
+        <div class="entreprise">
+            {% if entreprise.logo_url %}
+            <img src="{{ entreprise.logo_url }}" alt="Logo" style="max-height: 80px;">
+            {% endif %}
+            <h1>{{ entreprise.nom }}</h1>
+            <p>
+                {{ entreprise.adresse }}<br>
+                {{ entreprise.code_postal }} {{ entreprise.ville }}<br>
+                Tél: {{ entreprise.telephone }}<br>
+                Email: {{ entreprise.email }}<br>
+                SIRET: {{ entreprise.siret }}
+            </p>
+        </div>
+        <div class="info-bc">
+            <h1>BON DE COMMANDE</h1>
+            <p>
+                <strong>N° {{ bc.numero }}</strong><br>
+                Date: {{ date_generation|date:"d/m/Y" }}
+            </p>
+        </div>
+    </div>
+
+    <div class="info-block">
+        <h2>Fournisseur</h2>
+        <p>
+            <strong>{{ bc.fournisseur.raison_sociale }}</strong><br>
+            {{ bc.fournisseur.adresse }}<br>
+            {{ bc.fournisseur.code_postal }} {{ bc.fournisseur.ville }} {{ bc.fournisseur.pays }}<br>
+            Tél: {{ bc.fournisseur.telephone }}<br>
+            Email: {{ bc.fournisseur.email }}<br>
+            SIRET: {{ bc.fournisseur.siret }}
+        </p>
+    </div>
+
+    {% if bc.demande_achat %}
+    <div class="info-block">
+        <h2>Référence</h2>
+        <p>
+            Demande d'achat: <strong>{{ bc.demande_achat.numero }}</strong><br>
+            Demandeur: {{ bc.demande_achat.demandeur.get_full_name }}<br>
+            {% if bc.demande_achat.departement %}
+            Département: {{ bc.demande_achat.departement.libelle }}<br>
+            {% endif %}
+            {% if bc.demande_achat.projet %}
+            Projet: {{ bc.demande_achat.projet.nom }}<br>
+            {% endif %}
+        </p>
+    </div>
+    {% endif %}
+
+    <div class="info-block">
+        <h2>Conditions</h2>
+        <p>
+            <strong>Date de livraison souhaitée:</strong>
+            {{ bc.date_livraison_souhaitee|date:"d/m/Y"|default:"À définir" }}<br>
+            <strong>Conditions de paiement:</strong> {{ bc.conditions_paiement|default:"Selon accord" }}
+        </p>
+    </div>
+
+    <h2>Articles commandés</h2>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 10%;">Réf.</th>
+                <th style="width: 40%;">Désignation</th>
+                <th style="width: 10%;">Qté</th>
+                <th style="width: 10%;">Unité</th>
+                <th style="width: 12%;">PU HT</th>
+                <th style="width: 8%;">TVA</th>
+                <th style="width: 10%;">Total HT</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ligne in bc.lignes.all %}
+            <tr>
+                <td>{{ ligne.article.reference }}</td>
+                <td>
+                    {{ ligne.article.designation }}
+                    {% if ligne.commentaire %}
+                    <br><em style="font-size: 9pt; color: #666;">{{ ligne.commentaire }}</em>
+                    {% endif %}
+                </td>
+                <td style="text-align: right;">{{ ligne.quantite_commandee }}</td>
+                <td>{{ ligne.article.unite }}</td>
+                <td style="text-align: right;">{{ ligne.prix_unitaire|floatformat:2 }} €</td>
+                <td style="text-align: center;">{{ ligne.taux_tva }}%</td>
+                <td style="text-align: right;">{{ ligne.montant_ht|floatformat:2 }} €</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="totals">
+        <table>
+            <tr>
+                <td><strong>Total HT:</strong></td>
+                <td style="text-align: right;">{{ bc.montant_total_ht|floatformat:2 }} €</td>
+            </tr>
+            <tr>
+                <td><strong>Total TVA:</strong></td>
+                <td style="text-align: right;">{{ bc.montant_total_tva|floatformat:2 }} €</td>
+            </tr>
+            <tr style="font-size: 12pt; font-weight: bold; background-color: #f0f0f0;">
+                <td><strong>Total TTC:</strong></td>
+                <td style="text-align: right;">{{ bc.montant_total_ttc|floatformat:2 }} €</td>
+            </tr>
+        </table>
+    </div>
+
+    {% if bc.remarques %}
+    <div class="info-block" style="margin-top: 20px;">
+        <h2>Remarques</h2>
+        <p>{{ bc.remarques|linebreaks }}</p>
+    </div>
+    {% endif %}
+
+    <div class="footer">
+        <p>
+            <strong>Acheteur:</strong> {{ bc.acheteur.get_full_name }}<br>
+            <strong>Date d'émission:</strong> {{ bc.date_emission|date:"d/m/Y à H:i"|default:"Non émis" }}
+        </p>
+        <p style="margin-top: 15px; font-size: 8pt; color: #999;">
+            Document généré automatiquement le {{ date_generation|date:"d/m/Y à H:i" }}
+        </p>
+    </div>
+</body>
+</html>

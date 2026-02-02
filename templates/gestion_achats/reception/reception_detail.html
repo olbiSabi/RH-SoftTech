@@ -1,0 +1,315 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% load gac_permissions %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    {% include 'gestion_achats/includes/breadcrumb.html' with breadcrumb_items=breadcrumb_items %}
+
+    <!-- Messages -->
+    {% include 'gestion_achats/includes/messages.html' %}
+
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-dolly me-2"></i>
+            Réception {{ reception.numero }}
+        </h2>
+        <div>
+            <a href="{% url 'gestion_achats:reception_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+            </a>
+            {% is_admin_gac user as is_admin %}
+            {% if is_admin and reception.statut == 'BROUILLON' %}
+            <a href="{% url 'gestion_achats:reception_update' reception.uuid %}" class="btn btn-warning">
+                <i class="fas fa-edit me-2"></i>Modifier
+            </a>
+            <a href="{% url 'gestion_achats:reception_valider' reception.uuid %}" class="btn btn-success">
+                <i class="fas fa-check me-2"></i>Valider
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Informations principales -->
+        <div class="col-md-8">
+            <!-- Informations générales -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Informations générales
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="text-muted small">N° Réception</label>
+                            <div><strong>{{ reception.numero }}</strong></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small">Date de réception</label>
+                            <div><strong>{{ reception.date_reception|date:"d/m/Y" }}</strong></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small">Statut</label>
+                            <div>
+                                {% if reception.statut == 'BROUILLON' %}
+                                <span class="badge bg-warning">Brouillon</span>
+                                {% elif reception.statut == 'VALIDEE' %}
+                                <span class="badge bg-success">Validée</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small">Bon de commande</label>
+                            <div>
+                                <a href="{% url 'gestion_achats:bon_commande_detail' reception.bon_commande.uuid %}">
+                                    <strong>{{ reception.bon_commande.numero }}</strong>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Fournisseur</label>
+                            <div>
+                                <a href="{% url 'gestion_achats:fournisseur_detail' reception.bon_commande.fournisseur.uuid %}">
+                                    <strong>{{ reception.bon_commande.fournisseur.raison_sociale }}</strong>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small">Réceptionnaire</label>
+                            <div>
+                                <i class="fas fa-user me-1"></i>
+                                <strong>{{ reception.receptionnaire.get_full_name }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">N° BL Fournisseur</label>
+                            <div><strong>{{ reception.bon_livraison_fournisseur|default:"-" }}</strong></div>
+                        </div>
+                    </div>
+                    {% if reception.commentaire %}
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="text-muted small">Commentaire</label>
+                            <div>{{ reception.commentaire }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Détail des lignes reçues -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Détail de la réception
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if reception.lignes.all %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Article</th>
+                                    <th class="text-end">Qté commandée</th>
+                                    <th class="text-end">Qté reçue</th>
+                                    <th class="text-end">Qté acceptée</th>
+                                    <th class="text-end">Qté refusée</th>
+                                    <th>Motif refus</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ligne in reception.lignes.all %}
+                                <tr>
+                                    <td>
+                                        {% if ligne.ligne_bon_commande.article %}
+                                        {{ ligne.ligne_bon_commande.article.designation }}
+                                        {% else %}
+                                        {{ ligne.ligne_bon_commande.designation }}
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">{{ ligne.ligne_bon_commande.quantite_commandee }}</td>
+                                    <td class="text-end"><strong>{{ ligne.quantite_recue }}</strong></td>
+                                    <td class="text-end">
+                                        <span class="badge bg-success">{{ ligne.quantite_acceptee }}</span>
+                                    </td>
+                                    <td class="text-end">
+                                        {% if ligne.quantite_refusee > 0 %}
+                                        <span class="badge bg-danger">{{ ligne.quantite_refusee }}</span>
+                                        {% else %}
+                                        <span class="text-muted">0</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if ligne.motif_refus %}
+                                        <small>{{ ligne.motif_refus }}</small>
+                                        {% else %}
+                                        <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <th>Totaux</th>
+                                    <th class="text-end">{{ totaux.commandee }}</th>
+                                    <th class="text-end"><strong>{{ totaux.recue }}</strong></th>
+                                    <th class="text-end"><strong class="text-success">{{ totaux.acceptee }}</strong></th>
+                                    <th class="text-end"><strong class="text-danger">{{ totaux.refusee }}</strong></th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center mb-0">
+                        <em>Aucune ligne de réception</em>
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Comparaison avec le BC -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-balance-scale me-2"></i>
+                        État de réception du bon de commande
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Article</th>
+                                    <th class="text-end">Qté commandée</th>
+                                    <th class="text-end">Qté totale reçue</th>
+                                    <th class="text-end">Reste à recevoir</th>
+                                    <th class="text-center">État</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ligne_bc in reception.bon_commande.lignes.all %}
+                                {% with reste=ligne_bc.quantite_commandee|add:"-"|add:ligne_bc.quantite_recue %}
+                                <tr>
+                                    <td>
+                                        {% if ligne_bc.article %}
+                                        {{ ligne_bc.article.designation }}
+                                        {% else %}
+                                        {{ ligne_bc.designation }}
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">{{ ligne_bc.quantite_commandee }}</td>
+                                    <td class="text-end"><strong>{{ ligne_bc.quantite_recue }}</strong></td>
+                                    <td class="text-end">{{ reste }}</td>
+                                    <td class="text-center">
+                                        {% if ligne_bc.quantite_recue >= ligne_bc.quantite_commandee %}
+                                        <span class="badge bg-success">Complet</span>
+                                        {% elif ligne_bc.quantite_recue > 0 %}
+                                        <span class="badge bg-warning">Partiel</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">Non reçu</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endwith %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <!-- Validation -->
+            {% if reception.statut == 'VALIDEE' %}
+            <div class="card mb-4 border-success">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Validation
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="text-muted small">Validée le</label>
+                        <div><strong>{{ reception.date_validation|date:"d/m/Y à H:i" }}</strong></div>
+                    </div>
+                    <div>
+                        <label class="text-muted small">Validée par</label>
+                        <div>
+                            <i class="fas fa-user me-1"></i>
+                            <strong>{{ reception.validateur.get_full_name }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="card mb-4 border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        En attente de validation
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p>Cette réception est encore en brouillon.</p>
+                    {% if is_admin %}
+                    <a href="{% url 'gestion_achats:reception_valider' reception.uuid %}" class="btn btn-success w-100">
+                        <i class="fas fa-check me-2"></i>Valider la réception
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Métadonnées -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Informations système
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="text-muted small">Créée le</label>
+                        <div><strong>{{ reception.date_creation|date:"d/m/Y à H:i" }}</strong></div>
+                    </div>
+                    <div>
+                        <label class="text-muted small">Dernière modification</label>
+                        <div><strong>{{ reception.date_modification|date:"d/m/Y à H:i" }}</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historique -->
+            {% if historique %}
+            {% include 'gestion_achats/includes/historique.html' %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+{% endblock %}

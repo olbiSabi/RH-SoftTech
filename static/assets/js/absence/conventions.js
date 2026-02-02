@@ -193,11 +193,8 @@ function saveConvention() {
 
 // ===== SUPPRESSION =====
 
-function deleteConvention(conventionId, conventionNom) {
-    if (!confirm(`Êtes-vous sûr de vouloir supprimer la convention "${conventionNom}" ?\n\nCette action est irréversible.`)) {
-        return;
-    }
-
+// Fonction appelée par la modale après confirmation
+function deleteConventionConfirmed(conventionId) {
     $.ajax({
         url: `/absence/api/convention/${conventionId}/delete/`,
         type: 'POST',
@@ -212,6 +209,9 @@ function deleteConvention(conventionId, conventionNom) {
         }
     });
 }
+
+// Note: La fonction deleteConvention() est maintenant définie dans le template
+// pour ouvrir la modale de confirmation personnalisée
 
 // ===== ACTIVATION/DÉSACTIVATION =====
 

@@ -1,0 +1,256 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    {% include 'gestion_achats/includes/breadcrumb.html' with breadcrumb_items=breadcrumb_items %}
+
+    <!-- Messages -->
+    {% include 'gestion_achats/includes/messages.html' %}
+
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-wallet me-2"></i>
+                        {% if budget %}
+                            Modifier le budget {{ budget.code }}
+                        {% else %}
+                            Nouveau budget
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="budgetForm">
+                        {% csrf_token %}
+
+                        <!-- Informations générales -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-info-circle me-2"></i>Informations générales
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.code.label_tag }}
+                                    {{ form.code }}
+                                    {% if form.code.errors %}
+                                    <div class="text-danger small">{{ form.code.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">
+                                        Code unique pour identifier le budget.
+                                    </small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.libelle.label_tag }}
+                                    {{ form.libelle }}
+                                    {% if form.libelle.errors %}
+                                    <div class="text-danger small">{{ form.libelle.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    {{ form.description.label_tag }}
+                                    {{ form.description }}
+                                    {% if form.description.errors %}
+                                    <div class="text-danger small">{{ form.description.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Montants -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-euro-sign me-2"></i>Montants
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    {{ form.montant_initial.label_tag }}
+                                    {{ form.montant_initial }}
+                                    {% if form.montant_initial.errors %}
+                                    <div class="text-danger small">{{ form.montant_initial.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                {% if budget %}
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">Montant engagé</label>
+                                    <input type="text" class="form-control" value="{{ budget.montant_engage|floatformat:2 }} €" readonly>
+                                    <small class="form-text text-muted">Calculé automatiquement</small>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">Montant commandé</label>
+                                    <input type="text" class="form-control" value="{{ budget.montant_commande|floatformat:2 }} €" readonly>
+                                    <small class="form-text text-muted">Calculé automatiquement</small>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">Montant consommé</label>
+                                    <input type="text" class="form-control" value="{{ budget.montant_consomme|floatformat:2 }} €" readonly>
+                                    <small class="form-text text-muted">Calculé automatiquement</small>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Période -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-calendar me-2"></i>Période
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    {{ form.exercice.label_tag }}
+                                    {{ form.exercice }}
+                                    {% if form.exercice.errors %}
+                                    <div class="text-danger small">{{ form.exercice.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    {{ form.date_debut.label_tag }}
+                                    {{ form.date_debut }}
+                                    {% if form.date_debut.errors %}
+                                    <div class="text-danger small">{{ form.date_debut.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    {{ form.date_fin.label_tag }}
+                                    {{ form.date_fin }}
+                                    {% if form.date_fin.errors %}
+                                    <div class="text-danger small">{{ form.date_fin.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Responsabilité -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-user-shield me-2"></i>Responsabilité
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.gestionnaire.label_tag }}
+                                    {{ form.gestionnaire }}
+                                    {% if form.gestionnaire.errors %}
+                                    <div class="text-danger small">{{ form.gestionnaire.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">
+                                        Personne responsable de la gestion de ce budget.
+                                    </small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.departement.label_tag }}
+                                    {{ form.departement }}
+                                    {% if form.departement.errors %}
+                                    <div class="text-danger small">{{ form.departement.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">
+                                        Département auquel ce budget est rattaché (optionnel).
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Seuils d'alerte -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-bell me-2"></i>Seuils d'alerte
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.seuil_alerte_1.label_tag }}
+                                    <div class="input-group">
+                                        {{ form.seuil_alerte_1 }}
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                    {% if form.seuil_alerte_1.errors %}
+                                    <div class="text-danger small">{{ form.seuil_alerte_1.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">
+                                        Premier niveau d'alerte (généralement 80%).
+                                    </small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.seuil_alerte_2.label_tag }}
+                                    <div class="input-group">
+                                        {{ form.seuil_alerte_2 }}
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                    {% if form.seuil_alerte_2.errors %}
+                                    <div class="text-danger small">{{ form.seuil_alerte_2.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">
+                                        Second niveau d'alerte (généralement 95%).
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Note d'information -->
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            {% if budget %}
+                                Les montants engagé, commandé et consommé sont calculés automatiquement à partir des demandes et bons de commande.
+                            {% else %}
+                                Le budget sera créé. Les montants engagé, commandé et consommé seront calculés automatiquement.
+                            {% endif %}
+                        </div>
+
+                        <!-- Boutons d'action -->
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% if budget %}{% url 'gestion_achats:budget_detail' budget.uuid %}{% else %}{% url 'gestion_achats:budget_list' %}{% endif %}"
+                               class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                {% if budget %}Enregistrer les modifications{% else %}Créer le budget{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+<script>
+    // Validation du formulaire
+    document.getElementById('budgetForm').addEventListener('submit', function(e) {
+        const montantInitial = parseFloat(document.querySelector('[name="montant_initial"]').value);
+        const seuilAlerte1 = parseFloat(document.querySelector('[name="seuil_alerte_1"]').value);
+        const seuilAlerte2 = parseFloat(document.querySelector('[name="seuil_alerte_2"]').value);
+
+        if (montantInitial <= 0) {
+            e.preventDefault();
+            alert('Le montant initial doit être supérieur à 0.');
+            return false;
+        }
+
+        if (seuilAlerte1 >= seuilAlerte2) {
+            e.preventDefault();
+            alert('Le seuil d\'alerte 1 doit être inférieur au seuil d\'alerte 2.');
+            return false;
+        }
+
+        // Validation des dates
+        const dateDebut = new Date(document.querySelector('[name="date_debut"]').value);
+        const dateFin = new Date(document.querySelector('[name="date_fin"]').value);
+
+        if (dateFin <= dateDebut) {
+            e.preventDefault();
+            alert('La date de fin doit être postérieure à la date de début.');
+            return false;
+        }
+    });
+</script>
+{% endblock %}

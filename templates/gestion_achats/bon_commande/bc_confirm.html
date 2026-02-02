@@ -1,0 +1,59 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Confirmation d'action
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Voulez-vous vraiment {{ action }} ce bon de commande ?</strong>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6>Bon de commande concerné :</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Numéro :</strong> {{ bc.numero }}</li>
+                            <li><strong>Fournisseur :</strong> {{ bc.fournisseur.raison_sociale }}</li>
+                            <li><strong>Montant TTC :</strong> {{ bc.montant_total_ttc|floatformat:2 }} €</li>
+                            <li><strong>Statut actuel :</strong>
+                                <span class="badge bg-{{ bc.get_statut_badge_class }}">
+                                    {{ bc.get_statut_display }}
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'gestion_achats:bon_commande_detail' bc.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-check me-2"></i>Confirmer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,250 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+<style>
+    .rating-stars {
+        font-size: 2.5rem;
+        cursor: pointer;
+    }
+    .rating-stars .fa-star {
+        color: #ddd;
+        transition: color 0.2s;
+    }
+    .rating-stars .fa-star.selected {
+        color: #ffc107;
+    }
+    .rating-stars .fa-star:hover {
+        color: #ffc107;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    {% include 'gestion_achats/includes/breadcrumb.html' with breadcrumb_items=breadcrumb_items %}
+
+    <!-- Messages -->
+    {% include 'gestion_achats/includes/messages.html' %}
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-star me-2"></i>
+                        Évaluer le fournisseur {{ fournisseur.raison_sociale }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Informations du fournisseur -->
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Informations du fournisseur</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Code :</strong> {{ fournisseur.code }}</p>
+                                <p><strong>Raison sociale :</strong> {{ fournisseur.raison_sociale }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Évaluation actuelle :</strong></p>
+                                <div class="mb-2">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= fournisseur.evaluation_moyenne %}
+                                        <i class="fas fa-star text-warning fa-2x"></i>
+                                        {% else %}
+                                        <i class="far fa-star text-muted fa-2x"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <p class="text-muted">{{ fournisseur.evaluation_moyenne }}/5.00</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulaire d'évaluation -->
+                    <form method="post" id="evaluationForm">
+                        {% csrf_token %}
+
+                        <!-- Critères d'évaluation -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">Critères d'évaluation</h6>
+
+                            <!-- Qualité des produits -->
+                            <div class="mb-4">
+                                <label class="form-label">
+                                    <strong>1. Qualité des produits/services</strong>
+                                </label>
+                                <div class="rating-stars" data-rating="qualite_produits">
+                                    <i class="fas fa-star" data-value="1"></i>
+                                    <i class="fas fa-star" data-value="2"></i>
+                                    <i class="fas fa-star" data-value="3"></i>
+                                    <i class="fas fa-star" data-value="4"></i>
+                                    <i class="fas fa-star" data-value="5"></i>
+                                </div>
+                                <input type="hidden" name="qualite_produits" id="qualite_produits" value="0">
+                            </div>
+
+                            <!-- Respect des délais -->
+                            <div class="mb-4">
+                                <label class="form-label">
+                                    <strong>2. Respect des délais de livraison</strong>
+                                </label>
+                                <div class="rating-stars" data-rating="respect_delais">
+                                    <i class="fas fa-star" data-value="1"></i>
+                                    <i class="fas fa-star" data-value="2"></i>
+                                    <i class="fas fa-star" data-value="3"></i>
+                                    <i class="fas fa-star" data-value="4"></i>
+                                    <i class="fas fa-star" data-value="5"></i>
+                                </div>
+                                <input type="hidden" name="respect_delais" id="respect_delais" value="0">
+                            </div>
+
+                            <!-- Service client -->
+                            <div class="mb-4">
+                                <label class="form-label">
+                                    <strong>3. Qualité du service client</strong>
+                                </label>
+                                <div class="rating-stars" data-rating="service_client">
+                                    <i class="fas fa-star" data-value="1"></i>
+                                    <i class="fas fa-star" data-value="2"></i>
+                                    <i class="fas fa-star" data-value="3"></i>
+                                    <i class="fas fa-star" data-value="4"></i>
+                                    <i class="fas fa-star" data-value="5"></i>
+                                </div>
+                                <input type="hidden" name="service_client" id="service_client" value="0">
+                            </div>
+
+                            <!-- Rapport qualité/prix -->
+                            <div class="mb-4">
+                                <label class="form-label">
+                                    <strong>4. Rapport qualité/prix</strong>
+                                </label>
+                                <div class="rating-stars" data-rating="rapport_qualite_prix">
+                                    <i class="fas fa-star" data-value="1"></i>
+                                    <i class="fas fa-star" data-value="2"></i>
+                                    <i class="fas fa-star" data-value="3"></i>
+                                    <i class="fas fa-star" data-value="4"></i>
+                                    <i class="fas fa-star" data-value="5"></i>
+                                </div>
+                                <input type="hidden" name="rapport_qualite_prix" id="rapport_qualite_prix" value="0">
+                            </div>
+                        </div>
+
+                        <!-- Commentaire -->
+                        <div class="mb-4">
+                            <label for="commentaire" class="form-label">
+                                <strong>Commentaire (optionnel)</strong>
+                            </label>
+                            <textarea name="commentaire"
+                                      id="commentaire"
+                                      class="form-control"
+                                      rows="4"
+                                      placeholder="Ajoutez des remarques ou observations..."></textarea>
+                        </div>
+
+                        <!-- Note moyenne calculée -->
+                        <div class="mb-4 p-3 bg-light rounded">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>Note moyenne :</strong>
+                                <h3 class="mb-0">
+                                    <span id="note_moyenne">0.00</span> / 5.00
+                                </h3>
+                            </div>
+                        </div>
+
+                        <!-- Boutons d'action -->
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'gestion_achats:fournisseur_detail' fournisseur.uuid %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-info">
+                                <i class="fas fa-star me-2"></i>Enregistrer l'évaluation
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+<script>
+    // Gestion du système d'étoiles
+    document.querySelectorAll('.rating-stars').forEach(function(ratingDiv) {
+        const stars = ratingDiv.querySelectorAll('.fa-star');
+        const ratingName = ratingDiv.getAttribute('data-rating');
+        const hiddenInput = document.getElementById(ratingName);
+
+        stars.forEach(function(star) {
+            // Hover effect
+            star.addEventListener('mouseenter', function() {
+                const value = parseInt(this.getAttribute('data-value'));
+                stars.forEach(function(s, index) {
+                    if (index < value) {
+                        s.classList.add('selected');
+                    } else {
+                        s.classList.remove('selected');
+                    }
+                });
+            });
+
+            // Click to set rating
+            star.addEventListener('click', function() {
+                const value = parseInt(this.getAttribute('data-value'));
+                hiddenInput.value = value;
+
+                stars.forEach(function(s) {
+                    s.classList.remove('selected');
+                });
+                for (let i = 0; i < value; i++) {
+                    stars[i].classList.add('selected');
+                }
+
+                calculateAverage();
+            });
+        });
+
+        // Reset on mouse leave
+        ratingDiv.addEventListener('mouseleave', function() {
+            const currentValue = parseInt(hiddenInput.value);
+            stars.forEach(function(s, index) {
+                if (index < currentValue) {
+                    s.classList.add('selected');
+                } else {
+                    s.classList.remove('selected');
+                }
+            });
+        });
+    });
+
+    // Calculer la moyenne
+    function calculateAverage() {
+        const qualite = parseInt(document.getElementById('qualite_produits').value) || 0;
+        const delais = parseInt(document.getElementById('respect_delais').value) || 0;
+        const service = parseInt(document.getElementById('service_client').value) || 0;
+        const prix = parseInt(document.getElementById('rapport_qualite_prix').value) || 0;
+
+        const moyenne = (qualite + delais + service + prix) / 4;
+        document.getElementById('note_moyenne').textContent = moyenne.toFixed(2);
+    }
+
+    // Validation du formulaire
+    document.getElementById('evaluationForm').addEventListener('submit', function(e) {
+        const qualite = parseInt(document.getElementById('qualite_produits').value);
+        const delais = parseInt(document.getElementById('respect_delais').value);
+        const service = parseInt(document.getElementById('service_client').value);
+        const prix = parseInt(document.getElementById('rapport_qualite_prix').value);
+
+        if (qualite === 0 || delais === 0 || service === 0 || prix === 0) {
+            e.preventDefault();
+            alert('Veuillez évaluer tous les critères (1 à 5 étoiles).');
+            return false;
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,195 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% load gac_permissions %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    {% include 'gestion_achats/includes/breadcrumb.html' with breadcrumb_items=breadcrumb_items %}
+
+    <!-- Messages -->
+    {% include 'gestion_achats/includes/messages.html' %}
+
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-box me-2"></i>
+            Catalogue des articles
+        </h2>
+        {% is_admin_gac user as is_admin %}
+        {% if is_admin %}
+        <div>
+            <a href="{% url 'gestion_achats:categorie_list' %}" class="btn btn-info">
+                <i class="fas fa-tags me-2"></i>Gérer les catégories
+            </a>
+            <a href="{% url 'gestion_achats:article_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus-circle me-2"></i>Nouvel article
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Filtres -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label for="search" class="form-label">Recherche</label>
+                    <input type="text" class="form-control" id="search" name="search"
+                           placeholder="Référence, désignation..." value="{{ request.GET.search }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="categorie" class="form-label">Catégorie</label>
+                    <select class="form-select" id="categorie" name="categorie">
+                        <option value="">Toutes</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if request.GET.categorie == cat.id|stringformat:"s" %}selected{% endif %}>
+                            {{ cat.get_chemin_complet }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="statut" class="form-label">Statut</label>
+                    <select class="form-select" id="statut" name="statut">
+                        <option value="">Tous</option>
+                        <option value="ACTIF" {% if request.GET.statut == 'ACTIF' %}selected{% endif %}>Actif</option>
+                        <option value="INACTIF" {% if request.GET.statut == 'INACTIF' %}selected{% endif %}>Inactif</option>
+                        <option value="OBSOLETE" {% if request.GET.statut == 'OBSOLETE' %}selected{% endif %}>Obsolète</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="fournisseur" class="form-label">Fournisseur</label>
+                    <select class="form-select" id="fournisseur" name="fournisseur">
+                        <option value="">Tous</option>
+                        {% for f in fournisseurs %}
+                        <option value="{{ f.id }}" {% if request.GET.fournisseur == f.id|stringformat:"s" %}selected{% endif %}>
+                            {{ f.raison_sociale }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-search me-1"></i>Rechercher
+                    </button>
+                    <a href="?" class="btn btn-secondary">
+                        <i class="fas fa-redo me-1"></i>Réinitialiser
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            {% include 'gestion_achats/includes/stats_card.html' with title="Total articles" value=stats.total icon="box" color="primary" %}
+        </div>
+        <div class="col-md-3">
+            {% include 'gestion_achats/includes/stats_card.html' with title="Actifs" value=stats.actifs icon="check-circle" color="success" %}
+        </div>
+        <div class="col-md-3">
+            {% include 'gestion_achats/includes/stats_card.html' with title="Inactifs" value=stats.inactifs icon="ban" color="warning" %}
+        </div>
+        <div class="col-md-3">
+            {% include 'gestion_achats/includes/stats_card.html' with title="Catégories" value=stats.nb_categories icon="tags" color="info" %}
+        </div>
+    </div>
+
+    <!-- Liste des articles -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Référence</th>
+                            <th>Désignation</th>
+                            <th>Catégorie</th>
+                            <th>Unité</th>
+                            <th class="text-end">Prix HT</th>
+                            <th class="text-end">Prix TTC</th>
+                            <th>Fournisseurs</th>
+                            <th>Statut</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for article in page_obj %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'gestion_achats:article_detail' article.uuid %}">
+                                    <strong>{{ article.reference }}</strong>
+                                </a>
+                            </td>
+                            <td>{{ article.designation }}</td>
+                            <td>
+                                <span class="badge bg-light text-dark">
+                                    {{ article.categorie.nom }}
+                                </span>
+                            </td>
+                            <td>{{ article.get_unite_display }}</td>
+                            <td class="text-end">{{ article.prix_unitaire|floatformat:2 }} €</td>
+                            <td class="text-end">
+                                <strong>{{ article.calculer_prix_ttc|floatformat:2 }} €</strong>
+                            </td>
+                            <td>
+                                {% if article.fournisseurs.count > 0 %}
+                                <span class="badge bg-info">{{ article.fournisseurs.count }}</span>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if article.statut == 'ACTIF' %}
+                                <span class="badge bg-success">Actif</span>
+                                {% elif article.statut == 'INACTIF' %}
+                                <span class="badge bg-warning">Inactif</span>
+                                {% elif article.statut == 'OBSOLETE' %}
+                                <span class="badge bg-secondary">Obsolète</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'gestion_achats:article_detail' article.uuid %}"
+                                       class="btn btn-sm btn-primary"
+                                       title="Voir le détail">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if is_admin %}
+                                    <a href="{% url 'gestion_achats:article_update' article.uuid %}"
+                                       class="btn btn-sm btn-warning"
+                                       title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-4">
+                                <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                                <em>Aucun article trouvé</em>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% include 'gestion_achats/includes/pagination.html' %}
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+{% endblock %}

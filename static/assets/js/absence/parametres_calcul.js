@@ -233,6 +233,29 @@ function deleteParametre(parametreId, conventionNom) {
     });
 }
 
+/**
+ * Supprimer un paramètre sans confirmation (appelé par le modal)
+ */
+function deleteParametreConfirmed(parametreId) {
+    $.ajax({
+        url: `/absence/api/parametre-calcul/${parametreId}/delete/`,
+        type: 'POST',
+        data: {
+            csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
+        },
+        success: function(response) {
+            if (response.success) {
+                window.location.reload();
+            } else {
+                showErrorMessage(response.error || 'Erreur lors de la suppression');
+            }
+        },
+        error: function(xhr) {
+            showErrorMessage(xhr.responseJSON?.error || 'Erreur lors de la suppression');
+        }
+    });
+}
+
 // ===== GESTION DES ERREURS =====
 
 /**

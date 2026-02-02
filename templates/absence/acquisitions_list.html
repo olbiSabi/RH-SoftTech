@@ -428,6 +428,110 @@
     </div>
 </section>
 
+<!-- Modal Confirmation Calcul Acquisitions -->
+<div id="modalCalculAcquisitions" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-content" style="background-color: #fff; margin: 10% auto; padding: 0; border-radius: 8px; max-width: 500px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div class="modal-header" style="background: #28a745; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="margin: 0; font-size: 20px;">
+                <i class="fas fa-calculator"></i> Confirmer le calcul
+            </h2>
+            <span class="close" onclick="fermerModalCalcul()" style="float: right; cursor: pointer; font-size: 28px; font-weight: bold; color: white; margin-top: -30px;">&times;</span>
+        </div>
+
+        <div style="padding: 20px;">
+            <p style="margin-bottom: 15px; font-size: 16px;">
+                <strong>Calculer les acquisitions pour l'année <span id="calcul_annee"></span> ?</strong>
+            </p>
+
+            <div id="calcul_warning" style="display: none; background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                <p style="margin: 0; color: #856404;">
+                    <i class="fas fa-exclamation-triangle"></i> <strong>Les acquisitions existantes seront recalculées.</strong>
+                </p>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="fermerModalCalcul()">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+                <button type="button" class="btn btn-success" onclick="confirmerCalcul()">
+                    <i class="fas fa-calculator"></i> Calculer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Confirmation Recalcul Acquisition -->
+<div id="modalRecalculAcquisition" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-content" style="background-color: #fff; margin: 10% auto; padding: 0; border-radius: 8px; max-width: 500px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div class="modal-header" style="background: #17a2b8; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="margin: 0; font-size: 20px;">
+                <i class="fas fa-sync-alt"></i> Confirmer le recalcul
+            </h2>
+            <span class="close" onclick="fermerModalRecalcul()" style="float: right; cursor: pointer; font-size: 28px; font-weight: bold; color: white; margin-top: -30px;">&times;</span>
+        </div>
+
+        <div style="padding: 20px;">
+            <p style="margin-bottom: 15px; font-size: 16px;">
+                <strong>Recalculer cette acquisition ?</strong>
+            </p>
+
+            <div style="background: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                <p style="margin: 0; color: #0c5460;">
+                    <i class="fas fa-info-circle"></i> Les jours acquis seront recalculés selon la convention applicable.
+                </p>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="fermerModalRecalcul()">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+                <button type="button" class="btn btn-info" onclick="confirmerRecalcul()">
+                    <i class="fas fa-sync-alt"></i> Recalculer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Confirmation Suppression Acquisition -->
+<div id="modalSuppressionAcquisition" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-content" style="background-color: #fff; margin: 10% auto; padding: 0; border-radius: 8px; max-width: 500px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div class="modal-header" style="background: #dc2626; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="margin: 0; font-size: 20px;">
+                <i class="fas fa-exclamation-triangle"></i> Confirmer la suppression
+            </h2>
+            <span class="close" onclick="fermerModalSuppressionAcquisition()" style="float: right; cursor: pointer; font-size: 28px; font-weight: bold; color: white; margin-top: -30px;">&times;</span>
+        </div>
+
+        <div style="padding: 20px;">
+            <p style="margin-bottom: 15px; font-size: 16px;">
+                <strong>ATTENTION :</strong> Vous êtes sur le point de supprimer définitivement cette acquisition.
+            </p>
+
+            <div style="background: #fee2e2; border-left: 4px solid #dc2626; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                <p style="margin: 0; color: #991b1b;">
+                    <i class="fas fa-user"></i> <strong>Employé : <span id="suppression_acquisition_employe"></span></strong><br>
+                    <i class="fas fa-calendar"></i> <strong>Année : <span id="suppression_acquisition_annee"></span></strong>
+                </p>
+            </div>
+
+            <p style="color: #dc2626; font-weight: 500; margin-bottom: 20px;">
+                <i class="fas fa-info-circle"></i> Cette action est irréversible !
+            </p>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="fermerModalSuppressionAcquisition()">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+                <button type="button" class="btn btn-primary" style="background: #dc2626; border-color: #dc2626;" onclick="confirmerSuppressionAcquisition()">
+                    <i class="fas fa-trash"></i> Supprimer définitivement
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Détails -->
 <div class="modal fade" id="detailModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
@@ -535,4 +639,96 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script src="{% static 'assets/js/absence/acquisitions.js' %}"></script>
+
+<script>
+// ========================================
+// GESTION DES MODALS DE CONFIRMATION
+// ========================================
+
+// Variables globales
+let modalCalculData = null;
+let modalRecalculAcquisitionId = null;
+let modalSuppressionData = null;
+
+// Modal Calcul
+function ouvrirModalCalcul(annee, recalculer) {
+    modalCalculData = { annee, recalculer };
+    document.getElementById('calcul_annee').textContent = annee;
+
+    if (recalculer) {
+        document.getElementById('calcul_warning').style.display = 'block';
+    } else {
+        document.getElementById('calcul_warning').style.display = 'none';
+    }
+
+    document.getElementById('modalCalculAcquisitions').style.display = 'block';
+}
+
+function fermerModalCalcul() {
+    document.getElementById('modalCalculAcquisitions').style.display = 'none';
+    modalCalculData = null;
+}
+
+function confirmerCalcul() {
+    if (modalCalculData) {
+        calculerAcquisitionsConfirmed();
+        fermerModalCalcul();
+    }
+}
+
+// Modal Recalcul
+function ouvrirModalRecalcul(acquisitionId) {
+    modalRecalculAcquisitionId = acquisitionId;
+    document.getElementById('modalRecalculAcquisition').style.display = 'block';
+}
+
+function fermerModalRecalcul() {
+    document.getElementById('modalRecalculAcquisition').style.display = 'none';
+    modalRecalculAcquisitionId = null;
+}
+
+function confirmerRecalcul() {
+    if (modalRecalculAcquisitionId) {
+        executeRecalcul(modalRecalculAcquisitionId);
+        fermerModalRecalcul();
+    }
+}
+
+// Modal Suppression
+function ouvrirModalSuppressionAcquisition(acquisitionId, employeNom, annee) {
+    modalSuppressionData = { acquisitionId, employeNom, annee };
+    document.getElementById('suppression_acquisition_employe').textContent = employeNom;
+    document.getElementById('suppression_acquisition_annee').textContent = annee;
+    document.getElementById('modalSuppressionAcquisition').style.display = 'block';
+}
+
+function fermerModalSuppressionAcquisition() {
+    document.getElementById('modalSuppressionAcquisition').style.display = 'none';
+    modalSuppressionData = null;
+}
+
+function confirmerSuppressionAcquisition() {
+    if (modalSuppressionData) {
+        deleteAcquisitionConfirmed(modalSuppressionData.acquisitionId);
+        fermerModalSuppressionAcquisition();
+    }
+}
+
+// Fermer les modals en cliquant en dehors
+window.onclick = function(event) {
+    const modalCalcul = document.getElementById('modalCalculAcquisitions');
+    const modalRecalcul = document.getElementById('modalRecalculAcquisition');
+    const modalSuppression = document.getElementById('modalSuppressionAcquisition');
+
+    if (event.target === modalCalcul) {
+        fermerModalCalcul();
+    }
+    if (event.target === modalRecalcul) {
+        fermerModalRecalcul();
+    }
+    if (event.target === modalSuppression) {
+        fermerModalSuppressionAcquisition();
+    }
+};
+</script>
 {% endblock %}

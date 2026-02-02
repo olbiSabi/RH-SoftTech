@@ -690,8 +690,78 @@
     </div>
 </div>
 
+<!-- Modal Confirmation Suppression Entreprise -->
+<div id="modalSuppressionEntreprise" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-content" style="background-color: #fff; margin: 10% auto; padding: 0; border-radius: 8px; max-width: 500px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div class="modal-header" style="background: #dc2626; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="margin: 0; font-size: 20px;">
+                <i class="fas fa-exclamation-triangle"></i> Confirmer la suppression
+            </h2>
+            <span class="close" onclick="fermerModalSuppressionEntreprise()" style="float: right; cursor: pointer; font-size: 28px; font-weight: bold; color: white; margin-top: -30px;">&times;</span>
+        </div>
+
+        <div style="padding: 20px;">
+            <p style="margin-bottom: 15px; font-size: 16px;">
+                <strong>ATTENTION :</strong> Vous êtes sur le point de supprimer définitivement le profil de l'entreprise.
+            </p>
+
+            <div style="background: #fee2e2; border-left: 4px solid #dc2626; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                <p style="margin: 0; color: #991b1b;">
+                    <i class="fas fa-building"></i> <strong>Entreprise : <span id="suppression_entreprise_nom"></span></strong>
+                </p>
+            </div>
+
+            <p style="color: #dc2626; font-weight: 500; margin-bottom: 20px;">
+                <i class="fas fa-info-circle"></i> Cette action est irréversible et supprimera toutes les données de l'entreprise !
+            </p>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="fermerModalSuppressionEntreprise()">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+                <button type="button" class="btn btn-primary" style="background: #dc2626; border-color: #dc2626;" onclick="confirmerSuppressionEntreprise()">
+                    <i class="fas fa-trash"></i> Supprimer définitivement
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extrascript %}
     <script src="{% static 'assets/js/entreprise/profil_entreprise.js' %}"></script>
+    <script>
+        // Variables globales pour la suppression
+        let suppressionEntrepriseData = null;
+
+        // Fonction pour ouvrir le modal de suppression
+        function ouvrirModalSuppressionEntreprise(uuid, nom) {
+            suppressionEntrepriseData = { uuid, nom };
+            document.getElementById('suppression_entreprise_nom').textContent = nom;
+            document.getElementById('modalSuppressionEntreprise').style.display = 'block';
+        }
+
+        // Fonction pour fermer le modal de suppression
+        function fermerModalSuppressionEntreprise() {
+            document.getElementById('modalSuppressionEntreprise').style.display = 'none';
+            suppressionEntrepriseData = null;
+        }
+
+        // Fonction pour confirmer la suppression
+        function confirmerSuppressionEntreprise() {
+            if (suppressionEntrepriseData) {
+                executeDelete(suppressionEntrepriseData.uuid);
+                fermerModalSuppressionEntreprise();
+            }
+        }
+
+        // Fermer le modal en cliquant en dehors
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalSuppressionEntreprise');
+            if (event.target === modal) {
+                fermerModalSuppressionEntreprise();
+            }
+        };
+    </script>
 {% endblock %}

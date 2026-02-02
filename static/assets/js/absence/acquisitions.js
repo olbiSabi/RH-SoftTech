@@ -80,21 +80,31 @@ function initEventHandlers() {
  * Calculer les acquisitions pour une année
  */
 function calculerAcquisitions() {
-    const form = $('#calculForm');
-    const submitBtn = form.find('button[type="submit"]');
-
-    // Confirmation
     const annee = $('#id_annee_reference').val();
     const recalculer = $('#id_recalculer_existantes').is(':checked');
 
-    let message = `Calculer les acquisitions pour l'année ${annee} ?`;
-    if (recalculer) {
-        message += "\n\n⚠️ Les acquisitions existantes seront recalculées.";
+    // Ouvrir le modal personnalisé
+    if (typeof ouvrirModalCalcul === 'function') {
+        ouvrirModalCalcul(annee, recalculer);
+    } else {
+        // Fallback si le modal n'est pas disponible
+        let message = `Calculer les acquisitions pour l'année ${annee} ?`;
+        if (recalculer) {
+            message += "\n\n⚠️ Les acquisitions existantes seront recalculées.";
+        }
+        if (!confirm(message)) {
+            return;
+        }
+        calculerAcquisitionsConfirmed();
     }
+}
 
-    if (!confirm(message)) {
-        return;
-    }
+/**
+ * Calculer les acquisitions sans confirmation (appelé par le modal)
+ */
+function calculerAcquisitionsConfirmed() {
+    const form = $('#calculForm');
+    const submitBtn = form.find('button[type="submit"]');
 
     // Désactiver le bouton
     submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Calcul en cours...');
@@ -404,30 +414,33 @@ function resetEditForm() {
  * Recalculer une acquisition spécifique
  */
 function recalculerAcquisition(acquisitionId) {
-    // Vérifier que SweetAlert est disponible
-    if (typeof Swal === 'undefined') {
-        if (!confirm('Recalculer cette acquisition ?\n\nLes jours acquis seront recalculés selon la convention applicable.')) {
-            return;
-        }
+    // Ouvrir le modal personnalisé
+    if (typeof ouvrirModalRecalcul === 'function') {
+        ouvrirModalRecalcul(acquisitionId);
     } else {
-        Swal.fire({
-            title: 'Recalculer cette acquisition ?',
-            text: 'Les jours acquis seront recalculés selon la convention applicable',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#28a745',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Oui, recalculer',
-            cancelButtonText: 'Annuler'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                executeRecalcul(acquisitionId);
+        // Fallback avec SweetAlert ou confirm
+        if (typeof Swal === 'undefined') {
+            if (!confirm('Recalculer cette acquisition ?\n\nLes jours acquis seront recalculés selon la convention applicable.')) {
+                return;
             }
-        });
-        return;
+            executeRecalcul(acquisitionId);
+        } else {
+            Swal.fire({
+                title: 'Recalculer cette acquisition ?',
+                text: 'Les jours acquis seront recalculés selon la convention applicable',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Oui, recalculer',
+                cancelButtonText: 'Annuler'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    executeRecalcul(acquisitionId);
+                }
+            });
+        }
     }
-
-    executeRecalcul(acquisitionId);
 }
 
 /**
@@ -551,10 +564,22 @@ function executeRecalcul(acquisitionId) {
  * Supprimer une acquisition
  */
 function deleteAcquisition(acquisitionId, employeNom, annee) {
-    if (!confirm(`Supprimer l'acquisition de ${employeNom} pour ${annee} ?\n\nCette action est irréversible.`)) {
-        return;
+    // Ouvrir le modal personnalisé
+    if (typeof ouvrirModalSuppressionAcquisition === 'function') {
+        ouvrirModalSuppressionAcquisition(acquisitionId, employeNom, annee);
+    } else {
+        // Fallback si le modal n'est pas disponible
+        if (!confirm(`Supprimer l'acquisition de ${employeNom} pour ${annee} ?\n\nCette action est irréversible.`)) {
+            return;
+        }
+        deleteAcquisitionConfirmed(acquisitionId);
     }
+}
 
+/**
+ * Supprimer une acquisition sans confirmation (appelé par le modal)
+ */
+function deleteAcquisitionConfirmed(acquisitionId) {
     $.ajax({
         url: `/absence/api/acquisition/${acquisitionId}/delete/`,
         type: 'POST',

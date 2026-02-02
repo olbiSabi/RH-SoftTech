@@ -238,16 +238,38 @@ def reactiver_role(request, attribution_id):
 @gestion_app_required
 def modifier_role(request, attribution_id):
     """
-    Modifier une attribution de rôle
+    Modifier une attribution de rôle (dates, commentaire, et rôle)
     """
     try:
         attribution = get_object_or_404(ZYRE, pk=attribution_id)
 
+        role_id = request.POST.get('role_id')
         date_debut = request.POST.get('date_debut')
         date_fin = request.POST.get('date_fin', '').strip()
         commentaire = request.POST.get('commentaire', '').strip()
 
         with transaction.atomic():
+            # Modification du rôle si fourni
+            if role_id and str(attribution.role.pk) != str(role_id):
+                nouveau_role = get_object_or_404(ZYRO, pk=role_id)
+
+                # Vérifier qu'il n'y a pas déjà une attribution active pour ce nouveau rôle
+                existing = ZYRE.objects.filter(
+                    employe=attribution.employe,
+                    role=nouveau_role,
+                    actif=True,
+                    date_fin__isnull=True
+                ).exclude(pk=attribution.pk).exists()
+
+                if existing:
+                    return JsonResponse({
+                        'success': False,
+                        'error': f'Le rôle "{nouveau_role.LIBELLE}" est déjà actif pour cet employé'
+                    }, status=400)
+
+                attribution.role = nouveau_role
+
+            # Modification des dates
             if date_debut:
                 attribution.date_debut = date_debut
 
@@ -330,6 +352,39 @@ def supprimer_role(request, attribution_id):
                 'success': True,
                 'message': f'Attribution du rôle "{role_libelle}" supprimée pour {employe_nom}'
             })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+@login_required
+@require_http_methods(["GET"])
+@gestion_app_required
+def get_attribution_details(request, attribution_id):
+    """
+    API pour récupérer les détails d'une attribution (pour le formulaire de modification)
+    """
+    try:
+        attribution = get_object_or_404(ZYRE.objects.select_related('employe', 'role'), pk=attribution_id)
+
+        return JsonResponse({
+            'success': True,
+            'attribution': {
+                'id': str(attribution.pk),
+                'employe_nom': f"{attribution.employe.nom} {attribution.employe.prenoms}",
+                'employe_matricule': attribution.employe.matricule,
+                'role_id': attribution.role.pk,
+                'role_libelle': attribution.role.LIBELLE,
+                'role_code': attribution.role.CODE,
+                'date_debut': attribution.date_debut.strftime('%Y-%m-%d'),
+                'date_fin': attribution.date_fin.strftime('%Y-%m-%d') if attribution.date_fin else '',
+                'actif': attribution.actif,
+                'commentaire': attribution.commentaire or '',
+            }
+        })
 
     except Exception as e:
         return JsonResponse({

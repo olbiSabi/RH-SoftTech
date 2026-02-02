@@ -1,0 +1,136 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% load gac_permissions %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="fas fa-file-alt me-2"></i>
+            Demandes d'achat
+        </h1>
+
+        {% can_create_demande user as can_create %}
+        {% if can_create %}
+        <a href="{% url 'gestion_achats:demande_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Nouvelle demande
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Filtres -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Statut</label>
+                    <select name="statut" class="form-select">
+                        <option value="">Tous</option>
+                        <option value="BROUILLON" {% if statut_filter == 'BROUILLON' %}selected{% endif %}>Brouillon</option>
+                        <option value="SOUMISE" {% if statut_filter == 'SOUMISE' %}selected{% endif %}>Soumise</option>
+                        <option value="VALIDEE_N1" {% if statut_filter == 'VALIDEE_N1' %}selected{% endif %}>Validée N1</option>
+                        <option value="VALIDEE_N2" {% if statut_filter == 'VALIDEE_N2' %}selected{% endif %}>Validée N2</option>
+                        <option value="CONVERTIE_BC" {% if statut_filter == 'CONVERTIE_BC' %}selected{% endif %}>Convertie BC</option>
+                        <option value="REFUSEE" {% if statut_filter == 'REFUSEE' %}selected{% endif %}>Refusée</option>
+                        <option value="ANNULEE" {% if statut_filter == 'ANNULEE' %}selected{% endif %}>Annulée</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Recherche</label>
+                    <input type="text" name="search" class="form-control" placeholder="Numéro, objet, demandeur..." value="{{ search }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-2"></i>Filtrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Liste -->
+    <div class="card">
+        <div class="card-body">
+            {% if page_obj %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Numéro</th>
+                            <th>Date</th>
+                            <th>Objet</th>
+                            <th>Demandeur</th>
+                            <th>Montant TTC</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for demande in page_obj %}
+                        <tr>
+                            <td><strong>{{ demande.numero }}</strong></td>
+                            <td>{{ demande.date_creation|date:"d/m/Y" }}</td>
+                            <td>{{ demande.objet|truncatewords:10 }}</td>
+                            <td>{{ demande.demandeur.get_full_name }}</td>
+                            <td>{{ demande.montant_total_ttc|floatformat:2 }} €</td>
+                            <td>
+                                <span class="badge bg-{{ demande.get_statut_badge_class }}">
+                                    {{ demande.get_statut_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'gestion_achats:demande_detail' demande.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <nav>
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if statut_filter %}&statut={{ statut_filter }}{% endif %}{% if search %}&search={{ search }}{% endif %}">
+                            Précédent
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <li class="page-item disabled">
+                        <span class="page-link">Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}</span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if statut_filter %}&statut={{ statut_filter }}{% endif %}{% if search %}&search={{ search }}{% endif %}">
+                            Suivant
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Aucune demande trouvée.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-plus me-2"></i>
+                        Ajouter une ligne à la demande {{ demande.numero }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Informations de la demande -->
+                    <div class="mb-4">
+                        <p><strong>Objet :</strong> {{ demande.objet }}</p>
+                        <p><strong>Montant actuel :</strong> {{ demande.montant_total_ttc|floatformat:2 }} €</p>
+                    </div>
+
+                    <!-- Formulaire d'ajout de ligne -->
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.article.label_tag }}
+                                {{ form.article }}
+                                {% if form.article.errors %}
+                                <div class="text-danger">{{ form.article.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                {{ form.quantite.label_tag }}
+                                {{ form.quantite }}
+                                {% if form.quantite.errors %}
+                                <div class="text-danger">{{ form.quantite.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                {{ form.prix_unitaire.label_tag }}
+                                {{ form.prix_unitaire }}
+                                {% if form.prix_unitaire.errors %}
+                                <div class="text-danger">{{ form.prix_unitaire.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                {{ form.taux_tva.label_tag }}
+                                {{ form.taux_tva }}
+                                {% if form.taux_tva.errors %}
+                                <div class="text-danger">{{ form.taux_tva.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-9 mb-3">
+                                {{ form.commentaire.label_tag }}
+                                {{ form.commentaire }}
+                                {% if form.commentaire.errors %}
+                                <div class="text-danger">{{ form.commentaire.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'gestion_achats:demande_detail' demande.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Ajouter la ligne
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+{% endblock %}

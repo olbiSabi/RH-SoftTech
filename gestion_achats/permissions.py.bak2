@@ -1,0 +1,471 @@
+"""
+Système de permissions pour le module GAC (Gestion des Achats & Commandes).
+
+Ce module définit toutes les règles de permissions basées sur les rôles
+pour contrôler l'accès aux différentes fonctionnalités du module.
+"""
+
+from django.core.exceptions import PermissionDenied
+
+
+class GACPermissions:
+    """Classe pour gérer les permissions du module GAC."""
+
+    # ========== Demandes d'achat ==========
+
+    @staticmethod
+    def can_view_demande(user, demande):
+        """
+        Vérifie si l'utilisateur peut voir une demande.
+
+        Args:
+            user: L'utilisateur (ZY00)
+            demande: La demande d'achat
+
+        Returns:
+            bool: True si autorisé
+        """
+        if not user or not user.is_authenticated:
+            return False
+
+        # Admin et acheteurs peuvent voir toutes les demandes
+        if user.employe.has_role('ADMIN_GAC') or user.employe.has_role('ACHETEUR'):
+            return True
+
+        # L'utilisateur peut voir ses propres demandes
+        if demande.demandeur == user:
+            return True
+
+        # Les validateurs peuvent voir les demandes qu'ils doivent valider
+        if demande.validateur_n1 == user or demande.validateur_n2 == user:
+            return True
+
+        return False
+
+    @staticmethod
+    def can_create_demande(user):
+        """Vérifie si l'utilisateur peut créer une demande."""
+        # Tout utilisateur authentifié peut créer une demande
+        return user and user.is_authenticated
+
+    @staticmethod
+    def can_modify_demande(user, demande):
+        """Vérifie si l'utilisateur peut modifier une demande."""
+        if not user or not user.is_authenticated:
+            return False
+
+        if user.employe.has_role('ADMIN_GAC'):
+            return True
+
+        # Seul le demandeur peut modifier sa demande en brouillon
+        if demande.statut == 'BROUILLON' and demande.demandeur == user:
+            return True
+
+        return False
+
+    @staticmethod
+    def can_submit_demande(user, demande):
+        """Vérifie si l'utilisateur peut soumettre une demande."""
+        if not user or not user.is_authenticated:
+            return False
+
+        if user.employe.has_role('ADMIN_GAC'):
+            return True
+
+        # Seul le demandeur peut soumettre sa demande en brouillon
+        if demande.statut == 'BROUILLON' and demande.demandeur == user:
+            return True
+
+        return False
+
+    @staticmethod
+    def can_validate_n1(user, demande):
+        """Vérifie si l'utilisateur peut valider N1 une demande."""
+        if not user or not user.is_authenticated:
+            return False
+
+        if user.employe.has_role('ADMIN_GAC'):
+            return True
+
+        # Seul le validateur N1 assigné peut valider
+        if demande.statut == 'SOUMISE' and demande.validateur_n1 == user:
+            return True
+
+        return False
+
+    @staticmethod
+    def can_validate_n2(user, demande):
+        """Vérifie si l'utilisateur peut valider N2 une demande."""
+        if not user or not user.is_authenticated:
+            return False
+
+        if user.employe.has_role('ADMIN_GAC'):
+            return True
+
+        # Le validateur N2 assigné ou un acheteur peut valider
+        if demande.statut == 'VALIDEE_N1':
+            if demande.validateur_n2 == user or user.employe.has_role('ACHETEUR'):
+                return True
+
+        return False
+
+    @staticmethod
+    def can_refuse_demande(user, demande):
+        """Vérifie si l'utilisateur peut refuser une demande."""
+        if not user or not user.is_authenticated:
+            return False
+
+        if user.employe.has_role('ADMIN_GAC'):
+            return True
+
+        # Le validateur N1 peut refuser si demande soumise
+        if demande.statut == 'SOUMISE' and demande.validateur_n1 == user:
+            return True
+
+        # Le validateur N2 ou acheteur peut refuser si validée N1
+        if demande.statut == 'VALIDEE_N1':
+            if demande.validateur_n2 == user or user.employe.has_role('ACHETEUR'):
+                return True
+
+        return False
+
+    @staticmethod
+    def can_cancel_demande(user, demande):
+        """Vérifie si l'utilisateur peut annuler une demande."""
+        if not user or not user.is_authenticated:
+            return False
+
+        if user.employe.has_role('ADMIN_GAC'):
+            return True
+
+        # Le demandeur peut annuler sa demande si pas encore convertie en BC
+        if demande.demandeur == user and demande.statut != 'CONVERTIE_BC':
+            return True
+
+        return False
+
+    @staticmethod
+    def can_convert_to_bc(user, demande):
+        """Vérifie si l'utilisateur peut convertir une demande en BC."""
+        if not user or not user.is_authenticated:
+            return False
+
+        if demande.statut != 'VALIDEE_N2':
+            return False
+
+        return user.employe.has_role('ACHETEUR') or user.employe.has_role('ADMIN_GAC')
+
+    @staticmethod
+    def can_delete_demande(user):
+        """Vérifie si l'utilisateur peut supprimer une demande."""
+        if not user or not user.is_authenticated:
+            return False
+
+        return user.employe.has_role('ADMIN_GAC')
+
+    @staticmethod
+    def can_view_all_demandes(user):
+        """Vérifie si l'utilisateur peut voir toutes les demandes."""
+        if not user or not user.is_authenticated:
+            return False
+
+        return user.employe.has_role('ACHETEUR') or user.employe.has_role('ADMIN_GAC')
+
+    # ========== Bons de commande ==========
+
+    @staticmethod
+    def can_view_bon_commande(user, bc):
+        """Vérifie si l'utilisateur peut voir un BC."""
+        if not user or not user.is_authenticated:
+            return False
+
+        if user.employe.has_role('ADMIN_GAC') or user.employe.has_role('ACHETEUR'):
+            return True
+
+        # L'utilisateur peut voir le BC s'il est lié à une demande qu'il a créée
+        if bc.demande_achat and bc.demande_achat.demandeur == user:
+            return True
+
+        # Les réceptionnaires peuvent voir les BC
+        if user.employe.has_role('RECEPTIONNAIRE'):
+            return True
+
+        return False
+
+    @staticmethod
+    def can_create_bon_commande(user):
+        """Vérifie si l'utilisateur peut créer un BC."""
+        if not user or not user.is_authenticated:
+            return False
+
+        return user.employe.has_role('ACHETEUR') or user.employe.has_role('ADMIN_GAC')
+
+    @staticmethod
+    def can_modify_bon_commande(user, bc):
+        """Vérifie si l'utilisateur peut modifier un BC."""
+        if not user or not user.is_authenticated:
+            return False
+
+        if bc.statut != 'BROUILLON':
+            return False
+
+        return user.employe.has_role('ACHETEUR') or user.employe.has_role('ADMIN_GAC')
+
+    @staticmethod
+    def can_emit_bon_commande(user, bc):
+        """Vérifie si l'utilisateur peut émettre un BC."""
+        if not user or not user.is_authenticated:
+            return False
+
+        if bc.statut != 'BROUILLON':
+            return False
+
+        return user.employe.has_role('ACHETEUR') or user.employe.has_role('ADMIN_GAC')
+
+    @staticmethod
+    def can_send_bon_commande(user, bc):
+        """Vérifie si l'utilisateur peut envoyer un BC."""
+        if not user or not user.is_authenticated:
+            return False
+
+        if bc.statut != 'EMIS':
+            return False
+
+        return user.employe.has_role('ACHETEUR') or user.employe.has_role('ADMIN_GAC')
+
+    @staticmethod
+    def can_confirm_bon_commande(user, bc):
+        """Vérifie si l'utilisateur peut confirmer un BC."""
+        if not user or not user.is_authenticated:
+            return False
+
+        if bc.statut != 'ENVOYE':
+            return False
+
+        return user.employe.has_role('ACHETEUR') or user.employe.has_role('ADMIN_GAC')
+
+    @staticmethod
+    def can_cancel_bon_commande(user, bc):
+        """Vérifie si l'utilisateur peut annuler un BC."""
+        if not user or not user.is_authenticated:
+            return False
+
+        if bc.statut in ['RECU_COMPLET', 'RECU_PARTIEL']:
+            return False
+
+        return user.employe.has_role('ACHETEUR') or user.employe.has_role('ADMIN_GAC')
+
+    @staticmethod
+    def can_download_pdf(user, bc):
+        """Vérifie si l'utilisateur peut télécharger le PDF d'un BC."""
+        return GACPermissions.can_view_bon_commande(user, bc)
+
+    @staticmethod
+    def can_delete_bon_commande(user):
+        """Vérifie si l'utilisateur peut supprimer un BC."""
+        if not user or not user.is_authenticated:
+            return False
+
+        return user.employe.has_role('ADMIN_GAC')
+
+    @staticmethod
+    def can_view_all_bons_commande(user):
+        """Vérifie si l'utilisateur peut voir tous les BCs."""
+        if not user or not user.is_authenticated:
+            return False
+
+        return user.employe.has_role('ACHETEUR') or user.employe.has_role('ADMIN_GAC')
+
+    # ========== Fournisseurs ==========
+
+    @staticmethod
+    def can_view_fournisseur(user):
+        """Vérifie si l'utilisateur peut voir les fournisseurs."""
+        # Tous les utilisateurs authentifiés peuvent voir les fournisseurs
+        return user and user.is_authenticated
+
+    @staticmethod
+    def can_create_fournisseur(user):
+        """Vérifie si l'utilisateur peut créer un fournisseur."""
+        if not user or not user.is_authenticated:
+            return False
+
+        return user.employe.has_role('ACHETEUR') or user.employe.has_role('ADMIN_GAC')
+
+    @staticmethod
+    def can_modify_fournisseur(user):
+        """Vérifie si l'utilisateur peut modifier un fournisseur."""
+        if not user or not user.is_authenticated:
+            return False
+
+        return user.employe.has_role('ACHETEUR') or user.employe.has_role('ADMIN_GAC')
+
+    @staticmethod
+    def can_evaluate_fournisseur(user):
+        """Vérifie si l'utilisateur peut évaluer un fournisseur."""
+        if not user or not user.is_authenticated:
+            return False
+
+        return user.employe.has_role('ACHETEUR') or user.employe.has_role('ADMIN_GAC')
+
+    @staticmethod
+    def can_delete_fournisseur(user):
+        """Vérifie si l'utilisateur peut supprimer un fournisseur."""
+        if not user or not user.is_authenticated:
+            return False
+
+        return user.employe.has_role('ADMIN_GAC')
+
+    # ========== Réceptions ==========
+
+    @staticmethod
+    def can_view_reception(user, reception):
+        """Vérifie si l'utilisateur peut voir une réception."""
+        if not user or not user.is_authenticated:
+            return False
+
+        if user.employe.has_role('ADMIN_GAC') or user.employe.has_role('ACHETEUR'):
+            return True
+
+        if user.employe.has_role('RECEPTIONNAIRE'):
+            return True
+
+        # Peut voir si BC lié à sa demande
+        bc = reception.bon_commande
+        if bc.demande_achat and bc.demande_achat.demandeur == user:
+            return True
+
+        return False
+
+    @staticmethod
+    def can_create_reception(user):
+        """Vérifie si l'utilisateur peut créer une réception."""
+        if not user or not user.is_authenticated:
+            return False
+
+        return (user.employe.has_role('RECEPTIONNAIRE') or
+                user.employe.has_role('ACHETEUR') or
+                user.employe.has_role('ADMIN_GAC'))
+
+    @staticmethod
+    def can_modify_reception(user, reception):
+        """Vérifie si l'utilisateur peut modifier une réception."""
+        if not user or not user.is_authenticated:
+            return False
+
+        if reception.statut != 'BROUILLON':
+            return False
+
+        return (user.employe.has_role('RECEPTIONNAIRE') or
+                user.employe.has_role('ACHETEUR') or
+                user.employe.has_role('ADMIN_GAC'))
+
+    @staticmethod
+    def can_validate_reception(user, reception):
+        """Vérifie si l'utilisateur peut valider une réception."""
+        if not user or not user.is_authenticated:
+            return False
+
+        if reception.statut != 'BROUILLON':
+            return False
+
+        return (user.employe.has_role('RECEPTIONNAIRE') or
+                user.employe.has_role('ACHETEUR') or
+                user.employe.has_role('ADMIN_GAC'))
+
+    @staticmethod
+    def can_cancel_reception(user):
+        """Vérifie si l'utilisateur peut annuler une réception."""
+        if not user or not user.is_authenticated:
+            return False
+
+        return (user.employe.has_role('ACHETEUR') or
+                user.employe.has_role('ADMIN_GAC'))
+
+    # ========== Catalogue ==========
+
+    @staticmethod
+    def can_view_catalogue(user):
+        """Vérifie si l'utilisateur peut voir le catalogue."""
+        return user and user.is_authenticated
+
+    @staticmethod
+    def can_manage_catalogue(user):
+        """Vérifie si l'utilisateur peut gérer le catalogue (créer/modifier articles et catégories)."""
+        if not user or not user.is_authenticated:
+            return False
+
+        return user.employe.has_role('ACHETEUR') or user.employe.has_role('ADMIN_GAC')
+
+    # ========== Budgets ==========
+
+    @staticmethod
+    def can_view_budget(user, budget):
+        """Vérifie si l'utilisateur peut voir un budget."""
+        if not user or not user.is_authenticated:
+            return False
+
+        if user.employe.has_role('ADMIN_GAC') or user.employe.has_role('ACHETEUR'):
+            return True
+
+        # Peut voir si gestionnaire du budget
+        if budget.gestionnaire == user:
+            return True
+
+        # Peut voir si une de ses demandes est liée
+        from gestion_achats.models import GACDemandeAchat
+        if GACDemandeAchat.objects.filter(budget=budget, demandeur=user).exists():
+            return True
+
+        return False
+
+    @staticmethod
+    def can_create_budget(user):
+        """Vérifie si l'utilisateur peut créer un budget."""
+        if not user or not user.is_authenticated:
+            return False
+
+        return user.employe.has_role('GESTIONNAIRE_BUDGET') or user.employe.has_role('ADMIN_GAC')
+
+    @staticmethod
+    def can_modify_budget(user, budget):
+        """Vérifie si l'utilisateur peut modifier un budget."""
+        if not user or not user.is_authenticated:
+            return False
+
+        if user.employe.has_role('ADMIN_GAC'):
+            return True
+
+        # Peut modifier si gestionnaire du budget
+        if budget.gestionnaire == user and user.employe.has_role('GESTIONNAIRE_BUDGET'):
+            return True
+
+        return False
+
+    @staticmethod
+    def can_view_all_budgets(user):
+        """Vérifie si l'utilisateur peut voir tous les budgets."""
+        if not user or not user.is_authenticated:
+            return False
+
+        return user.employe.has_role('ACHETEUR') or user.employe.has_role('ADMIN_GAC')
+
+
+# ========== Fonction helper ==========
+
+def require_permission(permission_func, *args):
+    """
+    Vérifie une permission et lève PermissionDenied si refusée.
+
+    Args:
+        permission_func: La fonction de permission à vérifier
+        *args: Arguments à passer à la fonction
+
+    Raises:
+        PermissionDenied: Si la permission est refusée
+
+    Usage:
+        require_permission(GACPermissions.can_view_demande, request.user, demande)
+    """
+    if not permission_func(*args):
+        raise PermissionDenied("Vous n'avez pas la permission d'effectuer cette action.")

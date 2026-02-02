@@ -1,0 +1,189 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% load gac_permissions %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    {% include 'gestion_achats/includes/breadcrumb.html' with breadcrumb_items=breadcrumb_items %}
+
+    <!-- Messages -->
+    {% include 'gestion_achats/includes/messages.html' %}
+
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-wallet me-2"></i>
+            Budgets
+        </h2>
+        {% can_manage_budgets user as can_manage %}
+        {% if can_manage %}
+        <a href="{% url 'gestion_achats:budget_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus-circle me-2"></i>Nouveau budget
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Filtres -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label for="exercice" class="form-label">Exercice</label>
+                    <select class="form-select" id="exercice" name="exercice">
+                        <option value="">Tous</option>
+                        {% for annee in exercices %}
+                        <option value="{{ annee }}" {% if request.GET.exercice == annee|stringformat:"s" %}selected{% endif %}>
+                            {{ annee }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="search" class="form-label">Recherche</label>
+                    <input type="text" class="form-control" id="search" name="search"
+                           placeholder="Code, libellé..." value="{{ request.GET.search }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="departement" class="form-label">Département</label>
+                    <select class="form-select" id="departement" name="departement">
+                        <option value="">Tous</option>
+                        {% for dept in departements %}
+                        <option value="{{ dept.id }}" {% if request.GET.departement == dept.id|stringformat:"s" %}selected{% endif %}>
+                            {{ dept.nom }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-search me-2"></i>Rechercher
+                    </button>
+                    <a href="?" class="btn btn-secondary">
+                        <i class="fas fa-redo me-2"></i>Réinitialiser
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            {% include 'gestion_achats/includes/stats_card.html' with title="Total budgets" value=stats.total icon="wallet" color="primary" %}
+        </div>
+        <div class="col-md-3">
+            {% include 'gestion_achats/includes/stats_card.html' with title="Montant total" value=stats.montant_total|floatformat:0 suffix="€" icon="euro-sign" color="success" %}
+        </div>
+        <div class="col-md-3">
+            {% include 'gestion_achats/includes/stats_card.html' with title="En alerte" value=stats.en_alerte icon="exclamation-triangle" color="warning" %}
+        </div>
+        <div class="col-md-3">
+            {% include 'gestion_achats/includes/stats_card.html' with title="Consommation moyenne" value=stats.taux_moyen|floatformat:1 suffix="%" icon="chart-line" color="info" %}
+        </div>
+    </div>
+
+    <!-- Liste des budgets -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Code</th>
+                            <th>Libellé</th>
+                            <th>Exercice</th>
+                            <th>Gestionnaire</th>
+                            <th>Département</th>
+                            <th>Budget initial</th>
+                            <th>Consommé</th>
+                            <th style="width: 200px;">Taux</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for budget in page_obj %}
+                        {% with taux=budget.get_taux_consommation %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'gestion_achats:budget_detail' budget.uuid %}">
+                                    <strong>{{ budget.code }}</strong>
+                                </a>
+                            </td>
+                            <td>{{ budget.libelle }}</td>
+                            <td>{{ budget.exercice }}</td>
+                            <td>
+                                <i class="fas fa-user me-1"></i>
+                                {{ budget.gestionnaire.get_full_name }}
+                            </td>
+                            <td>
+                                {% if budget.departement %}
+                                <i class="fas fa-sitemap me-1"></i>
+                                {{ budget.departement.nom }}
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ budget.montant_initial|floatformat:2 }} €</td>
+                            <td>{{ budget.montant_consomme|floatformat:2 }} €</td>
+                            <td>
+                                <div class="progress" style="height: 25px;">
+                                    <div class="progress-bar {% if taux >= budget.seuil_alerte_2 %}bg-danger{% elif taux >= budget.seuil_alerte_1 %}bg-warning{% else %}bg-success{% endif %}"
+                                         role="progressbar"
+                                         style="width: {{ taux }}%"
+                                         aria-valuenow="{{ taux }}"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100">
+                                        {{ taux|floatformat:1 }}%
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'gestion_achats:budget_detail' budget.uuid %}"
+                                       class="btn btn-sm btn-primary"
+                                       title="Voir le détail">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if can_manage %}
+                                    <a href="{% url 'gestion_achats:budget_update' budget.uuid %}"
+                                       class="btn btn-sm btn-warning"
+                                       title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'gestion_achats:budget_historique' budget.uuid %}"
+                                       class="btn btn-sm btn-info"
+                                       title="Historique">
+                                        <i class="fas fa-history"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endwith %}
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-4">
+                                <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                                <em>Aucun budget trouvé</em>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% include 'gestion_achats/includes/pagination.html' %}
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+{% endblock %}

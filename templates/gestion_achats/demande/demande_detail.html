@@ -1,0 +1,245 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% load gac_permissions %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">Demande {{ demande.numero }}</h1>
+            <span class="badge bg-{{ demande.get_statut_badge_class }} fs-6 mt-2">
+                {{ demande.get_statut_display }}
+            </span>
+        </div>
+        <div>
+            <a href="{% url 'gestion_achats:demande_liste' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Retour
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Informations principales -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Informations générales
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">Numéro</dt>
+                        <dd class="col-sm-9"><strong>{{ demande.numero }}</strong></dd>
+
+                        <dt class="col-sm-3">Demandeur</dt>
+                        <dd class="col-sm-9">{{ demande.demandeur.get_full_name }}</dd>
+
+                        <dt class="col-sm-3">Date création</dt>
+                        <dd class="col-sm-9">{{ demande.date_creation|date:"d/m/Y à H:i" }}</dd>
+
+                        <dt class="col-sm-3">Objet</dt>
+                        <dd class="col-sm-9">{{ demande.objet }}</dd>
+
+                        <dt class="col-sm-3">Justification</dt>
+                        <dd class="col-sm-9">{{ demande.justification|linebreaks }}</dd>
+
+                        {% if demande.departement %}
+                        <dt class="col-sm-3">Département</dt>
+                        <dd class="col-sm-9">{{ demande.departement.libelle }}</dd>
+                        {% endif %}
+
+                        {% if demande.projet %}
+                        <dt class="col-sm-3">Projet</dt>
+                        <dd class="col-sm-9">{{ demande.projet.nom }}</dd>
+                        {% endif %}
+
+                        {% if demande.budget %}
+                        <dt class="col-sm-3">Budget</dt>
+                        <dd class="col-sm-9">{{ demande.budget.code }} - {{ demande.budget.libelle }}</dd>
+                        {% endif %}
+
+                        <dt class="col-sm-3">Priorité</dt>
+                        <dd class="col-sm-9">
+                            <span class="badge bg-{{ demande.get_priorite_badge_class }}">
+                                {{ demande.get_priorite_display }}
+                            </span>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Lignes de la demande -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>
+                        <i class="fas fa-list me-2"></i>
+                        Articles demandés
+                    </span>
+                    {% if can_modify %}
+                    <a href="{% url 'gestion_achats:demande_ligne_create' demande.pk %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus me-2"></i>Ajouter
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if lignes %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Article</th>
+                                    <th>Qté</th>
+                                    <th class="text-end">PU HT</th>
+                                    <th class="text-center">TVA</th>
+                                    <th class="text-end">Total HT</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ligne in lignes %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ ligne.article.reference }}</strong><br>
+                                        <small class="text-muted">{{ ligne.article.designation }}</small>
+                                        {% if ligne.commentaire %}
+                                        <br><em class="text-info">{{ ligne.commentaire }}</em>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ ligne.quantite }} {{ ligne.article.unite }}</td>
+                                    <td class="text-end">{{ ligne.prix_unitaire|floatformat:2 }} €</td>
+                                    <td class="text-center">{{ ligne.taux_tva }}%</td>
+                                    <td class="text-end"><strong>{{ ligne.montant_ht|floatformat:2 }} €</strong></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="4" class="text-end"><strong>Total HT:</strong></td>
+                                    <td class="text-end"><strong>{{ demande.montant_total_ht|floatformat:2 }} €</strong></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-end"><strong>Total TVA:</strong></td>
+                                    <td class="text-end"><strong>{{ demande.montant_total_tva|floatformat:2 }} €</strong></td>
+                                </tr>
+                                <tr class="table-primary">
+                                    <td colspan="4" class="text-end"><strong>Total TTC:</strong></td>
+                                    <td class="text-end"><strong>{{ demande.montant_total_ttc|floatformat:2 }} €</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Aucun article ajouté à cette demande.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions et workflow -->
+        <div class="col-md-4">
+            <!-- Actions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-cogs me-2"></i>
+                    Actions
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if can_modify %}
+                        <a href="{% url 'gestion_achats:demande_update' demande.pk %}" class="btn btn-outline-primary">
+                            <i class="fas fa-edit me-2"></i>Modifier
+                        </a>
+                        {% endif %}
+
+                        {% if can_submit %}
+                        <a href="{% url 'gestion_achats:demande_submit' demande.pk %}" class="btn btn-success">
+                            <i class="fas fa-paper-plane me-2"></i>Soumettre
+                        </a>
+                        {% endif %}
+
+                        {% if can_validate_n1 %}
+                        <a href="{% url 'gestion_achats:demande_validate_n1' demande.pk %}" class="btn btn-success">
+                            <i class="fas fa-check me-2"></i>Valider (N1)
+                        </a>
+                        {% endif %}
+
+                        {% if can_validate_n2 %}
+                        <a href="{% url 'gestion_achats:demande_validate_n2' demande.pk %}" class="btn btn-success">
+                            <i class="fas fa-check-double me-2"></i>Valider (N2)
+                        </a>
+                        {% endif %}
+
+                        {% if can_refuse %}
+                        <a href="{% url 'gestion_achats:demande_refuse' demande.pk %}" class="btn btn-warning">
+                            <i class="fas fa-times me-2"></i>Refuser
+                        </a>
+                        {% endif %}
+
+                        {% if can_cancel %}
+                        <a href="{% url 'gestion_achats:demande_cancel' demande.pk %}" class="btn btn-danger">
+                            <i class="fas fa-ban me-2"></i>Annuler
+                        </a>
+                        {% endif %}
+
+                        {% if can_convert %}
+                        <a href="{% url 'gestion_achats:bon_commande_create_from_demande' demande.pk %}" class="btn btn-primary">
+                            <i class="fas fa-exchange-alt me-2"></i>Convertir en BC
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workflow -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-project-diagram me-2"></i>
+                    Workflow
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success"></i>
+                            Créée le {{ demande.date_creation|date:"d/m/Y" }}
+                        </li>
+
+                        {% if demande.date_soumission %}
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success"></i>
+                            Soumise le {{ demande.date_soumission|date:"d/m/Y" }}
+                        </li>
+                        {% endif %}
+
+                        {% if demande.date_validation_n1 %}
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success"></i>
+                            Validée N1 le {{ demande.date_validation_n1|date:"d/m/Y" }}
+                            <br><small class="text-muted">Par: {{ demande.validateur_n1.get_full_name }}</small>
+                        </li>
+                        {% endif %}
+
+                        {% if demande.date_validation_n2 %}
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success"></i>
+                            Validée N2 le {{ demande.date_validation_n2|date:"d/m/Y" }}
+                            <br><small class="text-muted">Par: {{ demande.validateur_n2.get_full_name }}</small>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+{% endblock %}

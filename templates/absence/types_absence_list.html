@@ -508,8 +508,83 @@
     </div>
 </div>
 
+<!-- Modal Confirmation Suppression Type d'Absence -->
+<div id="modalSuppressionType" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-content" style="background-color: #fff; margin: 10% auto; padding: 0; border-radius: 8px; max-width: 500px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div class="modal-header" style="background: #dc2626; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="margin: 0; font-size: 20px;">
+                <i class="fas fa-exclamation-triangle"></i> Confirmer la suppression
+            </h2>
+            <span class="close" onclick="fermerModalSuppressionType()" style="float: right; cursor: pointer; font-size: 28px; font-weight: bold; color: white; margin-top: -30px;">&times;</span>
+        </div>
+
+        <div style="padding: 20px;">
+            <p style="margin-bottom: 15px; font-size: 16px;">
+                <strong>ATTENTION :</strong> Vous êtes sur le point de supprimer définitivement ce type d'absence.
+            </p>
+
+            <div style="background: #fee2e2; border-left: 4px solid #dc2626; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                <p style="margin: 0; color: #991b1b;">
+                    <i class="fas fa-calendar-times"></i> <strong>Code : <span id="suppression_type_code"></span></strong>
+                </p>
+            </div>
+
+            <p style="color: #dc2626; font-weight: 500; margin-bottom: 20px;">
+                <i class="fas fa-info-circle"></i> Cette action est irréversible !
+            </p>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="fermerModalSuppressionType()">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+                <button type="button" class="btn btn-primary" style="background: #dc2626; border-color: #dc2626;" onclick="confirmerSuppressionType()">
+                    <i class="fas fa-trash"></i> Supprimer définitivement
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extrascript %}
     <script src="{% static 'assets/js/absence/types_absence.js' %}"></script>
+    <script>
+        // Variables pour stocker les informations de suppression
+        let suppressionTypeId = null;
+
+        // Override de la fonction deleteTypeAbsence du fichier JS externe
+        window.deleteTypeAbsence = function(id, code) {
+            ouvrirModalSuppressionType(id, code);
+        };
+
+        // Fonction pour ouvrir le modal de suppression
+        function ouvrirModalSuppressionType(typeId, typeCode) {
+            suppressionTypeId = typeId;
+            document.getElementById('suppression_type_code').textContent = typeCode;
+            document.getElementById('modalSuppressionType').style.display = 'block';
+        }
+
+        // Fonction pour fermer le modal de suppression
+        function fermerModalSuppressionType() {
+            document.getElementById('modalSuppressionType').style.display = 'none';
+            suppressionTypeId = null;
+        }
+
+        // Fonction pour confirmer la suppression
+        window.confirmerSuppressionType = function() {
+            if (suppressionTypeId) {
+                deleteTypeAbsenceConfirmed(suppressionTypeId);
+                fermerModalSuppressionType();
+            }
+        };
+
+        // Fermer la modale en cliquant en dehors
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalSuppressionType');
+            if (event.target === modal) {
+                fermerModalSuppressionType();
+            }
+        };
+    </script>
 {% endblock %}

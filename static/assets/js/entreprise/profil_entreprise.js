@@ -208,26 +208,32 @@ function saveEntreprise() {
  * Supprime une entreprise
  */
 function deleteEntreprise(uuid, nom) {
-    if (typeof Swal !== 'undefined') {
-        Swal.fire({
-            title: 'Confirmer la suppression',
-            html: `Êtes-vous sûr de vouloir supprimer le profil de l'entreprise <strong>"${nom}"</strong> ?<br><br>
-                   <span class="text-danger">⚠️ Cette action est irréversible et supprimera toutes les données de l'entreprise.</span>`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc3545',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: '<i class="fas fa-trash"></i> Oui, supprimer',
-            cancelButtonText: '<i class="fas fa-times"></i> Annuler',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
+    // Ouvrir le modal personnalisé
+    if (typeof ouvrirModalSuppressionEntreprise === 'function') {
+        ouvrirModalSuppressionEntreprise(uuid, nom);
+    } else {
+        // Fallback avec SweetAlert ou confirm
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Confirmer la suppression',
+                html: `Êtes-vous sûr de vouloir supprimer le profil de l'entreprise <strong>"${nom}"</strong> ?<br><br>
+                       <span class="text-danger">⚠️ Cette action est irréversible et supprimera toutes les données de l'entreprise.</span>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="fas fa-trash"></i> Oui, supprimer',
+                cancelButtonText: '<i class="fas fa-times"></i> Annuler',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    executeDelete(uuid);
+                }
+            });
+        } else {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer le profil de l'entreprise "${nom}" ?\n\nCette action est irréversible.`)) {
                 executeDelete(uuid);
             }
-        });
-    } else {
-        if (confirm(`Êtes-vous sûr de vouloir supprimer le profil de l'entreprise "${nom}" ?\n\nCette action est irréversible.`)) {
-            executeDelete(uuid);
         }
     }
 }

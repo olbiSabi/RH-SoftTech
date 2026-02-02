@@ -1,0 +1,127 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% load gac_permissions %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="fas fa-file-invoice me-2"></i>
+            Bon de commande {{ bon_commande.numero }}
+        </h1>
+        <div>
+            <span class="badge bg-{{ bon_commande.get_statut_badge_class }} fs-6">
+                {{ bon_commande.get_statut_display }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Informations générales -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations générales</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Numéro :</strong> {{ bon_commande.numero }}</p>
+                    <p><strong>Date création :</strong> {{ bon_commande.date_creation|date:"d/m/Y H:i" }}</p>
+                    <p><strong>Fournisseur :</strong> {{ bon_commande.fournisseur.raison_sociale }}</p>
+                    {% if bon_commande.demande_achat %}
+                    <p><strong>Demande liée :</strong>
+                        <a href="{% url 'gestion_achats:demande_detail' bon_commande.demande_achat.pk %}">
+                            {{ bon_commande.demande_achat.numero }}
+                        </a>
+                    </p>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Montant HT :</strong> {{ bon_commande.montant_total_ht|floatformat:2 }} €</p>
+                    <p><strong>Montant TVA :</strong> {{ bon_commande.montant_tva|floatformat:2 }} €</p>
+                    <p><strong>Montant TTC :</strong> <strong class="text-primary">{{ bon_commande.montant_total_ttc|floatformat:2 }} €</strong></p>
+                    {% if bon_commande.date_emission %}
+                    <p><strong>Date émission :</strong> {{ bon_commande.date_emission|date:"d/m/Y" }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lignes du BC -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Lignes de commande</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Article</th>
+                            <th class="text-end">Quantité</th>
+                            <th class="text-end">Prix unitaire HT</th>
+                            <th class="text-end">TVA</th>
+                            <th class="text-end">Total HT</th>
+                            <th class="text-end">Total TTC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ligne in bon_commande.lignes.all %}
+                        <tr>
+                            <td>
+                                {{ ligne.article.nom }}
+                                {% if ligne.commentaire %}
+                                <br><small class="text-muted">{{ ligne.commentaire }}</small>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">{{ ligne.quantite }}</td>
+                            <td class="text-end">{{ ligne.prix_unitaire|floatformat:2 }} €</td>
+                            <td class="text-end">{{ ligne.taux_tva }}%</td>
+                            <td class="text-end">{{ ligne.montant_ht|floatformat:2 }} €</td>
+                            <td class="text-end">{{ ligne.montant_ttc|floatformat:2 }} €</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex gap-2">
+                <a href="{% url 'gestion_achats:bon_commande_liste' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+                </a>
+
+                {% if can_emit %}
+                <a href="{% url 'gestion_achats:bon_commande_emit' bon_commande.pk %}" class="btn btn-success">
+                    <i class="fas fa-paper-plane me-2"></i>Émettre
+                </a>
+                {% endif %}
+
+                {% if can_send %}
+                <a href="{% url 'gestion_achats:bon_commande_send' bon_commande.pk %}" class="btn btn-primary">
+                    <i class="fas fa-envelope me-2"></i>Envoyer au fournisseur
+                </a>
+                {% endif %}
+
+                {% if bon_commande.fichier_pdf %}
+                <a href="{% url 'gestion_achats:bon_commande_pdf' bon_commande.pk %}" class="btn btn-outline-danger" target="_blank">
+                    <i class="fas fa-file-pdf me-2"></i>Télécharger PDF
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+{% endblock %}

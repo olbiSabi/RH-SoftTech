@@ -1,0 +1,196 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% load gac_permissions %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+<style>
+    .categorie-tree {
+        list-style: none;
+        padding-left: 0;
+    }
+    .categorie-tree li {
+        margin: 10px 0;
+        padding-left: 20px;
+        border-left: 2px solid #dee2e6;
+    }
+    .categorie-tree li.root-category {
+        border-left: none;
+        padding-left: 0;
+    }
+    .categorie-item {
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 5px;
+        margin-bottom: 5px;
+    }
+    .categorie-item:hover {
+        background: #e9ecef;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    {% include 'gestion_achats/includes/breadcrumb.html' with breadcrumb_items=breadcrumb_items %}
+
+    <!-- Messages -->
+    {% include 'gestion_achats/includes/messages.html' %}
+
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-tags me-2"></i>
+            Catégories d'articles
+        </h2>
+        <div>
+            <a href="{% url 'gestion_achats:article_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Retour au catalogue
+            </a>
+            {% is_admin_gac user as is_admin %}
+            {% if is_admin %}
+            <a href="{% url 'gestion_achats:categorie_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus-circle me-2"></i>Nouvelle catégorie
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            {% include 'gestion_achats/includes/stats_card.html' with title="Total catégories" value=stats.total icon="tags" color="primary" %}
+        </div>
+        <div class="col-md-4">
+            {% include 'gestion_achats/includes/stats_card.html' with title="Catégories principales" value=stats.principales icon="folder" color="info" %}
+        </div>
+        <div class="col-md-4">
+            {% include 'gestion_achats/includes/stats_card.html' with title="Total articles" value=stats.total_articles icon="box" color="success" %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Vue arborescente -->
+        <div class="col-md-7">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-sitemap me-2"></i>
+                        Arborescence des catégories
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if categories_principales %}
+                    <ul class="categorie-tree">
+                        {% for categorie in categories_principales %}
+                        {% include 'gestion_achats/includes/categorie_tree_item.html' %}
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted text-center mb-0">
+                        <em>Aucune catégorie créée</em>
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Liste plate -->
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Liste complète
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Nom</th>
+                                    <th class="text-center">Articles</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for categorie in toutes_categories %}
+                                <tr>
+                                    <td><strong>{{ categorie.code }}</strong></td>
+                                    <td>
+                                        {{ categorie.get_chemin_complet }}
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-info">{{ categorie.articles.count }}</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="btn-group" role="group">
+                                            {% if is_admin %}
+                                            <a href="{% url 'gestion_achats:categorie_update' categorie.uuid %}"
+                                               class="btn btn-sm btn-warning"
+                                               title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            {% if categorie.articles.count == 0 and categorie.sous_categories.count == 0 %}
+                                            <button type="button"
+                                                    class="btn btn-sm btn-danger"
+                                                    onclick="confirmerSuppression('{{ categorie.uuid }}')"
+                                                    title="Supprimer">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            {% endif %}
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-3">
+                                        <em>Aucune catégorie</em>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Template pour l'item d'arbre (include) -->
+{% if False %}
+<script id="categorie-tree-template" type="text/template">
+<!-- Ce template sera dans includes/categorie_tree_item.html -->
+</script>
+{% endif %}
+
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+<script>
+    function confirmerSuppression(uuid) {
+        if (confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?')) {
+            // Soumettre le formulaire de suppression
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/gestion-achats/categories/${uuid}/delete/`;
+
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken;
+
+            form.appendChild(csrfInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
+{% endblock %}

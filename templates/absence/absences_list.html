@@ -356,6 +356,76 @@
     </div>
 </section>
 
+<!-- Modal Confirmation Annulation -->
+<div id="modalAnnulationAbsence" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-content" style="background-color: #fff; margin: 10% auto; padding: 0; border-radius: 8px; max-width: 500px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div class="modal-header" style="background: #ffc107; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="margin: 0; font-size: 20px;">
+                <i class="fas fa-exclamation-triangle"></i> Confirmer l'annulation
+            </h2>
+            <span class="close" onclick="fermerModalAnnulation()" style="float: right; cursor: pointer; font-size: 28px; font-weight: bold; color: white; margin-top: -30px;">&times;</span>
+        </div>
+
+        <div style="padding: 20px;">
+            <p style="margin-bottom: 15px; font-size: 16px;">
+                <strong>ATTENTION :</strong> Vous êtes sur le point d'annuler cette demande d'absence.
+            </p>
+
+            <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                <p style="margin: 0; color: #856404;">
+                    <i class="fas fa-calendar-times"></i> <strong>Cette action est irréversible !</strong>
+                </p>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="fermerModalAnnulation()">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+                <button type="button" class="btn btn-warning" onclick="confirmerAnnulation()">
+                    <i class="fas fa-ban"></i> Confirmer l'annulation
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Confirmation Suppression -->
+<div id="modalSuppressionAbsence" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-content" style="background-color: #fff; margin: 10% auto; padding: 0; border-radius: 8px; max-width: 500px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div class="modal-header" style="background: #dc2626; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="margin: 0; font-size: 20px;">
+                <i class="fas fa-exclamation-triangle"></i> Confirmer la suppression
+            </h2>
+            <span class="close" onclick="fermerModalSuppression()" style="float: right; cursor: pointer; font-size: 28px; font-weight: bold; color: white; margin-top: -30px;">&times;</span>
+        </div>
+
+        <div style="padding: 20px;">
+            <p style="margin-bottom: 15px; font-size: 16px;">
+                <strong>ATTENTION :</strong> Vous êtes sur le point de supprimer définitivement cette absence.
+            </p>
+
+            <div style="background: #fee2e2; border-left: 4px solid #dc2626; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                <p style="margin: 0; color: #991b1b;">
+                    <i class="fas fa-calendar-times"></i> <strong>Type : <span id="suppression_absence_type"></span></strong>
+                </p>
+            </div>
+
+            <p style="color: #dc2626; font-weight: 500; margin-bottom: 20px;">
+                <i class="fas fa-info-circle"></i> Cette action est irréversible !
+            </p>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="fermerModalSuppression()">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+                <button type="button" class="btn btn-primary" style="background: #dc2626; border-color: #dc2626;" onclick="confirmerSuppression()">
+                    <i class="fas fa-trash"></i> Supprimer définitivement
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Détails (reste identique) -->
 <div class="modal fade" id="detailModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -517,5 +587,63 @@ function getEventColor(statut) {
     };
     return colors[statut] || '#6c757d';
 }
+
+// ========================================
+// GESTION DES MODALS DE CONFIRMATION
+// ========================================
+
+// Variables globales pour stocker les ID
+let annulationAbsenceId = null;
+let suppressionAbsenceId = null;
+
+// Modal Annulation
+function ouvrirModalAnnulation(absenceId) {
+    annulationAbsenceId = absenceId;
+    document.getElementById('modalAnnulationAbsence').style.display = 'block';
+}
+
+function fermerModalAnnulation() {
+    document.getElementById('modalAnnulationAbsence').style.display = 'none';
+    annulationAbsenceId = null;
+}
+
+function confirmerAnnulation() {
+    if (annulationAbsenceId) {
+        annulerAbsenceConfirmed(annulationAbsenceId);
+        fermerModalAnnulation();
+    }
+}
+
+// Modal Suppression
+function ouvrirModalSuppression(absenceId, typeAbsence) {
+    suppressionAbsenceId = absenceId;
+    document.getElementById('suppression_absence_type').textContent = typeAbsence;
+    document.getElementById('modalSuppressionAbsence').style.display = 'block';
+}
+
+function fermerModalSuppression() {
+    document.getElementById('modalSuppressionAbsence').style.display = 'none';
+    suppressionAbsenceId = null;
+}
+
+function confirmerSuppression() {
+    if (suppressionAbsenceId) {
+        supprimerAbsenceConfirmed(suppressionAbsenceId);
+        fermerModalSuppression();
+    }
+}
+
+// Fermer les modals en cliquant en dehors
+window.onclick = function(event) {
+    const modalAnnulation = document.getElementById('modalAnnulationAbsence');
+    const modalSuppression = document.getElementById('modalSuppressionAbsence');
+
+    if (event.target === modalAnnulation) {
+        fermerModalAnnulation();
+    }
+    if (event.target === modalSuppression) {
+        fermerModalSuppression();
+    }
+};
 </script>
 {% endblock %}

@@ -1,4 +1,5 @@
 {% load static %}
+{% load gac_permissions %}
 <!-- Header -->
 <header class="header">
     <div class="header-content">
@@ -414,6 +415,112 @@
                         </ul>
                     </li>
                     {% endif %}
+                {% endif %}
+
+                    <!-- ========================================
+                        MENU ACHATS (GAC)
+                        Permissions basées sur les rôles GAC
+                    ======================================== -->
+                {% if user.is_authenticated and user.employe %}
+                    <li class="menu-item">
+                        <a href="{% url 'gestion_achats:dashboard' %}" class="menu-link">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Achats</span>
+                            <i class="fas fa-chevron-down menu-arrow"></i>
+                        </a>
+                        <ul class="submenu">
+                            <!-- Dashboard - Accessible à tous -->
+                            <li>
+                                <a href="{% url 'gestion_achats:dashboard' %}">
+                                    <i class="fas fa-tachometer-alt"></i> Tableau de bord
+                                </a>
+                            </li>
+
+                            <li class="submenu-divider"></li>
+
+                            <!-- Mes demandes - Accessible à tous -->
+                            <li>
+                                <a href="{% url 'gestion_achats:mes_demandes' %}">
+                                    <i class="fas fa-file-alt"></i> Mes demandes
+                                </a>
+                            </li>
+
+                            <!-- Nouvelle demande - Accessible à tous -->
+                            <li>
+                                <a href="{% url 'gestion_achats:demande_create' %}">
+                                    <i class="fas fa-plus-circle"></i> Nouvelle demande
+                                </a>
+                            </li>
+
+                            <!-- Demandes à valider - VALIDATEUR_N1, VALIDATEUR_N2, ADMIN_GAC -->
+                            {% can_validate_gac user as can_validate %}
+                            {% if can_validate %}
+                            <li>
+                                <a href="{% url 'gestion_achats:demandes_a_valider' %}">
+                                    <i class="fas fa-check-circle"></i> Demandes à valider
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            <!-- Toutes les demandes - ACHETEUR, ADMIN_GAC -->
+                            {% can_view_all_demandes user as can_view_all %}
+                            {% if can_view_all %}
+                            <li>
+                                <a href="{% url 'gestion_achats:demande_liste' %}">
+                                    <i class="fas fa-list"></i> Toutes les demandes
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            <!-- Bons de commande - ACHETEUR, RECEPTIONNAIRE, ADMIN_GAC -->
+                            {% can_manage_bons_commande user as can_manage_bc %}
+                            {% if can_manage_bc %}
+                            <li class="submenu-divider"></li>
+                            <li>
+                                <a href="{% url 'gestion_achats:bon_commande_liste' %}">
+                                    <i class="fas fa-file-invoice"></i> Bons de commande
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            <!-- Budgets - GESTIONNAIRE_BUDGET, ADMIN_GAC -->
+                            {% can_manage_budgets user as can_manage_budgets %}
+                            {% if can_manage_budgets %}
+                            <li class="submenu-divider"></li>
+                            <li>
+                                <a href="#" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;">
+                                    <i class="fas fa-wallet"></i> Budgets (À venir)
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            <!-- Administration - ADMIN_GAC uniquement -->
+                            {% is_admin_gac user as is_admin %}
+                            {% if is_admin %}
+                            <li class="submenu-divider"></li>
+                            <li>
+                                <a href="#" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;">
+                                    <i class="fas fa-box"></i> Articles (À venir)
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;">
+                                    <i class="fas fa-truck"></i> Fournisseurs (À venir)
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;">
+                                    <i class="fas fa-tags"></i> Catégories (À venir)
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;">
+                                    <i class="fas fa-dolly"></i> Réceptions (À venir)
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </li>
                 {% endif %}
 
                     <!-- ========================================

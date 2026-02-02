@@ -1,0 +1,304 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+{% load gac_permissions %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    {% include 'gestion_achats/includes/breadcrumb.html' with breadcrumb_items=breadcrumb_items %}
+
+    <!-- Messages -->
+    {% include 'gestion_achats/includes/messages.html' %}
+
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-wallet me-2"></i>
+            {{ budget.code }} - {{ budget.libelle }}
+        </h2>
+        <div>
+            <a href="{% url 'gestion_achats:budget_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+            </a>
+            {% can_manage_budgets user as can_manage %}
+            {% if can_manage %}
+            <a href="{% url 'gestion_achats:budget_update' budget.uuid %}" class="btn btn-warning">
+                <i class="fas fa-edit me-2"></i>Modifier
+            </a>
+            <a href="{% url 'gestion_achats:budget_historique' budget.uuid %}" class="btn btn-info">
+                <i class="fas fa-history me-2"></i>Historique
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Informations principales -->
+        <div class="col-md-8">
+            <!-- Informations générales -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Informations générales
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="text-muted small">Code budget</label>
+                            <div><strong>{{ budget.code }}</strong></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small">Exercice</label>
+                            <div><strong>{{ budget.exercice }}</strong></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small">Période</label>
+                            <div><strong>{{ budget.date_debut|date:"d/m/Y" }} - {{ budget.date_fin|date:"d/m/Y" }}</strong></div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small">Gestionnaire</label>
+                            <div>
+                                <i class="fas fa-user me-1"></i>
+                                <strong>{{ budget.gestionnaire.get_full_name }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Département</label>
+                            <div>
+                                {% if budget.departement %}
+                                <i class="fas fa-sitemap me-1"></i>
+                                <strong>{{ budget.departement.nom }}</strong>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% if budget.description %}
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="text-muted small">Description</label>
+                            <div>{{ budget.description }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Vue d'ensemble financière -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>
+                        Vue d'ensemble financière
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <label class="text-muted small">Montant initial</label>
+                            <h4 class="text-primary">{{ budget.montant_initial|floatformat:2 }} €</h4>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-muted small">Montant engagé</label>
+                            <h4 class="text-info">{{ budget.montant_engage|floatformat:2 }} €</h4>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-muted small">Montant commandé</label>
+                            <h4 class="text-warning">{{ budget.montant_commande|floatformat:2 }} €</h4>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-muted small">Montant consommé</label>
+                            <h4 class="text-danger">{{ budget.montant_consomme|floatformat:2 }} €</h4>
+                        </div>
+                    </div>
+
+                    {% with disponible=budget.get_montant_disponible taux=budget.get_taux_consommation %}
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="text-muted small">Disponible</label>
+                            <h3 class="{% if disponible < 0 %}text-danger{% else %}text-success{% endif %}">
+                                {{ disponible|floatformat:2 }} €
+                            </h3>
+                            <div class="progress" style="height: 30px;">
+                                <div class="progress-bar {% if taux >= budget.seuil_alerte_2 %}bg-danger{% elif taux >= budget.seuil_alerte_1 %}bg-warning{% else %}bg-success{% endif %}"
+                                     role="progressbar"
+                                     style="width: {{ taux }}%"
+                                     aria-valuenow="{{ taux }}"
+                                     aria-valuemin="0"
+                                     aria-valuemax="100">
+                                    {{ taux|floatformat:1 }}% consommé
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endwith %}
+                </div>
+            </div>
+
+            <!-- Demandes liées -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-alt me-2"></i>
+                        Demandes d'achat récentes
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if demandes %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Numéro</th>
+                                    <th>Date</th>
+                                    <th>Demandeur</th>
+                                    <th>Objet</th>
+                                    <th>Montant TTC</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for demande in demandes %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'gestion_achats:demande_detail' demande.uuid %}">
+                                            {{ demande.numero }}
+                                        </a>
+                                    </td>
+                                    <td>{{ demande.date_creation|date:"d/m/Y" }}</td>
+                                    <td>{{ demande.demandeur.get_full_name }}</td>
+                                    <td>{{ demande.objet|truncatewords:10 }}</td>
+                                    <td>{{ demande.montant_total_ttc|floatformat:2 }} €</td>
+                                    <td>{% include 'gestion_achats/includes/statut_badge.html' with statut=demande.statut %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center mb-0">
+                        <em>Aucune demande pour ce budget</em>
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <!-- Alertes -->
+            <div class="card mb-4 border-{% if budget.get_taux_consommation >= budget.seuil_alerte_2 %}danger{% elif budget.get_taux_consommation >= budget.seuil_alerte_1 %}warning{% else %}success{% endif %}">
+                <div class="card-header bg-{% if budget.get_taux_consommation >= budget.seuil_alerte_2 %}danger{% elif budget.get_taux_consommation >= budget.seuil_alerte_1 %}warning{% else %}success{% endif %} text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bell me-2"></i>
+                        Seuils d'alerte
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="text-muted small">Seuil d'alerte 1</label>
+                        <div>
+                            <strong>{{ budget.seuil_alerte_1 }}%</strong>
+                            {% if budget.get_taux_consommation >= budget.seuil_alerte_1 %}
+                            <span class="badge bg-warning ms-2">Atteint</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Seuil d'alerte 2</label>
+                        <div>
+                            <strong>{{ budget.seuil_alerte_2 }}%</strong>
+                            {% if budget.get_taux_consommation >= budget.seuil_alerte_2 %}
+                            <span class="badge bg-danger ms-2">Atteint</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if budget.get_taux_consommation >= budget.seuil_alerte_2 %}
+                    <div class="alert alert-danger mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Alerte critique !</strong><br>
+                        Le budget a atteint le seuil d'alerte 2.
+                    </div>
+                    {% elif budget.get_taux_consommation >= budget.seuil_alerte_1 %}
+                    <div class="alert alert-warning mb-0">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <strong>Attention !</strong><br>
+                        Le budget a atteint le seuil d'alerte 1.
+                    </div>
+                    {% else %}
+                    <div class="alert alert-success mb-0">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Situation normale</strong><br>
+                        Aucun seuil d'alerte atteint.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Statistiques rapides -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Statistiques
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="text-muted small">Nombre de demandes</label>
+                        <h4>{{ stats.nb_demandes }}</h4>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Nombre de BCs</label>
+                        <h4>{{ stats.nb_bcs }}</h4>
+                    </div>
+                    <div>
+                        <label class="text-muted small">Jours restants</label>
+                        <h4>
+                            {% if budget.get_jours_restants > 0 %}
+                            {{ budget.get_jours_restants }} jours
+                            {% else %}
+                            <span class="text-danger">Exercice terminé</span>
+                            {% endif %}
+                        </h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Métadonnées -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Informations système
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="text-muted small">Créé le</label>
+                        <div><strong>{{ budget.date_creation|date:"d/m/Y à H:i" }}</strong></div>
+                    </div>
+                    <div>
+                        <label class="text-muted small">Dernière modification</label>
+                        <div><strong>{{ budget.date_modification|date:"d/m/Y à H:i" }}</strong></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+{% endblock %}
