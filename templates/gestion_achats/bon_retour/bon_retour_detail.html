@@ -1,0 +1,153 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="fas fa-undo me-2"></i>
+            Bon de retour {{ bon_retour.numero }}
+        </h1>
+        <span class="badge bg-{{ bon_retour.get_statut_badge_class }} fs-6">
+            {{ bon_retour.get_statut_display }}
+        </span>
+    </div>
+
+    <!-- Informations générales -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations générales</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Numéro :</strong> {{ bon_retour.numero }}</p>
+                    <p><strong>Fournisseur :</strong> {{ bon_retour.fournisseur.raison_sociale }}</p>
+                    <p><strong>Réception :</strong>
+                        <a href="{% url 'gestion_achats:reception_detail' pk=bon_retour.reception.uuid %}">
+                            {{ bon_retour.reception.numero }}
+                        </a>
+                    </p>
+                    <p><strong>Bon de commande :</strong>
+                        <a href="{% url 'gestion_achats:bon_commande_detail' pk=bon_retour.bon_commande.uuid %}">
+                            {{ bon_retour.bon_commande.numero }}
+                        </a>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Date création :</strong> {{ bon_retour.date_creation|date:"d/m/Y H:i" }}</p>
+                    {% if bon_retour.date_emission %}
+                    <p><strong>Date émission :</strong> {{ bon_retour.date_emission|date:"d/m/Y H:i" }}</p>
+                    {% endif %}
+                    {% if bon_retour.date_envoi %}
+                    <p><strong>Date envoi :</strong> {{ bon_retour.date_envoi|date:"d/m/Y H:i" }}</p>
+                    {% endif %}
+                    <p><strong>Montant HT :</strong> {{ bon_retour.montant_total_ht|floatformat:2 }} €</p>
+                    <p><strong>Montant TVA :</strong> {{ bon_retour.montant_total_tva|floatformat:2 }} €</p>
+                    <p><strong>Montant TTC :</strong> <strong class="text-danger">{{ bon_retour.montant_total_ttc|floatformat:2 }} €</strong></p>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-12">
+                    <p><strong>Motif du retour :</strong></p>
+                    <div class="alert alert-warning">
+                        {{ bon_retour.motif_retour }}
+                    </div>
+                </div>
+            </div>
+
+            {% if bon_retour.commentaire %}
+            <div class="row">
+                <div class="col-12">
+                    <p><strong>Commentaire :</strong></p>
+                    <p>{{ bon_retour.commentaire }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Lignes du bon de retour -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Articles retournés</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Article</th>
+                            <th class="text-end">Quantité retournée</th>
+                            <th class="text-end">Prix unitaire HT</th>
+                            <th class="text-end">TVA</th>
+                            <th class="text-end">Total HT</th>
+                            <th class="text-end">Total TTC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ligne in lignes %}
+                        <tr>
+                            <td>
+                                <strong>{{ ligne.article.reference }}</strong> - {{ ligne.article.designation }}
+                                <br>
+                                <small class="text-danger">{{ ligne.motif_retour }}</small>
+                                {% if ligne.commentaire %}
+                                <br><small class="text-muted">{{ ligne.commentaire }}</small>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">{{ ligne.quantite_retournee }}</td>
+                            <td class="text-end">{{ ligne.prix_unitaire|floatformat:2 }} €</td>
+                            <td class="text-end">{{ ligne.taux_tva }}%</td>
+                            <td class="text-end">{{ ligne.montant|floatformat:2 }} €</td>
+                            <td class="text-end">{{ ligne.montant_ttc|floatformat:2 }} €</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-secondary">
+                            <td colspan="4" class="text-end"><strong>Total</strong></td>
+                            <td class="text-end"><strong>{{ bon_retour.montant_total_ht|floatformat:2 }} €</strong></td>
+                            <td class="text-end"><strong>{{ bon_retour.montant_total_ttc|floatformat:2 }} €</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex gap-2">
+                <a href="{% url 'gestion_achats:bon_retour_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+                </a>
+
+                {% if bon_retour.statut == 'BROUILLON' and can_modify %}
+                <a href="{% url 'gestion_achats:bon_retour_emit' pk=bon_retour.uuid %}" class="btn btn-success">
+                    <i class="fas fa-check me-2"></i>Émettre
+                </a>
+                {% endif %}
+
+                {% if bon_retour.statut == 'EMIS' and can_modify %}
+                <a href="{% url 'gestion_achats:bon_retour_send' pk=bon_retour.uuid %}" class="btn btn-primary">
+                    <i class="fas fa-paper-plane me-2"></i>Marquer comme envoyé
+                </a>
+                {% endif %}
+
+                {% if bon_retour.statut == 'ENVOYE' and can_modify %}
+                <a href="{% url 'gestion_achats:bon_retour_receive' pk=bon_retour.uuid %}" class="btn btn-info">
+                    <i class="fas fa-inbox me-2"></i>Marquer comme reçu
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

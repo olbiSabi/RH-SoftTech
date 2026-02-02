@@ -67,6 +67,45 @@ def generer_numero_reception():
     return f'REC-{annee}-{str(dernier_numero + 1).zfill(4)}'
 
 
+def generer_numero_bon_retour():
+    """
+    Génère un numéro de bon de retour unique.
+
+    Format: BR-YYYY-NNNN
+    Exemple: BR-2026-0001
+
+    Returns:
+        str: Numéro de bon de retour généré
+    """
+    from gestion_achats.models import GACBonRetour
+
+    annee = timezone.now().year
+    dernier_numero = GACBonRetour.objects.filter(
+        numero__startswith=f'BR-{annee}-'
+    ).count()
+
+    return f'BR-{annee}-{str(dernier_numero + 1).zfill(4)}'
+
+
+def generer_code_categorie():
+    """
+    Génère un code de catégorie unique.
+
+    Format: CAT-NNNN
+    Exemple: CAT-0001
+
+    Returns:
+        str: Code de catégorie généré
+    """
+    from gestion_achats.models import GACCategorie
+
+    dernier_numero = GACCategorie.objects.filter(
+        code__startswith='CAT-'
+    ).count()
+
+    return f'CAT-{str(dernier_numero + 1).zfill(4)}'
+
+
 def calculer_montant_ttc(montant_ht, taux_tva=None):
     """
     Calcule le montant TTC à partir du montant HT et du taux de TVA.

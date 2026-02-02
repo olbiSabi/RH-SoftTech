@@ -168,3 +168,129 @@ def bon_commande_pdf(request, pk, bon_commande):
     else:
         messages.error(request, 'Aucun PDF généré pour ce BC.')
         return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.pk)
+
+
+# ========== GESTION DES LIGNES DE BON DE COMMANDE ==========
+
+@login_required
+@require_bon_commande_access
+def ligne_bc_create(request, pk, bon_commande):
+    """Ajouter une ligne à un bon de commande en brouillon."""
+    require_permission(GACPermissions.can_modify_bon_commande, request.user, bon_commande)
+
+    # Vérifier que le BC est en brouillon
+    if bon_commande.statut != 'BROUILLON':
+        messages.error(request, 'Impossible d\'ajouter des lignes à un BC qui n\'est plus en brouillon.')
+        return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.pk)
+
+    if request.method == 'POST':
+        form = LigneBonCommandeForm(request.POST)
+        if form.is_valid():
+            try:
+                ligne = form.save(commit=False)
+                ligne.bon_commande = bon_commande
+
+                # Déterminer l'ordre (dernière ligne + 1)
+                from gestion_achats.models import GACLigneBonCommande
+                derniere_ligne = bon_commande.lignes.order_by('-ordre').first()
+                ligne.ordre = (derniere_ligne.ordre + 1) if derniere_ligne else 1
+
+                ligne.save()
+
+                # Recalculer les totaux du BC
+                bon_commande.calculer_totaux()
+
+                messages.success(
+                    request,
+                    f'Ligne ajoutée : {ligne.article.designation} × {ligne.quantite_commandee}'
+                )
+                return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.pk)
+
+            except Exception as e:
+                messages.error(request, f'Erreur lors de l\'ajout de la ligne : {str(e)}')
+    else:
+        form = LigneBonCommandeForm()
+
+    return render(request, 'gestion_achats/bon_commande/ligne_bc_form.html', {
+        'form': form,
+        'bc': bon_commande,
+        'action': 'Ajouter',
+    })
+
+
+@login_required
+@require_bon_commande_access
+def ligne_bc_update(request, pk, bon_commande, ligne_pk):
+    """Modifier une ligne d'un bon de commande en brouillon."""
+    require_permission(GACPermissions.can_modify_bon_commande, request.user, bon_commande)
+
+    # Vérifier que le BC est en brouillon
+    if bon_commande.statut != 'BROUILLON':
+        messages.error(request, 'Impossible de modifier des lignes d\'un BC qui n\'est plus en brouillon.')
+        return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.pk)
+
+    from gestion_achats.models import GACLigneBonCommande
+    ligne = get_object_or_404(GACLigneBonCommande, pk=ligne_pk, bon_commande=bon_commande)
+
+    if request.method == 'POST':
+        form = LigneBonCommandeForm(request.POST, instance=ligne)
+        if form.is_valid():
+            try:
+                form.save()
+
+                # Recalculer les totaux du BC
+                bon_commande.calculer_totaux()
+
+                messages.success(request, 'Ligne modifiée avec succès.')
+                return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.pk)
+
+            except Exception as e:
+                messages.error(request, f'Erreur lors de la modification : {str(e)}')
+    else:
+        form = LigneBonCommandeForm(instance=ligne)
+
+    return render(request, 'gestion_achats/bon_commande/ligne_bc_form.html', {
+        'form': form,
+        'bc': bon_commande,
+        'ligne': ligne,
+        'action': 'Modifier',
+    })
+
+
+@login_required
+@require_bon_commande_access
+def ligne_bc_delete(request, pk, bon_commande, ligne_pk):
+    """Supprimer une ligne d'un bon de commande en brouillon."""
+    require_permission(GACPermissions.can_modify_bon_commande, request.user, bon_commande)
+
+    # Vérifier que le BC est en brouillon
+    if bon_commande.statut != 'BROUILLON':
+        messages.error(request, 'Impossible de supprimer des lignes d\'un BC qui n\'est plus en brouillon.')
+        return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.pk)
+
+    from gestion_achats.models import GACLigneBonCommande
+    ligne = get_object_or_404(GACLigneBonCommande, pk=ligne_pk, bon_commande=bon_commande)
+
+    if request.method == 'POST':
+        try:
+            article_designation = ligne.article.designation
+            quantite = ligne.quantite_commandee
+
+            ligne.delete()
+
+            # Recalculer les totaux du BC
+            bon_commande.calculer_totaux()
+
+            messages.success(
+                request,
+                f'Ligne supprimée : {article_designation} × {quantite}'
+            )
+            return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.pk)
+
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la suppression : {str(e)}')
+
+    return render(request, 'gestion_achats/bon_commande/ligne_bc_confirm_delete.html', {
+        'bc': bon_commande,
+        'ligne': ligne,
+    })

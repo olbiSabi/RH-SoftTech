@@ -670,7 +670,74 @@ class BudgetForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         self.fields['departement'].required = False
-        self.fields['projet'].required = False
-        self.fields['gestionnaire'].required = False
+        self.fields['description'].required = False
+
+
+# ========== Formulaires pour les Réceptions (compléments) ==========
+
+class ReceptionValidationForm(forms.Form):
+    """Formulaire pour valider une réception."""
+
+    commentaire = forms.CharField(
+        label='Commentaire',
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 3,
+            'placeholder': 'Commentaire sur la validation...'
+        })
+    )
+
+
+class ReceptionAnnulationForm(forms.Form):
+    """Formulaire pour annuler une réception."""
+
+    motif = forms.CharField(
+        label='Motif d\'annulation',
+        required=True,
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 3,
+            'placeholder': 'Expliquez la raison de l\'annulation...'
+        })
+    )
+
+
+# ========== Formulaires pour les ArticleFournisseur ==========
+
+class ArticleFournisseurForm(forms.ModelForm):
+    """Formulaire pour associer un article à un fournisseur."""
+
+    class Meta:
+        model = GACArticle.fournisseurs.through
+        fields = [
+            'fournisseur',
+            'reference_fournisseur',
+            'prix_fournisseur',
+            'delai_livraison',
+            'fournisseur_principal',
+        ]
+        widgets = {
+            'fournisseur': forms.Select(attrs={
+                'class': 'form-control',
+            }),
+            'reference_fournisseur': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Référence chez le fournisseur',
+            }),
+            'prix_fournisseur': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '0',
+                'step': '0.01',
+            }),
+            'delai_livraison': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '0',
+            }),
+            'fournisseur_principal': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+            }),
+        }

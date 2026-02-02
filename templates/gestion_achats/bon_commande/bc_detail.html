@@ -11,11 +11,11 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0">
             <i class="fas fa-file-invoice me-2"></i>
-            Bon de commande {{ bon_commande.numero }}
+            Bon de commande {{ bc.numero }}
         </h1>
         <div>
-            <span class="badge bg-{{ bon_commande.get_statut_badge_class }} fs-6">
-                {{ bon_commande.get_statut_display }}
+            <span class="badge bg-{{ bc.get_statut_badge_class }} fs-6">
+                {{ bc.get_statut_display }}
             </span>
         </div>
     </div>
@@ -28,23 +28,23 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
-                    <p><strong>Numéro :</strong> {{ bon_commande.numero }}</p>
-                    <p><strong>Date création :</strong> {{ bon_commande.date_creation|date:"d/m/Y H:i" }}</p>
-                    <p><strong>Fournisseur :</strong> {{ bon_commande.fournisseur.raison_sociale }}</p>
-                    {% if bon_commande.demande_achat %}
+                    <p><strong>Numéro :</strong> {{ bc.numero }}</p>
+                    <p><strong>Date création :</strong> {{ bc.date_creation|date:"d/m/Y H:i" }}</p>
+                    <p><strong>Fournisseur :</strong> {{ bc.fournisseur.raison_sociale }}</p>
+                    {% if bc.demande_achat %}
                     <p><strong>Demande liée :</strong>
-                        <a href="{% url 'gestion_achats:demande_detail' bon_commande.demande_achat.pk %}">
-                            {{ bon_commande.demande_achat.numero }}
+                        <a href="{% url 'gestion_achats:demande_detail' bc.demande_achat.pk %}">
+                            {{ bc.demande_achat.numero }}
                         </a>
                     </p>
                     {% endif %}
                 </div>
                 <div class="col-md-6">
-                    <p><strong>Montant HT :</strong> {{ bon_commande.montant_total_ht|floatformat:2 }} €</p>
-                    <p><strong>Montant TVA :</strong> {{ bon_commande.montant_tva|floatformat:2 }} €</p>
-                    <p><strong>Montant TTC :</strong> <strong class="text-primary">{{ bon_commande.montant_total_ttc|floatformat:2 }} €</strong></p>
-                    {% if bon_commande.date_emission %}
-                    <p><strong>Date émission :</strong> {{ bon_commande.date_emission|date:"d/m/Y" }}</p>
+                    <p><strong>Montant HT :</strong> {{ bc.montant_total_ht|floatformat:2 }} €</p>
+                    <p><strong>Montant TVA :</strong> {{ bc.montant_tva|floatformat:2 }} €</p>
+                    <p><strong>Montant TTC :</strong> <strong class="text-primary">{{ bc.montant_total_ttc|floatformat:2 }} €</strong></p>
+                    {% if bc.date_emission %}
+                    <p><strong>Date émission :</strong> {{ bc.date_emission|date:"d/m/Y" }}</p>
                     {% endif %}
                 </div>
             </div>
@@ -53,8 +53,13 @@
 
     <!-- Lignes du BC -->
     <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0"><i class="fas fa-list me-2"></i>Lignes de commande</h5>
+            {% if can_modify and bc.statut == 'BROUILLON' %}
+            <a href="{% url 'gestion_achats:ligne_bc_create' pk=bc.pk %}" class="btn btn-sm btn-success">
+                <i class="fas fa-plus me-2"></i>Ajouter une ligne
+            </a>
+            {% endif %}
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -67,22 +72,54 @@
                             <th class="text-end">TVA</th>
                             <th class="text-end">Total HT</th>
                             <th class="text-end">Total TTC</th>
+                            {% if can_modify and bc.statut == 'BROUILLON' %}
+                            <th class="text-center">Actions</th>
+                            {% endif %}
                         </tr>
                     </thead>
                     <tbody>
-                        {% for ligne in bon_commande.lignes.all %}
+                        {% for ligne in bc.lignes.all %}
                         <tr>
                             <td>
-                                {{ ligne.article.nom }}
+                                {{ ligne.article.designation }}
                                 {% if ligne.commentaire %}
                                 <br><small class="text-muted">{{ ligne.commentaire }}</small>
                                 {% endif %}
                             </td>
-                            <td class="text-end">{{ ligne.quantite }}</td>
+                            <td class="text-end">{{ ligne.quantite_commandee }}</td>
                             <td class="text-end">{{ ligne.prix_unitaire|floatformat:2 }} €</td>
                             <td class="text-end">{{ ligne.taux_tva }}%</td>
-                            <td class="text-end">{{ ligne.montant_ht|floatformat:2 }} €</td>
+                            <td class="text-end">{{ ligne.montant|floatformat:2 }} €</td>
                             <td class="text-end">{{ ligne.montant_ttc|floatformat:2 }} €</td>
+                            {% if can_modify and bc.statut == 'BROUILLON' %}
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{% url 'gestion_achats:ligne_bc_update' pk=bc.pk ligne_pk=ligne.pk %}"
+                                       class="btn btn-outline-primary"
+                                       title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'gestion_achats:ligne_bc_delete' pk=bc.pk ligne_pk=ligne.pk %}"
+                                       class="btn btn-outline-danger"
+                                       title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="{% if can_modify and bc.statut == 'BROUILLON' %}7{% else %}6{% endif %}" class="text-center text-muted py-4">
+                                <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                                Aucune ligne de commande
+                                {% if can_modify and bc.statut == 'BROUILLON' %}
+                                <br>
+                                <a href="{% url 'gestion_achats:ligne_bc_create' pk=bc.pk %}" class="btn btn-sm btn-primary mt-2">
+                                    <i class="fas fa-plus me-2"></i>Ajouter la première ligne
+                                </a>
+                                {% endif %}
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -100,19 +137,19 @@
                 </a>
 
                 {% if can_emit %}
-                <a href="{% url 'gestion_achats:bon_commande_emit' bon_commande.pk %}" class="btn btn-success">
+                <a href="{% url 'gestion_achats:bon_commande_emit' bc.pk %}" class="btn btn-success">
                     <i class="fas fa-paper-plane me-2"></i>Émettre
                 </a>
                 {% endif %}
 
                 {% if can_send %}
-                <a href="{% url 'gestion_achats:bon_commande_send' bon_commande.pk %}" class="btn btn-primary">
+                <a href="{% url 'gestion_achats:bon_commande_send' bc.pk %}" class="btn btn-primary">
                     <i class="fas fa-envelope me-2"></i>Envoyer au fournisseur
                 </a>
                 {% endif %}
 
-                {% if bon_commande.fichier_pdf %}
-                <a href="{% url 'gestion_achats:bon_commande_pdf' bon_commande.pk %}" class="btn btn-outline-danger" target="_blank">
+                {% if bc.fichier_pdf %}
+                <a href="{% url 'gestion_achats:bon_commande_pdf' bc.pk %}" class="btn btn-outline-danger" target="_blank">
                     <i class="fas fa-file-pdf me-2"></i>Télécharger PDF
                 </a>
                 {% endif %}

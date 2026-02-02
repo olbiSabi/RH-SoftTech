@@ -1,0 +1,241 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="page-title mb-0">
+                <i class="fas fa-clock"></i> Réceptions en Attente de Validation
+            </h2>
+            <p class="text-muted">{{ receptions.count }} réception(s) à valider</p>
+        </div>
+        <div>
+            <a href="{% url 'gestion_achats:reception_list' %}" class="btn btn-secondary">
+                <i class="fas fa-list"></i> Toutes les réceptions
+            </a>
+        </div>
+    </div>
+
+    {% if receptions %}
+    <!-- Liste des réceptions -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Numéro</th>
+                            <th>Bon de Commande</th>
+                            <th>Fournisseur</th>
+                            <th>Réceptionnaire</th>
+                            <th>Date Réception</th>
+                            <th class="text-center">Statut</th>
+                            <th class="text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reception in receptions %}
+                        <tr>
+                            <td>
+                                <strong>{{ reception.numero }}</strong>
+                            </td>
+                            <td>
+                                <a href="{% url 'gestion_achats:bon_commande_detail' pk=reception.bon_commande.uuid %}">
+                                    {{ reception.bon_commande.numero }}
+                                </a>
+                            </td>
+                            <td>
+                                <i class="fas fa-building text-muted"></i>
+                                {{ reception.bon_commande.fournisseur.raison_sociale }}
+                            </td>
+                            <td>
+                                <i class="fas fa-user text-muted"></i>
+                                {{ reception.receptionnaire.PRENOM }} {{ reception.receptionnaire.NOM }}
+                            </td>
+                            <td>
+                                <i class="fas fa-calendar text-muted"></i>
+                                {{ reception.date_reception|date:"d/m/Y" }}
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-warning">
+                                    <i class="fas fa-clock"></i> En attente
+                                </span>
+                            </td>
+                            <td class="text-right">
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'gestion_achats:reception_detail' pk=reception.uuid %}"
+                                       class="btn btn-sm btn-info"
+                                       data-toggle="tooltip"
+                                       title="Voir les détails">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+
+                                    <form method="post"
+                                          action="{% url 'gestion_achats:reception_validate' pk=reception.uuid %}"
+                                          style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                                class="btn btn-sm btn-success"
+                                                data-toggle="tooltip"
+                                                title="Valider"
+                                                onclick="return confirm('Valider cette réception ?');">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+
+                                    <button type="button"
+                                            class="btn btn-sm btn-danger"
+                                            data-toggle="modal"
+                                            data-target="#modalAnnuler"
+                                            data-reception-uuid="{{ reception.uuid }}"
+                                            data-reception-numero="{{ reception.numero }}"
+                                            title="Annuler">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Détails des lignes (repliable) -->
+                        <tr class="collapse" id="details-{{ reception.uuid }}">
+                            <td colspan="7" class="bg-light">
+                                <div class="p-3">
+                                    <h6><i class="fas fa-list"></i> Détails des lignes :</h6>
+                                    <table class="table table-sm table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Article</th>
+                                                <th class="text-right">Qté Commandée</th>
+                                                <th class="text-right">Qté Reçue</th>
+                                                <th class="text-right">Qté Acceptée</th>
+                                                <th class="text-right">Qté Refusée</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for ligne in reception.lignes.all %}
+                                            <tr>
+                                                <td>{{ ligne.ligne_bon_commande.article.designation }}</td>
+                                                <td class="text-right">{{ ligne.ligne_bon_commande.quantite_commandee }}</td>
+                                                <td class="text-right">{{ ligne.quantite_recue }}</td>
+                                                <td class="text-right">
+                                                    <span class="text-success">{{ ligne.quantite_acceptee }}</span>
+                                                </td>
+                                                <td class="text-right">
+                                                    {% if ligne.quantite_refusee > 0 %}
+                                                    <span class="text-danger">{{ ligne.quantite_refusee }}</span>
+                                                    {% else %}
+                                                    --
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+
+                                    {% if reception.commentaire %}
+                                    <div class="mt-2">
+                                        <strong>Commentaire :</strong>
+                                        <p class="mb-0">{{ reception.commentaire }}</p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Message si aucune réception -->
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i>
+        <strong>Aucune réception en attente de validation.</strong>
+        <p class="mb-0 mt-2">
+            Toutes les réceptions ont été traitées.
+        </p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal Annulation -->
+<div class="modal fade" id="modalAnnuler" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-times-circle"></i> Annuler une Réception
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form method="post" id="formAnnuler">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Vous êtes sur le point d'annuler la réception <strong id="receptionNumero"></strong>.</p>
+
+                    <div class="form-group">
+                        <label for="motif">Motif d'annulation <span class="text-danger">*</span></label>
+                        <textarea name="motif"
+                                  id="motif"
+                                  class="form-control"
+                                  rows="3"
+                                  required
+                                  placeholder="Expliquez la raison de l'annulation..."></textarea>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Attention :</strong> Cette action est irréversible.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times"></i> Annuler
+                    </button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-check"></i> Confirmer l'annulation
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extrascript %}
+<script>
+$(document).ready(function() {
+    // Initialiser les tooltips
+    $('[data-toggle="tooltip"]').tooltip();
+
+    // Gérer l'ouverture du modal d'annulation
+    $('#modalAnnuler').on('show.bs.modal', function(event) {
+        const button = $(event.relatedTarget);
+        const receptionUuid = button.data('reception-uuid');
+        const receptionNumero = button.data('reception-numero');
+
+        const form = $(this).find('form');
+        form.attr('action', '/gestion-achats/receptions/' + receptionUuid + '/cancel/');
+
+        $('#receptionNumero').text(receptionNumero);
+    });
+
+    // Toggle des détails des lignes
+    $('button[data-toggle="collapse"]').on('click', function() {
+        const target = $(this).data('target');
+        $(target).collapse('toggle');
+    });
+});
+</script>
+{% endblock %}

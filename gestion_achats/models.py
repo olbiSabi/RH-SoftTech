@@ -246,12 +246,35 @@ class GACCategorie(models.Model):
         default=0,
         verbose_name="Ordre d'affichage"
     )
-    
+
     date_creation = models.DateTimeField(
         auto_now_add=True,
         verbose_name="Date de création"
     )
-    
+
+    date_modification = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Date de modification"
+    )
+
+    cree_par = models.ForeignKey(
+        'employee.ZY00',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='categories_creees_gac',
+        verbose_name="Créé par"
+    )
+
+    modifie_par = models.ForeignKey(
+        'employee.ZY00',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='categories_modifiees_gac',
+        verbose_name="Modifié par"
+    )
+
     class Meta:
         verbose_name = "Catégorie"
         verbose_name_plural = "Catégories"
@@ -260,7 +283,14 @@ class GACCategorie(models.Model):
             models.Index(fields=['code']),
             models.Index(fields=['parent']),
         ]
-    
+
+    def save(self, *args, **kwargs):
+        """Génère automatiquement le code de catégorie."""
+        if not self.code:
+            from gestion_achats.utils import generer_code_categorie
+            self.code = generer_code_categorie()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         if self.parent:
             return f"{self.parent.nom} > {self.nom}"
@@ -1420,7 +1450,35 @@ class GACReception(models.Model):
         related_name='receptions_validees_gac',
         verbose_name="Validateur"
     )
-    
+
+    # Conformité
+    conforme = models.BooleanField(
+        default=True,
+        verbose_name="Réception conforme"
+    )
+
+    # Annulation
+    motif_annulation = models.TextField(
+        blank=True,
+        verbose_name="Motif d'annulation"
+    )
+
+    date_annulation = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Date d'annulation"
+    )
+
+    # Métadonnées
+    cree_par = models.ForeignKey(
+        ZY00,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='receptions_creees_gac',
+        verbose_name="Créé par"
+    )
+
     # Relations inverses
     pieces_jointes = GenericRelation(
         'GACPieceJointe',
@@ -1531,9 +1589,21 @@ class GACLigneReception(models.Model):
         blank=True,
         verbose_name="Motif de refus"
     )
+
+    # Conformité
+    conforme = models.BooleanField(
+        default=True,
+        verbose_name="Ligne conforme"
+    )
+
     commentaire = models.TextField(
         blank=True,
         verbose_name="Commentaire"
+    )
+
+    commentaire_reception = models.TextField(
+        blank=True,
+        verbose_name="Commentaire de réception"
     )
 
     class Meta:
@@ -1569,6 +1639,326 @@ class GACLigneReception(models.Model):
         """Valide avant sauvegarde."""
         self.full_clean()
         super().save(*args, **kwargs)
+
+
+# ==============================================================================
+# MODÈLE: GACBonRetour
+# ==============================================================================
+
+class GACBonRetour(models.Model):
+    """
+    Modèle pour gérer les bons de retour fournisseur.
+    Créé suite à une réception non conforme pour retourner des articles défectueux.
+    """
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+        verbose_name="Identifiant unique"
+    )
+
+    numero = models.CharField(
+        max_length=30,
+        unique=True,
+        editable=False,
+        verbose_name="Numéro de bon de retour"
+    )
+
+    reception = models.ForeignKey(
+        GACReception,
+        on_delete=models.PROTECT,
+        related_name='bons_retour',
+        verbose_name="Réception concernée"
+    )
+
+    bon_commande = models.ForeignKey(
+        'GACBonCommande',
+        on_delete=models.PROTECT,
+        related_name='bons_retour',
+        verbose_name="Bon de commande"
+    )
+
+    fournisseur = models.ForeignKey(
+        'GACFournisseur',
+        on_delete=models.PROTECT,
+        related_name='bons_retour',
+        verbose_name="Fournisseur"
+    )
+
+    statut = models.CharField(
+        max_length=20,
+        choices=constants.STATUT_RETOUR_CHOICES,
+        default=constants.STATUT_RETOUR_BROUILLON,
+        verbose_name="Statut"
+    )
+
+    date_creation = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Date de création"
+    )
+
+    date_emission = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Date d'émission"
+    )
+
+    date_envoi = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Date d'envoi au fournisseur"
+    )
+
+    date_reception_fournisseur = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Date de réception par le fournisseur"
+    )
+
+    motif_retour = models.TextField(
+        verbose_name="Motif du retour"
+    )
+
+    commentaire = models.TextField(
+        blank=True,
+        verbose_name="Commentaire"
+    )
+
+    montant_total_ht = models.DecimalField(
+        max_digits=15,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="Montant total HT"
+    )
+
+    montant_total_tva = models.DecimalField(
+        max_digits=15,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="Montant total TVA"
+    )
+
+    montant_total_ttc = models.DecimalField(
+        max_digits=15,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="Montant total TTC"
+    )
+
+    # Avoir ou remboursement
+    avoir_recu = models.BooleanField(
+        default=False,
+        verbose_name="Avoir reçu"
+    )
+
+    montant_avoir = models.DecimalField(
+        max_digits=15,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name="Montant de l'avoir"
+    )
+
+    numero_avoir = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name="Numéro de l'avoir"
+    )
+
+    date_avoir = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name="Date de l'avoir"
+    )
+
+    # Métadonnées
+    cree_par = models.ForeignKey(
+        ZY00,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='bons_retour_crees_gac',
+        verbose_name="Créé par"
+    )
+
+    emis_par = models.ForeignKey(
+        ZY00,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='bons_retour_emis_gac',
+        verbose_name="Émis par"
+    )
+
+    # Relations inverses
+    pieces_jointes = GenericRelation(
+        'GACPieceJointe',
+        related_query_name='bon_retour'
+    )
+    historique = GenericRelation(
+        'GACHistorique',
+        related_query_name='bon_retour'
+    )
+
+    class Meta:
+        verbose_name = "Bon de retour fournisseur"
+        verbose_name_plural = "Bons de retour fournisseur"
+        ordering = ['-date_creation']
+        indexes = [
+            models.Index(fields=['numero']),
+            models.Index(fields=['fournisseur', 'statut']),
+            models.Index(fields=['date_creation']),
+        ]
+
+    def __str__(self):
+        return f"{self.numero} - {self.fournisseur.nom}"
+
+    def save(self, *args, **kwargs):
+        """Génère automatiquement le numéro de bon de retour."""
+        if not self.numero:
+            from gestion_achats.utils import generer_numero_bon_retour
+            self.numero = generer_numero_bon_retour()
+        super().save(*args, **kwargs)
+
+    def calculer_totaux(self):
+        """Calcule les totaux HT, TVA et TTC du bon de retour."""
+        total_ht = Decimal('0.00')
+        total_tva = Decimal('0.00')
+
+        for ligne in self.lignes.all():
+            total_ht += ligne.montant
+            total_tva += ligne.montant_tva
+
+        self.montant_total_ht = total_ht
+        self.montant_total_tva = total_tva
+        self.montant_total_ttc = total_ht + total_tva
+        self.save(update_fields=['montant_total_ht', 'montant_total_tva', 'montant_total_ttc'])
+
+    def get_statut_badge_class(self):
+        """Retourne la classe CSS Bootstrap pour le badge de statut."""
+        statut_classes = {
+            'BROUILLON': 'secondary',
+            'EMIS': 'info',
+            'ENVOYE': 'primary',
+            'RECU_FOURNISSEUR': 'warning',
+            'REMBOURSE': 'success',
+            'AVOIR_EMIS': 'success',
+            'ANNULE': 'danger',
+        }
+        return statut_classes.get(self.statut, 'secondary')
+
+
+# ==============================================================================
+# MODÈLE: GACLigneBonRetour
+# ==============================================================================
+
+class GACLigneBonRetour(models.Model):
+    """
+    Ligne d'un bon de retour avec détail des quantités et articles retournés.
+    """
+    uuid = models.UUIDField(
+        default=uuid.uuid4,
+        editable=False,
+        unique=True,
+        verbose_name="UUID"
+    )
+
+    bon_retour = models.ForeignKey(
+        GACBonRetour,
+        on_delete=models.CASCADE,
+        related_name='lignes',
+        verbose_name="Bon de retour"
+    )
+
+    ligne_reception = models.ForeignKey(
+        GACLigneReception,
+        on_delete=models.PROTECT,
+        related_name='lignes_retour',
+        verbose_name="Ligne de réception"
+    )
+
+    article = models.ForeignKey(
+        GACArticle,
+        on_delete=models.PROTECT,
+        related_name='lignes_retour',
+        verbose_name="Article"
+    )
+
+    quantite_retournee = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal('0.01'))],
+        verbose_name="Quantité retournée"
+    )
+
+    prix_unitaire = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal('0.00'))],
+        verbose_name="Prix unitaire HT"
+    )
+
+    taux_tva = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=Decimal(str(constants.TAUX_TVA_DEFAUT)),
+        verbose_name="Taux TVA (%)"
+    )
+
+    montant = models.DecimalField(
+        max_digits=15,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="Montant HT"
+    )
+
+    montant_tva = models.DecimalField(
+        max_digits=15,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="Montant TVA"
+    )
+
+    montant_ttc = models.DecimalField(
+        max_digits=15,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="Montant TTC"
+    )
+
+    motif_retour = models.TextField(
+        verbose_name="Motif du retour"
+    )
+
+    commentaire = models.TextField(
+        blank=True,
+        verbose_name="Commentaire"
+    )
+
+    ordre = models.IntegerField(
+        default=0,
+        verbose_name="Ordre"
+    )
+
+    class Meta:
+        verbose_name = "Ligne de bon de retour"
+        verbose_name_plural = "Lignes de bons de retour"
+        ordering = ['ordre', 'id']
+
+    def __str__(self):
+        return f"{self.article.reference} x {self.quantite_retournee}"
+
+    def save(self, *args, **kwargs):
+        """Calcule les montants avant sauvegarde."""
+        from gestion_achats.utils import calculer_montant_tva
+
+        self.montant = (self.quantite_retournee * self.prix_unitaire).quantize(Decimal('0.01'))
+        self.montant_tva = calculer_montant_tva(self.montant, self.taux_tva)
+        self.montant_ttc = self.montant + self.montant_tva
+        super().save(*args, **kwargs)
+
+        # Recalculer les totaux du bon de retour
+        self.bon_retour.calculer_totaux()
 
 
 class GACPieceJointe(models.Model):

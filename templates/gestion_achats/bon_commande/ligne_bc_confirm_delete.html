@@ -1,0 +1,76 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Confirmer la suppression
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Informations du BC -->
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading">
+                            <i class="fas fa-info-circle me-2"></i>Bon de commande {{ bc.numero }}
+                        </h6>
+                        <hr>
+                        <p class="mb-0">
+                            <strong>Fournisseur :</strong> {{ bc.fournisseur.raison_sociale }}<br>
+                            <strong>Total actuel TTC :</strong> {{ bc.montant_total_ttc|floatformat:2 }} €
+                        </p>
+                    </div>
+
+                    <!-- Ligne à supprimer -->
+                    <div class="alert alert-danger">
+                        <h6 class="alert-heading">Ligne à supprimer</h6>
+                        <hr>
+                        <div class="row">
+                            <div class="col-12">
+                                <p class="mb-2">
+                                    <strong>Article :</strong> {{ ligne.article.reference }} - {{ ligne.article.designation }}
+                                </p>
+                                <p class="mb-2">
+                                    <strong>Quantité :</strong> {{ ligne.quantite_commandee }}
+                                </p>
+                                <p class="mb-2">
+                                    <strong>Prix unitaire HT :</strong> {{ ligne.prix_unitaire|floatformat:2 }} €
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Montant TTC :</strong> {{ ligne.montant_ttc|floatformat:2 }} €
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Attention :</strong> Cette action est irréversible. Le total du bon de commande sera recalculé après suppression.
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'gestion_achats:bon_commande_detail' pk=bc.pk %}"
+                               class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Confirmer la suppression
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

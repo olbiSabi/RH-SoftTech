@@ -1,0 +1,126 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        {{ action }} une ligne au BC {{ bc.numero }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Informations du BC -->
+                    <div class="alert alert-info mb-4">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Bon de commande :</strong> {{ bc.numero }}<br>
+                                <strong>Fournisseur :</strong> {{ bc.fournisseur.raison_sociale }}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Statut :</strong>
+                                <span class="badge bg-{{ bc.get_statut_badge_class }}">
+                                    {{ bc.get_statut_display }}
+                                </span><br>
+                                <strong>Total actuel TTC :</strong> {{ bc.montant_total_ttc|floatformat:2 }} €
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulaire -->
+                    <form method="post">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ form.article.id_for_label }}" class="form-label required">
+                                    Article
+                                </label>
+                                {{ form.article }}
+                                {% if form.article.errors %}
+                                <div class="text-danger small">{{ form.article.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.quantite_commandee.id_for_label }}" class="form-label required">
+                                    Quantité
+                                </label>
+                                {{ form.quantite_commandee }}
+                                {% if form.quantite_commandee.errors %}
+                                <div class="text-danger small">{{ form.quantite_commandee.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.prix_unitaire.id_for_label }}" class="form-label required">
+                                    Prix unitaire HT (€)
+                                </label>
+                                {{ form.prix_unitaire }}
+                                {% if form.prix_unitaire.errors %}
+                                <div class="text-danger small">{{ form.prix_unitaire.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.taux_tva.id_for_label }}" class="form-label required">
+                                    Taux TVA (%)
+                                </label>
+                                {{ form.taux_tva }}
+                                {% if form.taux_tva.errors %}
+                                <div class="text-danger small">{{ form.taux_tva.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ form.commentaire.id_for_label }}" class="form-label">
+                                    Commentaire (optionnel)
+                                </label>
+                                {{ form.commentaire }}
+                                {% if form.commentaire.errors %}
+                                <div class="text-danger small">{{ form.commentaire.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Boutons d'action -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'gestion_achats:bon_commande_detail' pk=bc.pk %}"
+                               class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>{{ action }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-label.required::after {
+    content: " *";
+    color: red;
+}
+</style>
+{% endblock %}

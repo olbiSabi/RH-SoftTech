@@ -20,12 +20,12 @@
             <i class="fas fa-dolly me-2"></i>
             Réceptions de marchandises
         </h2>
-        {% is_admin_gac user as is_admin %}
-        {% if is_admin %}
-        <a href="{% url 'gestion_achats:reception_create' %}" class="btn btn-primary">
-            <i class="fas fa-plus-circle me-2"></i>Nouvelle réception
-        </a>
-        {% endif %}
+        <div>
+            <a href="{% url 'gestion_achats:bon_commande_liste' %}" class="btn btn-outline-primary">
+                <i class="fas fa-file-invoice me-2"></i>Voir les bons de commande
+            </a>
+            <small class="text-muted d-block mt-1">Les réceptions sont créées depuis les bons de commande</small>
+        </div>
     </div>
 
     <!-- Filtres -->

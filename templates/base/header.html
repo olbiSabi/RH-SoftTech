@@ -488,8 +488,29 @@
                             {% if can_manage_budgets %}
                             <li class="submenu-divider"></li>
                             <li>
-                                <a href="#" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;">
-                                    <i class="fas fa-wallet"></i> Budgets (À venir)
+                                <a href="{% url 'gestion_achats:budget_list' %}">
+                                    <i class="fas fa-wallet"></i> Budgets
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'gestion_achats:synthese_budgets' %}">
+                                    <i class="fas fa-chart-pie"></i> Synthèse budgets
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            <!-- Réceptions - RECEPTIONNAIRE, ADMIN_GAC -->
+                            {% can_manage_receptions user as can_manage_receptions %}
+                            {% if can_manage_receptions %}
+                            <li class="submenu-divider"></li>
+                            <li>
+                                <a href="{% url 'gestion_achats:reception_list' %}">
+                                    <i class="fas fa-dolly"></i> Réceptions
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'gestion_achats:receptions_en_attente' %}">
+                                    <i class="fas fa-clock"></i> Réceptions en attente
                                 </a>
                             </li>
                             {% endif %}
@@ -499,23 +520,18 @@
                             {% if is_admin %}
                             <li class="submenu-divider"></li>
                             <li>
-                                <a href="#" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;">
-                                    <i class="fas fa-box"></i> Articles (À venir)
+                                <a href="{% url 'gestion_achats:article_list' %}">
+                                    <i class="fas fa-box"></i> Articles
                                 </a>
                             </li>
                             <li>
-                                <a href="#" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;">
-                                    <i class="fas fa-truck"></i> Fournisseurs (À venir)
+                                <a href="{% url 'gestion_achats:fournisseur_list' %}">
+                                    <i class="fas fa-truck"></i> Fournisseurs
                                 </a>
                             </li>
                             <li>
-                                <a href="#" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;">
-                                    <i class="fas fa-tags"></i> Catégories (À venir)
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;">
-                                    <i class="fas fa-dolly"></i> Réceptions (À venir)
+                                <a href="{% url 'gestion_achats:categorie_list' %}">
+                                    <i class="fas fa-tags"></i> Catégories
                                 </a>
                             </li>
                             {% endif %}

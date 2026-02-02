@@ -343,6 +343,21 @@ def can_manage_budgets(user):
 
 
 @register.simple_tag
+def can_manage_receptions(user):
+    """
+    Vérifie si l'utilisateur peut gérer les réceptions.
+
+    Usage: {% can_manage_receptions user as can_manage %}
+    """
+    if not user or not user.is_authenticated or not hasattr(user, 'employe') or not user.employe:
+        return False
+    return (
+        user.employe.has_role('RECEPTIONNAIRE') or
+        user.employe.has_role('ADMIN_GAC')
+    )
+
+
+@register.simple_tag
 def is_admin_gac(user):
     """
     Vérifie si l'utilisateur est admin GAC.

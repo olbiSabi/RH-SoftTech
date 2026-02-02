@@ -382,6 +382,16 @@ class GACPermissions:
         return (user.employe.has_role('ACHETEUR') or
                 user.employe.has_role('ADMIN_GAC'))
 
+    @staticmethod
+    def can_view_all_receptions(user):
+        """Vérifie si l'utilisateur peut voir toutes les réceptions."""
+        if not user or not user.is_authenticated:
+            return False
+
+        return (user.employe.has_role('RECEPTIONNAIRE') or
+                user.employe.has_role('ACHETEUR') or
+                user.employe.has_role('ADMIN_GAC'))
+
     # ========== Catalogue ==========
 
     @staticmethod

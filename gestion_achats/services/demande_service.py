@@ -322,6 +322,26 @@ class DemandeService:
         demande.commentaire_validation_n2 = commentaire
         demande.save()
 
+        # Engager le budget si applicable
+        if demande.budget:
+            from gestion_achats.services.budget_service import BudgetService
+            from gestion_achats.exceptions import BudgetInsuffisantError
+            try:
+                BudgetService.engager_montant(
+                    budget=demande.budget,
+                    montant=demande.montant_total_ttc,
+                    reference=f"Demande {demande.numero}"
+                )
+                logger.info(
+                    f"Budget {demande.budget.code} engagé pour {demande.montant_total_ttc} € "
+                    f"(demande {demande.numero})"
+                )
+            except BudgetInsuffisantError as e:
+                logger.error(f"Erreur d'engagement budgétaire: {str(e)}")
+                # Note: La demande reste validée mais l'engagement a échoué
+                # On pourrait lever une exception ici pour annuler la validation
+                # mais cela dépend de la politique de l'entreprise
+
         # Créer l'historique
         GACHistorique.enregistrer_action(
             objet=demande,
@@ -332,8 +352,9 @@ class DemandeService:
             details=f"Validation N2 par {validateur}. Demande complètement validée."
         )
 
-        # TODO: Envoyer notification
-        # NotificationService.notifier_demande_validee(demande)
+        # Notification
+        from gestion_achats.services.notification_service import NotificationService
+        NotificationService.notifier_demande_validee_n2(demande)
 
         logger.info(f"Demande {demande.numero} validée N2 par {validateur}")
 
@@ -367,6 +388,22 @@ class DemandeService:
         demande.date_refus = timezone.now()
         demande.save()
 
+        # Libérer le budget si la demande était validée N2 (donc engagée)
+        if ancien_statut == STATUT_DEMANDE_VALIDEE_N2 and demande.budget:
+            from gestion_achats.services.budget_service import BudgetService
+            try:
+                BudgetService.liberer_montant(
+                    budget=demande.budget,
+                    montant=demande.montant_total_ttc,
+                    reference=f"Refus demande {demande.numero}"
+                )
+                logger.info(
+                    f"Budget {demande.budget.code} libéré de {demande.montant_total_ttc} € "
+                    f"suite au refus de la demande {demande.numero}"
+                )
+            except Exception as e:
+                logger.error(f"Erreur lors de la libération du budget: {str(e)}")
+
         # Créer l'historique
         GACHistorique.enregistrer_action(
             objet=demande,
@@ -377,8 +414,9 @@ class DemandeService:
             details=f"Demande refusée par {validateur}. Motif: {motif}"
         )
 
-        # TODO: Envoyer notification
-        # NotificationService.notifier_demande_refusee(demande)
+        # Notification
+        from gestion_achats.services.notification_service import NotificationService
+        NotificationService.notifier_demande_refusee(demande)
 
         logger.info(f"Demande {demande.numero} refusée par {validateur}")
 
@@ -415,6 +453,22 @@ class DemandeService:
         demande.date_annulation = timezone.now()
         demande.save()
 
+        # Libérer le budget si la demande était validée N2 (donc engagée)
+        if ancien_statut == STATUT_DEMANDE_VALIDEE_N2 and demande.budget:
+            from gestion_achats.services.budget_service import BudgetService
+            try:
+                BudgetService.liberer_montant(
+                    budget=demande.budget,
+                    montant=demande.montant_total_ttc,
+                    reference=f"Annulation demande {demande.numero}"
+                )
+                logger.info(
+                    f"Budget {demande.budget.code} libéré de {demande.montant_total_ttc} € "
+                    f"suite à l'annulation de la demande {demande.numero}"
+                )
+            except Exception as e:
+                logger.error(f"Erreur lors de la libération du budget: {str(e)}")
+
         # Créer l'historique
         GACHistorique.enregistrer_action(
             objet=demande,
@@ -424,6 +478,10 @@ class DemandeService:
             nouveau_statut=demande.statut,
             details=f"Demande annulée par {utilisateur}. Motif: {motif}"
         )
+
+        # Notification
+        from gestion_achats.services.notification_service import NotificationService
+        NotificationService.notifier_demande_annulee(demande)
 
         logger.info(f"Demande {demande.numero} annulée par {utilisateur}")
 

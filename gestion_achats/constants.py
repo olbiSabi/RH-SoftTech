@@ -61,6 +61,28 @@ STATUT_RECEPTION_CHOICES = [
 ]
 
 # ==============================================================================
+# STATUTS BON DE RETOUR
+# ==============================================================================
+
+STATUT_RETOUR_BROUILLON = 'BROUILLON'
+STATUT_RETOUR_EMIS = 'EMIS'
+STATUT_RETOUR_ENVOYE = 'ENVOYE'
+STATUT_RETOUR_RECU_FOURNISSEUR = 'RECU_FOURNISSEUR'
+STATUT_RETOUR_REMBOURSE = 'REMBOURSE'
+STATUT_RETOUR_AVOIR_EMIS = 'AVOIR_EMIS'
+STATUT_RETOUR_ANNULE = 'ANNULE'
+
+STATUT_RETOUR_CHOICES = [
+    (STATUT_RETOUR_BROUILLON, 'Brouillon'),
+    (STATUT_RETOUR_EMIS, 'Émis'),
+    (STATUT_RETOUR_ENVOYE, 'Envoyé au fournisseur'),
+    (STATUT_RETOUR_RECU_FOURNISSEUR, 'Reçu par le fournisseur'),
+    (STATUT_RETOUR_REMBOURSE, 'Remboursé'),
+    (STATUT_RETOUR_AVOIR_EMIS, 'Avoir émis'),
+    (STATUT_RETOUR_ANNULE, 'Annulé'),
+]
+
+# ==============================================================================
 # PRIORITÉS DES DEMANDES
 # ==============================================================================
 
