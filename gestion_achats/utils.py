@@ -106,6 +106,63 @@ def generer_code_categorie():
     return f'CAT-{str(dernier_numero + 1).zfill(4)}'
 
 
+def generer_code_fournisseur():
+    """
+    Génère un code fournisseur unique.
+
+    Format: FRN-NNNN
+    Exemple: FRN-0001
+
+    Returns:
+        str: Code fournisseur généré
+    """
+    from gestion_achats.models import GACFournisseur
+
+    dernier_numero = GACFournisseur.objects.filter(
+        code__startswith='FRN-'
+    ).count()
+
+    return f'FRN-{str(dernier_numero + 1).zfill(4)}'
+
+
+def generer_code_article():
+    """
+    Génère un code article unique.
+
+    Format: ART-NNNN
+    Exemple: ART-0001
+
+    Returns:
+        str: Code article généré
+    """
+    from gestion_achats.models import GACArticle
+
+    dernier_numero = GACArticle.objects.filter(
+        reference__startswith='ART-'
+    ).count()
+
+    return f'ART-{str(dernier_numero + 1).zfill(4)}'
+
+
+def generer_code_budget():
+    """
+    Génère un code budget unique.
+
+    Format: BUD-NNNN
+    Exemple: BUD-0001
+
+    Returns:
+        str: Code budget généré
+    """
+    from gestion_achats.models import GACBudget
+
+    dernier_numero = GACBudget.objects.filter(
+        code__startswith='BUD-'
+    ).count()
+
+    return f'BUD-{str(dernier_numero + 1).zfill(4)}'
+
+
 def calculer_montant_ttc(montant_ht, taux_tva=None):
     """
     Calcule le montant TTC à partir du montant HT et du taux de TVA.
@@ -277,41 +334,31 @@ def formater_montant(montant, symbole='€'):
     return f"{partie_entiere_str},{decimales:02d} {symbole}"
 
 
-def valider_siret(siret):
+def valider_nif(nif):
     """
-    Valide un numéro SIRET français.
+    Valide un Numéro d'Identification Fiscale (NIF) togolais.
 
     Args:
-        siret (str): Numéro SIRET à valider (14 chiffres)
+        nif (str): Numéro NIF à valider (9 à 10 chiffres)
 
     Returns:
         bool: True si valide, False sinon
     """
-    if not siret:
-        return False
+    if not nif:
+        return True  # Le NIF est optionnel
 
     # Enlever les espaces
-    siret = siret.replace(' ', '')
+    nif = nif.replace(' ', '')
 
-    # Vérifier la longueur
-    if len(siret) != 14:
+    # Vérifier la longueur (9 ou 10 chiffres)
+    if len(nif) < 9 or len(nif) > 10:
         return False
 
     # Vérifier que ce sont des chiffres
-    if not siret.isdigit():
+    if not nif.isdigit():
         return False
 
-    # Algorithme de Luhn pour valider le SIRET
-    total = 0
-    for i, digit in enumerate(siret):
-        value = int(digit)
-        if i % 2 == 0:
-            value *= 2
-            if value > 9:
-                value -= 9
-        total += value
-
-    return total % 10 == 0
+    return True
 
 
 def valider_email(email):

@@ -32,12 +32,13 @@ class GACFournisseurModelTest(TestCase):
         self.fournisseur = GACFournisseur.objects.create(
             code='FRNTEST',
             raison_sociale='Fournisseur Test',
-            siret='12345678901234',
+            nif='123456789',
             email='test@fournisseur.fr',
             telephone='0123456789',
             adresse='1 rue Test',
             code_postal='75001',
-            ville='Paris'
+            ville='Lomé',
+            pays='Togo'
         )
 
     def test_str_representation(self):
@@ -45,10 +46,10 @@ class GACFournisseurModelTest(TestCase):
         expected = "FRNTEST - Fournisseur Test"
         self.assertEqual(str(self.fournisseur), expected)
 
-    def test_siret_validation(self):
-        """Teste la validation du SIRET."""
-        # SIRET valide
-        self.assertEqual(len(self.fournisseur.siret), 14)
+    def test_nif_validation(self):
+        """Teste la validation du NIF."""
+        # NIF valide (9 chiffres)
+        self.assertEqual(len(self.fournisseur.nif), 9)
 
     def test_statut_default(self):
         """Teste le statut par défaut."""
@@ -305,10 +306,11 @@ class GACBonCommandeModelTest(TestCase):
         self.fournisseur = GACFournisseur.objects.create(
             code='FRN_TEST',
             raison_sociale='Fournisseur Test',
-            siret='12345678901234',
+            nif='123456789',
             email='test@frn.fr',
             telephone='0123456789',
-            adresse='Test'
+            adresse='Test',
+            pays='Togo'
         )
 
         self.bon_commande = GACBonCommande.objects.create(

@@ -95,7 +95,6 @@ def budget_create(request):
                 utilisateur = request.user.employe if hasattr(request.user, 'employe') else None
 
                 budget = BudgetService.creer_budget(
-                    code=form.cleaned_data['code'],
                     libelle=form.cleaned_data['libelle'],
                     montant_initial=form.cleaned_data['montant_initial'],
                     exercice=form.cleaned_data['exercice'],

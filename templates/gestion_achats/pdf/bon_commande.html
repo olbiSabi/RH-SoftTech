@@ -17,7 +17,7 @@
                 {{ entreprise.code_postal }} {{ entreprise.ville }}<br>
                 Tél: {{ entreprise.telephone }}<br>
                 Email: {{ entreprise.email }}<br>
-                SIRET: {{ entreprise.siret }}
+                {% if entreprise.nif %}NIF: {{ entreprise.nif }}{% endif %}
             </p>
         </div>
         <div class="info-bc">
@@ -37,7 +37,7 @@
             {{ bc.fournisseur.code_postal }} {{ bc.fournisseur.ville }} {{ bc.fournisseur.pays }}<br>
             Tél: {{ bc.fournisseur.telephone }}<br>
             Email: {{ bc.fournisseur.email }}<br>
-            SIRET: {{ bc.fournisseur.siret }}
+            {% if bc.fournisseur.nif %}NIF: {{ bc.fournisseur.nif }}{% endif %}
         </p>
     </div>
 

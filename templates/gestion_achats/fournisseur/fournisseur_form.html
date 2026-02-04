@@ -53,10 +53,10 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    {{ form.siret.label_tag }}
-                                    {{ form.siret }}
-                                    {% if form.siret.errors %}
-                                    <div class="text-danger small">{{ form.siret.errors }}</div>
+                                    {{ form.nif.label_tag }}
+                                    {{ form.nif }}
+                                    {% if form.nif.errors %}
+                                    <div class="text-danger small">{{ form.nif.errors }}</div>
                                     {% endif %}
                                 </div>
                                 <div class="col-md-6 mb-3">
@@ -217,7 +217,7 @@
 <script>
     // Validation du formulaire
     document.getElementById('fournisseurForm').addEventListener('submit', function(e) {
-        const required = ['code', 'raison_sociale', 'siret', 'email', 'telephone', 'adresse', 'code_postal', 'ville'];
+        const required = ['raison_sociale', 'email', 'telephone', 'adresse', 'code_postal', 'ville'];
         let valid = true;
 
         required.forEach(function(field) {

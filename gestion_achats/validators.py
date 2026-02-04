@@ -11,52 +11,36 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 
-def valider_siret(value):
+def valider_nif(value):
     """
-    Valide le format et la clé de contrôle d'un numéro SIRET.
+    Valide le format d'un Numéro d'Identification Fiscale (NIF) togolais.
 
-    Le SIRET est composé de 14 chiffres dont les 9 premiers constituent
-    le numéro SIREN et les 5 suivants le NIC (Numéro Interne de Classement).
+    Le NIF togolais est composé de 9 à 10 chiffres.
 
     Args:
-        value: Le numéro SIRET à valider
+        value: Le numéro NIF à valider
 
     Raises:
-        ValidationError: Si le SIRET est invalide
+        ValidationError: Si le NIF est invalide
     """
     if not value:
-        raise ValidationError(_('Le numéro SIRET est obligatoire.'))
+        return  # Le NIF est optionnel
 
-    # Nettoyer le SIRET (enlever espaces et caractères spéciaux)
-    siret = re.sub(r'[^0-9]', '', str(value))
+    # Nettoyer le NIF (enlever espaces et caractères spéciaux)
+    nif = re.sub(r'[^0-9]', '', str(value))
 
-    # Vérifier la longueur
-    if len(siret) != 14:
+    # Vérifier la longueur (9 ou 10 chiffres)
+    if len(nif) < 9 or len(nif) > 10:
         raise ValidationError(
-            _('Le numéro SIRET doit contenir exactement 14 chiffres. '
-              f'Vous avez fourni {len(siret)} chiffres.')
+            _('Le numéro NIF doit contenir entre 9 et 10 chiffres. '
+              f'Vous avez fourni {len(nif)} chiffres.')
         )
 
     # Vérifier que ce sont bien des chiffres
-    if not siret.isdigit():
-        raise ValidationError(_('Le SIRET ne doit contenir que des chiffres.'))
+    if not nif.isdigit():
+        raise ValidationError(_('Le NIF ne doit contenir que des chiffres.'))
 
-    # Algorithme de Luhn pour vérifier la clé de contrôle
-    total = 0
-    for i, digit in enumerate(siret):
-        n = int(digit)
-        if i % 2 == 0:  # Position paire (0, 2, 4, ...)
-            n *= 2
-            if n > 9:
-                n -= 9
-        total += n
-
-    if total % 10 != 0:
-        raise ValidationError(
-            _('Le numéro SIRET est invalide (erreur de clé de contrôle).')
-        )
-
-    return siret
+    return nif
 
 
 def valider_numero_tva(value):

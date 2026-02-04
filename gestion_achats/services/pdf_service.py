@@ -57,7 +57,7 @@ class PDFService:
                     'ville': getattr(settings, 'COMPANY_CITY', ''),
                     'telephone': getattr(settings, 'COMPANY_PHONE', ''),
                     'email': getattr(settings, 'COMPANY_EMAIL', ''),
-                    'siret': getattr(settings, 'COMPANY_SIRET', ''),
+                    'nif': getattr(settings, 'COMPANY_NIF', ''),
                     'logo_url': getattr(settings, 'COMPANY_LOGO_PATH', None),
                 },
                 'date_generation': bc.date_emission or bc.date_creation,

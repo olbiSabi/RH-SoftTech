@@ -76,14 +76,14 @@
                                 <label class="form-label">
                                     <strong>1. Qualité des produits/services</strong>
                                 </label>
-                                <div class="rating-stars" data-rating="qualite_produits">
+                                <div class="rating-stars" data-rating="note_qualite">
                                     <i class="fas fa-star" data-value="1"></i>
                                     <i class="fas fa-star" data-value="2"></i>
                                     <i class="fas fa-star" data-value="3"></i>
                                     <i class="fas fa-star" data-value="4"></i>
                                     <i class="fas fa-star" data-value="5"></i>
                                 </div>
-                                <input type="hidden" name="qualite_produits" id="qualite_produits" value="0">
+                                <input type="hidden" name="note_qualite" id="note_qualite" value="0">
                             </div>
 
                             <!-- Respect des délais -->
@@ -91,44 +91,29 @@
                                 <label class="form-label">
                                     <strong>2. Respect des délais de livraison</strong>
                                 </label>
-                                <div class="rating-stars" data-rating="respect_delais">
+                                <div class="rating-stars" data-rating="note_delai">
                                     <i class="fas fa-star" data-value="1"></i>
                                     <i class="fas fa-star" data-value="2"></i>
                                     <i class="fas fa-star" data-value="3"></i>
                                     <i class="fas fa-star" data-value="4"></i>
                                     <i class="fas fa-star" data-value="5"></i>
                                 </div>
-                                <input type="hidden" name="respect_delais" id="respect_delais" value="0">
+                                <input type="hidden" name="note_delai" id="note_delai" value="0">
                             </div>
 
-                            <!-- Service client -->
+<!-- Rapport qualité/prix -->
                             <div class="mb-4">
                                 <label class="form-label">
-                                    <strong>3. Qualité du service client</strong>
+                                    <strong>3. Rapport qualité/prix</strong>
                                 </label>
-                                <div class="rating-stars" data-rating="service_client">
+                                <div class="rating-stars" data-rating="note_prix">
                                     <i class="fas fa-star" data-value="1"></i>
                                     <i class="fas fa-star" data-value="2"></i>
                                     <i class="fas fa-star" data-value="3"></i>
                                     <i class="fas fa-star" data-value="4"></i>
                                     <i class="fas fa-star" data-value="5"></i>
                                 </div>
-                                <input type="hidden" name="service_client" id="service_client" value="0">
-                            </div>
-
-                            <!-- Rapport qualité/prix -->
-                            <div class="mb-4">
-                                <label class="form-label">
-                                    <strong>4. Rapport qualité/prix</strong>
-                                </label>
-                                <div class="rating-stars" data-rating="rapport_qualite_prix">
-                                    <i class="fas fa-star" data-value="1"></i>
-                                    <i class="fas fa-star" data-value="2"></i>
-                                    <i class="fas fa-star" data-value="3"></i>
-                                    <i class="fas fa-star" data-value="4"></i>
-                                    <i class="fas fa-star" data-value="5"></i>
-                                </div>
-                                <input type="hidden" name="rapport_qualite_prix" id="rapport_qualite_prix" value="0">
+                                <input type="hidden" name="note_prix" id="note_prix" value="0">
                             </div>
                         </div>
 
@@ -224,23 +209,21 @@
 
     // Calculer la moyenne
     function calculateAverage() {
-        const qualite = parseInt(document.getElementById('qualite_produits').value) || 0;
-        const delais = parseInt(document.getElementById('respect_delais').value) || 0;
-        const service = parseInt(document.getElementById('service_client').value) || 0;
-        const prix = parseInt(document.getElementById('rapport_qualite_prix').value) || 0;
+        const qualite = parseInt(document.getElementById('note_qualite').value) || 0;
+        const delais = parseInt(document.getElementById('note_delai').value) || 0;
+        const prix = parseInt(document.getElementById('note_prix').value) || 0;
 
-        const moyenne = (qualite + delais + service + prix) / 4;
+        const moyenne = (qualite + delais + prix) / 3;
         document.getElementById('note_moyenne').textContent = moyenne.toFixed(2);
     }
 
     // Validation du formulaire
     document.getElementById('evaluationForm').addEventListener('submit', function(e) {
-        const qualite = parseInt(document.getElementById('qualite_produits').value);
-        const delais = parseInt(document.getElementById('respect_delais').value);
-        const service = parseInt(document.getElementById('service_client').value);
-        const prix = parseInt(document.getElementById('rapport_qualite_prix').value);
+        const qualite = parseInt(document.getElementById('note_qualite').value);
+        const delais = parseInt(document.getElementById('note_delai').value);
+        const prix = parseInt(document.getElementById('note_prix').value);
 
-        if (qualite === 0 || delais === 0 || service === 0 || prix === 0) {
+        if (qualite === 0 || delais === 0 || prix === 0) {
             e.preventDefault();
             alert('Veuillez évaluer tous les critères (1 à 5 étoiles).');
             return false;

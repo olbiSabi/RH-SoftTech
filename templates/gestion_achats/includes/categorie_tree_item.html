@@ -1,10 +1,10 @@
+{% load gac_permissions %}
 <li class="{% if not categorie.parent %}root-category{% endif %}">
     <div class="categorie-item d-flex justify-content-between align-items-center">
         <div>
             <strong>{{ categorie.nom }}</strong>
-            <span class="badge bg-secondary ms-2">{{ categorie.code }}</span>
             {% if categorie.articles.count > 0 %}
-            <span class="badge bg-info ms-1">{{ categorie.articles.count }} article(s)</span>
+            <span class="badge bg-info ms-2">{{ categorie.articles.count }} article(s)</span>
             {% endif %}
         </div>
         <div>

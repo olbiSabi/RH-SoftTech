@@ -60,6 +60,7 @@ urlpatterns = [
     path('fournisseurs/create/', fournisseur_views.fournisseur_create, name='fournisseur_create'),
     path('fournisseurs/<uuid:pk>/', fournisseur_views.fournisseur_detail, name='fournisseur_detail'),
     path('fournisseurs/<uuid:pk>/update/', fournisseur_views.fournisseur_update, name='fournisseur_update'),
+    path('fournisseurs/<uuid:pk>/delete/', fournisseur_views.fournisseur_delete, name='fournisseur_delete'),
     path('fournisseurs/<uuid:pk>/suspend/', fournisseur_views.fournisseur_suspend, name='fournisseur_suspend'),
     path('fournisseurs/<uuid:pk>/reactivate/', fournisseur_views.fournisseur_reactivate, name='fournisseur_reactivate'),
     path('fournisseurs/<uuid:pk>/evaluer/', fournisseur_views.evaluer_fournisseur, name='fournisseur_evaluer'),
@@ -100,6 +101,7 @@ urlpatterns = [
     path('catalogue/categories/', catalogue_views.categorie_list, name='categorie_list'),
     path('catalogue/categories/create/', catalogue_views.categorie_create, name='categorie_create'),
     path('catalogue/categories/<uuid:pk>/update/', catalogue_views.categorie_update, name='categorie_update'),
+    path('catalogue/categories/<uuid:pk>/delete/', catalogue_views.categorie_delete, name='categorie_delete'),
 
     # ========================================
     # BUDGETS

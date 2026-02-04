@@ -56,13 +56,15 @@ class GACFournisseur(models.Model):
         max_length=constants.MAX_LENGTH_NOM,
         verbose_name="Raison sociale"
     )
-    
-    siret = models.CharField(
-        max_length=constants.MAX_LENGTH_SIRET,
-        unique=True,
-        verbose_name="SIRET"
+
+    nif = models.CharField(
+        max_length=constants.MAX_LENGTH_NIF,
+        blank=True,
+        null=True,
+        verbose_name="NIF (Numéro d'Identification Fiscale)",
+        help_text="9 à 10 chiffres (optionnel)"
     )
-    
+
     numero_tva = models.CharField(
         max_length=constants.MAX_LENGTH_TVA,
         blank=True,
@@ -104,7 +106,7 @@ class GACFournisseur(models.Model):
     
     pays = models.CharField(
         max_length=100,
-        default="France",
+        default="Togo",
         verbose_name="Pays"
     )
     
@@ -187,13 +189,20 @@ class GACFournisseur(models.Model):
         ordering = ['raison_sociale']
         indexes = [
             models.Index(fields=['code']),
-            models.Index(fields=['siret']),
+            models.Index(fields=['nif']),
             models.Index(fields=['statut']),
         ]
     
+    def save(self, *args, **kwargs):
+        """Génère automatiquement le code fournisseur."""
+        if not self.code:
+            from gestion_achats.utils import generer_code_fournisseur
+            self.code = generer_code_fournisseur()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.code} - {self.raison_sociale}"
-    
+
     def get_absolute_url(self):
         from django.urls import reverse
         return reverse('gestion_achats:fournisseur_detail', args=[self.uuid])
@@ -415,13 +424,20 @@ class GACArticle(models.Model):
             models.Index(fields=['statut']),
         ]
     
+    def save(self, *args, **kwargs):
+        """Génère automatiquement le code article (référence)."""
+        if not self.reference:
+            from gestion_achats.utils import generer_code_article
+            self.reference = generer_code_article()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.reference} - {self.designation}"
-    
+
     def get_absolute_url(self):
         from django.urls import reverse
         return reverse('gestion_achats:article_detail', args=[self.uuid])
-    
+
     def calculer_prix_ttc(self):
         """Calcule le prix TTC."""
         return calculer_montant_ttc(self.prix_unitaire, self.taux_tva)
@@ -632,9 +648,16 @@ class GACBudget(models.Model):
             models.Index(fields=['gestionnaire']),
         ]
     
+    def save(self, *args, **kwargs):
+        """Génère automatiquement le code budget."""
+        if not self.code:
+            from gestion_achats.utils import generer_code_budget
+            self.code = generer_code_budget()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.code} - {self.libelle} ({self.exercice})"
-    
+
     def get_absolute_url(self):
         from django.urls import reverse
         return reverse('gestion_achats:budget_detail', args=[self.uuid])

@@ -304,9 +304,8 @@ class FournisseurForm(forms.ModelForm):
     class Meta:
         model = GACFournisseur
         fields = [
-            'code',
             'raison_sociale',
-            'siret',
+            'nif',
             'numero_tva',
             'email',
             'telephone',
@@ -322,16 +321,12 @@ class FournisseurForm(forms.ModelForm):
             'iban',
         ]
         widgets = {
-            'code': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Code unique',
-            }),
             'raison_sociale': forms.TextInput(attrs={
                 'class': 'form-control',
             }),
-            'siret': forms.TextInput(attrs={
+            'nif': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': '14 chiffres',
+                'placeholder': '9 à 10 chiffres (optionnel)',
             }),
             'numero_tva': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -376,18 +371,18 @@ class FournisseurForm(forms.ModelForm):
             }),
         }
 
-    def clean_siret(self):
-        """Valide le format du SIRET."""
-        siret = self.cleaned_data.get('siret')
-        if siret:
+    def clean_nif(self):
+        """Valide le format du NIF."""
+        nif = self.cleaned_data.get('nif')
+        if nif:
             # Retirer les espaces
-            siret = siret.replace(' ', '')
+            nif = nif.replace(' ', '')
 
-            # Vérifier que c'est bien 14 chiffres
-            if not siret.isdigit() or len(siret) != 14:
-                raise ValidationError('Le SIRET doit contenir exactement 14 chiffres')
+            # Vérifier que ce sont des chiffres et que c'est entre 9 et 10 chiffres
+            if not nif.isdigit() or len(nif) < 9 or len(nif) > 10:
+                raise ValidationError('Le NIF doit contenir entre 9 et 10 chiffres')
 
-        return siret
+        return nif
 
 
 class FournisseurEvaluationForm(forms.Form):
@@ -551,7 +546,6 @@ class ArticleForm(forms.ModelForm):
     class Meta:
         model = GACArticle
         fields = [
-            'reference',
             'designation',
             'categorie',
             'description',
@@ -561,10 +555,6 @@ class ArticleForm(forms.ModelForm):
             'statut',
         ]
         widgets = {
-            'reference': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Référence unique',
-            }),
             'designation': forms.TextInput(attrs={
                 'class': 'form-control',
             }),
@@ -607,7 +597,6 @@ class BudgetForm(forms.ModelForm):
     class Meta:
         model = GACBudget
         fields = [
-            'code',
             'libelle',
             'description',
             'exercice',
@@ -620,10 +609,6 @@ class BudgetForm(forms.ModelForm):
             'seuil_alerte_2',
         ]
         widgets = {
-            'code': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Code unique',
-            }),
             'libelle': forms.TextInput(attrs={
                 'class': 'form-control',
             }),

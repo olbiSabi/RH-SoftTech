@@ -300,20 +300,22 @@ class BudgetService:
 
     @staticmethod
     @transaction.atomic
-    def creer_budget(code, libelle, montant_initial, exercice, departement=None,
-                    projet=None, gestionnaire=None, seuil_alerte_1=None, seuil_alerte_2=None,
-                    cree_par=None):
+    def creer_budget(libelle, montant_initial, exercice, date_debut=None, date_fin=None,
+                    departement=None, projet=None, gestionnaire=None, description=None,
+                    seuil_alerte_1=None, seuil_alerte_2=None, cree_par=None):
         """
         Crée une enveloppe budgétaire.
 
         Args:
-            code: Code unique du budget
             libelle: Libellé du budget
             montant_initial: Montant initial alloué
             exercice: Année de l'exercice
+            date_debut: Date de début (optionnel)
+            date_fin: Date de fin (optionnel)
             departement: Département concerné (optionnel)
             projet: Projet concerné (optionnel)
             gestionnaire: Gestionnaire du budget (optionnel)
+            description: Description du budget (optionnel)
             seuil_alerte_1: Premier seuil d'alerte en % (optionnel, défaut: constante)
             seuil_alerte_2: Deuxième seuil d'alerte en % (optionnel, défaut: constante)
             cree_par: Utilisateur créateur (optionnel)
@@ -325,10 +327,6 @@ class BudgetService:
             ValidationError: Si les données sont invalides
         """
         try:
-            # Vérifier l'unicité du code
-            if GACBudget.objects.filter(code=code).exists():
-                raise GACValidationError(f"Un budget avec le code {code} existe déjà")
-
             # Valider le montant
             if montant_initial <= 0:
                 raise GACValidationError("Le montant initial doit être supérieur à 0")
@@ -339,12 +337,14 @@ class BudgetService:
             if seuil_alerte_2 is None:
                 seuil_alerte_2 = SEUIL_ALERTE_BUDGET_2
 
-            # Créer le budget
+            # Créer le budget (le code sera généré automatiquement par la méthode save())
             budget = GACBudget.objects.create(
-                code=code,
                 libelle=libelle,
+                description=description or '',
                 montant_initial=montant_initial,
                 exercice=exercice,
+                date_debut=date_debut,
+                date_fin=date_fin,
                 departement=departement,
                 projet=projet,
                 gestionnaire=gestionnaire,
@@ -358,10 +358,10 @@ class BudgetService:
                 objet=budget,
                 action='CREATION',
                 utilisateur=cree_par,
-                details=f"Création du budget {code} - {libelle} ({montant_initial} €)"
+                details=f"Création du budget {budget.code} - {libelle} ({montant_initial} €)"
             )
 
-            logger.info(f"Budget {code} créé: {montant_initial} € pour l'exercice {exercice}")
+            logger.info(f"Budget {budget.code} créé: {montant_initial} € pour l'exercice {exercice}")
 
             return budget
 

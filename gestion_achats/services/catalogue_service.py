@@ -91,36 +91,27 @@ class CatalogueService:
 
     @staticmethod
     @transaction.atomic
-    def creer_article(reference, designation, categorie, prix_unitaire, unite,
-                     taux_tva=None, description=None, specifications_techniques=None,
-                     cree_par=None):
+    def creer_article(designation, categorie, prix_unitaire, unite,
+                     taux_tva=None, description=None, cree_par=None):
         """
         Crée un article dans le catalogue.
-
+        
         Args:
-            reference: Référence unique de l'article
             designation: Désignation de l'article
             categorie: Catégorie de l'article
             prix_unitaire: Prix unitaire HT
             unite: Unité de mesure
             taux_tva: Taux de TVA (optionnel, défaut: TAUX_TVA_DEFAUT)
             description: Description de l'article (optionnel)
-            specifications_techniques: Spécifications techniques (optionnel)
             cree_par: Utilisateur créateur (optionnel)
-
+        
         Returns:
             GACArticle: L'article créé
-
+            
         Raises:
             ValidationError: Si les données sont invalides
         """
         try:
-            # Vérifier l'unicité de la référence
-            if GACArticle.objects.filter(reference=reference).exists():
-                raise GACValidationError(
-                    f"Un article avec la référence '{reference}' existe déjà"
-                )
-
             # Valider le prix
             if prix_unitaire < 0:
                 raise GACValidationError("Le prix unitaire ne peut pas être négatif")
@@ -129,16 +120,14 @@ class CatalogueService:
             if taux_tva is None:
                 taux_tva = TAUX_TVA_DEFAUT
 
-            # Créer l'article
+            # Créer l'article (la référence sera générée automatiquement par la méthode save())
             article = GACArticle.objects.create(
-                reference=reference,
                 designation=designation,
                 categorie=categorie,
                 prix_unitaire=prix_unitaire,
                 unite=unite,
                 taux_tva=taux_tva,
                 description=description,
-                specifications_techniques=specifications_techniques,
                 statut='ACTIF',
                 cree_par=cree_par
             )
@@ -148,10 +137,10 @@ class CatalogueService:
                 objet=article,
                 action='CREATION',
                 utilisateur=cree_par,
-                details=f"Création de l'article '{reference}' - {designation} ({prix_unitaire} €)"
+                details=f"Création de l'article '{article.reference}' - {designation} ({prix_unitaire} €)"
             )
 
-            logger.info(f"Article '{reference}' créé: {designation}")
+            logger.info(f"Article '{article.reference}' créé: {designation}")
 
             return article
 

@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 
@@ -93,7 +93,6 @@ def article_create(request):
                 utilisateur = request.user.employe if hasattr(request.user, 'employe') else None
 
                 article = CatalogueService.creer_article(
-                    reference=form.cleaned_data['reference'],
                     designation=form.cleaned_data['designation'],
                     categorie=form.cleaned_data['categorie'],
                     prix_unitaire=form.cleaned_data['prix_unitaire'],
@@ -143,10 +142,34 @@ def article_detail(request, pk):
         'demande_achat'
     ).order_by('-demande_achat__date_creation')[:10]
 
+    # Calculer les statistiques de commandes
+    from gestion_achats.models import GACLigneBonCommande
+    lignes_commandes = GACLigneBonCommande.objects.filter(
+        article=article
+    ).select_related('bon_commande', 'bon_commande__fournisseur')
+    
+    # Statistiques
+    stats = {
+        'nb_commandes': lignes_commandes.count(),
+        'qte_totale': lignes_commandes.aggregate(
+            total=Sum('quantite_commandee')
+        )['total'] or 0,
+        'montant_total': lignes_commandes.aggregate(
+            total=Sum('montant_ttc')
+        )['total'] or 0,
+    }
+
+    # Commandes récentes (limitées à 10)
+    commandes_recentes = lignes_commandes.order_by(
+        '-bon_commande__date_emission'
+    )[:10]
+
     context = {
         'article': article,
         'article_fournisseurs': article_fournisseurs,
         'lignes_demandes': lignes_demandes,
+        'commandes_recentes': commandes_recentes,
+        'stats': stats,
         'can_modify': GACPermissions.can_manage_catalogue(request.user),
     }
 
@@ -256,9 +279,18 @@ def categorie_list(request):
     # Récupérer les statistiques
     stats = CatalogueService.get_statistiques_catalogue()
 
+    # Récupérer les catégories principales (sans parent)
+    from gestion_achats.models import GACCategorie
+    categories_principales = GACCategorie.objects.filter(parent=None).order_by('nom')
+
+    # Récupérer toutes les catégories
+    toutes_categories = GACCategorie.objects.all().order_by('nom')
+
     context = {
         'arborescence': arborescence,
         'stats': stats,
+        'categories_principales': categories_principales,
+        'toutes_categories': toutes_categories,
         'can_modify': GACPermissions.can_manage_catalogue(request.user),
     }
 
@@ -329,6 +361,35 @@ def categorie_update(request, pk):
     }
 
     return render(request, 'gestion_achats/catalogue/categorie_form.html', context)
+
+
+@login_required
+def categorie_delete(request, pk):
+    """Supprimer une catégorie."""
+    require_permission(GACPermissions.can_manage_catalogue, request.user)
+    
+    categorie = get_object_or_404(GACCategorie, uuid=pk)
+    
+    # Vérifier que la catégorie peut être supprimée
+    if categorie.articles.exists():
+        messages.error(request, 'Impossible de supprimer une catégorie contenant des articles.')
+        return redirect('gestion_achats:categorie_list')
+    
+    if categorie.sous_categories.exists():
+        messages.error(request, 'Impossible de supprimer une catégorie contenant des sous-catégories.')
+        return redirect('gestion_achats:categorie_list')
+    
+    if request.method == 'POST':
+        try:
+            nom_categorie = categorie.nom
+            categorie.delete()
+            messages.success(request, f'Catégorie "{nom_categorie}" supprimée avec succès.')
+            return redirect('gestion_achats:categorie_list')
+            
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+    
+    return redirect('gestion_achats:categorie_list')
 
 
 # ========================================

@@ -38,7 +38,7 @@ def fournisseur_list(request):
         fournisseurs = fournisseurs.filter(
             Q(code__icontains=search) |
             Q(raison_sociale__icontains=search) |
-            Q(siret__icontains=search) |
+            Q(nif__icontains=search) |
             Q(email__icontains=search)
         )
 
@@ -69,16 +69,21 @@ def fournisseur_create(request):
         if form.is_valid():
             try:
                 fournisseur = FournisseurService.creer_fournisseur(
-                    code=form.cleaned_data['code'],
                     raison_sociale=form.cleaned_data['raison_sociale'],
-                    siret=form.cleaned_data['siret'],
                     email=form.cleaned_data['email'],
                     telephone=form.cleaned_data['telephone'],
                     adresse=form.cleaned_data['adresse'],
+                    nif=form.cleaned_data.get('nif'),
                     code_postal=form.cleaned_data.get('code_postal'),
                     ville=form.cleaned_data.get('ville'),
-                    pays=form.cleaned_data.get('pays', 'France'),
+                    pays=form.cleaned_data.get('pays', 'Togo'),
                     conditions_paiement=form.cleaned_data.get('conditions_paiement'),
+                    nom_contact=form.cleaned_data.get('nom_contact'),
+                    email_contact=form.cleaned_data.get('email_contact'),
+                    telephone_contact=form.cleaned_data.get('telephone_contact'),
+                    iban=form.cleaned_data.get('iban'),
+                    numero_tva=form.cleaned_data.get('numero_tva'),
+                    fax=form.cleaned_data.get('fax'),
                     cree_par=request.user.employe if hasattr(request.user, 'employe') else None,
                 )
 
@@ -124,7 +129,7 @@ def fournisseur_detail(request, pk):
         'bons_commande': bons_commande,
         'articles': articles,
         'can_modify': GACPermissions.can_modify_fournisseur(request.user),
-        'can_evaluate': GACPermissions.can_evaluate_fournisseurs(request.user),
+        'can_evaluate': GACPermissions.can_evaluate_fournisseur(request.user),
     }
 
     return render(request, 'gestion_achats/fournisseur/fournisseur_detail.html', context)
@@ -219,7 +224,7 @@ def fournisseur_reactivate(request, pk):
 @login_required
 def evaluer_fournisseur(request, pk):
     """Évaluer un fournisseur."""
-    require_permission(GACPermissions.can_evaluate_fournisseurs, request.user)
+    require_permission(GACPermissions.can_evaluate_fournisseur, request.user)
 
     fournisseur = get_object_or_404(GACFournisseur, uuid=pk)
 
@@ -234,7 +239,7 @@ def evaluer_fournisseur(request, pk):
                     evaluateur=evaluateur,
                     note_qualite=form.cleaned_data['note_qualite'],
                     note_delai=form.cleaned_data['note_delai'],
-                    note_service=form.cleaned_data['note_service'],
+                    note_prix=form.cleaned_data['note_prix'],
                     commentaire=form.cleaned_data.get('commentaire', '')
                 )
 
@@ -242,7 +247,12 @@ def evaluer_fournisseur(request, pk):
                 return redirect('gestion_achats:fournisseur_detail', pk=fournisseur.uuid)
 
             except Exception as e:
-                messages.error(request, f'Erreur: {str(e)}')
+                messages.error(request, f'Erreur lors de l\'évaluation: {str(e)}')
+        else:
+            # Afficher les erreurs de validation du formulaire
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
     else:
         form = FournisseurEvaluationForm()
 
@@ -277,3 +287,21 @@ def fournisseurs_pour_article_ajax(request, article_pk):
 
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@login_required
+@require_http_methods(["POST"])
+def fournisseur_delete(request, pk):
+    """Supprimer un fournisseur."""
+    require_permission(GACPermissions.can_delete_fournisseur, request.user)
+
+    fournisseur = get_object_or_404(GACFournisseur, uuid=pk)
+
+    try:
+        raison_sociale = fournisseur.raison_sociale
+        fournisseur.delete()
+        messages.success(request, f'Le fournisseur "{raison_sociale}" a été supprimé avec succès.')
+    except Exception as e:
+        messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+
+    return redirect('gestion_achats:fournisseur_list')

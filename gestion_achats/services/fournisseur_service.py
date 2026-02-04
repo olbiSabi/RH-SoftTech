@@ -28,7 +28,7 @@ from gestion_achats.exceptions import (
     FournisseurError,
     ValidationError as GACValidationError,
 )
-from gestion_achats.utils import valider_siret
+from gestion_achats.utils import valider_nif
 
 logger = logging.getLogger(__name__)
 
@@ -38,26 +38,31 @@ class FournisseurService:
 
     @staticmethod
     @transaction.atomic
-    def creer_fournisseur(code, raison_sociale, siret, email, telephone, adresse,
-                         code_postal=None, ville=None, pays='France',
-                         conditions_paiement=None, contact_principal=None,
-                         site_web=None, cree_par=None):
+    def creer_fournisseur(raison_sociale, email, telephone, adresse,
+                         nif=None, code_postal=None, ville=None, pays='Togo',
+                         conditions_paiement=None, nom_contact=None,
+                         email_contact=None, telephone_contact=None,
+                         iban=None, numero_tva=None, fax=None,
+                         cree_par=None):
         """
         Crée un nouveau fournisseur.
 
         Args:
-            code: Code unique du fournisseur
             raison_sociale: Raison sociale
-            siret: Numéro SIRET
             email: Email du fournisseur
             telephone: Téléphone
             adresse: Adresse
+            nif: Numéro d'Identification Fiscale (optionnel, 9-10 chiffres)
             code_postal: Code postal (optionnel)
             ville: Ville (optionnel)
-            pays: Pays (défaut: France)
+            pays: Pays (défaut: Togo)
             conditions_paiement: Conditions de paiement (optionnel)
-            contact_principal: Nom du contact principal (optionnel)
-            site_web: Site web (optionnel)
+            nom_contact: Nom du contact principal (optionnel)
+            email_contact: Email du contact (optionnel)
+            telephone_contact: Téléphone du contact (optionnel)
+            iban: IBAN (optionnel)
+            numero_tva: Numéro de TVA (optionnel)
+            fax: Fax (optionnel)
             cree_par: Utilisateur créateur (optionnel)
 
         Returns:
@@ -67,23 +72,14 @@ class FournisseurService:
             ValidationError: Si les données sont invalides
         """
         try:
-            # Vérifier l'unicité du code
-            if GACFournisseur.objects.filter(code=code).exists():
-                raise GACValidationError(f"Un fournisseur avec le code {code} existe déjà")
+            # Valider le format NIF si fourni
+            if nif and not valider_nif(nif):
+                raise GACValidationError(f"Le NIF {nif} n'est pas valide")
 
-            # Vérifier l'unicité du SIRET
-            if GACFournisseur.objects.filter(siret=siret).exists():
-                raise GACValidationError(f"Un fournisseur avec le SIRET {siret} existe déjà")
-
-            # Valider le format SIRET
-            if not valider_siret(siret):
-                raise GACValidationError(f"Le SIRET {siret} n'est pas valide")
-
-            # Créer le fournisseur
+            # Créer le fournisseur (le code sera généré automatiquement par la méthode save())
             fournisseur = GACFournisseur.objects.create(
-                code=code,
                 raison_sociale=raison_sociale,
-                siret=siret,
+                nif=nif,
                 email=email,
                 telephone=telephone,
                 adresse=adresse,
@@ -91,8 +87,12 @@ class FournisseurService:
                 ville=ville,
                 pays=pays,
                 conditions_paiement=conditions_paiement,
-                contact_principal=contact_principal,
-                site_web=site_web,
+                nom_contact=nom_contact,
+                email_contact=email_contact,
+                telephone_contact=telephone_contact,
+                iban=iban,
+                numero_tva=numero_tva,
+                fax=fax,
                 statut=STATUT_FOURNISSEUR_ACTIF,
                 cree_par=cree_par
             )
@@ -102,10 +102,10 @@ class FournisseurService:
                 objet=fournisseur,
                 action='CREATION',
                 utilisateur=cree_par,
-                details=f"Création du fournisseur {code} - {raison_sociale}"
+                details=f"Création du fournisseur {fournisseur.code} - {raison_sociale}"
             )
 
-            logger.info(f"Fournisseur {code} créé: {raison_sociale}")
+            logger.info(f"Fournisseur {fournisseur.code} créé: {raison_sociale}")
 
             return fournisseur
 
@@ -327,7 +327,7 @@ class FournisseurService:
         Recherche de fournisseurs.
 
         Args:
-            query: Terme de recherche (code, raison sociale, SIRET)
+            query: Terme de recherche (code, raison sociale, NIF)
             statut: Filtrer par statut (optionnel)
             actif_uniquement: Ne retourner que les fournisseurs actifs
 
@@ -345,7 +345,7 @@ class FournisseurService:
             queryset = queryset.filter(
                 Q(code__icontains=query) |
                 Q(raison_sociale__icontains=query) |
-                Q(siret__icontains=query) |
+                Q(nif__icontains=query) |
                 Q(email__icontains=query)
             )
 

@@ -5,14 +5,16 @@
 {% block extrastylet %}
 <link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
 <style>
+    /* Style pour l'arborescence des catégories */
     .categorie-tree {
         list-style: none;
-        padding-left: 0;
+        padding-left: 20px;
+        margin: 0;
     }
     .categorie-tree li {
-        margin: 10px 0;
-        padding-left: 20px;
+        margin-bottom: 5px;
         border-left: 2px solid #dee2e6;
+        padding-left: 15px;
     }
     .categorie-tree li.root-category {
         border-left: none;
@@ -27,13 +29,24 @@
     .categorie-item:hover {
         background: #e9ecef;
     }
+    
+    /* Surcharge de la couleur des en-têtes de tableau pour cette page */
+    .table thead.bg-light th {
+        color: #212529 !important;
+        font-weight: 600;
+    }
 </style>
 {% endblock %}
 
 {% block pageContent %}
 <div class="container-fluid py-4">
+    <!-- Token CSRF caché pour JavaScript -->
+    {% csrf_token %}
+    
     <!-- Breadcrumb -->
+    {% if breadcrumb_items %}
     {% include 'gestion_achats/includes/breadcrumb.html' with breadcrumb_items=breadcrumb_items %}
+    {% endif %}
 
     <!-- Messages -->
     {% include 'gestion_achats/includes/messages.html' %}
@@ -60,10 +73,10 @@
     <!-- Statistiques -->
     <div class="row mb-4">
         <div class="col-md-4">
-            {% include 'gestion_achats/includes/stats_card.html' with title="Total catégories" value=stats.total icon="tags" color="primary" %}
+            {% include 'gestion_achats/includes/stats_card.html' with title="Total catégories" value=stats.total_categories icon="tags" color="primary" %}
         </div>
         <div class="col-md-4">
-            {% include 'gestion_achats/includes/stats_card.html' with title="Catégories principales" value=stats.principales icon="folder" color="info" %}
+            {% include 'gestion_achats/includes/stats_card.html' with title="Catégories principales" value=categories_principales|length icon="folder" color="info" %}
         </div>
         <div class="col-md-4">
             {% include 'gestion_achats/includes/stats_card.html' with title="Total articles" value=stats.total_articles icon="box" color="success" %}
@@ -72,9 +85,9 @@
 
     <div class="row">
         <!-- Vue arborescente -->
-        <div class="col-md-7">
+        <div class="col-md-4">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header bg-light text-dark">
                     <h5 class="mb-0">
                         <i class="fas fa-sitemap me-2"></i>
                         Arborescence des catégories
@@ -97,9 +110,9 @@
         </div>
 
         <!-- Liste plate -->
-        <div class="col-md-5">
+        <div class="col-md-8">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header bg-light text-dark">
                     <h5 class="mb-0">
                         <i class="fas fa-list me-2"></i>
                         Liste complète
@@ -108,10 +121,10 @@
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-sm table-hover">
-                            <thead class="table-light">
+                            <thead class="bg-light text-dark">
                                 <tr>
-                                    <th>Code</th>
-                                    <th>Nom</th>
+                                    <th>Catégorie</th>
+                                    <th>Chemin complet</th>
                                     <th class="text-center">Articles</th>
                                     <th class="text-end">Actions</th>
                                 </tr>
@@ -119,7 +132,7 @@
                             <tbody>
                                 {% for categorie in toutes_categories %}
                                 <tr>
-                                    <td><strong>{{ categorie.code }}</strong></td>
+                                    <td><strong>{{ categorie.nom }}</strong></td>
                                     <td>
                                         {{ categorie.get_chemin_complet }}
                                     </td>
@@ -137,7 +150,7 @@
                                             {% if categorie.articles.count == 0 and categorie.sous_categories.count == 0 %}
                                             <button type="button"
                                                     class="btn btn-sm btn-danger"
-                                                    onclick="confirmerSuppression('{{ categorie.uuid }}')"
+                                                    onclick="confirmerSuppression('{{ categorie.uuid }}', '{{ categorie.nom|escapejs }}')"
                                                     title="Supprimer">
                                                 <i class="fas fa-trash"></i>
                                             </button>
@@ -162,35 +175,84 @@
     </div>
 </div>
 
-<!-- Template pour l'item d'arbre (include) -->
-{% if False %}
-<script id="categorie-tree-template" type="text/template">
-<!-- Ce template sera dans includes/categorie_tree_item.html -->
-</script>
-{% endif %}
+<!-- Modale de confirmation de suppression -->
+<div class="modal fade" id="suppressionModal" tabindex="-1" role="dialog" aria-labelledby="suppressionModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="suppressionModalLabel">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                    Confirmation de suppression
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">Êtes-vous sûr de vouloir supprimer la catégorie <strong id="nomCategorieASupprimer"></strong> ?</p>
+                <p class="text-muted small mb-0">Cette action est irréversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Annuler
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmSuppressionBtn">
+                    <i class="fas fa-trash me-1"></i>Supprimer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}
 
 {% block extrascript %}
 <script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
 <script>
-    function confirmerSuppression(uuid) {
-        if (confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?')) {
-            // Soumettre le formulaire de suppression
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = `/gestion-achats/categories/${uuid}/delete/`;
+    let categorieASupprimer = null;
 
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            const csrfInput = document.createElement('input');
-            csrfInput.type = 'hidden';
-            csrfInput.name = 'csrfmiddlewaretoken';
-            csrfInput.value = csrfToken;
-
-            form.appendChild(csrfInput);
-            document.body.appendChild(form);
-            form.submit();
-        }
+    function confirmerSuppression(uuid, nom) {
+        categorieASupprimer = uuid;
+        
+        // Afficher le nom de la catégorie dans la modale
+        document.getElementById('nomCategorieASupprimer').textContent = nom;
+        
+        // Afficher la modale (Bootstrap 4)
+        $('#suppressionModal').modal('show');
     }
+
+    // Gérer la confirmation
+    $(document).ready(function() {
+        $('#confirmSuppressionBtn').click(function() {
+            if (categorieASupprimer) {
+                console.log('Tentative de suppression de:', categorieASupprimer);
+                
+                // Soumettre le formulaire de suppression
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/gac/catalogue/categories/${categorieASupprimer}/delete/`;
+
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                console.log('CSRF Token trouvé:', csrfToken ? 'oui' : 'non');
+                
+                if (!csrfToken) {
+                    console.error('Token CSRF non trouvé!');
+                    alert('Erreur de sécurité: token CSRF non trouvé');
+                    return;
+                }
+                
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrfmiddlewaretoken';
+                csrfInput.value = csrfToken;
+
+                form.appendChild(csrfInput);
+                document.body.appendChild(form);
+                
+                console.log('Formulaire soumis vers:', form.action);
+                form.submit();
+            }
+        });
+    });
 </script>
 {% endblock %}

@@ -73,8 +73,8 @@
                                 <a href="{% url 'gestion_achats:fournisseur_detail' fournisseur.uuid %}">
                                     {{ fournisseur.raison_sociale }}
                                 </a>
-                                {% if fournisseur.siret %}
-                                <br><small class="text-muted">SIRET: {{ fournisseur.siret }}</small>
+                                {% if fournisseur.nif %}
+                                <br><small class="text-muted">NIF: {{ fournisseur.nif }}</small>
                                 {% endif %}
                             </td>
                             <td>
@@ -123,6 +123,16 @@
                                        title="Modifier">
                                         <i class="fas fa-edit"></i>
                                     </a>
+                                    <button type="button"
+                                            class="btn btn-sm btn-danger"
+                                            title="Supprimer"
+                                            data-toggle="modal"
+                                            data-target="#deleteModal"
+                                            data-fournisseur-uuid="{{ fournisseur.uuid }}"
+                                            data-fournisseur-nom="{{ fournisseur.raison_sociale }}"
+                                            data-fournisseur-code="{{ fournisseur.code }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                     {% endif %}
                                 </div>
                             </td>
@@ -143,9 +153,66 @@
 
     <!-- Pagination -->
     {% include 'gestion_achats/includes/pagination.html' %}
+
+    <!-- Modal de confirmation de suppression -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteModalLabel">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        Confirmer la suppression
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <strong>Attention :</strong> Cette action est irréversible.
+                    </div>
+                    <p>Êtes-vous sûr de vouloir supprimer le fournisseur :</p>
+                    <div class="alert alert-danger">
+                        <strong id="modalFournisseurNom"></strong><br>
+                        <small class="text-muted">Code: <span id="modalFournisseurCode"></span></small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <form id="deleteForm" method="post" action="">
+                        {% csrf_token %}
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            <i class="fas fa-times mr-2"></i>Annuler
+                        </button>
+                        <button type="submit" class="btn btn-danger" data-no-confirm>
+                            <i class="fas fa-trash mr-2"></i>Confirmer la suppression
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block extrascript %}
 <script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+<script>
+    // Gérer l'ouverture de la modal de suppression
+    $(document).ready(function() {
+        $('#deleteModal').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget);
+            var fournisseurUuid = button.data('fournisseur-uuid');
+            var fournisseurNom = button.data('fournisseur-nom');
+            var fournisseurCode = button.data('fournisseur-code');
+
+            // Mettre à jour le contenu de la modal
+            $('#modalFournisseurNom').text(fournisseurNom);
+            $('#modalFournisseurCode').text(fournisseurCode);
+
+            // Mettre à jour l'action du formulaire
+            $('#deleteForm').attr('action', '/gac/fournisseurs/' + fournisseurUuid + '/delete/');
+        });
+    });
+</script>
 {% endblock %}

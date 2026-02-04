@@ -212,7 +212,7 @@
                                     </td>
                                     <td>{{ ligne.bon_commande.date_emission|date:"d/m/Y" }}</td>
                                     <td>{{ ligne.bon_commande.fournisseur.raison_sociale }}</td>
-                                    <td class="text-end">{{ ligne.quantite }}</td>
+                                    <td class="text-end">{{ ligne.quantite_commandee }}</td>
                                     <td class="text-end">{{ ligne.montant_ttc|floatformat:2 }} €</td>
                                 </tr>
                                 {% endfor %}
@@ -269,7 +269,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="text-muted small">Créé par</label>
-                        <div><strong>{{ article.cree_par.get_full_name|default:"-" }}</strong></div>
+                        <div><strong>{{ article.cree_par.get_nom_complet|default:"-" }}</strong></div>
                     </div>
                     <div>
                         <label class="text-muted small">Dernière modification</label>
