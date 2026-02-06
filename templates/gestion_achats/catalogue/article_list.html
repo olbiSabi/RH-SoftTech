@@ -47,7 +47,7 @@
                     <select class="form-select" id="categorie" name="categorie">
                         <option value="">Toutes</option>
                         {% for cat in categories %}
-                        <option value="{{ cat.id }}" {% if request.GET.categorie == cat.id|stringformat:"s" %}selected{% endif %}>
+                        <option value="{{ cat.uuid }}" {% if request.GET.categorie == cat.uuid|stringformat:"s" %}selected{% endif %}>
                             {{ cat.get_chemin_complet }}
                         </option>
                         {% endfor %}
@@ -167,6 +167,16 @@
                                        title="Modifier">
                                         <i class="fas fa-edit"></i>
                                     </a>
+                                    <button type="button"
+                                            class="btn btn-sm btn-danger"
+                                            title="Supprimer"
+                                            data-toggle="modal"
+                                            data-target="#deleteModal"
+                                            data-article-uuid="{{ article.uuid }}"
+                                            data-article-reference="{{ article.reference }}"
+                                            data-article-designation="{{ article.designation }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                     {% endif %}
                                 </div>
                             </td>
@@ -187,9 +197,66 @@
 
     <!-- Pagination -->
     {% include 'gestion_achats/includes/pagination.html' %}
+
+    <!-- Modal de confirmation de suppression -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteModalLabel">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        Confirmer la suppression
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <strong>Attention :</strong> Cette action est irréversible.
+                    </div>
+                    <p>Êtes-vous sûr de vouloir supprimer l'article :</p>
+                    <div class="alert alert-danger">
+                        <strong id="modalArticleReference"></strong><br>
+                        <span id="modalArticleDesignation"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <form id="deleteForm" method="post" action="">
+                        {% csrf_token %}
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            <i class="fas fa-times mr-2"></i>Annuler
+                        </button>
+                        <button type="submit" class="btn btn-danger" data-no-confirm>
+                            <i class="fas fa-trash mr-2"></i>Confirmer la suppression
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block extrascript %}
 <script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+<script>
+    // Gérer l'ouverture de la modal de suppression
+    $(document).ready(function() {
+        $('#deleteModal').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget);
+            var articleUuid = button.data('article-uuid');
+            var articleReference = button.data('article-reference');
+            var articleDesignation = button.data('article-designation');
+
+            // Mettre à jour le contenu de la modal
+            $('#modalArticleReference').text(articleReference);
+            $('#modalArticleDesignation').text(articleDesignation);
+
+            // Mettre à jour l'action du formulaire
+            $('#deleteForm').attr('action', '/gac/catalogue/articles/' + articleUuid + '/delete/');
+        });
+    });
+</script>
 {% endblock %}

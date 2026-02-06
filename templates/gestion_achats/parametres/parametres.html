@@ -1,0 +1,175 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-cogs me-2"></i>
+                        Paramètres du module GAC
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Information :</strong> Ces paramètres affectent le comportement global du module de Gestion des Achats & Commandes.
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <!-- Section : Validation -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    Paramètres de validation
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.seuil_validation_n2.id_for_label }}" class="form-label">
+                                                <strong>{{ form.seuil_validation_n2.label }}</strong>
+                                            </label>
+                                            <div class="input-group">
+                                                {{ form.seuil_validation_n2 }}
+                                                <span class="input-group-text">€</span>
+                                            </div>
+                                            <small class="form-text text-muted">
+                                                {{ form.seuil_validation_n2.help_text }}
+                                            </small>
+                                            {% if form.seuil_validation_n2.errors %}
+                                            <div class="text-danger mt-1">
+                                                {{ form.seuil_validation_n2.errors }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-warning mt-3">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <strong>Règle de validation :</strong>
+                                    <ul class="mb-0 mt-2">
+                                        <li>Si le montant TTC de la demande est <strong>inférieur au seuil</strong> : validation N1 uniquement (manager)</li>
+                                        <li>Si le montant TTC de la demande est <strong>supérieur ou égal au seuil</strong> : validation N1 (manager) puis validation N2 (direction/acheteur)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section : Délais -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-clock me-2"></i>
+                                    Délais par défaut
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.delai_livraison_defaut.id_for_label }}" class="form-label">
+                                                <strong>{{ form.delai_livraison_defaut.label }}</strong>
+                                            </label>
+                                            <div class="input-group">
+                                                {{ form.delai_livraison_defaut }}
+                                                <span class="input-group-text">jours</span>
+                                            </div>
+                                            <small class="form-text text-muted">
+                                                {{ form.delai_livraison_defaut.help_text }}
+                                            </small>
+                                            {% if form.delai_livraison_defaut.errors %}
+                                            <div class="text-danger mt-1">
+                                                {{ form.delai_livraison_defaut.errors }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section : Notifications -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-bell me-2"></i>
+                                    Notifications
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check mb-3">
+                                    {{ form.notifier_demandeur }}
+                                    <label class="form-check-label" for="{{ form.notifier_demandeur.id_for_label }}">
+                                        <strong>{{ form.notifier_demandeur.label }}</strong>
+                                    </label>
+                                    <small class="form-text text-muted d-block ms-4">
+                                        {{ form.notifier_demandeur.help_text }}
+                                    </small>
+                                    {% if form.notifier_demandeur.errors %}
+                                    <div class="text-danger mt-1 ms-4">
+                                        {{ form.notifier_demandeur.errors }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-check mb-3">
+                                    {{ form.notifier_validateurs }}
+                                    <label class="form-check-label" for="{{ form.notifier_validateurs.id_for_label }}">
+                                        <strong>{{ form.notifier_validateurs.label }}</strong>
+                                    </label>
+                                    <small class="form-text text-muted d-block ms-4">
+                                        {{ form.notifier_validateurs.help_text }}
+                                    </small>
+                                    {% if form.notifier_validateurs.errors %}
+                                    <div class="text-danger mt-1 ms-4">
+                                        {{ form.notifier_validateurs.errors }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Informations de dernière modification -->
+                        {% if parametres.date_modification %}
+                        <div class="alert alert-secondary">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Dernière modification :</strong>
+                            {{ parametres.date_modification|date:"d/m/Y à H:i" }}
+                            {% if parametres.modifie_par %}
+                            par <strong>{{ parametres.modifie_par.get_full_name }}</strong>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Boutons d'action -->
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'gestion_achats:dashboard' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Enregistrer les paramètres
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+{% endblock %}

@@ -3,67 +3,67 @@
 <div class="btn-group" role="group">
     {% if type == 'demande' %}
         {% if peut_modifier %}
-            <a href="{% url 'gestion_achats:demande_update' objet.pk %}" class="btn btn-sm btn-warning">
+            <a href="{% url 'gestion_achats:demande_update' objet.uuid %}" class="btn btn-sm btn-warning">
                 <i class="fas fa-edit"></i> Modifier
             </a>
         {% endif %}
 
         {% if peut_soumettre %}
-            <a href="{% url 'gestion_achats:demande_submit' objet.pk %}" class="btn btn-sm btn-primary">
+            <a href="{% url 'gestion_achats:demande_submit' objet.uuid %}" class="btn btn-sm btn-primary">
                 <i class="fas fa-paper-plane"></i> Soumettre
             </a>
         {% endif %}
 
         {% if peut_valider_n1 %}
-            <a href="{% url 'gestion_achats:demande_validate_n1' objet.pk %}" class="btn btn-sm btn-success">
+            <a href="{% url 'gestion_achats:demande_validate_n1' objet.uuid %}" class="btn btn-sm btn-success">
                 <i class="fas fa-check"></i> Valider (N1)
             </a>
         {% endif %}
 
         {% if peut_valider_n2 %}
-            <a href="{% url 'gestion_achats:demande_validate_n2' objet.pk %}" class="btn btn-sm btn-success">
+            <a href="{% url 'gestion_achats:demande_validate_n2' objet.uuid %}" class="btn btn-sm btn-success">
                 <i class="fas fa-check-double"></i> Valider (N2)
             </a>
         {% endif %}
 
         {% if peut_refuser %}
-            <a href="{% url 'gestion_achats:demande_refuse' objet.pk %}" class="btn btn-sm btn-danger">
+            <a href="{% url 'gestion_achats:demande_refuse' objet.uuid %}" class="btn btn-sm btn-danger">
                 <i class="fas fa-times"></i> Refuser
             </a>
         {% endif %}
 
         {% if peut_convertir_bc %}
-            <a href="{% url 'gestion_achats:bon_commande_create_from_demande' objet.pk %}" class="btn btn-sm btn-success">
+            <a href="{% url 'gestion_achats:bon_commande_create_from_demande' objet.uuid %}" class="btn btn-sm btn-success">
                 <i class="fas fa-exchange-alt"></i> Convertir en BC
             </a>
         {% endif %}
 
         {% if peut_annuler %}
-            <a href="{% url 'gestion_achats:demande_cancel' objet.pk %}" class="btn btn-sm btn-warning">
+            <a href="{% url 'gestion_achats:demande_cancel' objet.uuid %}" class="btn btn-sm btn-warning">
                 <i class="fas fa-ban"></i> Annuler
             </a>
         {% endif %}
     {% elif type == 'bon_commande' %}
         {% if peut_modifier %}
-            <a href="{% url 'gestion_achats:bon_commande_update' objet.pk %}" class="btn btn-sm btn-warning">
+            <a href="{% url 'gestion_achats:bon_commande_update' objet.uuid %}" class="btn btn-sm btn-warning">
                 <i class="fas fa-edit"></i> Modifier
             </a>
         {% endif %}
 
         {% if peut_emettre %}
-            <a href="{% url 'gestion_achats:bon_commande_emit' objet.pk %}" class="btn btn-sm btn-primary">
+            <a href="{% url 'gestion_achats:bon_commande_emit' objet.uuid %}" class="btn btn-sm btn-primary">
                 <i class="fas fa-check"></i> Émettre
             </a>
         {% endif %}
 
         {% if peut_envoyer %}
-            <a href="{% url 'gestion_achats:bon_commande_send' objet.pk %}" class="btn btn-sm btn-info">
+            <a href="{% url 'gestion_achats:bon_commande_send' objet.uuid %}" class="btn btn-sm btn-info">
                 <i class="fas fa-paper-plane"></i> Envoyer
             </a>
         {% endif %}
 
         {% if peut_annuler %}
-            <a href="{% url 'gestion_achats:bon_commande_cancel' objet.pk %}" class="btn btn-sm btn-danger">
+            <a href="{% url 'gestion_achats:bon_commande_cancel' objet.uuid %}" class="btn btn-sm btn-danger">
                 <i class="fas fa-ban"></i> Annuler
             </a>
         {% endif %}

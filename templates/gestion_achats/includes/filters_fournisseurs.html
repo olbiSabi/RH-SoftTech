@@ -1,0 +1,48 @@
+<div class="card mb-3">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class="fas fa-filter me-2"></i>Filtres de recherche
+        </h6>
+    </div>
+    <div class="card-body">
+        <form method="get" action="">
+            <div class="row g-3">
+                <!-- Recherche par texte -->
+                <div class="col-md-6">
+                    <label for="search" class="form-label">Recherche</label>
+                    <input type="text"
+                           class="form-control"
+                           id="search"
+                           name="search"
+                           placeholder="Code, raison sociale, email, NIF..."
+                           value="{{ request.GET.search }}">
+                </div>
+
+                <!-- Filtre par statut -->
+                <div class="col-md-4">
+                    <label for="statut" class="form-label">Statut</label>
+                    <select class="form-select" id="statut" name="statut">
+                        <option value="">Tous les statuts</option>
+                        {% for value, label in statuts %}
+                        <option value="{{ value }}" {% if request.GET.statut == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Boutons d'action -->
+                <div class="col-md-2">
+                    <div class="d-flex gap-2 align-items-end">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <a href="?" class="btn btn-secondary">
+                            <i class="fas fa-redo"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

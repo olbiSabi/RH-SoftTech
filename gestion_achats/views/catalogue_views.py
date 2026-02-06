@@ -9,6 +9,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q, Sum
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
+from django.core.exceptions import ValidationError
 
 from gestion_achats.models import GACArticle, GACCategorie
 from gestion_achats.forms import (
@@ -47,7 +48,8 @@ def article_list(request):
             sous_categories = CatalogueService._get_categories_et_sous_categories(categorie)
             categories_ids.extend([c.id for c in sous_categories])
             articles = articles.filter(categorie_id__in=categories_ids)
-        except GACCategorie.DoesNotExist:
+        except (GACCategorie.DoesNotExist, ValueError, ValidationError):
+            # Gère à la fois les UUID non trouvés et les UUID invalides
             pass
 
     # Recherche
@@ -70,12 +72,21 @@ def article_list(request):
     # Récupérer les catégories pour le filtre
     categories = CatalogueService.get_categories_racines()
 
+    # Calculer les statistiques
+    stats = {
+        'total': GACArticle.objects.count(),
+        'actifs': GACArticle.objects.filter(statut='ACTIF').count(),
+        'inactifs': GACArticle.objects.filter(statut='INACTIF').count(),
+        'nb_categories': GACCategorie.objects.count(),
+    }
+
     context = {
         'page_obj': page_obj,
         'statut_filter': statut,
         'categorie_filter': categorie_uuid,
         'search': search,
         'categories': categories,
+        'stats': stats,
     }
 
     return render(request, 'gestion_achats/catalogue/article_list.html', context)
@@ -262,6 +273,45 @@ def article_reactiver(request, pk):
         messages.error(request, f'Erreur: {str(e)}')
 
     return redirect('gestion_achats:article_detail', pk=article.uuid)
+
+
+@login_required
+@require_http_methods(["POST"])
+def article_delete(request, pk):
+    """Supprimer un article."""
+    require_permission(GACPermissions.can_manage_catalogue, request.user)
+
+    article = get_object_or_404(GACArticle, uuid=pk)
+
+    # Vérifications avant suppression
+    if article.lignes_demande.exists():
+        messages.error(request, 'Impossible de supprimer un article utilisé dans des demandes d\'achat.')
+        return redirect('gestion_achats:article_detail', pk=article.uuid)
+    
+    if article.lignes_bc.exists():
+        messages.error(request, 'Impossible de supprimer un article utilisé dans des bons de commande.')
+        return redirect('gestion_achats:article_detail', pk=article.uuid)
+    
+    # Vérifier si les lignes de BC de cet article ont des réceptions
+    from gestion_achats.models import GACLigneReception
+    lignes_bc_article = article.lignes_bc.all()
+    if GACLigneReception.objects.filter(ligne_bon_commande__in=lignes_bc_article).exists():
+        messages.error(request, 'Impossible de supprimer un article utilisé dans des réceptions.')
+        return redirect('gestion_achats:article_detail', pk=article.uuid)
+
+    try:
+        reference = article.reference
+        designation = article.designation
+        
+        # Supprimer l'article
+        article.delete()
+        
+        messages.success(request, f'Article {reference} - {designation} supprimé avec succès.')
+        return redirect('gestion_achats:article_list')
+        
+    except Exception as e:
+        messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+        return redirect('gestion_achats:article_detail', pk=article.uuid)
 
 
 # ========================================

@@ -59,7 +59,7 @@
                     <form method="post">
                         {% csrf_token %}
                         <div class="d-flex justify-content-between">
-                            <a href="{% url 'gestion_achats:bon_commande_detail' pk=bc.pk %}"
+                            <a href="{% url 'gestion_achats:bon_commande_detail' pk=bc.uuid %}"
                                class="btn btn-secondary">
                                 <i class="fas fa-times me-2"></i>Annuler
                             </a>

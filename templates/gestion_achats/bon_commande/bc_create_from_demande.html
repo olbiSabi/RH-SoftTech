@@ -22,7 +22,7 @@
                         <h6 class="border-bottom pb-2">Informations de la demande source</h6>
                         <div class="row">
                             <div class="col-md-6">
-                                <p><strong>Demandeur :</strong> {{ demande.demandeur.get_full_name }}</p>
+                                <p><strong>Demandeur :</strong> {{ demande.demandeur }}</p>
                                 <p><strong>Objet :</strong> {{ demande.objet }}</p>
                             </div>
                             <div class="col-md-6">
@@ -87,7 +87,7 @@
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">
-                            <a href="{% url 'gestion_achats:demande_detail' demande.pk %}" class="btn btn-secondary">
+                            <a href="{% url 'gestion_achats:demande_detail' demande.uuid %}" class="btn btn-secondary">
                                 <i class="fas fa-times me-2"></i>Annuler
                             </a>
                             <button type="submit" class="btn btn-primary">

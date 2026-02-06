@@ -2198,3 +2198,129 @@ class GACHistorique(models.Model):
             donnees_apres=donnees_apres,
             adresse_ip=adresse_ip
         )
+
+
+# ==============================================================================
+# MODÈLE: GACParametres (Singleton)
+# ==============================================================================
+
+class GACParametres(models.Model):
+    """
+    Modèle singleton pour stocker les paramètres de configuration du module GAC.
+    
+    Ce modèle ne doit avoir qu'une seule instance dans la base de données.
+    """
+    
+    # Seuil de validation
+    seuil_validation_n2 = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal('5000.00'),
+        validators=[MinValueValidator(Decimal('0.00'))],
+        verbose_name="Seuil de validation N2",
+        help_text="Montant TTC à partir duquel une validation N2 est requise (en euros)"
+    )
+    
+    # Délais
+    delai_livraison_defaut = models.IntegerField(
+        default=30,
+        validators=[MinValueValidator(1)],
+        verbose_name="Délai de livraison par défaut",
+        help_text="Délai de livraison par défaut en jours"
+    )
+    
+    # Notifications
+    notifier_demandeur = models.BooleanField(
+        default=True,
+        verbose_name="Notifier le demandeur",
+        help_text="Envoyer une notification au demandeur lors des changements de statut"
+    )
+    
+    notifier_validateurs = models.BooleanField(
+        default=True,
+        verbose_name="Notifier les validateurs",
+        help_text="Envoyer une notification aux validateurs lors de nouvelles demandes"
+    )
+    
+    # Métadonnées
+    date_creation = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Date de création"
+    )
+    
+    date_modification = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Dernière modification"
+    )
+    
+    modifie_par = models.ForeignKey(
+        ZY00,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='parametres_gac_modifies',
+        verbose_name="Modifié par"
+    )
+    
+    class Meta:
+        verbose_name = "Paramètres GAC"
+        verbose_name_plural = "Paramètres GAC"
+    
+    def __str__(self):
+        return f"Paramètres GAC (Seuil N2: {self.seuil_validation_n2} €)"
+    
+    def save(self, *args, **kwargs):
+        """Surcharge save pour implémenter le pattern singleton et invalider le cache."""
+        from django.core.cache import cache
+        
+        # Pattern singleton : une seule instance autorisée
+        if not self.pk and GACParametres.objects.exists():
+            # Si on essaie de créer une nouvelle instance alors qu'une existe déjà
+            # on récupère l'instance existante et on la met à jour
+            existing = GACParametres.objects.first()
+            self.pk = existing.pk
+        
+        super().save(*args, **kwargs)
+        
+        # Invalider le cache après modification
+        cache.delete('gac_parametres')
+    
+    @classmethod
+    def get_parametres(cls):
+        """
+        Récupère les paramètres (avec cache).
+        
+        Returns:
+            GACParametres: L'instance unique des paramètres
+        """
+        from django.core.cache import cache
+        
+        # Essayer de récupérer depuis le cache
+        parametres = cache.get('gac_parametres')
+        
+        if parametres is None:
+            # Si pas en cache, récupérer depuis la DB
+            parametres, created = cls.objects.get_or_create(
+                pk=1,
+                defaults={
+                    'seuil_validation_n2': Decimal('5000.00'),
+                    'delai_livraison_defaut': 30,
+                    'notifier_demandeur': True,
+                    'notifier_validateurs': True,
+                }
+            )
+            
+            # Mettre en cache pour 1 heure
+            cache.set('gac_parametres', parametres, 3600)
+        
+        return parametres
+    
+    @classmethod
+    def get_seuil_validation_n2(cls):
+        """
+        Récupère le seuil de validation N2.
+        
+        Returns:
+            Decimal: Le seuil de validation N2
+        """
+        return cls.get_parametres().seuil_validation_n2

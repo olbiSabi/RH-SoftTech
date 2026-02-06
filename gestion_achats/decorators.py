@@ -8,7 +8,10 @@ et les permissions du module GAC.
 from functools import wraps
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth import REDIRECT_FIELD_NAME
 
 
 def require_role(role_code):
@@ -27,7 +30,10 @@ def require_role(role_code):
         @wraps(view_func)
         @login_required
         def _wrapped_view(request, *args, **kwargs):
-            if not request.user.has_role(role_code):
+            # Vérifier que l'utilisateur a un employe
+            if not hasattr(request.user, 'employe') or not request.user.employe:
+                raise PermissionDenied(f"Votre compte n'est pas associé à un employé")
+            if not request.user.employe.has_role(role_code):
                 raise PermissionDenied(f"Rôle requis: {role_code}")
             return view_func(request, *args, **kwargs)
         return _wrapped_view
@@ -50,12 +56,39 @@ def require_any_role(*role_codes):
         @wraps(view_func)
         @login_required
         def _wrapped_view(request, *args, **kwargs):
-            if not any(request.user.has_role(role) for role in role_codes):
+            # Vérifier que l'utilisateur a un employe
+            if not hasattr(request.user, 'employe') or not request.user.employe:
+                raise PermissionDenied(f"Votre compte n'est pas associé à un employé")
+            if not any(request.user.employe.has_role(role) for role in role_codes):
                 roles_str = ', '.join(role_codes)
                 raise PermissionDenied(f"Un de ces rôles est requis: {roles_str}")
             return view_func(request, *args, **kwargs)
         return _wrapped_view
     return decorator
+
+
+def ajax_login_required(view_func):
+    """
+    Version de login_required qui fonctionne avec les requêtes AJAX.
+    """
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        # Vérifier si l'utilisateur est authentifié
+        if not request.user.is_authenticated:
+            # Pour les requêtes AJAX, retourner une erreur JSON
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'message': "Vous devez être connecté pour effectuer cette action",
+                    'login_required': True
+                }, status=401)
+            
+            # Pour les requêtes normales, utiliser le décorateur standard
+            return login_required(view_func)(request, *args, **kwargs)
+        
+        # Si l'utilisateur est authentifié, continuer normalement
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
 
 
 def require_demande_access(view_func):
@@ -72,15 +105,22 @@ def require_demande_access(view_func):
             ...
     """
     @wraps(view_func)
-    @login_required
+    @ajax_login_required
     def _wrapped_view(request, pk, *args, **kwargs):
         from gestion_achats.models import GACDemandeAchat
         from gestion_achats.permissions import GACPermissions
+        from django.http import JsonResponse
 
-        demande = get_object_or_404(GACDemandeAchat, pk=pk)
+        demande = get_object_or_404(GACDemandeAchat, uuid=pk)
 
         if not GACPermissions.can_view_demande(request.user, demande):
-            raise PermissionDenied("Vous n'avez pas accès à cette demande")
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'message': "Vous n'avez pas accès à cette demande"
+                }, status=403)
+            else:
+                raise PermissionDenied("Vous n'avez pas accès à cette demande")
 
         # Passer la demande à la vue pour éviter une double requête
         kwargs['demande'] = demande
@@ -108,7 +148,7 @@ def require_bon_commande_access(view_func):
         from gestion_achats.models import GACBonCommande
         from gestion_achats.permissions import GACPermissions
 
-        bc = get_object_or_404(GACBonCommande, pk=pk)
+        bc = get_object_or_404(GACBonCommande, uuid=pk)
 
         if not GACPermissions.can_view_bon_commande(request.user, bc):
             raise PermissionDenied("Vous n'avez pas accès à ce bon de commande")
@@ -139,7 +179,7 @@ def require_reception_access(view_func):
         from gestion_achats.models import GACReception
         from gestion_achats.permissions import GACPermissions
 
-        reception = get_object_or_404(GACReception, pk=pk)
+        reception = get_object_or_404(GACReception, uuid=pk)
 
         if not GACPermissions.can_view_reception(request.user, reception):
             raise PermissionDenied("Vous n'avez pas accès à cette réception")
@@ -170,7 +210,7 @@ def require_budget_access(view_func):
         from gestion_achats.models import GACBudget
         from gestion_achats.permissions import GACPermissions
 
-        budget = get_object_or_404(GACBudget, pk=pk)
+        budget = get_object_or_404(GACBudget, uuid=pk)
 
         if not GACPermissions.can_view_budget(request.user, budget):
             raise PermissionDenied("Vous n'avez pas accès à ce budget")

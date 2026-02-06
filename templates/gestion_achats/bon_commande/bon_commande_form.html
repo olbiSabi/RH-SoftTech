@@ -173,7 +173,7 @@
 
                         <!-- Boutons d'action -->
                         <div class="d-flex justify-content-end gap-2">
-                            <a href="{% if bon_commande %}{% url 'gestion_achats:bon_commande_detail' bon_commande.pk %}{% else %}{% url 'gestion_achats:bon_commande_liste' %}{% endif %}"
+                            <a href="{% if bon_commande %}{% url 'gestion_achats:bon_commande_detail' bon_commande.uuid %}{% else %}{% url 'gestion_achats:bon_commande_liste' %}{% endif %}"
                                class="btn btn-secondary">
                                 <i class="fas fa-times me-2"></i>Annuler
                             </a>

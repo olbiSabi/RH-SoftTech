@@ -20,6 +20,7 @@ from .models import (
     GACArticle,
     GACCategorie,
     GACBudget,
+    GACParametres,
 )
 from employee.models import ZY00
 from departement.models import ZDDE
@@ -128,8 +129,8 @@ class LigneDemandeAchatForm(forms.ModelForm):
         # Rendre le commentaire optionnel
         self.fields['commentaire'].required = False
 
-        # Pré-remplir le taux de TVA si l'article est sélectionné
-        if self.instance and self.instance.article:
+        # Pré-remplir le taux de TVA si l'article est sélectionné (modification uniquement)
+        if self.instance and hasattr(self.instance, 'article') and self.instance.article:
             self.fields['taux_tva'].initial = self.instance.article.taux_tva
 
 
@@ -214,7 +215,6 @@ class BonCommandeForm(forms.ModelForm):
         # Rendre certains champs optionnels
         self.fields['date_livraison_souhaitee'].required = False
         self.fields['conditions_paiement'].required = False
-        self.fields['remarques'].required = False
 
 
 class LigneBonCommandeForm(forms.ModelForm):
@@ -726,3 +726,48 @@ class ArticleFournisseurForm(forms.ModelForm):
                 'class': 'form-check-input',
             }),
         }
+
+
+# ========================================
+# FORMULAIRE PARAMÈTRES
+# ========================================
+
+class GACParametresForm(forms.ModelForm):
+    """
+    Formulaire pour modifier les paramètres de configuration GAC.
+    """
+
+    class Meta:
+        model = GACParametres
+        fields = [
+            'seuil_validation_n2',
+            'delai_livraison_defaut',
+            'notifier_demandeur',
+            'notifier_validateurs',
+        ]
+        widgets = {
+            'seuil_validation_n2': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01',
+                'min': '0',
+                'placeholder': '5000.00',
+            }),
+            'delai_livraison_defaut': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '1',
+                'placeholder': '30',
+            }),
+            'notifier_demandeur': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+            }),
+            'notifier_validateurs': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Si aucune instance n'est fournie, récupérer les paramètres existants
+        if not self.instance.pk:
+            self.instance = GACParametres.get_parametres()

@@ -53,12 +53,20 @@
                                 </span>
                             </td>
                             <td>
-                                <a href="{% url 'gestion_achats:demande_detail' demande.pk %}" class="btn btn-sm btn-outline-primary">
+                                <a href="{% url 'gestion_achats:demande_detail' demande.uuid %}" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-eye"></i> Voir
                                 </a>
-                                <a href="{% url 'gestion_achats:demande_validate_n1' demande.pk %}" class="btn btn-sm btn-success">
+                                <button type="button"
+                                        class="btn btn-sm btn-success btn-validate-n1"
+                                        data-demande-uuid="{{ demande.uuid }}"
+                                        data-demande-numero="{{ demande.numero }}"
+                                        data-demande-objet="{{ demande.objet }}"
+                                        data-demande-montant="{{ demande.montant_total_ttc|floatformat:2 }}"
+                                        data-validate-url="{% url 'gestion_achats:demande_validate_n1' demande.uuid %}"
+                                        data-toggle="modal"
+                                        data-target="#confirmValidateN1Modal">
                                     <i class="fas fa-check"></i> Valider
-                                </a>
+                                </button>
                             </td>
                         </tr>
                         {% endfor %}
@@ -107,12 +115,20 @@
                                 </span>
                             </td>
                             <td>
-                                <a href="{% url 'gestion_achats:demande_detail' demande.pk %}" class="btn btn-sm btn-outline-primary">
+                                <a href="{% url 'gestion_achats:demande_detail' demande.uuid %}" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-eye"></i> Voir
                                 </a>
-                                <a href="{% url 'gestion_achats:demande_validate_n2' demande.pk %}" class="btn btn-sm btn-success">
+                                <button type="button"
+                                        class="btn btn-sm btn-success btn-validate-n2"
+                                        data-demande-uuid="{{ demande.uuid }}"
+                                        data-demande-numero="{{ demande.numero }}"
+                                        data-demande-objet="{{ demande.objet }}"
+                                        data-demande-montant="{{ demande.montant_total_ttc|floatformat:2 }}"
+                                        data-validate-url="{% url 'gestion_achats:demande_validate_n2' demande.uuid %}"
+                                        data-toggle="modal"
+                                        data-target="#confirmValidateN2Modal">
                                     <i class="fas fa-check"></i> Valider
-                                </a>
+                                </button>
                             </td>
                         </tr>
                         {% endfor %}
@@ -131,8 +147,263 @@
     </div>
     {% endif %}
 </div>
+
+<!-- Modal de validation N1 -->
+<div class="modal fade" id="confirmValidateN1Modal" tabindex="-1" aria-labelledby="confirmValidateN1ModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="confirmValidateN1ModalLabel">
+                    <i class="fas fa-check-circle me-2"></i>Valider la demande (N1)
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Confirmez-vous la validation N1 de cette demande ?</strong></p>
+                <div id="demandeInfoN1Container"></div>
+                <div class="form-group mt-3">
+                    <label for="commentaireN1">Commentaire (optionnel)</label>
+                    <textarea class="form-control" id="commentaireN1" rows="3" placeholder="Ajoutez un commentaire..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Annuler
+                </button>
+                <button type="button" class="btn btn-success" id="confirmValidateN1Btn">
+                    <i class="fas fa-check me-2"></i>Valider N1
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de validation N2 -->
+<div class="modal fade" id="confirmValidateN2Modal" tabindex="-1" aria-labelledby="confirmValidateN2ModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="confirmValidateN2ModalLabel">
+                    <i class="fas fa-check-circle me-2"></i>Valider la demande (N2)
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Confirmez-vous la validation N2 de cette demande ?</strong></p>
+                <div id="demandeInfoN2Container"></div>
+                <div class="form-group mt-3">
+                    <label for="commentaireN2">Commentaire (optionnel)</label>
+                    <textarea class="form-control" id="commentaireN2" rows="3" placeholder="Ajoutez un commentaire..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Annuler
+                </button>
+                <button type="button" class="btn btn-success" id="confirmValidateN2Btn">
+                    <i class="fas fa-check me-2"></i>Valider N2
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSRF Token -->
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
 {% endblock %}
 
 {% block extrascript %}
 <script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Attendre que jQuery soit chargé
+    if (typeof $ === 'undefined') {
+        console.error('jQuery n\'est pas chargé');
+        return;
+    }
+
+    let currentValidateN1Url = null;
+    let currentValidateN2Url = null;
+
+    // Fonction pour afficher les alertes
+    function showAlert(type, message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.setAttribute('role', 'alert');
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+
+        const container = document.querySelector('.container-fluid');
+        container.insertBefore(alertDiv, container.firstChild);
+
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 5000);
+    }
+
+    // ===== GESTION VALIDATION N1 =====
+
+    // Gérer le clic sur les boutons de validation N1
+    document.querySelectorAll('.btn-validate-n1').forEach(btn => {
+        btn.addEventListener('click', function() {
+            currentValidateN1Url = this.dataset.validateUrl;
+            const numero = this.dataset.demandeNumero;
+            const objet = this.dataset.demandeObjet;
+            const montant = this.dataset.demandeMontant;
+
+            // Remplir les informations de la demande dans la modale
+            const infoContainer = document.getElementById('demandeInfoN1Container');
+            infoContainer.innerHTML = `
+                <ul class="list-unstyled mb-0">
+                    <li><strong>Numéro :</strong> ${numero}</li>
+                    <li><strong>Objet :</strong> ${objet}</li>
+                    <li><strong>Montant TTC :</strong> ${montant} €</li>
+                </ul>
+            `;
+
+            // Réinitialiser le commentaire
+            document.getElementById('commentaireN1').value = '';
+        });
+    });
+
+    // Gérer la confirmation de validation N1
+    const confirmValidateN1Btn = document.getElementById('confirmValidateN1Btn');
+    if (confirmValidateN1Btn) {
+        confirmValidateN1Btn.addEventListener('click', function() {
+            if (!currentValidateN1Url) {
+                showAlert('danger', 'URL de validation non définie');
+                return;
+            }
+
+            const commentaire = document.getElementById('commentaireN1').value;
+            const originalContent = confirmValidateN1Btn.innerHTML;
+            confirmValidateN1Btn.disabled = true;
+            confirmValidateN1Btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Validation en cours...';
+
+            const url = currentValidateN1Url;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ commentaire: commentaire }),
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    $('#confirmValidateN1Modal').modal('hide');
+                    showAlert('success', data.message);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    showAlert('danger', data.message || 'Une erreur est survenue');
+                    confirmValidateN1Btn.disabled = false;
+                    confirmValidateN1Btn.innerHTML = originalContent;
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                showAlert('danger', 'Une erreur est survenue: ' + error.message);
+                confirmValidateN1Btn.disabled = false;
+                confirmValidateN1Btn.innerHTML = originalContent;
+            });
+        });
+    }
+
+    // ===== GESTION VALIDATION N2 =====
+
+    // Gérer le clic sur les boutons de validation N2
+    document.querySelectorAll('.btn-validate-n2').forEach(btn => {
+        btn.addEventListener('click', function() {
+            currentValidateN2Url = this.dataset.validateUrl;
+            const numero = this.dataset.demandeNumero;
+            const objet = this.dataset.demandeObjet;
+            const montant = this.dataset.demandeMontant;
+
+            // Remplir les informations de la demande dans la modale
+            const infoContainer = document.getElementById('demandeInfoN2Container');
+            infoContainer.innerHTML = `
+                <ul class="list-unstyled mb-0">
+                    <li><strong>Numéro :</strong> ${numero}</li>
+                    <li><strong>Objet :</strong> ${objet}</li>
+                    <li><strong>Montant TTC :</strong> ${montant} €</li>
+                </ul>
+            `;
+
+            // Réinitialiser le commentaire
+            document.getElementById('commentaireN2').value = '';
+        });
+    });
+
+    // Gérer la confirmation de validation N2
+    const confirmValidateN2Btn = document.getElementById('confirmValidateN2Btn');
+    if (confirmValidateN2Btn) {
+        confirmValidateN2Btn.addEventListener('click', function() {
+            if (!currentValidateN2Url) {
+                showAlert('danger', 'URL de validation non définie');
+                return;
+            }
+
+            const commentaire = document.getElementById('commentaireN2').value;
+            const originalContent = confirmValidateN2Btn.innerHTML;
+            confirmValidateN2Btn.disabled = true;
+            confirmValidateN2Btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Validation en cours...';
+
+            const url = currentValidateN2Url;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ commentaire: commentaire }),
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    $('#confirmValidateN2Modal').modal('hide');
+                    showAlert('success', data.message);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    showAlert('danger', data.message || 'Une erreur est survenue');
+                    confirmValidateN2Btn.disabled = false;
+                    confirmValidateN2Btn.innerHTML = originalContent;
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                showAlert('danger', 'Une erreur est survenue: ' + error.message);
+                confirmValidateN2Btn.disabled = false;
+                confirmValidateN2Btn.innerHTML = originalContent;
+            });
+        });
+    }
+});
+</script>
 {% endblock %}

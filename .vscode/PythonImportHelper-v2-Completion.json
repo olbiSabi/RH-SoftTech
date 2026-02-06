@@ -331,6 +331,30 @@
         "documentation": {}
     },
     {
+        "label": "reverse",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "reverse",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "reverse",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
         "label": "path",
         "importPath": "django.urls",
         "description": "django.urls",
@@ -636,6 +660,30 @@
     },
     {
         "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
         "importPath": "django.contrib",
         "description": "django.contrib",
         "isExtraImport": true,
@@ -984,6 +1032,14 @@
         "description": "django.views.generic",
         "isExtraImport": true,
         "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "settings",
+        "importPath": "django.conf",
+        "description": "django.conf",
+        "isExtraImport": true,
+        "detail": "django.conf",
         "documentation": {}
     },
     {
@@ -1691,6 +1747,22 @@
         "documentation": {}
     },
     {
+        "label": "get_object_or_404",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "redirect",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
         "label": "render",
         "importPath": "django.shortcuts",
         "description": "django.shortcuts",
@@ -1803,6 +1875,14 @@
         "documentation": {}
     },
     {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
         "label": "redirect",
         "importPath": "django.shortcuts",
         "description": "django.shortcuts",
@@ -1812,6 +1892,14 @@
     },
     {
         "label": "get_object_or_404",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
         "importPath": "django.shortcuts",
         "description": "django.shortcuts",
         "isExtraImport": true,
@@ -1852,6 +1940,54 @@
     },
     {
         "label": "redirect",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "redirect",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "get_object_or_404",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "get_object_or_404",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "redirect",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
         "importPath": "django.shortcuts",
         "description": "django.shortcuts",
         "isExtraImport": true,
@@ -2212,6 +2348,14 @@
     },
     {
         "label": "CommandError",
+        "importPath": "django.core.management.base",
+        "description": "django.core.management.base",
+        "isExtraImport": true,
+        "detail": "django.core.management.base",
+        "documentation": {}
+    },
+    {
+        "label": "BaseCommand",
         "importPath": "django.core.management.base",
         "description": "django.core.management.base",
         "isExtraImport": true,
@@ -2852,7 +2996,31 @@
         "documentation": {}
     },
     {
+        "label": "ZY00",
+        "importPath": "employee.models",
+        "description": "employee.models",
+        "isExtraImport": true,
+        "detail": "employee.models",
+        "documentation": {}
+    },
+    {
         "label": "ZYRO",
+        "importPath": "employee.models",
+        "description": "employee.models",
+        "isExtraImport": true,
+        "detail": "employee.models",
+        "documentation": {}
+    },
+    {
+        "label": "ZYRO",
+        "importPath": "employee.models",
+        "description": "employee.models",
+        "isExtraImport": true,
+        "detail": "employee.models",
+        "documentation": {}
+    },
+    {
+        "label": "ZY00",
         "importPath": "employee.models",
         "description": "employee.models",
         "isExtraImport": true,
@@ -3821,6 +3989,14 @@
         "documentation": {}
     },
     {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
         "label": "AcquisitionService",
         "importPath": "absence.services.acquisition_service",
         "description": "absence.services.acquisition_service",
@@ -3926,6 +4102,14 @@
     },
     {
         "label": "Permission",
+        "importPath": "django.contrib.auth.models",
+        "description": "django.contrib.auth.models",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.models",
+        "documentation": {}
+    },
+    {
+        "label": "User",
         "importPath": "django.contrib.auth.models",
         "description": "django.contrib.auth.models",
         "isExtraImport": true,
@@ -4078,6 +4262,14 @@
     },
     {
         "label": "get_user_model",
+        "importPath": "django.contrib.auth",
+        "description": "django.contrib.auth",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth",
+        "documentation": {}
+    },
+    {
+        "label": "REDIRECT_FIELD_NAME",
         "importPath": "django.contrib.auth",
         "description": "django.contrib.auth",
         "isExtraImport": true,
@@ -5511,6 +5703,22 @@
         "documentation": {}
     },
     {
+        "label": "Decimal",
+        "importPath": "decimal",
+        "description": "decimal",
+        "isExtraImport": true,
+        "detail": "decimal",
+        "documentation": {}
+    },
+    {
+        "label": "Decimal",
+        "importPath": "decimal",
+        "description": "decimal",
+        "isExtraImport": true,
+        "detail": "decimal",
+        "documentation": {}
+    },
+    {
         "label": "migrations",
         "importPath": "django.db",
         "description": "django.db",
@@ -6192,6 +6400,86 @@
     },
     {
         "label": "transaction",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "migrations",
         "importPath": "django.db",
         "description": "django.db",
         "isExtraImport": true,
@@ -7273,6 +7561,22 @@
         "documentation": {}
     },
     {
+        "label": "ValidationError",
+        "importPath": "django.core.exceptions",
+        "description": "django.core.exceptions",
+        "isExtraImport": true,
+        "detail": "django.core.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "PermissionDenied",
+        "importPath": "django.core.exceptions",
+        "description": "django.core.exceptions",
+        "isExtraImport": true,
+        "detail": "django.core.exceptions",
+        "documentation": {}
+    },
+    {
         "label": "PermissionDenied",
         "importPath": "django.core.exceptions",
         "description": "django.core.exceptions",
@@ -7609,6 +7913,14 @@
         "documentation": {}
     },
     {
+        "label": "JsonResponse",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
         "label": "HttpResponse",
         "importPath": "django.http",
         "description": "django.http",
@@ -7618,6 +7930,54 @@
     },
     {
         "label": "FileResponse",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
+        "label": "JsonResponse",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
+        "label": "JsonResponse",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
+        "label": "JsonResponse",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
+        "label": "JsonResponse",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
+        "label": "JsonResponse",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
+        "label": "JsonResponse",
         "importPath": "django.http",
         "description": "django.http",
         "isExtraImport": true,
@@ -8129,6 +8489,54 @@
         "documentation": {}
     },
     {
+        "label": "user_passes_test",
+        "importPath": "django.contrib.auth.decorators",
+        "description": "django.contrib.auth.decorators",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.decorators",
+        "documentation": {}
+    },
+    {
+        "label": "login_required",
+        "importPath": "django.contrib.auth.decorators",
+        "description": "django.contrib.auth.decorators",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.decorators",
+        "documentation": {}
+    },
+    {
+        "label": "login_required",
+        "importPath": "django.contrib.auth.decorators",
+        "description": "django.contrib.auth.decorators",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.decorators",
+        "documentation": {}
+    },
+    {
+        "label": "login_required",
+        "importPath": "django.contrib.auth.decorators",
+        "description": "django.contrib.auth.decorators",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.decorators",
+        "documentation": {}
+    },
+    {
+        "label": "login_required",
+        "importPath": "django.contrib.auth.decorators",
+        "description": "django.contrib.auth.decorators",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.decorators",
+        "documentation": {}
+    },
+    {
+        "label": "login_required",
+        "importPath": "django.contrib.auth.decorators",
+        "description": "django.contrib.auth.decorators",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.decorators",
+        "documentation": {}
+    },
+    {
         "label": "login_required",
         "importPath": "django.contrib.auth.decorators",
         "description": "django.contrib.auth.decorators",
@@ -8386,6 +8794,14 @@
     },
     {
         "label": "require_http_methods",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_POST",
         "importPath": "django.views.decorators.http",
         "description": "django.views.decorators.http",
         "isExtraImport": true,
@@ -8922,6 +9338,14 @@
     },
     {
         "label": "Q",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Sum",
         "importPath": "django.db.models",
         "description": "django.db.models",
         "isExtraImport": true,
@@ -14221,6 +14645,14 @@
         "documentation": {}
     },
     {
+        "label": "GACDemandeAchat",
+        "importPath": "gestion_achats.models",
+        "description": "gestion_achats.models",
+        "isExtraImport": true,
+        "detail": "gestion_achats.models",
+        "documentation": {}
+    },
+    {
         "label": "GACBonCommande",
         "importPath": "gestion_achats.models",
         "description": "gestion_achats.models",
@@ -14349,6 +14781,14 @@
         "documentation": {}
     },
     {
+        "label": "GACDemandeAchat",
+        "importPath": "gestion_achats.models",
+        "description": "gestion_achats.models",
+        "isExtraImport": true,
+        "detail": "gestion_achats.models",
+        "documentation": {}
+    },
+    {
         "label": "GACFournisseur",
         "importPath": "gestion_achats.models",
         "description": "gestion_achats.models",
@@ -14358,6 +14798,14 @@
     },
     {
         "label": "GACArticle",
+        "importPath": "gestion_achats.models",
+        "description": "gestion_achats.models",
+        "isExtraImport": true,
+        "detail": "gestion_achats.models",
+        "documentation": {}
+    },
+    {
+        "label": "GACParametres",
         "importPath": "gestion_achats.models",
         "description": "gestion_achats.models",
         "isExtraImport": true,
@@ -14390,6 +14838,22 @@
     },
     {
         "label": "GACLigneBonCommande",
+        "importPath": "gestion_achats.models",
+        "description": "gestion_achats.models",
+        "isExtraImport": true,
+        "detail": "gestion_achats.models",
+        "documentation": {}
+    },
+    {
+        "label": "GACDemandeAchat",
+        "importPath": "gestion_achats.models",
+        "description": "gestion_achats.models",
+        "isExtraImport": true,
+        "detail": "gestion_achats.models",
+        "documentation": {}
+    },
+    {
+        "label": "GACDemandeAchat",
         "importPath": "gestion_achats.models",
         "description": "gestion_achats.models",
         "isExtraImport": true,
@@ -14869,7 +15333,7 @@
         "documentation": {}
     },
     {
-        "label": "valider_siret",
+        "label": "valider_nif",
         "importPath": "gestion_achats.utils",
         "description": "gestion_achats.utils",
         "isExtraImport": true,
@@ -14933,14 +15397,6 @@
         "documentation": {}
     },
     {
-        "label": "require_permission",
-        "importPath": "gestion_achats.permissions",
-        "description": "gestion_achats.permissions",
-        "isExtraImport": true,
-        "detail": "gestion_achats.permissions",
-        "documentation": {}
-    },
-    {
         "label": "GACPermissions",
         "importPath": "gestion_achats.permissions",
         "description": "gestion_achats.permissions",
@@ -15034,6 +15490,102 @@
         "description": "gestion_achats.permissions",
         "isExtraImport": true,
         "detail": "gestion_achats.permissions",
+        "documentation": {}
+    },
+    {
+        "label": "require_permission",
+        "importPath": "gestion_achats.permissions",
+        "description": "gestion_achats.permissions",
+        "isExtraImport": true,
+        "detail": "gestion_achats.permissions",
+        "documentation": {}
+    },
+    {
+        "label": "GACPermissions",
+        "importPath": "gestion_achats.permissions",
+        "description": "gestion_achats.permissions",
+        "isExtraImport": true,
+        "detail": "gestion_achats.permissions",
+        "documentation": {}
+    },
+    {
+        "label": "GACPermissions",
+        "importPath": "gestion_achats.permissions",
+        "description": "gestion_achats.permissions",
+        "isExtraImport": true,
+        "detail": "gestion_achats.permissions",
+        "documentation": {}
+    },
+    {
+        "label": "require_permission",
+        "importPath": "gestion_achats.permissions",
+        "description": "gestion_achats.permissions",
+        "isExtraImport": true,
+        "detail": "gestion_achats.permissions",
+        "documentation": {}
+    },
+    {
+        "label": "GACPermissions",
+        "importPath": "gestion_achats.permissions",
+        "description": "gestion_achats.permissions",
+        "isExtraImport": true,
+        "detail": "gestion_achats.permissions",
+        "documentation": {}
+    },
+    {
+        "label": "DemandeService",
+        "importPath": "gestion_achats.services",
+        "description": "gestion_achats.services",
+        "isExtraImport": true,
+        "detail": "gestion_achats.services",
+        "documentation": {}
+    },
+    {
+        "label": "BonCommandeService",
+        "importPath": "gestion_achats.services",
+        "description": "gestion_achats.services",
+        "isExtraImport": true,
+        "detail": "gestion_achats.services",
+        "documentation": {}
+    },
+    {
+        "label": "DemandeService",
+        "importPath": "gestion_achats.services",
+        "description": "gestion_achats.services",
+        "isExtraImport": true,
+        "detail": "gestion_achats.services",
+        "documentation": {}
+    },
+    {
+        "label": "DemandeService",
+        "importPath": "gestion_achats.services",
+        "description": "gestion_achats.services",
+        "isExtraImport": true,
+        "detail": "gestion_achats.services",
+        "documentation": {}
+    },
+    {
+        "label": "BudgetService",
+        "importPath": "gestion_achats.services",
+        "description": "gestion_achats.services",
+        "isExtraImport": true,
+        "detail": "gestion_achats.services",
+        "documentation": {}
+    },
+    {
+        "label": "DemandeService",
+        "importPath": "gestion_achats.services",
+        "description": "gestion_achats.services",
+        "isExtraImport": true,
+        "detail": "gestion_achats.services",
+        "documentation": {}
+    },
+    {
+        "label": "DemandeService",
+        "importPath": "gestion_achats.services",
+        "description": "gestion_achats.services",
+        "isExtraImport": true,
+        "detail": "gestion_achats.services",
         "documentation": {}
     },
     {
@@ -15157,6 +15709,14 @@
         "documentation": {}
     },
     {
+        "label": "GACParametresForm",
+        "importPath": "gestion_achats.forms",
+        "description": "gestion_achats.forms",
+        "isExtraImport": true,
+        "detail": "gestion_achats.forms",
+        "documentation": {}
+    },
+    {
         "label": "ReceptionForm",
         "importPath": "gestion_achats.forms",
         "description": "gestion_achats.forms",
@@ -15189,46 +15749,6 @@
         "documentation": {}
     },
     {
-        "label": "BonCommandeService",
-        "importPath": "gestion_achats.services",
-        "description": "gestion_achats.services",
-        "isExtraImport": true,
-        "detail": "gestion_achats.services",
-        "documentation": {}
-    },
-    {
-        "label": "DemandeService",
-        "importPath": "gestion_achats.services",
-        "description": "gestion_achats.services",
-        "isExtraImport": true,
-        "detail": "gestion_achats.services",
-        "documentation": {}
-    },
-    {
-        "label": "DemandeService",
-        "importPath": "gestion_achats.services",
-        "description": "gestion_achats.services",
-        "isExtraImport": true,
-        "detail": "gestion_achats.services",
-        "documentation": {}
-    },
-    {
-        "label": "BudgetService",
-        "importPath": "gestion_achats.services",
-        "description": "gestion_achats.services",
-        "isExtraImport": true,
-        "detail": "gestion_achats.services",
-        "documentation": {}
-    },
-    {
-        "label": "DemandeService",
-        "importPath": "gestion_achats.services",
-        "description": "gestion_achats.services",
-        "isExtraImport": true,
-        "detail": "gestion_achats.services",
-        "documentation": {}
-    },
-    {
         "label": "require_bon_commande_access",
         "importPath": "gestion_achats.decorators",
         "description": "gestion_achats.decorators",
@@ -15246,6 +15766,14 @@
     },
     {
         "label": "require_demande_access",
+        "importPath": "gestion_achats.decorators",
+        "description": "gestion_achats.decorators",
+        "isExtraImport": true,
+        "detail": "gestion_achats.decorators",
+        "documentation": {}
+    },
+    {
+        "label": "ajax_login_required",
         "importPath": "gestion_achats.decorators",
         "description": "gestion_achats.decorators",
         "isExtraImport": true,
@@ -15285,6 +15813,30 @@
         "documentation": {}
     },
     {
+        "label": "constants",
+        "importPath": "gestion_achats",
+        "description": "gestion_achats",
+        "isExtraImport": true,
+        "detail": "gestion_achats",
+        "documentation": {}
+    },
+    {
+        "label": "constants",
+        "importPath": "gestion_achats",
+        "description": "gestion_achats",
+        "isExtraImport": true,
+        "detail": "gestion_achats",
+        "documentation": {}
+    },
+    {
+        "label": "csrf_exempt",
+        "importPath": "django.views.decorators.csrf",
+        "description": "django.views.decorators.csrf",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.csrf",
+        "documentation": {}
+    },
+    {
         "label": "JRProject",
         "importPath": "project_management.models",
         "description": "project_management.models",
@@ -15314,14 +15866,6 @@
         "description": "django.contrib.contenttypes.fields",
         "isExtraImport": true,
         "detail": "django.contrib.contenttypes.fields",
-        "documentation": {}
-    },
-    {
-        "label": "constants",
-        "importPath": "gestion_achats",
-        "description": "gestion_achats",
-        "isExtraImport": true,
-        "detail": "gestion_achats",
         "documentation": {}
     },
     {
@@ -15390,6 +15934,54 @@
     },
     {
         "label": "budget_views",
+        "importPath": "gestion_achats.views",
+        "description": "gestion_achats.views",
+        "isExtraImport": true,
+        "detail": "gestion_achats.views",
+        "documentation": {}
+    },
+    {
+        "label": "parametres_views",
+        "importPath": "gestion_achats.views",
+        "description": "gestion_achats.views",
+        "isExtraImport": true,
+        "detail": "gestion_achats.views",
+        "documentation": {}
+    },
+    {
+        "label": "debug_views",
+        "importPath": "gestion_achats.views",
+        "description": "gestion_achats.views",
+        "isExtraImport": true,
+        "detail": "gestion_achats.views",
+        "documentation": {}
+    },
+    {
+        "label": "diagnostic_validateurs",
+        "importPath": "gestion_achats.views",
+        "description": "gestion_achats.views",
+        "isExtraImport": true,
+        "detail": "gestion_achats.views",
+        "documentation": {}
+    },
+    {
+        "label": "test_permissions",
+        "importPath": "gestion_achats.views",
+        "description": "gestion_achats.views",
+        "isExtraImport": true,
+        "detail": "gestion_achats.views",
+        "documentation": {}
+    },
+    {
+        "label": "alt_submit",
+        "importPath": "gestion_achats.views",
+        "description": "gestion_achats.views",
+        "isExtraImport": true,
+        "detail": "gestion_achats.views",
+        "documentation": {}
+    },
+    {
+        "label": "simple_submit",
         "importPath": "gestion_achats.views",
         "description": "gestion_achats.views",
         "isExtraImport": true,
@@ -21656,6 +22248,15 @@
     {
         "label": "Command",
         "kind": 6,
+        "importPath": "gestion_achats.management.commands.assign_gac_role",
+        "description": "gestion_achats.management.commands.assign_gac_role",
+        "peekOfCode": "class Command(BaseCommand):\n    help = 'Assigne un rôle GAC à un employé'\n    def add_arguments(self, parser):\n        parser.add_argument(\n            'matricule',\n            type=str,\n            help='Matricule de l\\'employé'\n        )\n        parser.add_argument(\n            'role_code',",
+        "detail": "gestion_achats.management.commands.assign_gac_role",
+        "documentation": {}
+    },
+    {
+        "label": "Command",
+        "kind": 6,
         "importPath": "gestion_achats.management.commands.init_categories_achats",
         "description": "gestion_achats.management.commands.init_categories_achats",
         "peekOfCode": "class Command(BaseCommand):\n    help = 'Initialise les catégories d\\'achats par défaut du module GAC'\n    def handle(self, *args, **options):\n        \"\"\"Exécute la commande d'initialisation des catégories.\"\"\"\n        self.stdout.write(self.style.SUCCESS('='*70))\n        self.stdout.write(self.style.SUCCESS('Initialisation des catégories d\\'achats'))\n        self.stdout.write(self.style.SUCCESS('='*70))\n        self.stdout.write('')\n        # Définition de l'arborescence des catégories\n        categories = [",
@@ -21748,26 +22349,71 @@
         "kind": 6,
         "importPath": "gestion_achats.migrations.0001_initial",
         "description": "gestion_achats.migrations.0001_initial",
-        "peekOfCode": "class Migration(migrations.Migration):\n    initial = True\n    dependencies = [\n        ('employee', '0001_initial'),  # Assuming employee app is already migrated\n        ('departement', '0001_initial'),  # Assuming departement app is already migrated\n        ('contenttypes', '0002_remove_content_type_name'),\n    ]\n    operations = [\n        # This is a placeholder initial migration\n        # The actual models already exist in the database",
+        "peekOfCode": "class Migration(migrations.Migration):\n    initial = True\n    dependencies = [\n        ('contenttypes', '0002_remove_content_type_name'),\n        ('departement', '0002_initial'),\n        ('employee', '0002_alter_zyre_unique_together'),\n        ('project_management', '0002_alter_jrticket_statut'),\n    ]\n    operations = [\n        migrations.CreateModel(",
         "detail": "gestion_achats.migrations.0001_initial",
         "documentation": {}
     },
     {
         "label": "Migration",
         "kind": 6,
-        "importPath": "gestion_achats.migrations.0002_add_conformite_and_bon_retour",
-        "description": "gestion_achats.migrations.0002_add_conformite_and_bon_retour",
-        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('gestion_achats', '0001_initial'),\n        ('employee', '0001_initial'),\n        ('contenttypes', '0002_remove_content_type_name'),\n    ]\n    operations = [\n        # ========== Ajout de champs à GACReception ==========\n        migrations.AddField(\n            model_name='gacreception',",
-        "detail": "gestion_achats.migrations.0002_add_conformite_and_bon_retour",
+        "importPath": "gestion_achats.migrations.0002_add_missing_fields_categorie",
+        "description": "gestion_achats.migrations.0002_add_missing_fields_categorie",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('gestion_achats', '0001_initial'),\n    ]\n    operations = [\n        # Ajouter le champ date_modification s'il n'existe pas\n        migrations.AddField(\n            model_name='gaccategorie',\n            name='date_modification',\n            field=models.DateTimeField(auto_now=True, verbose_name='Date de modification'),",
+        "detail": "gestion_achats.migrations.0002_add_missing_fields_categorie",
         "documentation": {}
     },
     {
         "label": "Migration",
         "kind": 6,
-        "importPath": "gestion_achats.migrations.0003_add_fields_to_categorie",
-        "description": "gestion_achats.migrations.0003_add_fields_to_categorie",
-        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('gestion_achats', '0002_add_conformite_and_bon_retour'),\n        ('employee', '0001_initial'),\n    ]\n    operations = [\n        # ========== Ajout de champs à GACCategorie ==========\n        migrations.AddField(\n            model_name='gaccategorie',\n            name='date_modification',",
-        "detail": "gestion_achats.migrations.0003_add_fields_to_categorie",
+        "importPath": "gestion_achats.migrations.0003_create_reception_table_fix",
+        "description": "gestion_achats.migrations.0003_create_reception_table_fix",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('gestion_achats', '0002_add_missing_fields_categorie'),\n    ]\n    operations = [\n        migrations.CreateModel(\n            name='GACReception',\n            fields=[\n                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False, verbose_name='Identifiant unique')),\n                ('numero', models.CharField(editable=False, max_length=30, unique=True, verbose_name='Numéro de réception')),",
+        "detail": "gestion_achats.migrations.0003_create_reception_table_fix",
+        "documentation": {}
+    },
+    {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "gestion_achats.migrations.0004_fix_reception_fields",
+        "description": "gestion_achats.migrations.0004_fix_reception_fields",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('gestion_achats', '0003_create_reception_table_fix'),\n    ]\n    operations = [\n        migrations.AddField(\n            model_name='gacreception',\n            name='cree_par',\n            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='receptions_creees_gac', to='employee.zy00', verbose_name='Créé par'),\n        ),",
+        "detail": "gestion_achats.migrations.0004_fix_reception_fields",
+        "documentation": {}
+    },
+    {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "gestion_achats.migrations.0005_add_missing_reception_and_bon_retour",
+        "description": "gestion_achats.migrations.0005_add_missing_reception_and_bon_retour",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('gestion_achats', '0004_fix_reception_fields'),\n        ('employee', '0001_initial'),\n        ('contenttypes', '0002_remove_content_type_name'),\n    ]\n    operations = [\n        # ========== Ajout de champs manquants à GACReception ==========\n        migrations.AddField(\n            model_name='gacreception',",
+        "detail": "gestion_achats.migrations.0005_add_missing_reception_and_bon_retour",
+        "documentation": {}
+    },
+    {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "gestion_achats.migrations.0006_rename_siret_to_nif_togo",
+        "description": "gestion_achats.migrations.0006_rename_siret_to_nif_togo",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('gestion_achats', '0005_add_missing_reception_and_bon_retour'),\n    ]\n    operations = [\n        # ========== Renommer le champ siret en nif (l'index sera automatiquement renommé) ==========\n        migrations.RenameField(\n            model_name='gacfournisseur',\n            old_name='siret',\n            new_name='nif',",
+        "detail": "gestion_achats.migrations.0006_rename_siret_to_nif_togo",
+        "documentation": {}
+    },
+    {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "gestion_achats.migrations.0007_alter_gaclignebonretour_options_and_more",
+        "description": "gestion_achats.migrations.0007_alter_gaclignebonretour_options_and_more",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('employee', '0002_alter_zyre_unique_together'),\n        ('gestion_achats', '0006_rename_siret_to_nif_togo'),\n    ]\n    operations = [\n        migrations.AlterModelOptions(\n            name='gaclignebonretour',\n            options={'ordering': ['ordre', 'id'], 'verbose_name': 'Ligne de bon de retour', 'verbose_name_plural': 'Lignes de bons de retour'},\n        ),",
+        "detail": "gestion_achats.migrations.0007_alter_gaclignebonretour_options_and_more",
+        "documentation": {}
+    },
+    {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "gestion_achats.migrations.0008_gacparametres",
+        "description": "gestion_achats.migrations.0008_gacparametres",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('employee', '0002_alter_zyre_unique_together'),\n        ('gestion_achats', '0007_alter_gaclignebonretour_options_and_more'),\n    ]\n    operations = [\n        migrations.CreateModel(\n            name='GACParametres',\n            fields=[\n                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),",
+        "detail": "gestion_achats.migrations.0008_gacparametres",
         "documentation": {}
     },
     {
@@ -21847,7 +22493,7 @@
         "kind": 6,
         "importPath": "gestion_achats.services.fournisseur_service",
         "description": "gestion_achats.services.fournisseur_service",
-        "peekOfCode": "class FournisseurService:\n    \"\"\"Service pour la gestion des fournisseurs.\"\"\"\n    @staticmethod\n    @transaction.atomic\n    def creer_fournisseur(code, raison_sociale, siret, email, telephone, adresse,\n                         code_postal=None, ville=None, pays='France',\n                         conditions_paiement=None, contact_principal=None,\n                         site_web=None, cree_par=None):\n        \"\"\"\n        Crée un nouveau fournisseur.",
+        "peekOfCode": "class FournisseurService:\n    \"\"\"Service pour la gestion des fournisseurs.\"\"\"\n    @staticmethod\n    @transaction.atomic\n    def creer_fournisseur(raison_sociale, email, telephone, adresse,\n                         nif=None, code_postal=None, ville=None, pays='Togo',\n                         conditions_paiement=None, nom_contact=None,\n                         email_contact=None, telephone_contact=None,\n                         iban=None, numero_tva=None, fax=None,\n                         cree_par=None):",
         "detail": "gestion_achats.services.fournisseur_service",
         "documentation": {}
     },
@@ -21856,7 +22502,7 @@
         "kind": 5,
         "importPath": "gestion_achats.services.fournisseur_service",
         "description": "gestion_achats.services.fournisseur_service",
-        "peekOfCode": "logger = logging.getLogger(__name__)\nclass FournisseurService:\n    \"\"\"Service pour la gestion des fournisseurs.\"\"\"\n    @staticmethod\n    @transaction.atomic\n    def creer_fournisseur(code, raison_sociale, siret, email, telephone, adresse,\n                         code_postal=None, ville=None, pays='France',\n                         conditions_paiement=None, contact_principal=None,\n                         site_web=None, cree_par=None):\n        \"\"\"",
+        "peekOfCode": "logger = logging.getLogger(__name__)\nclass FournisseurService:\n    \"\"\"Service pour la gestion des fournisseurs.\"\"\"\n    @staticmethod\n    @transaction.atomic\n    def creer_fournisseur(raison_sociale, email, telephone, adresse,\n                         nif=None, code_postal=None, ville=None, pays='Togo',\n                         conditions_paiement=None, nom_contact=None,\n                         email_contact=None, telephone_contact=None,\n                         iban=None, numero_tva=None, fax=None,",
         "detail": "gestion_achats.services.fournisseur_service",
         "documentation": {}
     },
@@ -22279,7 +22925,7 @@
         "kind": 2,
         "importPath": "gestion_achats.templatetags.gac_permissions",
         "description": "gestion_achats.templatetags.gac_permissions",
-        "peekOfCode": "def can_validate_gac(user):\n    \"\"\"\n    Vérifie si l'utilisateur peut valider des demandes GAC (N1, N2 ou Admin).\n    Usage: {% can_validate_gac user as can_validate %}\n    \"\"\"\n    if not user or not user.is_authenticated or not hasattr(user, 'employe') or not user.employe:\n        return False\n    return (\n        user.employe.has_role('VALIDATEUR_N1') or\n        user.employe.has_role('VALIDATEUR_N2') or",
+        "peekOfCode": "def can_validate_gac(user):\n    \"\"\"\n    Vérifie si l'utilisateur peut valider des demandes GAC (N1, N2 ou Admin).\n    Retourne True si:\n    - L'utilisateur a un rôle de validateur (VALIDATEUR_N1, VALIDATEUR_N2, ADMIN_GAC)\n    - OU l'utilisateur est assigné comme validateur_n1 ou validateur_n2 sur au moins une demande\n    Usage: {% can_validate_gac user as can_validate %}\n    \"\"\"\n    if not user or not user.is_authenticated or not hasattr(user, 'employe') or not user.employe:\n        return False",
         "detail": "gestion_achats.templatetags.gac_permissions",
         "documentation": {}
     },
@@ -22333,7 +22979,7 @@
         "kind": 6,
         "importPath": "gestion_achats.tests.test_models",
         "description": "gestion_achats.tests.test_models",
-        "peekOfCode": "class GACFournisseurModelTest(TestCase):\n    \"\"\"Tests pour le modèle GACFournisseur.\"\"\"\n    def setUp(self):\n        \"\"\"Prépare les données de test.\"\"\"\n        self.fournisseur = GACFournisseur.objects.create(\n            code='FRNTEST',\n            raison_sociale='Fournisseur Test',\n            siret='12345678901234',\n            email='test@fournisseur.fr',\n            telephone='0123456789',",
+        "peekOfCode": "class GACFournisseurModelTest(TestCase):\n    \"\"\"Tests pour le modèle GACFournisseur.\"\"\"\n    def setUp(self):\n        \"\"\"Prépare les données de test.\"\"\"\n        self.fournisseur = GACFournisseur.objects.create(\n            code='FRNTEST',\n            raison_sociale='Fournisseur Test',\n            nif='123456789',\n            email='test@fournisseur.fr',\n            telephone='0123456789',",
         "detail": "gestion_achats.tests.test_models",
         "documentation": {}
     },
@@ -22401,6 +23047,15 @@
         "documentation": {}
     },
     {
+        "label": "alt_demande_submit",
+        "kind": 2,
+        "importPath": "gestion_achats.views.alt_submit",
+        "description": "gestion_achats.views.alt_submit",
+        "peekOfCode": "def alt_demande_submit(request, pk):\n    \"\"\"\n    Version alternative de la soumission qui fonctionne sans les décorateurs problématiques.\n    Accepte GET pour les tests et POST pour la soumission réelle (y compris AJAX).\n    \"\"\"\n    demande = get_object_or_404(GACDemandeAchat, uuid=pk)\n    # Pour les requêtes GET non-AJAX, afficher les informations de débogage\n    if request.method == 'GET' and not request.headers.get('x-requested-with') == 'XMLHttpRequest':\n        debug_info = {\n            'demande': {",
+        "detail": "gestion_achats.views.alt_submit",
+        "documentation": {}
+    },
+    {
         "label": "bon_commande_liste",
         "kind": 2,
         "importPath": "gestion_achats.views.bon_commande_views",
@@ -22423,7 +23078,7 @@
         "kind": 2,
         "importPath": "gestion_achats.views.bon_commande_views",
         "description": "gestion_achats.views.bon_commande_views",
-        "peekOfCode": "def bon_commande_create_from_demande(request, demande_pk):\n    \"\"\"Créer un BC depuis une demande validée.\"\"\"\n    demande = get_object_or_404(GACDemandeAchat, pk=demande_pk)\n    require_permission(GACPermissions.can_convert_to_bc, request.user, demande)\n    if request.method == 'POST':\n        form = BonCommandeForm(request.POST)\n        if form.is_valid():\n            try:\n                bc = BonCommandeService.creer_bon_commande(\n                    demande_achat=demande,",
+        "peekOfCode": "def bon_commande_create_from_demande(request, demande_pk):\n    \"\"\"Créer un BC depuis une demande validée.\"\"\"\n    demande = get_object_or_404(GACDemandeAchat, uuid=demande_pk)\n    require_permission(GACPermissions.can_convert_to_bc, request.user, demande)\n    if request.method == 'POST':\n        form = BonCommandeForm(request.POST)\n        if form.is_valid():\n            try:\n                bc = BonCommandeService.creer_bon_commande(\n                    demande_achat=demande,",
         "detail": "gestion_achats.views.bon_commande_views",
         "documentation": {}
     },
@@ -22432,7 +23087,7 @@
         "kind": 2,
         "importPath": "gestion_achats.views.bon_commande_views",
         "description": "gestion_achats.views.bon_commande_views",
-        "peekOfCode": "def bon_commande_emit(request, pk, bon_commande):\n    \"\"\"Émettre un bon de commande.\"\"\"\n    require_permission(GACPermissions.can_emit_bon_commande, request.user, bon_commande)\n    if request.method == 'POST':\n        try:\n            BonCommandeService.emettre_bon_commande(bon_commande, request.user.employe)\n            messages.success(request, f'BC {bon_commande.numero} émis.')\n            return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.pk)\n        except Exception as e:\n            messages.error(request, f'Erreur: {str(e)}')",
+        "peekOfCode": "def bon_commande_emit(request, pk, bon_commande):\n    \"\"\"Émettre un bon de commande.\"\"\"\n    require_permission(GACPermissions.can_emit_bon_commande, request.user, bon_commande)\n    if request.method == 'POST':\n        try:\n            BonCommandeService.emettre_bon_commande(bon_commande, request.user.employe)\n            messages.success(request, f'BC {bon_commande.numero} émis.')\n            return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)\n        except Exception as e:\n            messages.error(request, f'Erreur: {str(e)}')",
         "detail": "gestion_achats.views.bon_commande_views",
         "documentation": {}
     },
@@ -22459,7 +23114,7 @@
         "kind": 2,
         "importPath": "gestion_achats.views.bon_commande_views",
         "description": "gestion_achats.views.bon_commande_views",
-        "peekOfCode": "def ligne_bc_create(request, pk, bon_commande):\n    \"\"\"Ajouter une ligne à un bon de commande en brouillon.\"\"\"\n    require_permission(GACPermissions.can_modify_bon_commande, request.user, bon_commande)\n    # Vérifier que le BC est en brouillon\n    if bon_commande.statut != 'BROUILLON':\n        messages.error(request, 'Impossible d\\'ajouter des lignes à un BC qui n\\'est plus en brouillon.')\n        return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.pk)\n    if request.method == 'POST':\n        form = LigneBonCommandeForm(request.POST)\n        if form.is_valid():",
+        "peekOfCode": "def ligne_bc_create(request, pk, bon_commande):\n    \"\"\"Ajouter une ligne à un bon de commande en brouillon.\"\"\"\n    require_permission(GACPermissions.can_modify_bon_commande, request.user, bon_commande)\n    # Vérifier que le BC est en brouillon\n    if bon_commande.statut != 'BROUILLON':\n        messages.error(request, 'Impossible d\\'ajouter des lignes à un BC qui n\\'est plus en brouillon.')\n        return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)\n    if request.method == 'POST':\n        form = LigneBonCommandeForm(request.POST)\n        if form.is_valid():",
         "detail": "gestion_achats.views.bon_commande_views",
         "documentation": {}
     },
@@ -22468,7 +23123,7 @@
         "kind": 2,
         "importPath": "gestion_achats.views.bon_commande_views",
         "description": "gestion_achats.views.bon_commande_views",
-        "peekOfCode": "def ligne_bc_update(request, pk, bon_commande, ligne_pk):\n    \"\"\"Modifier une ligne d'un bon de commande en brouillon.\"\"\"\n    require_permission(GACPermissions.can_modify_bon_commande, request.user, bon_commande)\n    # Vérifier que le BC est en brouillon\n    if bon_commande.statut != 'BROUILLON':\n        messages.error(request, 'Impossible de modifier des lignes d\\'un BC qui n\\'est plus en brouillon.')\n        return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.pk)\n    from gestion_achats.models import GACLigneBonCommande\n    ligne = get_object_or_404(GACLigneBonCommande, pk=ligne_pk, bon_commande=bon_commande)\n    if request.method == 'POST':",
+        "peekOfCode": "def ligne_bc_update(request, pk, bon_commande, ligne_pk):\n    \"\"\"Modifier une ligne d'un bon de commande en brouillon.\"\"\"\n    require_permission(GACPermissions.can_modify_bon_commande, request.user, bon_commande)\n    # Vérifier que le BC est en brouillon\n    if bon_commande.statut != 'BROUILLON':\n        messages.error(request, 'Impossible de modifier des lignes d\\'un BC qui n\\'est plus en brouillon.')\n        return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)\n    from gestion_achats.models import GACLigneBonCommande\n    ligne = get_object_or_404(GACLigneBonCommande, pk=ligne_pk, bon_commande=bon_commande)\n    if request.method == 'POST':",
         "detail": "gestion_achats.views.bon_commande_views",
         "documentation": {}
     },
@@ -22477,7 +23132,7 @@
         "kind": 2,
         "importPath": "gestion_achats.views.bon_commande_views",
         "description": "gestion_achats.views.bon_commande_views",
-        "peekOfCode": "def ligne_bc_delete(request, pk, bon_commande, ligne_pk):\n    \"\"\"Supprimer une ligne d'un bon de commande en brouillon.\"\"\"\n    require_permission(GACPermissions.can_modify_bon_commande, request.user, bon_commande)\n    # Vérifier que le BC est en brouillon\n    if bon_commande.statut != 'BROUILLON':\n        messages.error(request, 'Impossible de supprimer des lignes d\\'un BC qui n\\'est plus en brouillon.')\n        return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.pk)\n    from gestion_achats.models import GACLigneBonCommande\n    ligne = get_object_or_404(GACLigneBonCommande, pk=ligne_pk, bon_commande=bon_commande)\n    if request.method == 'POST':",
+        "peekOfCode": "def ligne_bc_delete(request, pk, bon_commande, ligne_pk):\n    \"\"\"Supprimer une ligne d'un bon de commande en brouillon.\"\"\"\n    require_permission(GACPermissions.can_modify_bon_commande, request.user, bon_commande)\n    # Vérifier que le BC est en brouillon\n    if bon_commande.statut != 'BROUILLON':\n        messages.error(request, 'Impossible de supprimer des lignes d\\'un BC qui n\\'est plus en brouillon.')\n        return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)\n    from gestion_achats.models import GACLigneBonCommande\n    ligne = get_object_or_404(GACLigneBonCommande, pk=ligne_pk, bon_commande=bon_commande)\n    if request.method == 'POST':",
         "detail": "gestion_achats.views.bon_commande_views",
         "documentation": {}
     },
@@ -22549,7 +23204,7 @@
         "kind": 2,
         "importPath": "gestion_achats.views.budget_views",
         "description": "gestion_achats.views.budget_views",
-        "peekOfCode": "def budget_create(request):\n    \"\"\"Créer un nouveau budget.\"\"\"\n    require_permission(GACPermissions.can_create_budget, request.user)\n    if request.method == 'POST':\n        form = BudgetForm(request.POST, user=request.user)\n        if form.is_valid():\n            try:\n                utilisateur = request.user.employe if hasattr(request.user, 'employe') else None\n                budget = BudgetService.creer_budget(\n                    code=form.cleaned_data['code'],",
+        "peekOfCode": "def budget_create(request):\n    \"\"\"Créer un nouveau budget.\"\"\"\n    require_permission(GACPermissions.can_create_budget, request.user)\n    if request.method == 'POST':\n        form = BudgetForm(request.POST, user=request.user)\n        if form.is_valid():\n            try:\n                utilisateur = request.user.employe if hasattr(request.user, 'employe') else None\n                budget = BudgetService.creer_budget(\n                    libelle=form.cleaned_data['libelle'],",
         "detail": "gestion_achats.views.budget_views",
         "documentation": {}
     },
@@ -22612,7 +23267,7 @@
         "kind": 2,
         "importPath": "gestion_achats.views.catalogue_views",
         "description": "gestion_achats.views.catalogue_views",
-        "peekOfCode": "def article_create(request):\n    \"\"\"Créer un nouvel article.\"\"\"\n    require_permission(GACPermissions.can_manage_catalogue, request.user)\n    if request.method == 'POST':\n        form = ArticleForm(request.POST, request.FILES)\n        if form.is_valid():\n            try:\n                utilisateur = request.user.employe if hasattr(request.user, 'employe') else None\n                article = CatalogueService.creer_article(\n                    reference=form.cleaned_data['reference'],",
+        "peekOfCode": "def article_create(request):\n    \"\"\"Créer un nouvel article.\"\"\"\n    require_permission(GACPermissions.can_manage_catalogue, request.user)\n    if request.method == 'POST':\n        form = ArticleForm(request.POST, request.FILES)\n        if form.is_valid():\n            try:\n                utilisateur = request.user.employe if hasattr(request.user, 'employe') else None\n                article = CatalogueService.creer_article(\n                    designation=form.cleaned_data['designation'],",
         "detail": "gestion_achats.views.catalogue_views",
         "documentation": {}
     },
@@ -22653,11 +23308,20 @@
         "documentation": {}
     },
     {
+        "label": "article_delete",
+        "kind": 2,
+        "importPath": "gestion_achats.views.catalogue_views",
+        "description": "gestion_achats.views.catalogue_views",
+        "peekOfCode": "def article_delete(request, pk):\n    \"\"\"Supprimer un article.\"\"\"\n    require_permission(GACPermissions.can_manage_catalogue, request.user)\n    article = get_object_or_404(GACArticle, uuid=pk)\n    # Vérifications avant suppression\n    if article.lignes_demande.exists():\n        messages.error(request, 'Impossible de supprimer un article utilisé dans des demandes d\\'achat.')\n        return redirect('gestion_achats:article_detail', pk=article.uuid)\n    if article.lignes_bc.exists():\n        messages.error(request, 'Impossible de supprimer un article utilisé dans des bons de commande.')",
+        "detail": "gestion_achats.views.catalogue_views",
+        "documentation": {}
+    },
+    {
         "label": "categorie_list",
         "kind": 2,
         "importPath": "gestion_achats.views.catalogue_views",
         "description": "gestion_achats.views.catalogue_views",
-        "peekOfCode": "def categorie_list(request):\n    \"\"\"Liste des catégories (arborescence).\"\"\"\n    require_permission(GACPermissions.can_view_catalogue, request.user)\n    # Récupérer l'arborescence complète\n    arborescence = CatalogueService.get_arborescence_categories()\n    # Récupérer les statistiques\n    stats = CatalogueService.get_statistiques_catalogue()\n    context = {\n        'arborescence': arborescence,\n        'stats': stats,",
+        "peekOfCode": "def categorie_list(request):\n    \"\"\"Liste des catégories (arborescence).\"\"\"\n    require_permission(GACPermissions.can_view_catalogue, request.user)\n    # Récupérer l'arborescence complète\n    arborescence = CatalogueService.get_arborescence_categories()\n    # Récupérer les statistiques\n    stats = CatalogueService.get_statistiques_catalogue()\n    # Récupérer les catégories principales (sans parent)\n    from gestion_achats.models import GACCategorie\n    categories_principales = GACCategorie.objects.filter(parent=None).order_by('nom')",
         "detail": "gestion_achats.views.catalogue_views",
         "documentation": {}
     },
@@ -22680,6 +23344,15 @@
         "documentation": {}
     },
     {
+        "label": "categorie_delete",
+        "kind": 2,
+        "importPath": "gestion_achats.views.catalogue_views",
+        "description": "gestion_achats.views.catalogue_views",
+        "peekOfCode": "def categorie_delete(request, pk):\n    \"\"\"Supprimer une catégorie.\"\"\"\n    require_permission(GACPermissions.can_manage_catalogue, request.user)\n    categorie = get_object_or_404(GACCategorie, uuid=pk)\n    # Vérifier que la catégorie peut être supprimée\n    if categorie.articles.exists():\n        messages.error(request, 'Impossible de supprimer une catégorie contenant des articles.')\n        return redirect('gestion_achats:categorie_list')\n    if categorie.sous_categories.exists():\n        messages.error(request, 'Impossible de supprimer une catégorie contenant des sous-catégories.')",
+        "detail": "gestion_achats.views.catalogue_views",
+        "documentation": {}
+    },
+    {
         "label": "recherche_articles_ajax",
         "kind": 2,
         "importPath": "gestion_achats.views.catalogue_views",
@@ -22695,6 +23368,15 @@
         "description": "gestion_achats.views.dashboard_views",
         "peekOfCode": "def dashboard(request):\n    \"\"\"Dashboard principal du module GAC avec statistiques complètes.\"\"\"\n    # Date pour les statistiques des 30 derniers jours\n    date_30_jours = timezone.now() - timedelta(days=30)\n    date_7_jours = timezone.now() - timedelta(days=7)\n    # ==== STATISTIQUES PERSONNELLES ====\n    mes_demandes = GACDemandeAchat.objects.filter(demandeur=request.user.employe)\n    mes_demandes_count = mes_demandes.count()\n    mes_demandes_en_cours = mes_demandes.exclude(\n        statut__in=['VALIDEE_N2', 'CONVERTIE_BC', 'REFUSEE', 'ANNULEE']",
         "detail": "gestion_achats.views.dashboard_views",
+        "documentation": {}
+    },
+    {
+        "label": "debug_user_info",
+        "kind": 2,
+        "importPath": "gestion_achats.views.debug_views",
+        "description": "gestion_achats.views.debug_views",
+        "peekOfCode": "def debug_user_info(request):\n    \"\"\"Affiche les informations de l'utilisateur pour le débogage.\"\"\"\n    user = request.user\n    # Collecter les informations\n    info = {\n        'username': user.username,\n        'email': user.email,\n        'is_authenticated': user.is_authenticated,\n        'is_active': user.is_active,\n        'is_superuser': user.is_superuser,",
+        "detail": "gestion_achats.views.debug_views",
         "documentation": {}
     },
     {
@@ -22720,7 +23402,7 @@
         "kind": 2,
         "importPath": "gestion_achats.views.demande_views",
         "description": "gestion_achats.views.demande_views",
-        "peekOfCode": "def demande_detail(request, pk, demande):\n    \"\"\"Détail d'une demande d'achat.\"\"\"\n    context = {\n        'demande': demande,\n        'lignes': demande.lignes.all().order_by('ordre'),\n        'can_modify': GACPermissions.can_modify_demande(request.user, demande),\n        'can_submit': GACPermissions.can_submit_demande(request.user, demande),\n        'can_validate_n1': GACPermissions.can_validate_n1(request.user, demande),\n        'can_validate_n2': GACPermissions.can_validate_n2(request.user, demande),\n        'can_refuse': GACPermissions.can_refuse_demande(request.user, demande),",
+        "peekOfCode": "def demande_detail(request, pk, **kwargs):\n    \"\"\"Détail d'une demande d'achat.\"\"\"\n    demande = kwargs.get('demande')\n    context = {\n        'demande': demande,\n        'lignes': demande.lignes.all().order_by('ordre'),\n        'can_modify': GACPermissions.can_modify_demande(request.user, demande),\n        'can_submit': GACPermissions.can_submit_demande(request.user, demande),\n        'can_validate_n1': GACPermissions.can_validate_n1(request.user, demande),\n        'can_validate_n2': GACPermissions.can_validate_n2(request.user, demande),",
         "detail": "gestion_achats.views.demande_views",
         "documentation": {}
     },
@@ -22729,7 +23411,16 @@
         "kind": 2,
         "importPath": "gestion_achats.views.demande_views",
         "description": "gestion_achats.views.demande_views",
-        "peekOfCode": "def demande_update(request, pk, demande):\n    \"\"\"Modifier une demande d'achat.\"\"\"\n    require_permission(GACPermissions.can_modify_demande, request.user, demande)\n    if request.method == 'POST':\n        form = DemandeAchatForm(request.POST, instance=demande, user=request.user)\n        if form.is_valid():\n            form.save()\n            messages.success(request, 'Demande modifiée avec succès.')\n            return redirect('gestion_achats:demande_detail', pk=demande.pk)\n    else:",
+        "peekOfCode": "def demande_update(request, pk, **kwargs):\n    \"\"\"Modifier une demande d'achat.\"\"\"\n    demande = kwargs.get('demande')\n    require_permission(GACPermissions.can_modify_demande, request.user, demande)\n    if request.method == 'POST':\n        form = DemandeAchatForm(request.POST, instance=demande, user=request.user)\n        if form.is_valid():\n            form.save()\n            messages.success(request, 'Demande modifiée avec succès.')\n            return redirect('gestion_achats:demande_detail', pk=demande.uuid)",
+        "detail": "gestion_achats.views.demande_views",
+        "documentation": {}
+    },
+    {
+        "label": "demande_delete",
+        "kind": 2,
+        "importPath": "gestion_achats.views.demande_views",
+        "description": "gestion_achats.views.demande_views",
+        "peekOfCode": "def demande_delete(request, pk, **kwargs):\n    \"\"\"Supprimer une demande d'achat (seulement si elle est en brouillon).\"\"\"\n    demande = kwargs.get('demande')\n    require_permission(GACPermissions.can_modify_demande, request.user, demande)\n    # Vérifier que la demande est en brouillon\n    if demande.statut != 'BROUILLON':\n        if request.headers.get('x-requested-with') == 'XMLHttpRequest':\n            return JsonResponse({\n                'success': False,\n                'message': 'Seules les demandes en brouillon peuvent être supprimées.'",
         "detail": "gestion_achats.views.demande_views",
         "documentation": {}
     },
@@ -22738,7 +23429,25 @@
         "kind": 2,
         "importPath": "gestion_achats.views.demande_views",
         "description": "gestion_achats.views.demande_views",
-        "peekOfCode": "def demande_ligne_create(request, pk, demande):\n    \"\"\"Ajouter une ligne à une demande.\"\"\"\n    require_permission(GACPermissions.can_modify_demande, request.user, demande)\n    if request.method == 'POST':\n        form = LigneDemandeAchatForm(request.POST)\n        if form.is_valid():\n            try:\n                DemandeService.ajouter_ligne(\n                    demande=demande,\n                    article=form.cleaned_data['article'],",
+        "peekOfCode": "def demande_ligne_create(request, pk, **kwargs):\n    \"\"\"Ajouter une ligne à une demande.\"\"\"\n    demande = kwargs.get('demande')\n    require_permission(GACPermissions.can_modify_demande, request.user, demande)\n    if request.method == 'POST':\n        form = LigneDemandeAchatForm(request.POST)\n        if form.is_valid():\n            try:\n                DemandeService.ajouter_ligne(\n                    demande=demande,",
+        "detail": "gestion_achats.views.demande_views",
+        "documentation": {}
+    },
+    {
+        "label": "demande_ligne_update",
+        "kind": 2,
+        "importPath": "gestion_achats.views.demande_views",
+        "description": "gestion_achats.views.demande_views",
+        "peekOfCode": "def demande_ligne_update(request, pk, ligne_pk, **kwargs):\n    \"\"\"Modifier une ligne de demande.\"\"\"\n    demande = kwargs.get('demande')\n    require_permission(GACPermissions.can_modify_demande, request.user, demande)\n    ligne = get_object_or_404(GACLigneDemandeAchat, pk=ligne_pk, demande_achat=demande)\n    if request.method == 'POST':\n        form = LigneDemandeAchatForm(request.POST, instance=ligne)\n        if form.is_valid():\n            try:\n                ligne.article = form.cleaned_data['article']",
+        "detail": "gestion_achats.views.demande_views",
+        "documentation": {}
+    },
+    {
+        "label": "demande_ligne_delete",
+        "kind": 2,
+        "importPath": "gestion_achats.views.demande_views",
+        "description": "gestion_achats.views.demande_views",
+        "peekOfCode": "def demande_ligne_delete(request, pk, ligne_pk, **kwargs):\n    \"\"\"Supprimer une ligne de demande.\"\"\"\n    demande = kwargs.get('demande')\n    require_permission(GACPermissions.can_modify_demande, request.user, demande)\n    ligne = get_object_or_404(GACLigneDemandeAchat, pk=ligne_pk, demande_achat=demande)\n    if request.method == 'POST':\n        # Gérer les requêtes AJAX\n        if request.headers.get('x-requested-with') == 'XMLHttpRequest':\n            try:\n                ligne.delete()",
         "detail": "gestion_achats.views.demande_views",
         "documentation": {}
     },
@@ -22747,7 +23456,7 @@
         "kind": 2,
         "importPath": "gestion_achats.views.demande_views",
         "description": "gestion_achats.views.demande_views",
-        "peekOfCode": "def demande_submit(request, pk, demande):\n    \"\"\"Soumettre une demande pour validation.\"\"\"\n    require_permission(GACPermissions.can_submit_demande, request.user, demande)\n    if request.method == 'POST':\n        try:\n            DemandeService.soumettre_demande(demande, request.user.employe)\n            messages.success(\n                request,\n                f'Demande {demande.numero} soumise pour validation.'\n            )",
+        "peekOfCode": "def demande_submit(request, pk):\n    \"\"\"Soumettre une demande pour validation.\"\"\"\n    # Charger la demande manuellement (on ne utilise plus le décorateur qui causait des problèmes)\n    demande = get_object_or_404(GACDemandeAchat, uuid=pk)\n    if request.method == 'POST':\n        try:\n            # Vérifier les permissions (dans le try/except pour capturer les erreurs)\n            if not GACPermissions.can_submit_demande(request.user, demande):\n                raise PermissionDenied(\"Vous n'avez pas la permission de soumettre cette demande.\")\n            # Vérifier que l'utilisateur a un employe",
         "detail": "gestion_achats.views.demande_views",
         "documentation": {}
     },
@@ -22756,7 +23465,7 @@
         "kind": 2,
         "importPath": "gestion_achats.views.demande_views",
         "description": "gestion_achats.views.demande_views",
-        "peekOfCode": "def demande_validate_n1(request, pk, demande):\n    \"\"\"Valider une demande au niveau N1.\"\"\"\n    require_permission(GACPermissions.can_validate_n1, request.user, demande)\n    if request.method == 'POST':\n        form = DemandeValidationForm(request.POST)\n        if form.is_valid():\n            try:\n                DemandeService.valider_n1(\n                    demande,\n                    request.user.employe,",
+        "peekOfCode": "def demande_validate_n1(request, pk, **kwargs):\n    \"\"\"Valider une demande au niveau N1.\"\"\"\n    # Charger la demande manuellement\n    demande = get_object_or_404(GACDemandeAchat, uuid=pk)\n    # Vérifier les permissions\n    if not GACPermissions.can_view_demande(request.user, demande):\n        if request.headers.get('x-requested-with') == 'XMLHttpRequest':\n            return JsonResponse({\n                'success': False,\n                'message': \"Vous n'avez pas accès à cette demande\"",
         "detail": "gestion_achats.views.demande_views",
         "documentation": {}
     },
@@ -22765,7 +23474,7 @@
         "kind": 2,
         "importPath": "gestion_achats.views.demande_views",
         "description": "gestion_achats.views.demande_views",
-        "peekOfCode": "def demande_validate_n2(request, pk, demande):\n    \"\"\"Valider une demande au niveau N2.\"\"\"\n    require_permission(GACPermissions.can_validate_n2, request.user, demande)\n    if request.method == 'POST':\n        form = DemandeValidationForm(request.POST)\n        if form.is_valid():\n            try:\n                DemandeService.valider_n2(\n                    demande,\n                    request.user.employe,",
+        "peekOfCode": "def demande_validate_n2(request, pk, **kwargs):\n    \"\"\"Valider une demande au niveau N2.\"\"\"\n    # Charger la demande manuellement\n    demande = get_object_or_404(GACDemandeAchat, uuid=pk)\n    # Vérifier les permissions\n    if not GACPermissions.can_view_demande(request.user, demande):\n        if request.headers.get('x-requested-with') == 'XMLHttpRequest':\n            return JsonResponse({\n                'success': False,\n                'message': \"Vous n'avez pas accès à cette demande\"",
         "detail": "gestion_achats.views.demande_views",
         "documentation": {}
     },
@@ -22774,7 +23483,7 @@
         "kind": 2,
         "importPath": "gestion_achats.views.demande_views",
         "description": "gestion_achats.views.demande_views",
-        "peekOfCode": "def demande_refuse(request, pk, demande):\n    \"\"\"Refuser une demande.\"\"\"\n    require_permission(GACPermissions.can_refuse_demande, request.user, demande)\n    if request.method == 'POST':\n        form = DemandeRefusForm(request.POST)\n        if form.is_valid():\n            try:\n                DemandeService.refuser_demande(\n                    demande,\n                    request.user.employe,",
+        "peekOfCode": "def demande_refuse(request, pk, **kwargs):\n    \"\"\"Refuser une demande.\"\"\"\n    # Charger la demande manuellement\n    demande = get_object_or_404(GACDemandeAchat, uuid=pk)\n    # Vérifier les permissions\n    if not GACPermissions.can_view_demande(request.user, demande):\n        if request.headers.get('x-requested-with') == 'XMLHttpRequest':\n            return JsonResponse({\n                'success': False,\n                'message': \"Vous n'avez pas accès à cette demande\"",
         "detail": "gestion_achats.views.demande_views",
         "documentation": {}
     },
@@ -22783,7 +23492,7 @@
         "kind": 2,
         "importPath": "gestion_achats.views.demande_views",
         "description": "gestion_achats.views.demande_views",
-        "peekOfCode": "def demande_cancel(request, pk, demande):\n    \"\"\"Annuler une demande.\"\"\"\n    require_permission(GACPermissions.can_cancel_demande, request.user, demande)\n    if request.method == 'POST':\n        form = DemandeAnnulationForm(request.POST)\n        if form.is_valid():\n            try:\n                DemandeService.annuler_demande(\n                    demande,\n                    request.user.employe,",
+        "peekOfCode": "def demande_cancel(request, pk, **kwargs):\n    \"\"\"Annuler une demande.\"\"\"\n    # Charger la demande manuellement\n    demande = get_object_or_404(GACDemandeAchat, uuid=pk)\n    # Vérifier les permissions\n    if not GACPermissions.can_view_demande(request.user, demande):\n        if request.headers.get('x-requested-with') == 'XMLHttpRequest':\n            return JsonResponse({\n                'success': False,\n                'message': \"Vous n'avez pas accès à cette demande\"",
         "detail": "gestion_achats.views.demande_views",
         "documentation": {}
     },
@@ -22806,6 +23515,15 @@
         "documentation": {}
     },
     {
+        "label": "diagnostic_validateurs",
+        "kind": 2,
+        "importPath": "gestion_achats.views.diagnostic_validateurs",
+        "description": "gestion_achats.views.diagnostic_validateurs",
+        "peekOfCode": "def diagnostic_validateurs(request):\n    \"\"\"\n    Diagnostic complet des validateurs et de leurs demandes.\n    Permet d'identifier les problèmes de liaison User-Employe.\n    \"\"\"\n    # Récupérer uniquement si l'utilisateur est admin\n    if not request.user.is_superuser and not (hasattr(request.user, 'employe') and request.user.employe.has_role('ADMIN_GAC')):\n        return JsonResponse({'error': 'Permission refusée'}, status=403)\n    diagnostics = []\n    # Récupérer tous les employés qui sont validateurs sur au moins une demande",
+        "detail": "gestion_achats.views.diagnostic_validateurs",
+        "documentation": {}
+    },
+    {
         "label": "fournisseur_list",
         "kind": 2,
         "importPath": "gestion_achats.views.fournisseur_views",
@@ -22819,7 +23537,7 @@
         "kind": 2,
         "importPath": "gestion_achats.views.fournisseur_views",
         "description": "gestion_achats.views.fournisseur_views",
-        "peekOfCode": "def fournisseur_create(request):\n    \"\"\"Créer un nouveau fournisseur.\"\"\"\n    require_permission(GACPermissions.can_modify_fournisseur, request.user)\n    if request.method == 'POST':\n        form = FournisseurForm(request.POST)\n        if form.is_valid():\n            try:\n                fournisseur = FournisseurService.creer_fournisseur(\n                    code=form.cleaned_data['code'],\n                    raison_sociale=form.cleaned_data['raison_sociale'],",
+        "peekOfCode": "def fournisseur_create(request):\n    \"\"\"Créer un nouveau fournisseur.\"\"\"\n    require_permission(GACPermissions.can_modify_fournisseur, request.user)\n    if request.method == 'POST':\n        form = FournisseurForm(request.POST)\n        if form.is_valid():\n            try:\n                fournisseur = FournisseurService.creer_fournisseur(\n                    raison_sociale=form.cleaned_data['raison_sociale'],\n                    email=form.cleaned_data['email'],",
         "detail": "gestion_achats.views.fournisseur_views",
         "documentation": {}
     },
@@ -22864,7 +23582,7 @@
         "kind": 2,
         "importPath": "gestion_achats.views.fournisseur_views",
         "description": "gestion_achats.views.fournisseur_views",
-        "peekOfCode": "def evaluer_fournisseur(request, pk):\n    \"\"\"Évaluer un fournisseur.\"\"\"\n    require_permission(GACPermissions.can_evaluate_fournisseurs, request.user)\n    fournisseur = get_object_or_404(GACFournisseur, uuid=pk)\n    if request.method == 'POST':\n        form = FournisseurEvaluationForm(request.POST)\n        if form.is_valid():\n            try:\n                evaluateur = request.user.employe if hasattr(request.user, 'employe') else None\n                FournisseurService.evaluer_fournisseur(",
+        "peekOfCode": "def evaluer_fournisseur(request, pk):\n    \"\"\"Évaluer un fournisseur.\"\"\"\n    require_permission(GACPermissions.can_evaluate_fournisseur, request.user)\n    fournisseur = get_object_or_404(GACFournisseur, uuid=pk)\n    if request.method == 'POST':\n        form = FournisseurEvaluationForm(request.POST)\n        if form.is_valid():\n            try:\n                evaluateur = request.user.employe if hasattr(request.user, 'employe') else None\n                FournisseurService.evaluer_fournisseur(",
         "detail": "gestion_achats.views.fournisseur_views",
         "documentation": {}
     },
@@ -22875,6 +23593,24 @@
         "description": "gestion_achats.views.fournisseur_views",
         "peekOfCode": "def fournisseurs_pour_article_ajax(request, article_pk):\n    \"\"\"API AJAX pour récupérer les fournisseurs d'un article.\"\"\"\n    try:\n        article = get_object_or_404(GACArticle, uuid=article_pk)\n        fournisseurs = FournisseurService.get_fournisseurs_pour_article(article)\n        data = [\n            {\n                'uuid': str(f['fournisseur__uuid']),\n                'code': f['fournisseur__code'],\n                'raison_sociale': f['fournisseur__raison_sociale'],",
         "detail": "gestion_achats.views.fournisseur_views",
+        "documentation": {}
+    },
+    {
+        "label": "fournisseur_delete",
+        "kind": 2,
+        "importPath": "gestion_achats.views.fournisseur_views",
+        "description": "gestion_achats.views.fournisseur_views",
+        "peekOfCode": "def fournisseur_delete(request, pk):\n    \"\"\"Supprimer un fournisseur.\"\"\"\n    require_permission(GACPermissions.can_delete_fournisseur, request.user)\n    fournisseur = get_object_or_404(GACFournisseur, uuid=pk)\n    try:\n        raison_sociale = fournisseur.raison_sociale\n        fournisseur.delete()\n        messages.success(request, f'Le fournisseur \"{raison_sociale}\" a été supprimé avec succès.')\n    except Exception as e:\n        messages.error(request, f'Erreur lors de la suppression: {str(e)}')",
+        "detail": "gestion_achats.views.fournisseur_views",
+        "documentation": {}
+    },
+    {
+        "label": "parametres_gac",
+        "kind": 2,
+        "importPath": "gestion_achats.views.parametres_views",
+        "description": "gestion_achats.views.parametres_views",
+        "peekOfCode": "def parametres_gac(request):\n    \"\"\"\n    Affiche et permet de modifier les paramètres de configuration GAC.\n    Accessible uniquement aux utilisateurs ayant le rôle ADMIN_GAC.\n    \"\"\"\n    # Vérifier les permissions\n    require_permission(\n        lambda user: user.employe.has_role('ADMIN_GAC'),\n        request.user\n    )",
+        "detail": "gestion_achats.views.parametres_views",
         "documentation": {}
     },
     {
@@ -22938,6 +23674,24 @@
         "description": "gestion_achats.views.reception_views",
         "peekOfCode": "def receptions_en_attente(request):\n    \"\"\"Liste des réceptions en attente de validation.\"\"\"\n    require_permission(GACPermissions.can_view_all_receptions, request.user)\n    receptions = ReceptionService.get_receptions_en_attente()\n    context = {\n        'receptions': receptions,\n    }\n    return render(request, 'gestion_achats/reception/receptions_en_attente.html', context)",
         "detail": "gestion_achats.views.reception_views",
+        "documentation": {}
+    },
+    {
+        "label": "simple_demande_submit",
+        "kind": 2,
+        "importPath": "gestion_achats.views.simple_submit",
+        "description": "gestion_achats.views.simple_submit",
+        "peekOfCode": "def simple_demande_submit(request, pk):\n    \"\"\"\n    Soumission ultra-simple sans décorateurs complexes.\n    Fonctionne avec ou sans AJAX.\n    \"\"\"\n    try:\n        # 1. Charger la demande\n        demande = get_object_or_404(GACDemandeAchat, uuid=pk)\n        # 2. Vérifier que l'utilisateur est authentifié\n        if not request.user.is_authenticated:",
+        "detail": "gestion_achats.views.simple_submit",
+        "documentation": {}
+    },
+    {
+        "label": "test_submit_permission",
+        "kind": 2,
+        "importPath": "gestion_achats.views.test_permissions",
+        "description": "gestion_achats.views.test_permissions",
+        "peekOfCode": "def test_submit_permission(request, pk):\n    \"\"\"Teste les permissions de soumission pour une demande.\"\"\"\n    demande = get_object_or_404(GACDemandeAchat, uuid=pk)\n    user = request.user\n    debug_info = {\n        'user': {\n            'username': user.username,\n            'is_authenticated': user.is_authenticated,\n            'has_employe_attr': hasattr(user, 'employe'),\n        },",
+        "detail": "gestion_achats.views.test_permissions",
         "documentation": {}
     },
     {
@@ -23674,7 +24428,7 @@
         "kind": 5,
         "importPath": "gestion_achats.constants",
         "description": "gestion_achats.constants",
-        "peekOfCode": "MAX_LENGTH_CODE = 20\nMAX_LENGTH_REFERENCE = 50\nMAX_LENGTH_NUMERO = 30\nMAX_LENGTH_NOM = 200\nMAX_LENGTH_EMAIL = 254\nMAX_LENGTH_TELEPHONE = 20\nMAX_LENGTH_SIRET = 14\nMAX_LENGTH_TVA = 20\nMAX_LENGTH_IBAN = 34",
+        "peekOfCode": "MAX_LENGTH_CODE = 20\nMAX_LENGTH_REFERENCE = 50\nMAX_LENGTH_NUMERO = 30\nMAX_LENGTH_NOM = 200\nMAX_LENGTH_EMAIL = 254\nMAX_LENGTH_TELEPHONE = 20\nMAX_LENGTH_NIF = 10  # Numéro d'Identification Fiscale (Togo)\nMAX_LENGTH_TVA = 20\nMAX_LENGTH_IBAN = 34",
         "detail": "gestion_achats.constants",
         "documentation": {}
     },
@@ -23683,7 +24437,7 @@
         "kind": 5,
         "importPath": "gestion_achats.constants",
         "description": "gestion_achats.constants",
-        "peekOfCode": "MAX_LENGTH_REFERENCE = 50\nMAX_LENGTH_NUMERO = 30\nMAX_LENGTH_NOM = 200\nMAX_LENGTH_EMAIL = 254\nMAX_LENGTH_TELEPHONE = 20\nMAX_LENGTH_SIRET = 14\nMAX_LENGTH_TVA = 20\nMAX_LENGTH_IBAN = 34",
+        "peekOfCode": "MAX_LENGTH_REFERENCE = 50\nMAX_LENGTH_NUMERO = 30\nMAX_LENGTH_NOM = 200\nMAX_LENGTH_EMAIL = 254\nMAX_LENGTH_TELEPHONE = 20\nMAX_LENGTH_NIF = 10  # Numéro d'Identification Fiscale (Togo)\nMAX_LENGTH_TVA = 20\nMAX_LENGTH_IBAN = 34",
         "detail": "gestion_achats.constants",
         "documentation": {}
     },
@@ -23692,7 +24446,7 @@
         "kind": 5,
         "importPath": "gestion_achats.constants",
         "description": "gestion_achats.constants",
-        "peekOfCode": "MAX_LENGTH_NUMERO = 30\nMAX_LENGTH_NOM = 200\nMAX_LENGTH_EMAIL = 254\nMAX_LENGTH_TELEPHONE = 20\nMAX_LENGTH_SIRET = 14\nMAX_LENGTH_TVA = 20\nMAX_LENGTH_IBAN = 34",
+        "peekOfCode": "MAX_LENGTH_NUMERO = 30\nMAX_LENGTH_NOM = 200\nMAX_LENGTH_EMAIL = 254\nMAX_LENGTH_TELEPHONE = 20\nMAX_LENGTH_NIF = 10  # Numéro d'Identification Fiscale (Togo)\nMAX_LENGTH_TVA = 20\nMAX_LENGTH_IBAN = 34",
         "detail": "gestion_achats.constants",
         "documentation": {}
     },
@@ -23701,7 +24455,7 @@
         "kind": 5,
         "importPath": "gestion_achats.constants",
         "description": "gestion_achats.constants",
-        "peekOfCode": "MAX_LENGTH_NOM = 200\nMAX_LENGTH_EMAIL = 254\nMAX_LENGTH_TELEPHONE = 20\nMAX_LENGTH_SIRET = 14\nMAX_LENGTH_TVA = 20\nMAX_LENGTH_IBAN = 34",
+        "peekOfCode": "MAX_LENGTH_NOM = 200\nMAX_LENGTH_EMAIL = 254\nMAX_LENGTH_TELEPHONE = 20\nMAX_LENGTH_NIF = 10  # Numéro d'Identification Fiscale (Togo)\nMAX_LENGTH_TVA = 20\nMAX_LENGTH_IBAN = 34",
         "detail": "gestion_achats.constants",
         "documentation": {}
     },
@@ -23710,7 +24464,7 @@
         "kind": 5,
         "importPath": "gestion_achats.constants",
         "description": "gestion_achats.constants",
-        "peekOfCode": "MAX_LENGTH_EMAIL = 254\nMAX_LENGTH_TELEPHONE = 20\nMAX_LENGTH_SIRET = 14\nMAX_LENGTH_TVA = 20\nMAX_LENGTH_IBAN = 34",
+        "peekOfCode": "MAX_LENGTH_EMAIL = 254\nMAX_LENGTH_TELEPHONE = 20\nMAX_LENGTH_NIF = 10  # Numéro d'Identification Fiscale (Togo)\nMAX_LENGTH_TVA = 20\nMAX_LENGTH_IBAN = 34",
         "detail": "gestion_achats.constants",
         "documentation": {}
     },
@@ -23719,16 +24473,16 @@
         "kind": 5,
         "importPath": "gestion_achats.constants",
         "description": "gestion_achats.constants",
-        "peekOfCode": "MAX_LENGTH_TELEPHONE = 20\nMAX_LENGTH_SIRET = 14\nMAX_LENGTH_TVA = 20\nMAX_LENGTH_IBAN = 34",
+        "peekOfCode": "MAX_LENGTH_TELEPHONE = 20\nMAX_LENGTH_NIF = 10  # Numéro d'Identification Fiscale (Togo)\nMAX_LENGTH_TVA = 20\nMAX_LENGTH_IBAN = 34",
         "detail": "gestion_achats.constants",
         "documentation": {}
     },
     {
-        "label": "MAX_LENGTH_SIRET",
+        "label": "MAX_LENGTH_NIF",
         "kind": 5,
         "importPath": "gestion_achats.constants",
         "description": "gestion_achats.constants",
-        "peekOfCode": "MAX_LENGTH_SIRET = 14\nMAX_LENGTH_TVA = 20\nMAX_LENGTH_IBAN = 34",
+        "peekOfCode": "MAX_LENGTH_NIF = 10  # Numéro d'Identification Fiscale (Togo)\nMAX_LENGTH_TVA = 20\nMAX_LENGTH_IBAN = 34",
         "detail": "gestion_achats.constants",
         "documentation": {}
     },
@@ -23765,6 +24519,15 @@
         "importPath": "gestion_achats.decorators",
         "description": "gestion_achats.decorators",
         "peekOfCode": "def require_any_role(*role_codes):\n    \"\"\"\n    Décorateur pour vérifier qu'un utilisateur a au moins un des rôles spécifiés.\n    Args:\n        *role_codes: Codes des rôles acceptés\n    Usage:\n        @require_any_role('ACHETEUR', 'RECEPTIONNAIRE')\n        def ma_vue(request):\n            ...\n    \"\"\"",
+        "detail": "gestion_achats.decorators",
+        "documentation": {}
+    },
+    {
+        "label": "ajax_login_required",
+        "kind": 2,
+        "importPath": "gestion_achats.decorators",
+        "description": "gestion_achats.decorators",
+        "peekOfCode": "def ajax_login_required(view_func):\n    \"\"\"\n    Version de login_required qui fonctionne avec les requêtes AJAX.\n    \"\"\"\n    @wraps(view_func)\n    def _wrapped_view(request, *args, **kwargs):\n        # Vérifier si l'utilisateur est authentifié\n        if not request.user.is_authenticated:\n            # Pour les requêtes AJAX, retourner une erreur JSON\n            if request.headers.get('x-requested-with') == 'XMLHttpRequest':",
         "detail": "gestion_achats.decorators",
         "documentation": {}
     },
@@ -23998,7 +24761,7 @@
         "kind": 6,
         "importPath": "gestion_achats.forms",
         "description": "gestion_achats.forms",
-        "peekOfCode": "class FournisseurForm(forms.ModelForm):\n    \"\"\"Formulaire pour créer/modifier un fournisseur.\"\"\"\n    class Meta:\n        model = GACFournisseur\n        fields = [\n            'code',\n            'raison_sociale',\n            'siret',\n            'numero_tva',\n            'email',",
+        "peekOfCode": "class FournisseurForm(forms.ModelForm):\n    \"\"\"Formulaire pour créer/modifier un fournisseur.\"\"\"\n    class Meta:\n        model = GACFournisseur\n        fields = [\n            'raison_sociale',\n            'nif',\n            'numero_tva',\n            'email',\n            'telephone',",
         "detail": "gestion_achats.forms",
         "documentation": {}
     },
@@ -24043,7 +24806,7 @@
         "kind": 6,
         "importPath": "gestion_achats.forms",
         "description": "gestion_achats.forms",
-        "peekOfCode": "class ArticleForm(forms.ModelForm):\n    \"\"\"Formulaire pour créer/modifier un article.\"\"\"\n    class Meta:\n        model = GACArticle\n        fields = [\n            'reference',\n            'designation',\n            'categorie',\n            'description',\n            'prix_unitaire',",
+        "peekOfCode": "class ArticleForm(forms.ModelForm):\n    \"\"\"Formulaire pour créer/modifier un article.\"\"\"\n    class Meta:\n        model = GACArticle\n        fields = [\n            'designation',\n            'categorie',\n            'description',\n            'prix_unitaire',\n            'unite',",
         "detail": "gestion_achats.forms",
         "documentation": {}
     },
@@ -24052,7 +24815,7 @@
         "kind": 6,
         "importPath": "gestion_achats.forms",
         "description": "gestion_achats.forms",
-        "peekOfCode": "class BudgetForm(forms.ModelForm):\n    \"\"\"Formulaire pour créer/modifier un budget.\"\"\"\n    class Meta:\n        model = GACBudget\n        fields = [\n            'code',\n            'libelle',\n            'description',\n            'exercice',\n            'date_debut',",
+        "peekOfCode": "class BudgetForm(forms.ModelForm):\n    \"\"\"Formulaire pour créer/modifier un budget.\"\"\"\n    class Meta:\n        model = GACBudget\n        fields = [\n            'libelle',\n            'description',\n            'exercice',\n            'date_debut',\n            'date_fin',",
         "detail": "gestion_achats.forms",
         "documentation": {}
     },
@@ -24080,6 +24843,15 @@
         "importPath": "gestion_achats.forms",
         "description": "gestion_achats.forms",
         "peekOfCode": "class ArticleFournisseurForm(forms.ModelForm):\n    \"\"\"Formulaire pour associer un article à un fournisseur.\"\"\"\n    class Meta:\n        model = GACArticle.fournisseurs.through\n        fields = [\n            'fournisseur',\n            'reference_fournisseur',\n            'prix_fournisseur',\n            'delai_livraison',\n            'fournisseur_principal',",
+        "detail": "gestion_achats.forms",
+        "documentation": {}
+    },
+    {
+        "label": "GACParametresForm",
+        "kind": 6,
+        "importPath": "gestion_achats.forms",
+        "description": "gestion_achats.forms",
+        "peekOfCode": "class GACParametresForm(forms.ModelForm):\n    \"\"\"\n    Formulaire pour modifier les paramètres de configuration GAC.\n    \"\"\"\n    class Meta:\n        model = GACParametres\n        fields = [\n            'seuil_validation_n2',\n            'delai_livraison_defaut',\n            'notifier_demandeur',",
         "detail": "gestion_achats.forms",
         "documentation": {}
     },
@@ -24287,6 +25059,15 @@
         "importPath": "gestion_achats.models",
         "description": "gestion_achats.models",
         "peekOfCode": "class GACHistorique(models.Model):\n    \"\"\"\n    Modèle pour tracer toutes les actions effectuées dans le module GAC.\n    Utilise GenericForeignKey pour permettre le traçage de n'importe quel objet.\n    \"\"\"\n    uuid = models.UUIDField(\n        primary_key=True,\n        default=uuid.uuid4,\n        editable=False,\n        verbose_name=\"Identifiant unique\"",
+        "detail": "gestion_achats.models",
+        "documentation": {}
+    },
+    {
+        "label": "GACParametres",
+        "kind": 6,
+        "importPath": "gestion_achats.models",
+        "description": "gestion_achats.models",
+        "peekOfCode": "class GACParametres(models.Model):\n    \"\"\"\n    Modèle singleton pour stocker les paramètres de configuration du module GAC.\n    Ce modèle ne doit avoir qu'une seule instance dans la base de données.\n    \"\"\"\n    # Seuil de validation\n    seuil_validation_n2 = models.DecimalField(\n        max_digits=12,\n        decimal_places=2,\n        default=Decimal('5000.00'),",
         "detail": "gestion_achats.models",
         "documentation": {}
     },
@@ -24525,6 +25306,33 @@
         "documentation": {}
     },
     {
+        "label": "generer_code_fournisseur",
+        "kind": 2,
+        "importPath": "gestion_achats.utils",
+        "description": "gestion_achats.utils",
+        "peekOfCode": "def generer_code_fournisseur():\n    \"\"\"\n    Génère un code fournisseur unique.\n    Format: FRN-NNNN\n    Exemple: FRN-0001\n    Returns:\n        str: Code fournisseur généré\n    \"\"\"\n    from gestion_achats.models import GACFournisseur\n    dernier_numero = GACFournisseur.objects.filter(",
+        "detail": "gestion_achats.utils",
+        "documentation": {}
+    },
+    {
+        "label": "generer_code_article",
+        "kind": 2,
+        "importPath": "gestion_achats.utils",
+        "description": "gestion_achats.utils",
+        "peekOfCode": "def generer_code_article():\n    \"\"\"\n    Génère un code article unique.\n    Format: ART-NNNN\n    Exemple: ART-0001\n    Returns:\n        str: Code article généré\n    \"\"\"\n    from gestion_achats.models import GACArticle\n    import re",
+        "detail": "gestion_achats.utils",
+        "documentation": {}
+    },
+    {
+        "label": "generer_code_budget",
+        "kind": 2,
+        "importPath": "gestion_achats.utils",
+        "description": "gestion_achats.utils",
+        "peekOfCode": "def generer_code_budget():\n    \"\"\"\n    Génère un code budget unique.\n    Format: BUD-NNNN\n    Exemple: BUD-0001\n    Returns:\n        str: Code budget généré\n    \"\"\"\n    from gestion_achats.models import GACBudget\n    dernier_numero = GACBudget.objects.filter(",
+        "detail": "gestion_achats.utils",
+        "documentation": {}
+    },
+    {
         "label": "calculer_montant_ttc",
         "kind": 2,
         "importPath": "gestion_achats.utils",
@@ -24570,11 +25378,11 @@
         "documentation": {}
     },
     {
-        "label": "valider_siret",
+        "label": "valider_nif",
         "kind": 2,
         "importPath": "gestion_achats.utils",
         "description": "gestion_achats.utils",
-        "peekOfCode": "def valider_siret(siret):\n    \"\"\"\n    Valide un numéro SIRET français.\n    Args:\n        siret (str): Numéro SIRET à valider (14 chiffres)\n    Returns:\n        bool: True si valide, False sinon\n    \"\"\"\n    if not siret:\n        return False",
+        "peekOfCode": "def valider_nif(nif):\n    \"\"\"\n    Valide un Numéro d'Identification Fiscale (NIF) togolais.\n    Args:\n        nif (str): Numéro NIF à valider (9 à 10 chiffres)\n    Returns:\n        bool: True si valide, False sinon\n    \"\"\"\n    if not nif:\n        return True  # Le NIF est optionnel",
         "detail": "gestion_achats.utils",
         "documentation": {}
     },
@@ -24615,11 +25423,11 @@
         "documentation": {}
     },
     {
-        "label": "valider_siret",
+        "label": "valider_nif",
         "kind": 2,
         "importPath": "gestion_achats.validators",
         "description": "gestion_achats.validators",
-        "peekOfCode": "def valider_siret(value):\n    \"\"\"\n    Valide le format et la clé de contrôle d'un numéro SIRET.\n    Le SIRET est composé de 14 chiffres dont les 9 premiers constituent\n    le numéro SIREN et les 5 suivants le NIC (Numéro Interne de Classement).\n    Args:\n        value: Le numéro SIRET à valider\n    Raises:\n        ValidationError: Si le SIRET est invalide\n    \"\"\"",
+        "peekOfCode": "def valider_nif(value):\n    \"\"\"\n    Valide le format d'un Numéro d'Identification Fiscale (NIF) togolais.\n    Le NIF togolais est composé de 9 à 10 chiffres.\n    Args:\n        value: Le numéro NIF à valider\n    Raises:\n        ValidationError: Si le NIF est invalide\n    \"\"\"\n    if not value:",
         "detail": "gestion_achats.validators",
         "documentation": {}
     },

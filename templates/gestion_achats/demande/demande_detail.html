@@ -17,9 +17,9 @@
             </span>
         </div>
         <div>
-            <a href="{% url 'gestion_achats:demande_liste' %}" class="btn btn-outline-secondary">
+            <button onclick="window.history.back()" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Retour
-            </a>
+            </button>
         </div>
     </div>
 
@@ -37,7 +37,13 @@
                         <dd class="col-sm-9"><strong>{{ demande.numero }}</strong></dd>
 
                         <dt class="col-sm-3">Demandeur</dt>
-                        <dd class="col-sm-9">{{ demande.demandeur.get_full_name }}</dd>
+                        <dd class="col-sm-9">
+                            {% if demande.demandeur.get_full_name %}
+                                {{ demande.demandeur.get_full_name }}
+                            {% else %}
+                                {{ demande.demandeur.nom|default:"" }} {{ demande.demandeur.prenoms|default:"" }} ({{ demande.demandeur.matricule }})
+                            {% endif %}
+                        </dd>
 
                         <dt class="col-sm-3">Date création</dt>
                         <dd class="col-sm-9">{{ demande.date_creation|date:"d/m/Y à H:i" }}</dd>
@@ -69,6 +75,46 @@
                                 {{ demande.get_priorite_display }}
                             </span>
                         </dd>
+
+                        {% if demande.validateur_n1 %}
+                        <dt class="col-sm-3">Validateur N1</dt>
+                        <dd class="col-sm-9">
+                            {% if demande.validateur_n1.get_full_name %}
+                                {{ demande.validateur_n1.get_full_name }}
+                            {% else %}
+                                {{ demande.validateur_n1.nom|default:"" }} {{ demande.validateur_n1.prenoms|default:"" }} ({{ demande.validateur_n1.matricule }})
+                            {% endif %}
+                            {% if demande.date_validation_n1 %}
+                            <span class="badge bg-success ms-2">
+                                <i class="fas fa-check me-1"></i>Validé le {{ demande.date_validation_n1|date:"d/m/Y" }}
+                            </span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark ms-2">
+                                <i class="fas fa-clock me-1"></i>En attente
+                            </span>
+                            {% endif %}
+                        </dd>
+                        {% endif %}
+
+                        {% if demande.validateur_n2 %}
+                        <dt class="col-sm-3">Validateur N2</dt>
+                        <dd class="col-sm-9">
+                            {% if demande.validateur_n2.get_full_name %}
+                                {{ demande.validateur_n2.get_full_name }}
+                            {% else %}
+                                {{ demande.validateur_n2.nom|default:"" }} {{ demande.validateur_n2.prenoms|default:"" }} ({{ demande.validateur_n2.matricule }})
+                            {% endif %}
+                            {% if demande.date_validation_n2 %}
+                            <span class="badge bg-success ms-2">
+                                <i class="fas fa-check me-1"></i>Validé le {{ demande.date_validation_n2|date:"d/m/Y" }}
+                            </span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark ms-2">
+                                <i class="fas fa-clock me-1"></i>En attente
+                            </span>
+                            {% endif %}
+                        </dd>
+                        {% endif %}
                     </dl>
                 </div>
             </div>
@@ -81,7 +127,7 @@
                         Articles demandés
                     </span>
                     {% if can_modify %}
-                    <a href="{% url 'gestion_achats:demande_ligne_create' demande.pk %}" class="btn btn-sm btn-primary">
+                    <a href="{% url 'gestion_achats:demande_ligne_create' demande.uuid %}" class="btn btn-sm btn-primary">
                         <i class="fas fa-plus me-2"></i>Ajouter
                     </a>
                     {% endif %}
@@ -97,6 +143,9 @@
                                     <th class="text-end">PU HT</th>
                                     <th class="text-center">TVA</th>
                                     <th class="text-end">Total HT</th>
+                                    {% if can_modify %}
+                                    <th class="text-center" style="width: 120px;">Actions</th>
+                                    {% endif %}
                                 </tr>
                             </thead>
                             <tbody>
@@ -113,21 +162,46 @@
                                     <td class="text-end">{{ ligne.prix_unitaire|floatformat:2 }} €</td>
                                     <td class="text-center">{{ ligne.taux_tva }}%</td>
                                     <td class="text-end"><strong>{{ ligne.montant_ht|floatformat:2 }} €</strong></td>
+                                    {% if can_modify %}
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{% url 'gestion_achats:demande_ligne_update' demande.uuid ligne.pk %}"
+                                               class="btn btn-sm btn-outline-primary"
+                                               title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-danger btn-delete-ligne"
+                                                    data-ligne-pk="{{ ligne.pk }}"
+                                                    data-ligne-article="{{ ligne.article.reference }} - {{ ligne.article.designation }}"
+                                                    data-ligne-quantite="{{ ligne.quantite }} {{ ligne.article.unite }}"
+                                                    data-ligne-prix="{{ ligne.prix_unitaire|floatformat:2 }}"
+                                                    data-ligne-montant="{{ ligne.montant_ht|floatformat:2 }}"
+                                                    data-delete-url="{% url 'gestion_achats:demande_ligne_delete' demande.uuid ligne.pk %}"
+                                                    title="Supprimer">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    {% endif %}
                                 </tr>
                                 {% endfor %}
                             </tbody>
                             <tfoot class="table-light">
                                 <tr>
-                                    <td colspan="4" class="text-end"><strong>Total HT:</strong></td>
+                                    <td colspan="{% if can_modify %}5{% else %}4{% endif %}" class="text-end"><strong>Total HT:</strong></td>
                                     <td class="text-end"><strong>{{ demande.montant_total_ht|floatformat:2 }} €</strong></td>
+                                    {% if can_modify %}<td></td>{% endif %}
                                 </tr>
                                 <tr>
-                                    <td colspan="4" class="text-end"><strong>Total TVA:</strong></td>
+                                    <td colspan="{% if can_modify %}5{% else %}4{% endif %}" class="text-end"><strong>Total TVA:</strong></td>
                                     <td class="text-end"><strong>{{ demande.montant_total_tva|floatformat:2 }} €</strong></td>
+                                    {% if can_modify %}<td></td>{% endif %}
                                 </tr>
                                 <tr class="table-primary">
-                                    <td colspan="4" class="text-end"><strong>Total TTC:</strong></td>
+                                    <td colspan="{% if can_modify %}5{% else %}4{% endif %}" class="text-end"><strong>Total TTC:</strong></td>
                                     <td class="text-end"><strong>{{ demande.montant_total_ttc|floatformat:2 }} €</strong></td>
+                                    {% if can_modify %}<td></td>{% endif %}
                                 </tr>
                             </tfoot>
                         </table>
@@ -153,43 +227,49 @@
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         {% if can_modify %}
-                        <a href="{% url 'gestion_achats:demande_update' demande.pk %}" class="btn btn-outline-primary">
+                        <a href="{% url 'gestion_achats:demande_update' demande.uuid %}" class="btn btn-outline-primary">
                             <i class="fas fa-edit me-2"></i>Modifier
                         </a>
                         {% endif %}
 
+                        {% if can_modify and demande.statut == 'BROUILLON' %}
+                        <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#confirmDeleteDemandeModal">
+                            <i class="fas fa-trash me-2"></i>Supprimer la demande
+                        </button>
+                        {% endif %}
+
                         {% if can_submit %}
-                        <a href="{% url 'gestion_achats:demande_submit' demande.pk %}" class="btn btn-success">
+                        <a href="{% url 'gestion_achats:demande_submit' demande.uuid %}" class="btn btn-success" id="submitBtn">
                             <i class="fas fa-paper-plane me-2"></i>Soumettre
                         </a>
                         {% endif %}
 
                         {% if can_validate_n1 %}
-                        <a href="{% url 'gestion_achats:demande_validate_n1' demande.pk %}" class="btn btn-success">
+                        <button type="button" class="btn btn-success" id="validateN1Btn" data-toggle="modal" data-target="#confirmValidateN1Modal">
                             <i class="fas fa-check me-2"></i>Valider (N1)
-                        </a>
+                        </button>
                         {% endif %}
 
                         {% if can_validate_n2 %}
-                        <a href="{% url 'gestion_achats:demande_validate_n2' demande.pk %}" class="btn btn-success">
+                        <button type="button" class="btn btn-success" id="validateN2Btn" data-toggle="modal" data-target="#confirmValidateN2Modal">
                             <i class="fas fa-check-double me-2"></i>Valider (N2)
-                        </a>
+                        </button>
                         {% endif %}
 
                         {% if can_refuse %}
-                        <a href="{% url 'gestion_achats:demande_refuse' demande.pk %}" class="btn btn-warning">
+                        <button type="button" class="btn btn-warning" id="refuseBtn" data-toggle="modal" data-target="#confirmRefuseModal">
                             <i class="fas fa-times me-2"></i>Refuser
-                        </a>
+                        </button>
                         {% endif %}
 
                         {% if can_cancel %}
-                        <a href="{% url 'gestion_achats:demande_cancel' demande.pk %}" class="btn btn-danger">
+                        <button type="button" class="btn btn-danger" id="cancelBtn" data-toggle="modal" data-target="#confirmCancelModal">
                             <i class="fas fa-ban me-2"></i>Annuler
-                        </a>
+                        </button>
                         {% endif %}
 
                         {% if can_convert %}
-                        <a href="{% url 'gestion_achats:bon_commande_create_from_demande' demande.pk %}" class="btn btn-primary">
+                        <a href="{% url 'gestion_achats:bon_commande_create_from_demande' demande.uuid %}" class="btn btn-primary">
                             <i class="fas fa-exchange-alt me-2"></i>Convertir en BC
                         </a>
                         {% endif %}
@@ -214,6 +294,15 @@
                         <li class="mb-2">
                             <i class="fas fa-check-circle text-success"></i>
                             Soumise le {{ demande.date_soumission|date:"d/m/Y" }}
+                            {% if demande.validateur_n1 and not demande.date_validation_n1 %}
+                            <br><small class="text-muted">En attente validation N1 par: <strong>
+                                {% if demande.validateur_n1.get_full_name %}
+                                    {{ demande.validateur_n1.get_full_name }}
+                                {% else %}
+                                    {{ demande.validateur_n1.nom }} {{ demande.validateur_n1.prenoms }} ({{ demande.validateur_n1.matricule }})
+                                {% endif %}
+                            </strong></small>
+                            {% endif %}
                         </li>
                         {% endif %}
 
@@ -221,7 +310,22 @@
                         <li class="mb-2">
                             <i class="fas fa-check-circle text-success"></i>
                             Validée N1 le {{ demande.date_validation_n1|date:"d/m/Y" }}
-                            <br><small class="text-muted">Par: {{ demande.validateur_n1.get_full_name }}</small>
+                            <br><small class="text-muted">Par:
+                                {% if demande.validateur_n1.get_full_name %}
+                                    {{ demande.validateur_n1.get_full_name }}
+                                {% else %}
+                                    {{ demande.validateur_n1.nom }} {{ demande.validateur_n1.prenoms }} ({{ demande.validateur_n1.matricule }})
+                                {% endif %}
+                            </small>
+                            {% if demande.validateur_n2 and not demande.date_validation_n2 %}
+                            <br><small class="text-muted">En attente validation N2 par: <strong>
+                                {% if demande.validateur_n2.get_full_name %}
+                                    {{ demande.validateur_n2.get_full_name }}
+                                {% else %}
+                                    {{ demande.validateur_n2.nom }} {{ demande.validateur_n2.prenoms }} ({{ demande.validateur_n2.matricule }})
+                                {% endif %}
+                            </strong></small>
+                            {% endif %}
                         </li>
                         {% endif %}
 
@@ -229,7 +333,13 @@
                         <li class="mb-2">
                             <i class="fas fa-check-circle text-success"></i>
                             Validée N2 le {{ demande.date_validation_n2|date:"d/m/Y" }}
-                            <br><small class="text-muted">Par: {{ demande.validateur_n2.get_full_name }}</small>
+                            <br><small class="text-muted">Par:
+                                {% if demande.validateur_n2.get_full_name %}
+                                    {{ demande.validateur_n2.get_full_name }}
+                                {% else %}
+                                    {{ demande.validateur_n2.nom }} {{ demande.validateur_n2.prenoms }} ({{ demande.validateur_n2.matricule }})
+                                {% endif %}
+                            </small>
                         </li>
                         {% endif %}
                     </ul>
@@ -238,8 +348,700 @@
         </div>
     </div>
 </div>
+
+<!-- Token CSRF caché pour JavaScript -->
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+<!-- Modale de confirmation pour soumission -->
+<div class="modal fade" id="confirmSubmitModal" tabindex="-1" role="dialog" aria-labelledby="confirmSubmitModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-white">
+                <h5 class="modal-title" id="confirmSubmitModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Confirmation de soumission
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Voulez-vous vraiment soumettre cette demande pour validation ?</strong>
+                </div>
+                
+                <h6>Demande concernée :</h6>
+                <ul class="list-unstyled">
+                    <li><strong>Numéro :</strong> {{ demande.numero }}</li>
+                    <li><strong>Objet :</strong> {{ demande.objet }}</li>
+                    <li><strong>Montant TTC :</strong> {{ demande.montant_total_ttc|floatformat:2 }} €</li>
+                    <li><strong>Statut actuel :</strong>
+                        <span class="badge badge-{{ demande.get_statut_badge_class }}">
+                            {{ demande.get_statut_display }}
+                        </span>
+                    </li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Annuler
+                </button>
+                <button type="button" class="btn btn-warning" id="confirmSubmitBtn">
+                    <i class="fas fa-check me-2"></i>Confirmer la soumission
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modale de confirmation pour validation N1 -->
+<div class="modal fade" id="confirmValidateN1Modal" tabindex="-1" aria-labelledby="confirmValidateN1ModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="confirmValidateN1ModalLabel">
+                    <i class="fas fa-check me-2"></i>Validation N1
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Confirmer la validation N1 de cette demande ?</strong></p>
+                <ul class="list-unstyled mb-3">
+                    <li><strong>Numéro :</strong> {{ demande.numero }}</li>
+                    <li><strong>Objet :</strong> {{ demande.objet }}</li>
+                    <li><strong>Montant TTC :</strong> {{ demande.montant_total_ttc|floatformat:2 }} €</li>
+                </ul>
+                <div class="mb-3">
+                    <label for="commentaireN1" class="form-label">Commentaire (optionnel)</label>
+                    <textarea class="form-control" id="commentaireN1" rows="3" placeholder="Ajoutez un commentaire..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Annuler
+                </button>
+                <button type="button" class="btn btn-success" id="confirmValidateN1Btn">
+                    <i class="fas fa-check me-2"></i>Valider N1
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modale de confirmation pour validation N2 -->
+<div class="modal fade" id="confirmValidateN2Modal" tabindex="-1" aria-labelledby="confirmValidateN2ModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="confirmValidateN2ModalLabel">
+                    <i class="fas fa-check-double me-2"></i>Validation N2
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Confirmer la validation N2 de cette demande ?</strong></p>
+                <ul class="list-unstyled mb-3">
+                    <li><strong>Numéro :</strong> {{ demande.numero }}</li>
+                    <li><strong>Objet :</strong> {{ demande.objet }}</li>
+                    <li><strong>Montant TTC :</strong> {{ demande.montant_total_ttc|floatformat:2 }} €</li>
+                </ul>
+                <div class="mb-3">
+                    <label for="commentaireN2" class="form-label">Commentaire (optionnel)</label>
+                    <textarea class="form-control" id="commentaireN2" rows="3" placeholder="Ajoutez un commentaire..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Annuler
+                </button>
+                <button type="button" class="btn btn-success" id="confirmValidateN2Btn">
+                    <i class="fas fa-check-double me-2"></i>Valider N2
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modale de confirmation pour refus -->
+<div class="modal fade" id="confirmRefuseModal" tabindex="-1" aria-labelledby="confirmRefuseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="confirmRefuseModalLabel">
+                    <i class="fas fa-times me-2"></i>Refuser la demande
+                </h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Confirmer le refus de cette demande ?</strong></p>
+                <ul class="list-unstyled mb-3">
+                    <li><strong>Numéro :</strong> {{ demande.numero }}</li>
+                    <li><strong>Objet :</strong> {{ demande.objet }}</li>
+                    <li><strong>Montant TTC :</strong> {{ demande.montant_total_ttc|floatformat:2 }} €</li>
+                </ul>
+                <div class="mb-3">
+                    <label for="motifRefus" class="form-label">Motif du refus <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="motifRefus" rows="3" placeholder="Indiquez le motif du refus..." required></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Annuler
+                </button>
+                <button type="button" class="btn btn-warning" id="confirmRefuseBtn">
+                    <i class="fas fa-times me-2"></i>Refuser la demande
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modale de confirmation pour annulation -->
+<div class="modal fade" id="confirmCancelModal" tabindex="-1" aria-labelledby="confirmCancelModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="confirmCancelModalLabel">
+                    <i class="fas fa-ban me-2"></i>Annuler la demande
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Confirmer l'annulation de cette demande ?</strong></p>
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Cette action est irréversible.
+                </div>
+                <ul class="list-unstyled mb-3">
+                    <li><strong>Numéro :</strong> {{ demande.numero }}</li>
+                    <li><strong>Objet :</strong> {{ demande.objet }}</li>
+                    <li><strong>Montant TTC :</strong> {{ demande.montant_total_ttc|floatformat:2 }} €</li>
+                </ul>
+                <div class="mb-3">
+                    <label for="motifAnnulation" class="form-label">Motif de l'annulation <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="motifAnnulation" rows="3" placeholder="Indiquez le motif de l'annulation..." required></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Annuler
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmCancelBtn">
+                    <i class="fas fa-ban me-2"></i>Annuler la demande
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modale de confirmation pour suppression de la demande -->
+<div class="modal fade" id="confirmDeleteDemandeModal" tabindex="-1" aria-labelledby="confirmDeleteDemandeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="confirmDeleteDemandeModalLabel">
+                    <i class="fas fa-trash me-2"></i>Supprimer la demande
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Attention !</strong> Cette action est irréversible. Toutes les lignes associées seront également supprimées.
+                </div>
+                <p><strong>Voulez-vous vraiment supprimer cette demande ?</strong></p>
+                <ul class="list-unstyled mb-3">
+                    <li><strong>Numéro :</strong> {{ demande.numero }}</li>
+                    <li><strong>Objet :</strong> {{ demande.objet }}</li>
+                    <li><strong>Montant TTC :</strong> {{ demande.montant_total_ttc|floatformat:2 }} €</li>
+                    <li><strong>Nombre de lignes :</strong> {{ demande.lignes.count }}</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Annuler
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteDemandeBtn">
+                    <i class="fas fa-trash me-2"></i>Supprimer la demande
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modale de confirmation pour suppression d'une ligne -->
+<div class="modal fade" id="confirmDeleteLigneModal" tabindex="-1" aria-labelledby="confirmDeleteLigneModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="confirmDeleteLigneModalLabel">
+                    <i class="fas fa-trash me-2"></i>Supprimer la ligne
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Attention !</strong> Cette action est irréversible.
+                </div>
+                <p><strong>Voulez-vous vraiment supprimer cette ligne ?</strong></p>
+                <div id="ligneInfoContainer"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Annuler
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteLigneBtn">
+                    <i class="fas fa-trash me-2"></i>Supprimer la ligne
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extrascript %}
 <script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Attendre que jQuery soit chargé
+    if (typeof $ === 'undefined') {
+        console.error('jQuery n\'est pas chargé');
+        return;
+    }
+    
+    console.log('=== INITIALISATION SCRIPT SOUMETTRE ===');
+    
+    // Gérer la soumission via modale
+    const submitBtn = document.getElementById('submitBtn') || document.querySelector('a[href*="demande_submit"]');
+    const confirmModal = document.getElementById('confirmSubmitModal');
+    const confirmSubmitBtn = document.getElementById('confirmSubmitBtn');
+    
+    console.log('=== DIAGNOSTIC SOUMETTRE ===');
+    console.log('submitBtn (ID):', !!document.getElementById('submitBtn'));
+    console.log('submitBtn (sélecteur):', !!document.querySelector('a[href*="demande_submit"]'));
+    console.log('submitBtn final:', !!submitBtn);
+    console.log('confirmModal:', !!confirmModal);
+    console.log('confirmSubmitBtn:', !!confirmSubmitBtn);
+    
+    if (submitBtn) {
+        console.log('URL du bouton soumettre:', submitBtn.href);
+        console.log('Classes du bouton:', submitBtn.className);
+    }
+    
+    // Afficher tous les liens pour diagnostic
+    const allLinks = document.querySelectorAll('a');
+    console.log('Tous les liens trouvés:', allLinks.length);
+    allLinks.forEach((link, index) => {
+        if (link.href && link.href.includes('demande_submit')) {
+            console.log(`Lien ${index}:`, link.href, 'ID:', link.id, 'Classes:', link.className);
+        }
+    });
+    
+    if (submitBtn && confirmModal) {
+        console.log('Attache de l\'événement click sur submitBtn...');
+        submitBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Clic sur soumettre détecté !');
+            console.log('URL de soumission:', submitBtn.href);
+            
+            try {
+                $(confirmModal).modal('show');
+                console.log('Modale affichée avec succès');
+            } catch (error) {
+                console.error('Erreur affichage modale:', error);
+                // Alternative vanilla JS si jQuery échoue
+                confirmModal.style.display = 'block';
+                confirmModal.classList.add('show');
+                console.log('Modale affichée avec vanilla JS');
+            }
+        });
+        console.log('Événement click attaché avec succès');
+        
+        if (confirmSubmitBtn) {
+            console.log('Attache de l\'événement click sur confirmSubmitBtn...');
+            confirmSubmitBtn.addEventListener('click', function() {
+                const submitUrl = submitBtn.href;
+                console.log('Clic sur confirmation détecté !');
+                console.log('URL de soumission:', submitUrl);
+                
+                // Désactiver le bouton pendant la soumission
+                confirmSubmitBtn.disabled = true;
+                confirmSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Soumission en cours...';
+                
+                // Créer FormData pour le CSRF
+                const formData = new FormData();
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+                if (csrfToken) {
+                    formData.append('csrfmiddlewaretoken', csrfToken.value);
+                    console.log('Token CSRF trouvé:', csrfToken.value.substring(0, 20) + '...');
+                } else {
+                    console.warn('Token CSRF non trouvé');
+                }
+                
+                console.log('Envoi de la requête AJAX...');
+                
+                // Envoyer la requête AJAX
+                fetch(submitUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    },
+                    body: formData,
+                    credentials: 'same-origin'  // Important pour les cookies
+                })
+                .then(response => {
+                    console.log('Réponse reçue:', response.status, response.statusText);
+                    
+                    // Vérifier si la réponse est du JSON
+                    const contentType = response.headers.get('content-type');
+                    console.log('Content-Type:', contentType);
+                    
+                    if (response.status === 403) {
+                        throw new Error('Permission refusée (403). Vérifiez que vous êtes bien connecté.');
+                    }
+                    
+                    if (!contentType || !contentType.includes('application/json')) {
+                        return response.text().then(text => {
+                            console.log('Réponse HTML reçue:', text.substring(0, 200));
+                            throw new Error('Le serveur a renvoyé du HTML au lieu de JSON. Statut: ' + response.status);
+                        });
+                    }
+                    
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Données reçues:', data);
+                    if (data.success) {
+                        // Fermer la modale
+                        try {
+                            $(confirmModal).modal('hide');
+                            console.log('Modale fermée avec jQuery');
+                        } catch (error) {
+                            // Alternative vanilla JS
+                            confirmModal.style.display = 'none';
+                            confirmModal.classList.remove('show');
+                            console.log('Modale fermée avec vanilla JS');
+                        }
+                        
+                        // Afficher le message de succès
+                        showAlert('success', data.message);
+                        
+                        // Rediriger après un court délai
+                        setTimeout(() => {
+                            console.log('Redirection vers:', data.redirect_url);
+                            window.location.href = data.redirect_url;
+                        }, 1500);
+                    } else {
+                        // Afficher l'erreur
+                        showAlert('danger', data.message);
+                        
+                        // Réactiver le bouton
+                        confirmSubmitBtn.disabled = false;
+                        confirmSubmitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Confirmer la soumission';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur AJAX:', error);
+                    showAlert('danger', 'Une erreur est survenue lors de la soumission: ' + error.message);
+                    
+                    // Réactiver le bouton
+                    confirmSubmitBtn.disabled = false;
+                    confirmSubmitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Confirmer la soumission';
+                });
+            });
+            console.log('Événement click sur confirmSubmitBtn attaché avec succès');
+        }
+    } else {
+        console.error('Éléments manquants:', {
+            submitBtn: !!submitBtn,
+            confirmModal: !!confirmModal,
+            confirmSubmitBtn: !!confirmSubmitBtn
+        });
+    }
+    
+    // Fonction pour afficher des alertes
+    function showAlert(type, message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        `;
+
+        // Insérer au début du container principal
+        const container = document.querySelector('.container-fluid');
+        if (container) {
+            container.insertBefore(alertDiv, container.firstChild);
+
+            // Faire défiler vers le haut
+            window.scrollTo(0, 0);
+
+            // Auto-supprimer après 5 secondes
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+    }
+
+    // Fonction générique pour gérer les actions
+    function handleAction(url, data, btnElement, modalElement) {
+        // Désactiver le bouton
+        const originalContent = btnElement.innerHTML;
+        btnElement.disabled = true;
+        btnElement.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Traitement en cours...';
+
+        // Envoyer la requête
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify(data),
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok && response.status !== 400) {
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Fermer la modale
+                $(modalElement).modal('hide');
+
+                // Afficher le message de succès
+                showAlert('success', data.message);
+
+                // Recharger la page après un court délai
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                // Afficher l'erreur
+                showAlert('danger', data.message || 'Une erreur est survenue');
+
+                // Réactiver le bouton
+                btnElement.disabled = false;
+                btnElement.innerHTML = originalContent;
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            showAlert('danger', 'Une erreur est survenue: ' + error.message);
+
+            // Réactiver le bouton
+            btnElement.disabled = false;
+            btnElement.innerHTML = originalContent;
+        });
+    }
+
+    // Gérer la validation N1
+    const confirmValidateN1Btn = document.getElementById('confirmValidateN1Btn');
+    if (confirmValidateN1Btn) {
+        confirmValidateN1Btn.addEventListener('click', function() {
+            const commentaire = document.getElementById('commentaireN1').value;
+            handleAction(
+                '{% url "gestion_achats:demande_validate_n1" demande.uuid %}',
+                { commentaire: commentaire },
+                confirmValidateN1Btn,
+                document.getElementById('confirmValidateN1Modal')
+            );
+        });
+    }
+
+    // Gérer la validation N2
+    const confirmValidateN2Btn = document.getElementById('confirmValidateN2Btn');
+    if (confirmValidateN2Btn) {
+        confirmValidateN2Btn.addEventListener('click', function() {
+            const commentaire = document.getElementById('commentaireN2').value;
+            handleAction(
+                '{% url "gestion_achats:demande_validate_n2" demande.uuid %}',
+                { commentaire: commentaire },
+                confirmValidateN2Btn,
+                document.getElementById('confirmValidateN2Modal')
+            );
+        });
+    }
+
+    // Gérer le refus
+    const confirmRefuseBtn = document.getElementById('confirmRefuseBtn');
+    if (confirmRefuseBtn) {
+        confirmRefuseBtn.addEventListener('click', function() {
+            const motif = document.getElementById('motifRefus').value.trim();
+            if (!motif) {
+                showAlert('warning', 'Veuillez indiquer un motif de refus');
+                return;
+            }
+            handleAction(
+                '{% url "gestion_achats:demande_refuse" demande.uuid %}',
+                { motif: motif },
+                confirmRefuseBtn,
+                document.getElementById('confirmRefuseModal')
+            );
+        });
+    }
+
+    // Gérer l'annulation
+    const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+    if (confirmCancelBtn) {
+        confirmCancelBtn.addEventListener('click', function() {
+            const motif = document.getElementById('motifAnnulation').value.trim();
+            if (!motif) {
+                showAlert('warning', 'Veuillez indiquer un motif d\'annulation');
+                return;
+            }
+            handleAction(
+                '{% url "gestion_achats:demande_cancel" demande.uuid %}',
+                { motif: motif },
+                confirmCancelBtn,
+                document.getElementById('confirmCancelModal')
+            );
+        });
+    }
+
+    // ===== GESTION DE LA SUPPRESSION DE LA DEMANDE =====
+    const confirmDeleteDemandeBtn = document.getElementById('confirmDeleteDemandeBtn');
+    if (confirmDeleteDemandeBtn) {
+        confirmDeleteDemandeBtn.addEventListener('click', function() {
+            const originalContent = confirmDeleteDemandeBtn.innerHTML;
+            confirmDeleteDemandeBtn.disabled = true;
+            confirmDeleteDemandeBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Suppression en cours...';
+
+            fetch('{% url "gestion_achats:demande_delete" demande.uuid %}', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    $('#confirmDeleteDemandeModal').modal('hide');
+                    showAlert('success', data.message);
+                    setTimeout(() => {
+                        window.location.href = data.redirect_url;
+                    }, 1500);
+                } else {
+                    showAlert('danger', data.message || 'Une erreur est survenue');
+                    confirmDeleteDemandeBtn.disabled = false;
+                    confirmDeleteDemandeBtn.innerHTML = originalContent;
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                showAlert('danger', 'Une erreur est survenue: ' + error.message);
+                confirmDeleteDemandeBtn.disabled = false;
+                confirmDeleteDemandeBtn.innerHTML = originalContent;
+            });
+        });
+    }
+
+    // ===== GESTION DE LA SUPPRESSION DES LIGNES =====
+    let currentDeleteLigneUrl = null;
+
+    // Gérer le clic sur les boutons de suppression de ligne
+    document.querySelectorAll('.btn-delete-ligne').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const lignePk = this.dataset.lignePk;
+            const ligneArticle = this.dataset.ligneArticle;
+            const ligneQuantite = this.dataset.ligneQuantite;
+            const lignePrix = this.dataset.lignePrix;
+            const ligneMontant = this.dataset.ligneMontant;
+            currentDeleteLigneUrl = this.dataset.deleteUrl;
+
+            // Remplir les informations de la ligne dans la modale
+            const infoContainer = document.getElementById('ligneInfoContainer');
+            infoContainer.innerHTML = `
+                <ul class="list-unstyled mb-0">
+                    <li><strong>Article :</strong> ${ligneArticle}</li>
+                    <li><strong>Quantité :</strong> ${ligneQuantite}</li>
+                    <li><strong>Prix unitaire HT :</strong> ${lignePrix} €</li>
+                    <li><strong>Montant total HT :</strong> ${ligneMontant} €</li>
+                </ul>
+            `;
+
+            // Ouvrir la modale
+            $('#confirmDeleteLigneModal').modal('show');
+        });
+    });
+
+    // Gérer la confirmation de suppression de ligne
+    const confirmDeleteLigneBtn = document.getElementById('confirmDeleteLigneBtn');
+    if (confirmDeleteLigneBtn) {
+        confirmDeleteLigneBtn.addEventListener('click', function() {
+            if (!currentDeleteLigneUrl) {
+                showAlert('danger', 'URL de suppression non définie');
+                return;
+            }
+
+            const originalContent = confirmDeleteLigneBtn.innerHTML;
+            confirmDeleteLigneBtn.disabled = true;
+            confirmDeleteLigneBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Suppression en cours...';
+
+            fetch(currentDeleteLigneUrl, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    $('#confirmDeleteLigneModal').modal('hide');
+                    showAlert('success', data.message);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    showAlert('danger', data.message || 'Une erreur est survenue');
+                    confirmDeleteLigneBtn.disabled = false;
+                    confirmDeleteLigneBtn.innerHTML = originalContent;
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                showAlert('danger', 'Une erreur est survenue: ' + error.message);
+                confirmDeleteLigneBtn.disabled = false;
+                confirmDeleteLigneBtn.innerHTML = originalContent;
+            });
+        });
+    }
+});
+</script>
 {% endblock %}

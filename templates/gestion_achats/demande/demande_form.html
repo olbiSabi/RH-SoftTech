@@ -80,7 +80,7 @@
                         </div>
 
                         <div class="d-flex justify-content-between mt-4">
-                            <a href="{% if demande %}{% url 'gestion_achats:demande_detail' demande.pk %}{% else %}{% url 'gestion_achats:demande_liste' %}{% endif %}"
+                            <a href="{% if demande %}{% url 'gestion_achats:demande_detail' demande.uuid %}{% else %}{% url 'gestion_achats:demande_liste' %}{% endif %}"
                                class="btn btn-secondary">
                                 <i class="fas fa-times me-2"></i>Annuler
                             </a>

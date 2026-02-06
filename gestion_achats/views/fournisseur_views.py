@@ -17,6 +17,7 @@ from gestion_achats.forms import (
 )
 from gestion_achats.services.fournisseur_service import FournisseurService
 from gestion_achats.permissions import GACPermissions, require_permission
+from gestion_achats import constants
 
 
 @login_required
@@ -50,10 +51,20 @@ def fournisseur_list(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    # Calculer les statistiques
+    stats = {
+        'total': GACFournisseur.objects.count(),
+        'actifs': GACFournisseur.objects.filter(statut='ACTIF').count(),
+        'en_attente': GACFournisseur.objects.filter(statut='SUSPENDU').count(),  # Utiliser SUSPENDU pour "en attente"
+        'inactifs': GACFournisseur.objects.filter(statut='INACTIF').count(),
+    }
+
     context = {
         'page_obj': page_obj,
         'statut_filter': statut,
         'search': search,
+        'stats': stats,
+        'statut_choices': constants.STATUT_FOURNISSEUR_CHOICES,
     }
 
     return render(request, 'gestion_achats/fournisseur/fournisseur_list.html', context)

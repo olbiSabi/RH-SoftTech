@@ -1,0 +1,168 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <div class="card">
+        <div class="card-header bg-warning">
+            <h3 class="mb-0">
+                <i class="fas fa-bug me-2"></i>
+                Informations de débogage - Utilisateur
+            </h3>
+            <small class="text-muted">⚠️ Cette page est uniquement pour le débogage et doit être supprimée en production</small>
+        </div>
+        <div class="card-body">
+            <h4>Informations de base</h4>
+            <table class="table table-bordered">
+                <tr>
+                    <th style="width: 30%;">Nom d'utilisateur</th>
+                    <td>{{ info.username }}</td>
+                </tr>
+                <tr>
+                    <th>Email</th>
+                    <td>{{ info.email }}</td>
+                </tr>
+                <tr>
+                    <th>Authentifié</th>
+                    <td>
+                        {% if info.is_authenticated %}
+                            <span class="badge bg-success">Oui</span>
+                        {% else %}
+                            <span class="badge bg-danger">Non</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Actif</th>
+                    <td>
+                        {% if info.is_active %}
+                            <span class="badge bg-success">Oui</span>
+                        {% else %}
+                            <span class="badge bg-danger">Non</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Superuser</th>
+                    <td>
+                        {% if info.is_superuser %}
+                            <span class="badge bg-info">Oui</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Non</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Staff</th>
+                    <td>
+                        {% if info.is_staff %}
+                            <span class="badge bg-info">Oui</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Non</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Attribut employe existe</th>
+                    <td>
+                        {% if info.has_employe_attr %}
+                            <span class="badge bg-success">Oui</span>
+                        {% else %}
+                            <span class="badge bg-danger">Non</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+
+            <hr>
+
+            <h4>Informations Employe (ZY00)</h4>
+            {% if info.employe %}
+                <table class="table table-bordered">
+                    <tr>
+                        <th style="width: 30%;">Matricule</th>
+                        <td>{{ info.employe.matricule }}</td>
+                    </tr>
+                    <tr>
+                        <th>Nom</th>
+                        <td>{{ info.employe.nom }}</td>
+                    </tr>
+                    <tr>
+                        <th>Prénom(s)</th>
+                        <td>{{ info.employe.prenoms }}</td>
+                    </tr>
+                    <tr>
+                        <th>Email professionnel</th>
+                        <td>{{ info.employe.email }}</td>
+                    </tr>
+                    <tr>
+                        <th>Département</th>
+                        <td>{{ info.employe.departement|default:"-" }}</td>
+                    </tr>
+                </table>
+
+                <h5 class="mt-4">Rôles GAC</h5>
+                {% if info.roles %}
+                    <ul class="list-group">
+                        {% for role in info.roles %}
+                            <li class="list-group-item">
+                                <i class="fas fa-user-tag me-2"></i>
+                                {{ role }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Aucun rôle GAC assigné à cet employe
+                    </div>
+                {% endif %}
+
+                {% if info.roles_error %}
+                    <div class="alert alert-danger mt-3">
+                        <strong>Erreur lors de la récupération des rôles:</strong> {{ info.roles_error }}
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="alert alert-danger">
+                    <h5><i class="fas fa-exclamation-circle me-2"></i>Problème détecté !</h5>
+                    {% if info.employe_error %}
+                        <p><strong>Erreur:</strong> {{ info.employe_error }}</p>
+                    {% endif %}
+                    {% if info.employe_message %}
+                        <p>{{ info.employe_message }}</p>
+                    {% endif %}
+                    <hr>
+                    <p class="mb-0">
+                        <strong>Solution:</strong> Votre compte utilisateur doit être associé à un enregistrement dans la table ZY00 (employe).
+                        Contactez l'administrateur pour créer cette association ou créez-la via l'admin Django.
+                    </p>
+                </div>
+            {% endif %}
+
+            <hr>
+
+            <div class="alert alert-info">
+                <h5><i class="fas fa-info-circle me-2"></i>Diagnostic</h5>
+                <p>Si vous voyez "Aucun rôle GAC assigné" ou "L'utilisateur n'a pas d'enregistrement employe associé",
+                   c'est la cause de l'erreur 403 que vous rencontrez.</p>
+                <p class="mb-0">
+                    Pour corriger:
+                    <ol>
+                        <li>Allez dans l'admin Django (<a href="/admin/">/admin/</a>)</li>
+                        <li>Créez ou modifiez un enregistrement ZY00 (employe)</li>
+                        <li>Associez-le à votre utilisateur</li>
+                        <li>Assignez au moins un rôle GAC (par exemple ADMIN_GAC ou ACHETEUR)</li>
+                    </ol>
+                </p>
+            </div>
+
+            <div class="mt-4">
+                <a href="{% url 'gestion_achats:dashboard' %}" class="btn btn-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Retour au tableau de bord
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

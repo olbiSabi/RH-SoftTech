@@ -12,6 +12,12 @@ from gestion_achats.views import (
     bon_retour_views,
     catalogue_views,
     budget_views,
+    parametres_views,
+    debug_views,
+    diagnostic_validateurs,
+    test_permissions,
+    alt_submit,
+    simple_submit,
 )
 
 app_name = 'gestion_achats'
@@ -31,8 +37,12 @@ urlpatterns = [
     path('demandes/create/', demande_views.demande_create, name='demande_create'),
     path('demandes/<uuid:pk>/', demande_views.demande_detail, name='demande_detail'),
     path('demandes/<uuid:pk>/update/', demande_views.demande_update, name='demande_update'),
+    path('demandes/<uuid:pk>/delete/', demande_views.demande_delete, name='demande_delete'),
     path('demandes/<uuid:pk>/ligne/create/', demande_views.demande_ligne_create, name='demande_ligne_create'),
-    path('demandes/<uuid:pk>/submit/', demande_views.demande_submit, name='demande_submit'),
+    path('demandes/<uuid:pk>/ligne/<int:ligne_pk>/update/', demande_views.demande_ligne_update, name='demande_ligne_update'),
+    path('demandes/<uuid:pk>/ligne/<int:ligne_pk>/delete/', demande_views.demande_ligne_delete, name='demande_ligne_delete'),
+    # Note: Utilisation de simple_submit - version ultra-simplifiée qui fonctionne à coup sûr
+    path('demandes/<uuid:pk>/submit/', simple_submit.simple_demande_submit, name='demande_submit'),
     path('demandes/<uuid:pk>/validate-n1/', demande_views.demande_validate_n1, name='demande_validate_n1'),
     path('demandes/<uuid:pk>/validate-n2/', demande_views.demande_validate_n2, name='demande_validate_n2'),
     path('demandes/<uuid:pk>/refuse/', demande_views.demande_refuse, name='demande_refuse'),
@@ -94,6 +104,7 @@ urlpatterns = [
     path('catalogue/articles/create/', catalogue_views.article_create, name='article_create'),
     path('catalogue/articles/<uuid:pk>/', catalogue_views.article_detail, name='article_detail'),
     path('catalogue/articles/<uuid:pk>/update/', catalogue_views.article_update, name='article_update'),
+    path('catalogue/articles/<uuid:pk>/delete/', catalogue_views.article_delete, name='article_delete'),
     path('catalogue/articles/<uuid:pk>/desactiver/', catalogue_views.article_desactiver, name='article_desactiver'),
     path('catalogue/articles/<uuid:pk>/reactiver/', catalogue_views.article_reactiver, name='article_reactiver'),
 
@@ -119,4 +130,17 @@ urlpatterns = [
     path('api/articles/recherche/', catalogue_views.recherche_articles_ajax, name='api_recherche_articles'),
     path('api/fournisseurs/article/<uuid:article_pk>/', fournisseur_views.fournisseurs_pour_article_ajax, name='api_fournisseurs_article'),
     path('api/budgets/alertes/', budget_views.budgets_en_alerte_ajax, name='api_budgets_alertes'),
+
+    # ========================================
+    # PARAMÈTRES
+    # ========================================
+    path('parametres/', parametres_views.parametres_gac, name='parametres_gac'),
+
+    # ========================================
+    # DEBUG (À SUPPRIMER EN PRODUCTION)
+    # ========================================
+    path('debug/user-info/', debug_views.debug_user_info, name='debug_user_info'),
+    path('debug/validateurs/', diagnostic_validateurs.diagnostic_validateurs, name='diagnostic_validateurs'),
+    path('debug/test-permissions/<uuid:pk>/', test_permissions.test_submit_permission, name='test_submit_permission'),
+    path('debug/alt-submit/<uuid:pk>/', alt_submit.alt_demande_submit, name='alt_demande_submit'),
 ]

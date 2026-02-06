@@ -184,17 +184,43 @@ class DemandeService:
             DemandeService._verifier_budget(demande)
 
         # Déterminer le validateur N1 (manager du demandeur)
-        if hasattr(demande.demandeur, 'manager') and demande.demandeur.manager:
-            demande.validateur_n1 = demande.demandeur.manager
-        else:
+        try:
+            manager = demande.demandeur.get_manager_departement()
+            if manager:
+                demande.validateur_n1 = manager
+            else:
+                # Si pas de manager département, essayer de trouver un manager ADMIN_GAC
+                from employee.models import ZY00
+                admin_gac_users = ZY00.objects.filter(
+                    roles_attribues__role__CODE='ADMIN_GAC',
+                    roles_attribues__actif=True
+                ).exclude(id=demande.demandeur.id).first()
+                
+                if admin_gac_users:
+                    demande.validateur_n1 = admin_gac_users
+                else:
+                    raise GACValidationError(
+                        "Le demandeur n'a pas de manager assigné "
+                        "et aucun administrateur GAC disponible pour la validation N1."
+                    )
+        except Exception as e:
             raise GACValidationError(
-                "Le demandeur n'a pas de manager assigné. "
-                "Impossible de déterminer le validateur N1."
+                f"Erreur lors de la détermination du validateur N1: {str(e)}"
             )
 
         # Si le montant dépasse le seuil, déterminer aussi le validateur N2
-        if demande.montant_total_ttc >= SEUIL_VALIDATION_N2:
+        from gestion_achats.models import GACParametres
+        seuil = GACParametres.get_seuil_validation_n2()
+
+        if demande.montant_total_ttc >= seuil:
             demande.validateur_n2 = determiner_validateur_n2(demande)
+            if not demande.validateur_n2:
+                raise GACValidationError(
+                    f"Le montant de la demande ({demande.montant_total_ttc} €) dépasse le seuil ({seuil} €) "
+                    "mais aucun validateur N2 n'a pu être trouvé. "
+                    "Veuillez créer au moins un utilisateur avec le rôle ADMIN_GAC, ACHETEUR, "
+                    "RESPONSABLE_ACHATS ou DIRECTEUR_GENERAL."
+                )
 
         # Mettre à jour le statut
         ancien_statut = demande.statut
@@ -306,15 +332,38 @@ class DemandeService:
             WorkflowError: Si la demande n'est pas au bon statut
             PermissionError: Si l'utilisateur n'est pas le validateur N2
         """
+        # Si l'utilisateur a le rôle ADMIN_GAC et la demande est SOUMISE, valider N1 automatiquement
+        if demande.statut == STATUT_DEMANDE_SOUMISE and validateur.has_role('ADMIN_GAC'):
+            logger.info(
+                f"ADMIN_GAC {validateur} valide automatiquement N1 pour la demande {demande.numero}"
+            )
+            # Valider N1 automatiquement
+            demande.statut = STATUT_DEMANDE_VALIDEE_N1
+            demande.date_validation_n1 = timezone.now()
+            demande.commentaire_validation_n1 = f"Validation automatique N1 par ADMIN_GAC ({commentaire})" if commentaire else "Validation automatique N1 par ADMIN_GAC"
+            demande.save()
+
+            # Créer l'historique pour N1
+            GACHistorique.enregistrer_action(
+                objet=demande,
+                action='VALIDATION_N1',
+                utilisateur=validateur,
+                ancien_statut=STATUT_DEMANDE_SOUMISE,
+                nouveau_statut=STATUT_DEMANDE_VALIDEE_N1,
+                details=f"Validation N1 automatique par ADMIN_GAC {validateur}"
+            )
+
         if demande.statut != STATUT_DEMANDE_VALIDEE_N1:
             raise WorkflowError(
                 "Seules les demandes validées N1 peuvent être validées N2"
             )
 
-        if demande.validateur_n2 != validateur:
-            raise PermissionError(
-                f"Seul {demande.validateur_n2} peut valider cette demande au niveau N2"
-            )
+        # Pour ADMIN_GAC, pas besoin d'être le validateur N2 assigné
+        if not validateur.has_role('ADMIN_GAC'):
+            if demande.validateur_n2 != validateur:
+                raise PermissionError(
+                    f"Seul {demande.validateur_n2} peut valider cette demande au niveau N2"
+                )
 
         ancien_statut = demande.statut
         demande.statut = STATUT_DEMANDE_VALIDEE_N2

@@ -43,6 +43,32 @@
     border-radius: 0.25rem;
 }
 
+/* ============================================
+   CARTES DE STATISTIQUES
+============================================ */
+.stats-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.stats-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stats-card .card-body {
+    padding: 1.25rem;
+}
+
+.stats-card h3 {
+    font-weight: 700;
+    color: var(--gac-dark);
+}
+
+.stats-card .text-muted {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
 /* Statuts demandes */
 .badge-statut-BROUILLON {
     background-color: var(--statut-brouillon);

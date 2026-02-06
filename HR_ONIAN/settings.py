@@ -13,6 +13,15 @@ import os
 from pathlib import Path
 from django.urls import reverse_lazy
 
+# Configuration WeasyPrint pour macOS
+# Ces chemins permettent à WeasyPrint de trouver les bibliothèques système installées par Homebrew
+if os.path.exists('/opt/homebrew/lib'):
+    # macOS avec Apple Silicon (M1/M2)
+    os.environ['DYLD_FALLBACK_LIBRARY_PATH'] = '/opt/homebrew/lib'
+elif os.path.exists('/usr/local/lib'):
+    # macOS avec Intel
+    os.environ['DYLD_FALLBACK_LIBRARY_PATH'] = '/usr/local/lib'
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 

@@ -1,0 +1,75 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-trash me-2"></i>
+                        Confirmer la suppression de la demande
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Attention !</strong> Cette action est irréversible. Toutes les lignes associées à cette demande seront également supprimées.
+                    </div>
+
+                    <p class="mb-3">Voulez-vous vraiment supprimer cette demande d'achat ?</p>
+
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-3">Numéro</dt>
+                                <dd class="col-sm-9"><strong>{{ demande.numero }}</strong></dd>
+
+                                <dt class="col-sm-3">Objet</dt>
+                                <dd class="col-sm-9">{{ demande.objet }}</dd>
+
+                                <dt class="col-sm-3">Statut</dt>
+                                <dd class="col-sm-9">
+                                    <span class="badge bg-{{ demande.get_statut_badge_class }}">
+                                        {{ demande.get_statut_display }}
+                                    </span>
+                                </dd>
+
+                                <dt class="col-sm-3">Date de création</dt>
+                                <dd class="col-sm-9">{{ demande.date_creation|date:"d/m/Y à H:i" }}</dd>
+
+                                <dt class="col-sm-3">Montant total TTC</dt>
+                                <dd class="col-sm-9"><strong>{{ demande.montant_total_ttc|floatformat:2 }} €</strong></dd>
+
+                                <dt class="col-sm-3">Nombre de lignes</dt>
+                                <dd class="col-sm-9">{{ demande.lignes.count }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'gestion_achats:demande_detail' demande.uuid %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Supprimer la demande
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+{% endblock %}

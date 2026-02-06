@@ -128,20 +128,44 @@ def generer_code_fournisseur():
 def generer_code_article():
     """
     Génère un code article unique.
-
+    
     Format: ART-NNNN
     Exemple: ART-0001
-
+    
     Returns:
         str: Code article généré
     """
     from gestion_achats.models import GACArticle
+    import re
 
-    dernier_numero = GACArticle.objects.filter(
-        reference__startswith='ART-'
-    ).count()
-
-    return f'ART-{str(dernier_numero + 1).zfill(4)}'
+    # Trouver le dernier numéro existant avec une approche plus directe
+    dernier_numero = 0
+    
+    # Récupérer toutes les références et trouver le maximum
+    references = GACArticle.objects.filter(
+        reference__regex=r'^ART-\d{4}$'
+    ).values_list('reference', flat=True)
+    
+    for ref in references:
+        match = re.search(r'ART-(\d{4})$', ref)
+        if match:
+            try:
+                numero = int(match.group(1))
+                if numero > dernier_numero:
+                    dernier_numero = numero
+            except ValueError:
+                continue
+    
+    # Générer le nouveau code
+    nouveau_code = f'ART-{str(dernier_numero + 1).zfill(4)}'
+    
+    # Vérification finale d'unicité (sécurité)
+    tentatives = 0
+    while GACArticle.objects.filter(reference=nouveau_code).exists() and tentatives < 100:
+        tentatives += 1
+        nouveau_code = f'ART-{str(dernier_numero + 1 + tentatives).zfill(4)}'
+    
+    return nouveau_code
 
 
 def generer_code_budget():
@@ -289,7 +313,7 @@ def determiner_validateur_n2(demande):
     except ZYRO.DoesNotExist:
         pass
 
-    # Fallback: Premier utilisateur avec rôle ACHETEUR
+    # Fallback 1: Premier utilisateur avec rôle ACHETEUR
     try:
         role_acheteur = ZYRO.objects.get(CODE='ACHETEUR')
         validateur = ZY00.objects.filter(
@@ -297,9 +321,26 @@ def determiner_validateur_n2(demande):
             roles_attribues__actif=True,
             etat='actif'
         ).first()
-        return validateur
+        if validateur:
+            return validateur
     except ZYRO.DoesNotExist:
-        return None
+        pass
+
+    # Fallback 2: Premier utilisateur avec rôle ADMIN_GAC
+    try:
+        role_admin_gac = ZYRO.objects.get(CODE='ADMIN_GAC')
+        validateur = ZY00.objects.filter(
+            roles_attribues__role=role_admin_gac,
+            roles_attribues__actif=True,
+            etat='actif'
+        ).first()
+        if validateur:
+            return validateur
+    except ZYRO.DoesNotExist:
+        pass
+
+    # Si aucun validateur trouvé, retourner None (devrait lever une erreur)
+    return None
 
 
 def formater_montant(montant, symbole='€'):

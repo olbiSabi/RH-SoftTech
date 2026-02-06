@@ -28,6 +28,9 @@ class GACPermissions:
         if not user or not user.is_authenticated:
             return False
 
+        if not hasattr(user, 'employe') or not user.employe:
+            return False
+
         # Admin et acheteurs peuvent voir toutes les demandes
         if user.employe.has_role('ADMIN_GAC') or user.employe.has_role('ACHETEUR'):
             return True
@@ -54,6 +57,9 @@ class GACPermissions:
         if not user or not user.is_authenticated:
             return False
 
+        if not hasattr(user, 'employe') or not user.employe:
+            return False
+
         if user.employe.has_role('ADMIN_GAC'):
             return True
 
@@ -67,6 +73,9 @@ class GACPermissions:
     def can_submit_demande(user, demande):
         """Vérifie si l'utilisateur peut soumettre une demande."""
         if not user or not user.is_authenticated:
+            return False
+
+        if not hasattr(user, 'employe') or not user.employe:
             return False
 
         if user.employe.has_role('ADMIN_GAC'):
@@ -84,6 +93,9 @@ class GACPermissions:
         if not user or not user.is_authenticated:
             return False
 
+        if not hasattr(user, 'employe') or not user.employe:
+            return False
+
         if user.employe.has_role('ADMIN_GAC'):
             return True
 
@@ -97,6 +109,9 @@ class GACPermissions:
     def can_validate_n2(user, demande):
         """Vérifie si l'utilisateur peut valider N2 une demande."""
         if not user or not user.is_authenticated:
+            return False
+
+        if not hasattr(user, 'employe') or not user.employe:
             return False
 
         if user.employe.has_role('ADMIN_GAC'):
@@ -113,6 +128,9 @@ class GACPermissions:
     def can_refuse_demande(user, demande):
         """Vérifie si l'utilisateur peut refuser une demande."""
         if not user or not user.is_authenticated:
+            return False
+
+        if not hasattr(user, 'employe') or not user.employe:
             return False
 
         if user.employe.has_role('ADMIN_GAC'):
@@ -135,6 +153,9 @@ class GACPermissions:
         if not user or not user.is_authenticated:
             return False
 
+        if not hasattr(user, 'employe') or not user.employe:
+            return False
+
         if user.employe.has_role('ADMIN_GAC'):
             return True
 
@@ -150,6 +171,9 @@ class GACPermissions:
         if not user or not user.is_authenticated:
             return False
 
+        if not hasattr(user, 'employe') or not user.employe:
+            return False
+
         if demande.statut != 'VALIDEE_N2':
             return False
 
@@ -161,12 +185,18 @@ class GACPermissions:
         if not user or not user.is_authenticated:
             return False
 
+        if not hasattr(user, 'employe') or not user.employe:
+            return False
+
         return user.employe.has_role('ADMIN_GAC')
 
     @staticmethod
     def can_view_all_demandes(user):
         """Vérifie si l'utilisateur peut voir toutes les demandes."""
         if not user or not user.is_authenticated:
+            return False
+
+        if not hasattr(user, 'employe') or not user.employe:
             return False
 
         return user.employe.has_role('ACHETEUR') or user.employe.has_role('ADMIN_GAC')
@@ -177,6 +207,9 @@ class GACPermissions:
     def can_view_bon_commande(user, bc):
         """Vérifie si l'utilisateur peut voir un BC."""
         if not user or not user.is_authenticated:
+            return False
+
+        if not hasattr(user, 'employe') or not user.employe:
             return False
 
         if user.employe.has_role('ADMIN_GAC') or user.employe.has_role('ACHETEUR'):
@@ -198,12 +231,18 @@ class GACPermissions:
         if not user or not user.is_authenticated:
             return False
 
+        if not hasattr(user, 'employe') or not user.employe:
+            return False
+
         return user.employe.has_role('ACHETEUR') or user.employe.has_role('ADMIN_GAC')
 
     @staticmethod
     def can_modify_bon_commande(user, bc):
         """Vérifie si l'utilisateur peut modifier un BC."""
         if not user or not user.is_authenticated:
+            return False
+
+        if not hasattr(user, 'employe') or not user.employe:
             return False
 
         if bc.statut != 'BROUILLON':
@@ -217,6 +256,9 @@ class GACPermissions:
         if not user or not user.is_authenticated:
             return False
 
+        if not hasattr(user, 'employe') or not user.employe:
+            return False
+
         if bc.statut != 'BROUILLON':
             return False
 
@@ -226,6 +268,9 @@ class GACPermissions:
     def can_send_bon_commande(user, bc):
         """Vérifie si l'utilisateur peut envoyer un BC."""
         if not user or not user.is_authenticated:
+            return False
+
+        if not hasattr(user, 'employe') or not user.employe:
             return False
 
         if bc.statut != 'EMIS':
@@ -239,6 +284,9 @@ class GACPermissions:
         if not user or not user.is_authenticated:
             return False
 
+        if not hasattr(user, 'employe') or not user.employe:
+            return False
+
         if bc.statut != 'ENVOYE':
             return False
 
@@ -248,6 +296,9 @@ class GACPermissions:
     def can_cancel_bon_commande(user, bc):
         """Vérifie si l'utilisateur peut annuler un BC."""
         if not user or not user.is_authenticated:
+            return False
+
+        if not hasattr(user, 'employe') or not user.employe:
             return False
 
         if bc.statut in ['RECU_COMPLET', 'RECU_PARTIEL']:
@@ -266,12 +317,18 @@ class GACPermissions:
         if not user or not user.is_authenticated:
             return False
 
+        if not hasattr(user, 'employe') or not user.employe:
+            return False
+
         return user.employe.has_role('ADMIN_GAC')
 
     @staticmethod
     def can_view_all_bons_commande(user):
         """Vérifie si l'utilisateur peut voir tous les BCs."""
         if not user or not user.is_authenticated:
+            return False
+
+        if not hasattr(user, 'employe') or not user.employe:
             return False
 
         return user.employe.has_role('ACHETEUR') or user.employe.has_role('ADMIN_GAC')
@@ -290,12 +347,18 @@ class GACPermissions:
         if not user or not user.is_authenticated:
             return False
 
+        if not hasattr(user, 'employe') or not user.employe:
+            return False
+
         return user.employe.has_role('ACHETEUR') or user.employe.has_role('ADMIN_GAC')
 
     @staticmethod
     def can_modify_fournisseur(user):
         """Vérifie si l'utilisateur peut modifier un fournisseur."""
         if not user or not user.is_authenticated:
+            return False
+
+        if not hasattr(user, 'employe') or not user.employe:
             return False
 
         return user.employe.has_role('ACHETEUR') or user.employe.has_role('ADMIN_GAC')
@@ -306,12 +369,18 @@ class GACPermissions:
         if not user or not user.is_authenticated:
             return False
 
+        if not hasattr(user, 'employe') or not user.employe:
+            return False
+
         return user.employe.has_role('ACHETEUR') or user.employe.has_role('ADMIN_GAC')
 
     @staticmethod
     def can_delete_fournisseur(user):
         """Vérifie si l'utilisateur peut supprimer un fournisseur."""
         if not user or not user.is_authenticated:
+            return False
+
+        if not hasattr(user, 'employe') or not user.employe:
             return False
 
         return user.employe.has_role('ADMIN_GAC')
@@ -322,6 +391,9 @@ class GACPermissions:
     def can_view_reception(user, reception):
         """Vérifie si l'utilisateur peut voir une réception."""
         if not user or not user.is_authenticated:
+            return False
+
+        if not hasattr(user, 'employe') or not user.employe:
             return False
 
         if user.employe.has_role('ADMIN_GAC') or user.employe.has_role('ACHETEUR'):
@@ -343,6 +415,9 @@ class GACPermissions:
         if not user or not user.is_authenticated:
             return False
 
+        if not hasattr(user, 'employe') or not user.employe:
+            return False
+
         return (user.employe.has_role('RECEPTIONNAIRE') or
                 user.employe.has_role('ACHETEUR') or
                 user.employe.has_role('ADMIN_GAC'))
@@ -351,6 +426,9 @@ class GACPermissions:
     def can_modify_reception(user, reception):
         """Vérifie si l'utilisateur peut modifier une réception."""
         if not user or not user.is_authenticated:
+            return False
+
+        if not hasattr(user, 'employe') or not user.employe:
             return False
 
         if reception.statut != 'BROUILLON':
@@ -366,6 +444,9 @@ class GACPermissions:
         if not user or not user.is_authenticated:
             return False
 
+        if not hasattr(user, 'employe') or not user.employe:
+            return False
+
         if reception.statut != 'BROUILLON':
             return False
 
@@ -379,6 +460,9 @@ class GACPermissions:
         if not user or not user.is_authenticated:
             return False
 
+        if not hasattr(user, 'employe') or not user.employe:
+            return False
+
         return (user.employe.has_role('ACHETEUR') or
                 user.employe.has_role('ADMIN_GAC'))
 
@@ -386,6 +470,9 @@ class GACPermissions:
     def can_view_all_receptions(user):
         """Vérifie si l'utilisateur peut voir toutes les réceptions."""
         if not user or not user.is_authenticated:
+            return False
+
+        if not hasattr(user, 'employe') or not user.employe:
             return False
 
         return (user.employe.has_role('RECEPTIONNAIRE') or
@@ -405,6 +492,9 @@ class GACPermissions:
         if not user or not user.is_authenticated:
             return False
 
+        if not hasattr(user, 'employe') or not user.employe:
+            return False
+
         return user.employe.has_role('ACHETEUR') or user.employe.has_role('ADMIN_GAC')
 
     # ========== Budgets ==========
@@ -413,6 +503,9 @@ class GACPermissions:
     def can_view_budget(user, budget):
         """Vérifie si l'utilisateur peut voir un budget."""
         if not user or not user.is_authenticated:
+            return False
+
+        if not hasattr(user, 'employe') or not user.employe:
             return False
 
         if user.employe.has_role('ADMIN_GAC') or user.employe.has_role('ACHETEUR'):
@@ -435,12 +528,18 @@ class GACPermissions:
         if not user or not user.is_authenticated:
             return False
 
+        if not hasattr(user, 'employe') or not user.employe:
+            return False
+
         return user.employe.has_role('GESTIONNAIRE_BUDGET') or user.employe.has_role('ADMIN_GAC')
 
     @staticmethod
     def can_modify_budget(user, budget):
         """Vérifie si l'utilisateur peut modifier un budget."""
         if not user or not user.is_authenticated:
+            return False
+
+        if not hasattr(user, 'employe') or not user.employe:
             return False
 
         if user.employe.has_role('ADMIN_GAC'):
@@ -456,6 +555,9 @@ class GACPermissions:
     def can_view_all_budgets(user):
         """Vérifie si l'utilisateur peut voir tous les budgets."""
         if not user or not user.is_authenticated:
+            return False
+
+        if not hasattr(user, 'employe') or not user.employe:
             return False
 
         return user.employe.has_role('ACHETEUR') or user.employe.has_role('ADMIN_GAC')

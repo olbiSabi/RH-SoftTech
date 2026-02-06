@@ -6,7 +6,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
+from django.http import JsonResponse
+from django.urls import reverse
 
 from gestion_achats.models import GACDemandeAchat, GACLigneDemandeAchat
 from gestion_achats.forms import (
@@ -17,8 +20,8 @@ from gestion_achats.forms import (
     DemandeAnnulationForm,
 )
 from gestion_achats.services import DemandeService
+from gestion_achats.decorators import require_demande_access, ajax_login_required
 from gestion_achats.permissions import GACPermissions, require_permission
-from gestion_achats.decorators import require_demande_access
 
 
 @login_required
@@ -89,7 +92,7 @@ def demande_create(request):
                     request,
                     f'Demande {demande.numero} créée avec succès.'
                 )
-                return redirect('gestion_achats:demande_detail', pk=demande.pk)
+                return redirect('gestion_achats:demande_detail', pk=demande.uuid)
 
             except Exception as e:
                 messages.error(request, f'Erreur lors de la création: {str(e)}')
@@ -102,10 +105,11 @@ def demande_create(request):
     })
 
 
-@login_required
+@ajax_login_required
 @require_demande_access
-def demande_detail(request, pk, demande):
+def demande_detail(request, pk, **kwargs):
     """Détail d'une demande d'achat."""
+    demande = kwargs.get('demande')
     context = {
         'demande': demande,
         'lignes': demande.lignes.all().order_by('ordre'),
@@ -121,10 +125,11 @@ def demande_detail(request, pk, demande):
     return render(request, 'gestion_achats/demande/demande_detail.html', context)
 
 
-@login_required
+@ajax_login_required
 @require_demande_access
-def demande_update(request, pk, demande):
+def demande_update(request, pk, **kwargs):
     """Modifier une demande d'achat."""
+    demande = kwargs.get('demande')
     require_permission(GACPermissions.can_modify_demande, request.user, demande)
 
     if request.method == 'POST':
@@ -132,7 +137,7 @@ def demande_update(request, pk, demande):
         if form.is_valid():
             form.save()
             messages.success(request, 'Demande modifiée avec succès.')
-            return redirect('gestion_achats:demande_detail', pk=demande.pk)
+            return redirect('gestion_achats:demande_detail', pk=demande.uuid)
     else:
         form = DemandeAchatForm(instance=demande, user=request.user)
 
@@ -143,10 +148,64 @@ def demande_update(request, pk, demande):
     })
 
 
-@login_required
+@ajax_login_required
 @require_demande_access
-def demande_ligne_create(request, pk, demande):
+def demande_delete(request, pk, **kwargs):
+    """Supprimer une demande d'achat (seulement si elle est en brouillon)."""
+    demande = kwargs.get('demande')
+    require_permission(GACPermissions.can_modify_demande, request.user, demande)
+
+    # Vérifier que la demande est en brouillon
+    if demande.statut != 'BROUILLON':
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'message': 'Seules les demandes en brouillon peuvent être supprimées.'
+            }, status=400)
+        messages.error(request, 'Seules les demandes en brouillon peuvent être supprimées.')
+        return redirect('gestion_achats:demande_detail', pk=demande.uuid)
+
+    if request.method == 'POST':
+        # Gérer les requêtes AJAX
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            try:
+                numero = demande.numero
+                demande.delete()
+
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Demande {numero} supprimée avec succès.',
+                    'redirect_url': reverse('gestion_achats:mes_demandes')
+                })
+
+            except Exception as e:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Erreur lors de la suppression: {str(e)}'
+                }, status=400)
+
+        # Gérer les requêtes normales (formulaire)
+        try:
+            numero = demande.numero
+            demande.delete()
+
+            messages.success(request, f'Demande {numero} supprimée avec succès.')
+            return redirect('gestion_achats:mes_demandes')
+
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+            return redirect('gestion_achats:demande_detail', pk=demande.uuid)
+
+    return render(request, 'gestion_achats/demande/demande_confirm_delete.html', {
+        'demande': demande,
+    })
+
+
+@ajax_login_required
+@require_demande_access
+def demande_ligne_create(request, pk, **kwargs):
     """Ajouter une ligne à une demande."""
+    demande = kwargs.get('demande')
     require_permission(GACPermissions.can_modify_demande, request.user, demande)
 
     if request.method == 'POST':
@@ -163,7 +222,7 @@ def demande_ligne_create(request, pk, demande):
                 )
 
                 messages.success(request, 'Ligne ajoutée avec succès.')
-                return redirect('gestion_achats:demande_detail', pk=demande.pk)
+                return redirect('gestion_achats:demande_detail', pk=demande.uuid)
 
             except Exception as e:
                 messages.error(request, f'Erreur: {str(e)}')
@@ -176,39 +235,211 @@ def demande_ligne_create(request, pk, demande):
     })
 
 
-@login_required
+@ajax_login_required
 @require_demande_access
-def demande_submit(request, pk, demande):
-    """Soumettre une demande pour validation."""
-    require_permission(GACPermissions.can_submit_demande, request.user, demande)
+def demande_ligne_update(request, pk, ligne_pk, **kwargs):
+    """Modifier une ligne de demande."""
+    demande = kwargs.get('demande')
+    require_permission(GACPermissions.can_modify_demande, request.user, demande)
+
+    ligne = get_object_or_404(GACLigneDemandeAchat, pk=ligne_pk, demande_achat=demande)
 
     if request.method == 'POST':
-        try:
-            DemandeService.soumettre_demande(demande, request.user.employe)
-            messages.success(
-                request,
-                f'Demande {demande.numero} soumise pour validation.'
-            )
-            return redirect('gestion_achats:demande_detail', pk=demande.pk)
+        form = LigneDemandeAchatForm(request.POST, instance=ligne)
+        if form.is_valid():
+            try:
+                ligne.article = form.cleaned_data['article']
+                ligne.quantite = form.cleaned_data['quantite']
+                ligne.prix_unitaire = form.cleaned_data['prix_unitaire']
+                ligne.taux_tva = form.cleaned_data.get('taux_tva')
+                ligne.commentaire = form.cleaned_data.get('commentaire', '')
+                ligne.save()
 
-        except Exception as e:
-            messages.error(request, f'Erreur lors de la soumission: {str(e)}')
-            return redirect('gestion_achats:demande_detail', pk=demande.pk)
+                # Recalculer les montants de la demande
+                demande.save()
 
-    return render(request, 'gestion_achats/demande/demande_confirm.html', {
+                messages.success(request, 'Ligne modifiée avec succès.')
+                return redirect('gestion_achats:demande_detail', pk=demande.uuid)
+
+            except Exception as e:
+                messages.error(request, f'Erreur: {str(e)}')
+    else:
+        form = LigneDemandeAchatForm(instance=ligne)
+
+    return render(request, 'gestion_achats/demande/ligne_form.html', {
+        'form': form,
         'demande': demande,
-        'action': 'soumettre',
-        'message': 'Voulez-vous vraiment soumettre cette demande pour validation ?',
+        'ligne': ligne,
+        'action': 'Modifier',
     })
 
 
-@login_required
+@ajax_login_required
 @require_demande_access
-def demande_validate_n1(request, pk, demande):
-    """Valider une demande au niveau N1."""
-    require_permission(GACPermissions.can_validate_n1, request.user, demande)
+def demande_ligne_delete(request, pk, ligne_pk, **kwargs):
+    """Supprimer une ligne de demande."""
+    demande = kwargs.get('demande')
+    require_permission(GACPermissions.can_modify_demande, request.user, demande)
+
+    ligne = get_object_or_404(GACLigneDemandeAchat, pk=ligne_pk, demande_achat=demande)
 
     if request.method == 'POST':
+        # Gérer les requêtes AJAX
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            try:
+                ligne.delete()
+                # Recalculer les montants de la demande
+                demande.save()
+
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Ligne supprimée avec succès.',
+                    'redirect_url': reverse('gestion_achats:demande_detail', kwargs={'pk': demande.uuid})
+                })
+
+            except Exception as e:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Erreur: {str(e)}'
+                }, status=400)
+
+        # Gérer les requêtes normales (formulaire)
+        try:
+            ligne.delete()
+            # Recalculer les montants de la demande
+            demande.save()
+
+            messages.success(request, 'Ligne supprimée avec succès.')
+            return redirect('gestion_achats:demande_detail', pk=demande.uuid)
+
+        except Exception as e:
+            messages.error(request, f'Erreur: {str(e)}')
+            return redirect('gestion_achats:demande_detail', pk=demande.uuid)
+
+    return render(request, 'gestion_achats/demande/ligne_confirm_delete.html', {
+        'ligne': ligne,
+        'demande': demande,
+    })
+
+
+@ajax_login_required
+def demande_submit(request, pk):
+    """Soumettre une demande pour validation."""
+    # Charger la demande manuellement (on ne utilise plus le décorateur qui causait des problèmes)
+    demande = get_object_or_404(GACDemandeAchat, uuid=pk)
+
+    if request.method == 'POST':
+        try:
+            # Vérifier les permissions (dans le try/except pour capturer les erreurs)
+            if not GACPermissions.can_submit_demande(request.user, demande):
+                raise PermissionDenied("Vous n'avez pas la permission de soumettre cette demande.")
+
+            # Vérifier que l'utilisateur a un employe
+            if not hasattr(request.user, 'employe') or not request.user.employe:
+                raise ValueError("Votre compte n'est pas associé à un employé.")
+
+            DemandeService.soumettre_demande(demande, request.user.employe)
+
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                # Requête AJAX - retourner JSON
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Demande {demande.numero} soumise pour validation.',
+                    'redirect_url': reverse('gestion_achats:demande_detail', kwargs={'pk': demande.uuid})
+                })
+            else:
+                # Requête normale - retourner message et redirect
+                try:
+                    messages.success(
+                        request,
+                        f'Demande {demande.numero} soumise pour validation.'
+                    )
+                except Exception:
+                    # Si le middleware messages n'est pas disponible, continuer sans message
+                    pass
+                return redirect('gestion_achats:demande_detail', pk=demande.uuid)
+
+        except PermissionDenied as e:
+            # Gérer spécifiquement les erreurs de permission
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Permission refusée: {str(e)}'
+                }, status=403)
+            else:
+                messages.error(request, f'Permission refusée: {str(e)}')
+                return redirect('gestion_achats:demande_detail', pk=demande.uuid)
+
+        except Exception as e:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                # Requête AJAX - retourner erreur JSON
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Erreur lors de la soumission: {str(e)}'
+                }, status=400)
+            else:
+                # Requête normale - retourner message d'erreur
+                try:
+                    messages.error(request, f'Erreur lors de la soumission: {str(e)}')
+                except Exception:
+                    # Si le middleware messages n'est pas disponible, continuer sans message
+                    pass
+                return redirect('gestion_achats:demande_detail', pk=demande.uuid)
+
+    # Pour les requêtes GET normales, rediriger vers le détail (la modale gérera la confirmation)
+    return redirect('gestion_achats:demande_detail', pk=demande.uuid)
+
+
+@login_required
+def demande_validate_n1(request, pk, **kwargs):
+    """Valider une demande au niveau N1."""
+    # Charger la demande manuellement
+    demande = get_object_or_404(GACDemandeAchat, uuid=pk)
+
+    # Vérifier les permissions
+    if not GACPermissions.can_view_demande(request.user, demande):
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'message': "Vous n'avez pas accès à cette demande"
+            }, status=403)
+        raise PermissionDenied("Vous n'avez pas accès à cette demande")
+
+    if not GACPermissions.can_validate_n1(request.user, demande):
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'message': "Vous n'avez pas la permission de valider cette demande au niveau N1"
+            }, status=403)
+        raise PermissionDenied("Vous n'avez pas la permission de valider cette demande au niveau N1")
+
+    if request.method == 'POST':
+        # Gérer les requêtes AJAX (JSON)
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            try:
+                import json
+                data = json.loads(request.body)
+                commentaire = data.get('commentaire', '')
+
+                DemandeService.valider_n1(
+                    demande,
+                    request.user.employe,
+                    commentaire=commentaire
+                )
+
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Demande {demande.numero} validée (N1).',
+                    'redirect_url': reverse('gestion_achats:demande_detail', kwargs={'pk': demande.uuid})
+                })
+
+            except Exception as e:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Erreur: {str(e)}'
+                }, status=400)
+
+        # Gérer les requêtes normales (formulaire)
         form = DemandeValidationForm(request.POST)
         if form.is_valid():
             try:
@@ -219,7 +450,7 @@ def demande_validate_n1(request, pk, demande):
                 )
 
                 messages.success(request, f'Demande {demande.numero} validée (N1).')
-                return redirect('gestion_achats:demande_detail', pk=demande.pk)
+                return redirect('gestion_achats:demande_detail', pk=demande.uuid)
 
             except Exception as e:
                 messages.error(request, f'Erreur: {str(e)}')
@@ -234,12 +465,55 @@ def demande_validate_n1(request, pk, demande):
 
 
 @login_required
-@require_demande_access
-def demande_validate_n2(request, pk, demande):
+def demande_validate_n2(request, pk, **kwargs):
     """Valider une demande au niveau N2."""
-    require_permission(GACPermissions.can_validate_n2, request.user, demande)
+    # Charger la demande manuellement
+    demande = get_object_or_404(GACDemandeAchat, uuid=pk)
+
+    # Vérifier les permissions
+    if not GACPermissions.can_view_demande(request.user, demande):
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'message': "Vous n'avez pas accès à cette demande"
+            }, status=403)
+        raise PermissionDenied("Vous n'avez pas accès à cette demande")
+
+    if not GACPermissions.can_validate_n2(request.user, demande):
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'message': "Vous n'avez pas la permission de valider cette demande au niveau N2"
+            }, status=403)
+        raise PermissionDenied("Vous n'avez pas la permission de valider cette demande au niveau N2")
 
     if request.method == 'POST':
+        # Gérer les requêtes AJAX (JSON)
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            try:
+                import json
+                data = json.loads(request.body)
+                commentaire = data.get('commentaire', '')
+
+                DemandeService.valider_n2(
+                    demande,
+                    request.user.employe,
+                    commentaire=commentaire
+                )
+
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Demande {demande.numero} validée (N2).',
+                    'redirect_url': reverse('gestion_achats:demande_detail', kwargs={'pk': demande.uuid})
+                })
+
+            except Exception as e:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Erreur: {str(e)}'
+                }, status=400)
+
+        # Gérer les requêtes normales (formulaire)
         form = DemandeValidationForm(request.POST)
         if form.is_valid():
             try:
@@ -250,7 +524,7 @@ def demande_validate_n2(request, pk, demande):
                 )
 
                 messages.success(request, f'Demande {demande.numero} validée (N2).')
-                return redirect('gestion_achats:demande_detail', pk=demande.pk)
+                return redirect('gestion_achats:demande_detail', pk=demande.uuid)
 
             except Exception as e:
                 messages.error(request, f'Erreur: {str(e)}')
@@ -265,12 +539,61 @@ def demande_validate_n2(request, pk, demande):
 
 
 @login_required
-@require_demande_access
-def demande_refuse(request, pk, demande):
+def demande_refuse(request, pk, **kwargs):
     """Refuser une demande."""
-    require_permission(GACPermissions.can_refuse_demande, request.user, demande)
+    # Charger la demande manuellement
+    demande = get_object_or_404(GACDemandeAchat, uuid=pk)
+
+    # Vérifier les permissions
+    if not GACPermissions.can_view_demande(request.user, demande):
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'message': "Vous n'avez pas accès à cette demande"
+            }, status=403)
+        raise PermissionDenied("Vous n'avez pas accès à cette demande")
+
+    if not GACPermissions.can_refuse_demande(request.user, demande):
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'message': "Vous n'avez pas la permission de refuser cette demande"
+            }, status=403)
+        raise PermissionDenied("Vous n'avez pas la permission de refuser cette demande")
 
     if request.method == 'POST':
+        # Gérer les requêtes AJAX (JSON)
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            try:
+                import json
+                data = json.loads(request.body)
+                motif = data.get('motif', '')
+
+                if not motif:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Le motif de refus est obligatoire'
+                    }, status=400)
+
+                DemandeService.refuser_demande(
+                    demande,
+                    request.user.employe,
+                    motif=motif
+                )
+
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Demande {demande.numero} refusée.',
+                    'redirect_url': reverse('gestion_achats:demande_detail', kwargs={'pk': demande.uuid})
+                })
+
+            except Exception as e:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Erreur: {str(e)}'
+                }, status=400)
+
+        # Gérer les requêtes normales (formulaire)
         form = DemandeRefusForm(request.POST)
         if form.is_valid():
             try:
@@ -281,7 +604,7 @@ def demande_refuse(request, pk, demande):
                 )
 
                 messages.warning(request, f'Demande {demande.numero} refusée.')
-                return redirect('gestion_achats:demande_detail', pk=demande.pk)
+                return redirect('gestion_achats:demande_detail', pk=demande.uuid)
 
             except Exception as e:
                 messages.error(request, f'Erreur: {str(e)}')
@@ -295,12 +618,61 @@ def demande_refuse(request, pk, demande):
 
 
 @login_required
-@require_demande_access
-def demande_cancel(request, pk, demande):
+def demande_cancel(request, pk, **kwargs):
     """Annuler une demande."""
-    require_permission(GACPermissions.can_cancel_demande, request.user, demande)
+    # Charger la demande manuellement
+    demande = get_object_or_404(GACDemandeAchat, uuid=pk)
+
+    # Vérifier les permissions
+    if not GACPermissions.can_view_demande(request.user, demande):
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'message': "Vous n'avez pas accès à cette demande"
+            }, status=403)
+        raise PermissionDenied("Vous n'avez pas accès à cette demande")
+
+    if not GACPermissions.can_cancel_demande(request.user, demande):
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'message': "Vous n'avez pas la permission d'annuler cette demande"
+            }, status=403)
+        raise PermissionDenied("Vous n'avez pas la permission d'annuler cette demande")
 
     if request.method == 'POST':
+        # Gérer les requêtes AJAX (JSON)
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            try:
+                import json
+                data = json.loads(request.body)
+                motif = data.get('motif', '')
+
+                if not motif:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Le motif d\'annulation est obligatoire'
+                    }, status=400)
+
+                DemandeService.annuler_demande(
+                    demande,
+                    request.user.employe,
+                    motif=motif
+                )
+
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Demande {demande.numero} annulée.',
+                    'redirect_url': reverse('gestion_achats:demande_detail', kwargs={'pk': demande.uuid})
+                })
+
+            except Exception as e:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Erreur: {str(e)}'
+                }, status=400)
+
+        # Gérer les requêtes normales (formulaire)
         form = DemandeAnnulationForm(request.POST)
         if form.is_valid():
             try:
@@ -311,7 +683,7 @@ def demande_cancel(request, pk, demande):
                 )
 
                 messages.warning(request, f'Demande {demande.numero} annulée.')
-                return redirect('gestion_achats:demande_detail', pk=demande.pk)
+                return redirect('gestion_achats:demande_detail', pk=demande.uuid)
 
             except Exception as e:
                 messages.error(request, f'Erreur: {str(e)}')

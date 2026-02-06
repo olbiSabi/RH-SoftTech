@@ -301,7 +301,7 @@ class BudgetService:
     @staticmethod
     @transaction.atomic
     def creer_budget(libelle, montant_initial, exercice, date_debut=None, date_fin=None,
-                    departement=None, projet=None, gestionnaire=None, description=None,
+                    departement=None, gestionnaire=None, description=None,
                     seuil_alerte_1=None, seuil_alerte_2=None, cree_par=None):
         """
         Crée une enveloppe budgétaire.
@@ -313,7 +313,6 @@ class BudgetService:
             date_debut: Date de début (optionnel)
             date_fin: Date de fin (optionnel)
             departement: Département concerné (optionnel)
-            projet: Projet concerné (optionnel)
             gestionnaire: Gestionnaire du budget (optionnel)
             description: Description du budget (optionnel)
             seuil_alerte_1: Premier seuil d'alerte en % (optionnel, défaut: constante)
@@ -346,7 +345,6 @@ class BudgetService:
                 date_debut=date_debut,
                 date_fin=date_fin,
                 departement=departement,
-                projet=projet,
                 gestionnaire=gestionnaire,
                 seuil_alerte_1=seuil_alerte_1,
                 seuil_alerte_2=seuil_alerte_2,

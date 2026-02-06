@@ -75,7 +75,7 @@ def bon_commande_detail(request, pk, bon_commande):
 @require_role('ACHETEUR')
 def bon_commande_create_from_demande(request, demande_pk):
     """Créer un BC depuis une demande validée."""
-    demande = get_object_or_404(GACDemandeAchat, pk=demande_pk)
+    demande = get_object_or_404(GACDemandeAchat, uuid=demande_pk)
     require_permission(GACPermissions.can_convert_to_bc, request.user, demande)
 
     if request.method == 'POST':
@@ -90,7 +90,7 @@ def bon_commande_create_from_demande(request, demande_pk):
                 )
 
                 messages.success(request, f'Bon de commande {bc.numero} créé.')
-                return redirect('gestion_achats:bon_commande_detail', pk=bc.pk)
+                return redirect('gestion_achats:bon_commande_detail', pk=bc.uuid)
 
             except Exception as e:
                 messages.error(request, f'Erreur: {str(e)}')
@@ -113,14 +113,14 @@ def bon_commande_emit(request, pk, bon_commande):
         try:
             BonCommandeService.emettre_bon_commande(bon_commande, request.user.employe)
             messages.success(request, f'BC {bon_commande.numero} émis.')
-            return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.pk)
+            return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)
         except Exception as e:
             messages.error(request, f'Erreur: {str(e)}')
+            return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)
 
-    return render(request, 'gestion_achats/bon_commande/bc_confirm.html', {
-        'bc': bon_commande,
-        'action': 'émettre',
-    })
+    # Si ce n'est pas une requête POST, rediriger vers la page de détail
+    # (la confirmation se fait maintenant via le modal dans bc_detail.html)
+    return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)
 
 
 @login_required
@@ -139,7 +139,7 @@ def bon_commande_send(request, pk, bon_commande):
                     email_destinataire=form.cleaned_data.get('email_destinataire')
                 )
                 messages.success(request, f'BC {bon_commande.numero} envoyé.')
-                return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.pk)
+                return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)
             except Exception as e:
                 messages.error(request, f'Erreur: {str(e)}')
     else:
@@ -167,7 +167,7 @@ def bon_commande_pdf(request, pk, bon_commande):
         )
     else:
         messages.error(request, 'Aucun PDF généré pour ce BC.')
-        return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.pk)
+        return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)
 
 
 # ========== GESTION DES LIGNES DE BON DE COMMANDE ==========
@@ -181,7 +181,7 @@ def ligne_bc_create(request, pk, bon_commande):
     # Vérifier que le BC est en brouillon
     if bon_commande.statut != 'BROUILLON':
         messages.error(request, 'Impossible d\'ajouter des lignes à un BC qui n\'est plus en brouillon.')
-        return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.pk)
+        return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)
 
     if request.method == 'POST':
         form = LigneBonCommandeForm(request.POST)
@@ -204,7 +204,7 @@ def ligne_bc_create(request, pk, bon_commande):
                     request,
                     f'Ligne ajoutée : {ligne.article.designation} × {ligne.quantite_commandee}'
                 )
-                return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.pk)
+                return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)
 
             except Exception as e:
                 messages.error(request, f'Erreur lors de l\'ajout de la ligne : {str(e)}')
@@ -227,7 +227,7 @@ def ligne_bc_update(request, pk, bon_commande, ligne_pk):
     # Vérifier que le BC est en brouillon
     if bon_commande.statut != 'BROUILLON':
         messages.error(request, 'Impossible de modifier des lignes d\'un BC qui n\'est plus en brouillon.')
-        return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.pk)
+        return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)
 
     from gestion_achats.models import GACLigneBonCommande
     ligne = get_object_or_404(GACLigneBonCommande, pk=ligne_pk, bon_commande=bon_commande)
@@ -242,7 +242,7 @@ def ligne_bc_update(request, pk, bon_commande, ligne_pk):
                 bon_commande.calculer_totaux()
 
                 messages.success(request, 'Ligne modifiée avec succès.')
-                return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.pk)
+                return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)
 
             except Exception as e:
                 messages.error(request, f'Erreur lors de la modification : {str(e)}')
@@ -266,7 +266,7 @@ def ligne_bc_delete(request, pk, bon_commande, ligne_pk):
     # Vérifier que le BC est en brouillon
     if bon_commande.statut != 'BROUILLON':
         messages.error(request, 'Impossible de supprimer des lignes d\'un BC qui n\'est plus en brouillon.')
-        return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.pk)
+        return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)
 
     from gestion_achats.models import GACLigneBonCommande
     ligne = get_object_or_404(GACLigneBonCommande, pk=ligne_pk, bon_commande=bon_commande)
@@ -285,7 +285,7 @@ def ligne_bc_delete(request, pk, bon_commande, ligne_pk):
                 request,
                 f'Ligne supprimée : {article_designation} × {quantite}'
             )
-            return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.pk)
+            return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)
 
         except Exception as e:
             messages.error(request, f'Erreur lors de la suppression : {str(e)}')

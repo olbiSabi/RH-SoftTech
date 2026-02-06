@@ -300,15 +300,33 @@ def can_validate_gac(user):
     """
     Vérifie si l'utilisateur peut valider des demandes GAC (N1, N2 ou Admin).
 
+    Retourne True si:
+    - L'utilisateur a un rôle de validateur (VALIDATEUR_N1, VALIDATEUR_N2, ADMIN_GAC)
+    - OU l'utilisateur est assigné comme validateur_n1 ou validateur_n2 sur au moins une demande
+
     Usage: {% can_validate_gac user as can_validate %}
     """
     if not user or not user.is_authenticated or not hasattr(user, 'employe') or not user.employe:
         return False
-    return (
-        user.employe.has_role('VALIDATEUR_N1') or
-        user.employe.has_role('VALIDATEUR_N2') or
-        user.employe.has_role('ADMIN_GAC')
-    )
+
+    employe = user.employe
+
+    # Vérifier si l'utilisateur a un rôle de validateur
+    if (employe.has_role('VALIDATEUR_N1') or
+        employe.has_role('VALIDATEUR_N2') or
+        employe.has_role('ADMIN_GAC')):
+        return True
+
+    # Vérifier si l'utilisateur est assigné comme validateur sur au moins une demande
+    from gestion_achats.models import GACDemandeAchat
+    from django.db.models import Q
+
+    has_demandes = GACDemandeAchat.objects.filter(
+        Q(validateur_n1=employe, statut='SOUMISE') |
+        Q(validateur_n2=employe, statut='VALIDEE_N1')
+    ).exists()
+
+    return has_demandes
 
 
 @register.simple_tag

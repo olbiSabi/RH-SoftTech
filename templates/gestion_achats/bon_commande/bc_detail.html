@@ -33,7 +33,7 @@
                     <p><strong>Fournisseur :</strong> {{ bc.fournisseur.raison_sociale }}</p>
                     {% if bc.demande_achat %}
                     <p><strong>Demande liée :</strong>
-                        <a href="{% url 'gestion_achats:demande_detail' bc.demande_achat.pk %}">
+                        <a href="{% url 'gestion_achats:demande_detail' bc.demande_achat.uuid %}">
                             {{ bc.demande_achat.numero }}
                         </a>
                     </p>
@@ -56,7 +56,7 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0"><i class="fas fa-list me-2"></i>Lignes de commande</h5>
             {% if can_modify and bc.statut == 'BROUILLON' %}
-            <a href="{% url 'gestion_achats:ligne_bc_create' pk=bc.pk %}" class="btn btn-sm btn-success">
+            <a href="{% url 'gestion_achats:ligne_bc_create' pk=bc.uuid %}" class="btn btn-sm btn-success">
                 <i class="fas fa-plus me-2"></i>Ajouter une ligne
             </a>
             {% endif %}
@@ -94,12 +94,12 @@
                             {% if can_modify and bc.statut == 'BROUILLON' %}
                             <td class="text-center">
                                 <div class="btn-group btn-group-sm" role="group">
-                                    <a href="{% url 'gestion_achats:ligne_bc_update' pk=bc.pk ligne_pk=ligne.pk %}"
+                                    <a href="{% url 'gestion_achats:ligne_bc_update' pk=bc.uuid ligne_pk=ligne.pk %}"
                                        class="btn btn-outline-primary"
                                        title="Modifier">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a href="{% url 'gestion_achats:ligne_bc_delete' pk=bc.pk ligne_pk=ligne.pk %}"
+                                    <a href="{% url 'gestion_achats:ligne_bc_delete' pk=bc.uuid ligne_pk=ligne.pk %}"
                                        class="btn btn-outline-danger"
                                        title="Supprimer">
                                         <i class="fas fa-trash"></i>
@@ -115,7 +115,7 @@
                                 Aucune ligne de commande
                                 {% if can_modify and bc.statut == 'BROUILLON' %}
                                 <br>
-                                <a href="{% url 'gestion_achats:ligne_bc_create' pk=bc.pk %}" class="btn btn-sm btn-primary mt-2">
+                                <a href="{% url 'gestion_achats:ligne_bc_create' pk=bc.uuid %}" class="btn btn-sm btn-primary mt-2">
                                     <i class="fas fa-plus me-2"></i>Ajouter la première ligne
                                 </a>
                                 {% endif %}
@@ -137,23 +137,68 @@
                 </a>
 
                 {% if can_emit %}
-                <a href="{% url 'gestion_achats:bon_commande_emit' bc.pk %}" class="btn btn-success">
+                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#emitBCModal">
                     <i class="fas fa-paper-plane me-2"></i>Émettre
-                </a>
+                </button>
                 {% endif %}
 
                 {% if can_send %}
-                <a href="{% url 'gestion_achats:bon_commande_send' bc.pk %}" class="btn btn-primary">
+                <a href="{% url 'gestion_achats:bon_commande_send' bc.uuid %}" class="btn btn-primary">
                     <i class="fas fa-envelope me-2"></i>Envoyer au fournisseur
                 </a>
                 {% endif %}
 
                 {% if bc.fichier_pdf %}
-                <a href="{% url 'gestion_achats:bon_commande_pdf' bc.pk %}" class="btn btn-outline-danger" target="_blank">
+                <a href="{% url 'gestion_achats:bon_commande_pdf' bc.uuid %}" class="btn btn-outline-danger" target="_blank">
                     <i class="fas fa-file-pdf me-2"></i>Télécharger PDF
                 </a>
                 {% endif %}
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation d'émission -->
+<div class="modal fade" id="emitBCModal" tabindex="-1" aria-labelledby="emitBCModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="emitBCModalLabel">
+                    <i class="fas fa-paper-plane me-2"></i>Émettre le bon de commande
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{% url 'gestion_achats:bon_commande_emit' bc.uuid %}" id="emitBCForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Voulez-vous vraiment émettre ce bon de commande ?</strong>
+                    </div>
+
+                    <h6>Bon de commande concerné :</h6>
+                    <ul class="list-unstyled mb-0">
+                        <li><strong>Numéro :</strong> {{ bc.numero }}</li>
+                        <li><strong>Fournisseur :</strong> {{ bc.fournisseur.raison_sociale }}</li>
+                        <li><strong>Montant TTC :</strong> {{ bc.montant_total_ttc|floatformat:2 }} €</li>
+                        <li><strong>Statut actuel :</strong>
+                            <span class="badge bg-{{ bc.get_statut_badge_class }}">
+                                {{ bc.get_statut_display }}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Annuler
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check me-2"></i>Confirmer l'émission
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

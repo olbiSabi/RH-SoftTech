@@ -1,0 +1,327 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'gestion_achats/css/gac_styles.css' %}">
+<style>
+    .problem-badge {
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+    }
+
+    .card-diagnostic {
+        transition: transform 0.2s;
+    }
+
+    .card-diagnostic:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-check me-2"></i>
+                        Diagnostic des Validateurs
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Attention :</strong> Cette page est réservée aux administrateurs pour diagnostiquer les problèmes de validation.
+                    </div>
+
+                    <!-- Formulaire de recherche -->
+                    <form method="get" class="mb-4">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <input
+                                        type="text"
+                                        name="matricule"
+                                        class="form-control"
+                                        placeholder="Rechercher un matricule (ex: MT000008)"
+                                        value="{{ matricule_recherche|default:'' }}"
+                                    >
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search me-1"></i>Rechercher
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Résumé -->
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Nombre total de validateurs actifs : <strong>{{ diagnostics|length }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Détail d'un employé spécifique -->
+    {% if detail_employe %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>
+                        Détail de l'employé : {{ matricule_recherche }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if detail_employe.error %}
+                        <div class="alert alert-danger">
+                            {{ detail_employe.error }}
+                        </div>
+                    {% else %}
+                        <dl class="row">
+                            <dt class="col-sm-3">Matricule</dt>
+                            <dd class="col-sm-9"><strong>{{ detail_employe.matricule }}</strong></dd>
+
+                            <dt class="col-sm-3">Nom complet</dt>
+                            <dd class="col-sm-9">{{ detail_employe.nom }} {{ detail_employe.prenoms }}</dd>
+
+                            <dt class="col-sm-3">Département</dt>
+                            <dd class="col-sm-9">{{ detail_employe.departement|default:"N/A" }}</dd>
+
+                            <dt class="col-sm-3">Rôles</dt>
+                            <dd class="col-sm-9">
+                                {% if detail_employe.roles %}
+                                    {% for role in detail_employe.roles %}
+                                        <span class="badge bg-secondary me-1">{{ role }}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <em>Aucun rôle</em>
+                                {% endif %}
+                            </dd>
+
+                            <dt class="col-sm-3">Compte utilisateur</dt>
+                            <dd class="col-sm-9">
+                                {% if detail_employe.has_user %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check me-1"></i>Lié
+                                    </span>
+                                    <br>
+                                    <small>Username : <strong>{{ detail_employe.username }}</strong></small>
+                                    <br>
+                                    <small>Actif :
+                                        {% if detail_employe.user_is_active %}
+                                            <span class="text-success">Oui</span>
+                                        {% else %}
+                                            <span class="text-danger">Non</span>
+                                        {% endif %}
+                                    </small>
+                                {% else %}
+                                    <span class="badge bg-danger problem-badge">
+                                        <i class="fas fa-times me-1"></i>NON LIÉ
+                                    </span>
+                                    <br>
+                                    <small class="text-danger">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        Cet employé n'a pas de compte utilisateur lié. Il ne pourra pas se connecter et voir les demandes.
+                                    </small>
+                                {% endif %}
+                            </dd>
+                        </dl>
+
+                        <hr>
+
+                        <h6>Demandes à valider N1 ({{ detail_employe.demandes_n1|length }})</h6>
+                        {% if detail_employe.demandes_n1 %}
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Numéro</th>
+                                        <th>Objet</th>
+                                        <th>Demandeur</th>
+                                        <th>Date création</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for demande in detail_employe.demandes_n1 %}
+                                    <tr>
+                                        <td><strong>{{ demande.numero }}</strong></td>
+                                        <td>{{ demande.objet }}</td>
+                                        <td>{{ demande.demandeur__matricule }} - {{ demande.demandeur__nom }}</td>
+                                        <td>{{ demande.date_creation|date:"d/m/Y H:i" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <p class="text-muted"><em>Aucune demande à valider N1</em></p>
+                        {% endif %}
+
+                        <h6 class="mt-3">Demandes à valider N2 ({{ detail_employe.demandes_n2|length }})</h6>
+                        {% if detail_employe.demandes_n2 %}
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Numéro</th>
+                                        <th>Objet</th>
+                                        <th>Demandeur</th>
+                                        <th>Date création</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for demande in detail_employe.demandes_n2 %}
+                                    <tr>
+                                        <td><strong>{{ demande.numero }}</strong></td>
+                                        <td>{{ demande.objet }}</td>
+                                        <td>{{ demande.demandeur__matricule }} - {{ demande.demandeur__nom }}</td>
+                                        <td>{{ demande.date_creation|date:"d/m/Y H:i" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <p class="text-muted"><em>Aucune demande à valider N2</em></p>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Liste des validateurs -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Liste des validateurs</h5>
+                </div>
+                <div class="card-body">
+                    {% if diagnostics %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Matricule</th>
+                                        <th>Nom complet</th>
+                                        <th>Département</th>
+                                        <th>Demandes N1</th>
+                                        <th>Demandes N2</th>
+                                        <th>Compte utilisateur</th>
+                                        <th>Problème</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for diag in diagnostics %}
+                                    <tr {% if diag.user_info.problem %}class="table-warning"{% endif %}>
+                                        <td><strong>{{ diag.matricule }}</strong></td>
+                                        <td>{{ diag.nom_complet }}</td>
+                                        <td>{{ diag.departement|default:"N/A" }}</td>
+                                        <td>
+                                            {% if diag.demandes_n1 > 0 %}
+                                                <span class="badge bg-primary">{{ diag.demandes_n1 }}</span>
+                                            {% else %}
+                                                <span class="text-muted">0</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if diag.demandes_n2 > 0 %}
+                                                <span class="badge bg-info">{{ diag.demandes_n2 }}</span>
+                                            {% else %}
+                                                <span class="text-muted">0</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if diag.user_info.has_user %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check"></i>
+                                                </span>
+                                                <small>{{ diag.user_info.username }}</small>
+                                                {% if not diag.user_info.is_active %}
+                                                    <br><span class="badge bg-warning">Inactif</span>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="badge bg-danger problem-badge">
+                                                    <i class="fas fa-times"></i> Non lié
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if diag.user_info.problem %}
+                                                <span class="text-danger">
+                                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                                    {{ diag.user_info.problem }}
+                                                </span>
+                                            {% else %}
+                                                <span class="text-success">
+                                                    <i class="fas fa-check me-1"></i>OK
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="?matricule={{ diag.matricule }}" class="btn btn-sm btn-info">
+                                                <i class="fas fa-eye me-1"></i>Détails
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Aucun validateur trouvé avec des demandes en attente.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        Comment résoudre les problèmes
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <h6>Si un employé n'a pas de compte utilisateur lié :</h6>
+                    <ol>
+                        <li>Allez dans l'interface d'administration Django (<code>/admin</code>)</li>
+                        <li>Recherchez l'employé par son matricule</li>
+                        <li>Dans le champ "User", créez un nouveau compte utilisateur ou liez-en un existant</li>
+                        <li>Assurez-vous que le compte utilisateur est actif</li>
+                    </ol>
+
+                    <h6 class="mt-3">Si le compte utilisateur est inactif :</h6>
+                    <ol>
+                        <li>Allez dans l'interface d'administration Django</li>
+                        <li>Recherchez l'utilisateur</li>
+                        <li>Cochez la case "Actif"</li>
+                        <li>Enregistrez les modifications</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'gestion_achats/js/gac_common.js' %}"></script>
+{% endblock %}
