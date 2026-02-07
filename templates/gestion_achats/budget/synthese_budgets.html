@@ -30,7 +30,7 @@
 
     <!-- Statistiques globales -->
     <div class="row mb-4">
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="card">
                 <div class="card-body text-center">
                     <i class="fas fa-wallet fa-3x text-primary mb-3"></i>
@@ -40,7 +40,7 @@
             </div>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="card">
                 <div class="card-body text-center">
                     <i class="fas fa-chart-line fa-3x text-info mb-3"></i>
@@ -51,7 +51,18 @@
             </div>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-2">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="fas fa-file-invoice fa-3x text-secondary mb-3"></i>
+                    <h5>Commandé</h5>
+                    <h3 class="text-secondary">{{ synthese.total_commande|floatformat:2 }} €</h3>
+                    <small class="text-muted">{{ synthese.pct_commande|floatformat:1 }}%</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
             <div class="card">
                 <div class="card-body text-center">
                     <i class="fas fa-shopping-cart fa-3x text-warning mb-3"></i>
@@ -62,13 +73,24 @@
             </div>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="card">
                 <div class="card-body text-center">
                     <i class="fas fa-hand-holding-usd fa-3x text-success mb-3"></i>
                     <h5>Disponible</h5>
                     <h3 class="text-success">{{ synthese.total_disponible|floatformat:2 }} €</h3>
                     <small class="text-muted">{{ synthese.pct_disponible|floatformat:1 }}%</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="fas fa-percentage fa-3x text-danger mb-3"></i>
+                    <h5>Taux Consommation</h5>
+                    <h3 class="text-danger">{{ synthese.taux_consommation_global|floatformat:1 }}%</h3>
+                    <small class="text-muted">Global</small>
                 </div>
             </div>
         </div>
@@ -107,12 +129,13 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-hover table-gac">
                     <thead class="thead-light">
                         <tr>
                             <th>Département</th>
                             <th class="text-right">Montant Initial</th>
                             <th class="text-right">Engagé</th>
+                            <th class="text-right">Commandé</th>
                             <th class="text-right">Consommé</th>
                             <th class="text-right">Disponible</th>
                             <th class="text-center">Taux</th>
@@ -128,6 +151,7 @@
                             </td>
                             <td class="text-right">{{ dept.montant_initial|floatformat:2 }} €</td>
                             <td class="text-right">{{ dept.montant_engage|floatformat:2 }} €</td>
+                            <td class="text-right">{{ dept.montant_commande|floatformat:2 }} €</td>
                             <td class="text-right">{{ dept.montant_consomme|floatformat:2 }} €</td>
                             <td class="text-right">{{ dept.montant_disponible|floatformat:2 }} €</td>
                             <td class="text-center">
@@ -168,7 +192,7 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-sm table-hover">
+                <table class="table table-sm table-gac">
                     <thead>
                         <tr>
                             <th>Code</th>

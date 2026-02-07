@@ -5719,6 +5719,22 @@
         "documentation": {}
     },
     {
+        "label": "Decimal",
+        "importPath": "decimal",
+        "description": "decimal",
+        "isExtraImport": true,
+        "detail": "decimal",
+        "documentation": {}
+    },
+    {
+        "label": "Decimal",
+        "importPath": "decimal",
+        "description": "decimal",
+        "isExtraImport": true,
+        "detail": "decimal",
+        "documentation": {}
+    },
+    {
         "label": "migrations",
         "importPath": "django.db",
         "description": "django.db",
@@ -9337,6 +9353,30 @@
         "documentation": {}
     },
     {
+        "label": "Count",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Sum",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "F",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
         "label": "Q",
         "importPath": "django.db.models",
         "description": "django.db.models",
@@ -10367,6 +10407,15 @@
         "description": "functools",
         "isExtraImport": true,
         "detail": "functools",
+        "documentation": {}
+    },
+    {
+        "label": "django",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "django",
+        "description": "django",
+        "detail": "django",
         "documentation": {}
     },
     {
@@ -14701,6 +14750,14 @@
         "documentation": {}
     },
     {
+        "label": "ZDDE",
+        "importPath": "gestion_achats.models",
+        "description": "gestion_achats.models",
+        "isExtraImport": true,
+        "detail": "gestion_achats.models",
+        "documentation": {}
+    },
+    {
         "label": "GACArticle",
         "importPath": "gestion_achats.models",
         "description": "gestion_achats.models",
@@ -14878,6 +14935,14 @@
     },
     {
         "label": "GACReception",
+        "importPath": "gestion_achats.models",
+        "description": "gestion_achats.models",
+        "isExtraImport": true,
+        "detail": "gestion_achats.models",
+        "documentation": {}
+    },
+    {
+        "label": "GACBudget",
         "importPath": "gestion_achats.models",
         "description": "gestion_achats.models",
         "isExtraImport": true,
@@ -23069,7 +23134,7 @@
         "kind": 2,
         "importPath": "gestion_achats.views.bon_commande_views",
         "description": "gestion_achats.views.bon_commande_views",
-        "peekOfCode": "def bon_commande_detail(request, pk, bon_commande):\n    \"\"\"Détail d'un bon de commande.\"\"\"\n    return render(request, 'gestion_achats/bon_commande/bc_detail.html', {\n        'bc': bon_commande,\n        'lignes': bon_commande.lignes.all().order_by('ordre'),\n        'can_modify': GACPermissions.can_modify_bon_commande(request.user, bon_commande),\n        'can_emit': GACPermissions.can_emit_bon_commande(request.user, bon_commande),\n        'can_send': GACPermissions.can_send_bon_commande(request.user, bon_commande),\n        'can_confirm': GACPermissions.can_confirm_bon_commande(request.user, bon_commande),\n        'can_cancel': GACPermissions.can_cancel_bon_commande(request.user, bon_commande),",
+        "peekOfCode": "def bon_commande_detail(request, pk, bon_commande):\n    \"\"\"Détail d'un bon de commande.\"\"\"\n    # Vérifier si une réception peut être créée pour ce BC\n    can_create_reception = (\n        GACPermissions.can_create_reception(request.user) and\n        bon_commande.statut in ['CONFIRME', 'ENVOYE', 'RECU_PARTIEL']\n    )\n    return render(request, 'gestion_achats/bon_commande/bc_detail.html', {\n        'bc': bon_commande,\n        'lignes': bon_commande.lignes.all().order_by('ordre'),",
         "detail": "gestion_achats.views.bon_commande_views",
         "documentation": {}
     },
@@ -23097,6 +23162,15 @@
         "importPath": "gestion_achats.views.bon_commande_views",
         "description": "gestion_achats.views.bon_commande_views",
         "peekOfCode": "def bon_commande_send(request, pk, bon_commande):\n    \"\"\"Envoyer un BC au fournisseur.\"\"\"\n    require_permission(GACPermissions.can_send_bon_commande, request.user, bon_commande)\n    if request.method == 'POST':\n        form = BonCommandeEnvoiForm(request.POST)\n        if form.is_valid():\n            try:\n                BonCommandeService.envoyer_au_fournisseur(\n                    bon_commande,\n                    request.user.employe,",
+        "detail": "gestion_achats.views.bon_commande_views",
+        "documentation": {}
+    },
+    {
+        "label": "bon_commande_confirm",
+        "kind": 2,
+        "importPath": "gestion_achats.views.bon_commande_views",
+        "description": "gestion_achats.views.bon_commande_views",
+        "peekOfCode": "def bon_commande_confirm(request, pk, bon_commande):\n    \"\"\"Confirmer un bon de commande.\"\"\"\n    require_permission(GACPermissions.can_confirm_bon_commande, request.user, bon_commande)\n    if request.method == 'POST':\n        try:\n            # Récupérer les données du formulaire (optionnelles)\n            numero_confirmation = request.POST.get('numero_confirmation_fournisseur', '').strip() or None\n            date_livraison = request.POST.get('date_livraison_confirmee', '').strip() or None\n            BonCommandeService.confirmer_commande(\n                bon_commande,",
         "detail": "gestion_achats.views.bon_commande_views",
         "documentation": {}
     },
@@ -28030,6 +28104,15 @@
         "description": "scripts.verifier_conformite",
         "peekOfCode": "logger = logging.getLogger(__name__)\ndef send_email_notification(subject, body, recipient):\n    \"\"\"Envoie une notification par email (si configuré).\"\"\"\n    try:\n        # Utiliser la commande mail (Linux/macOS)\n        subprocess.run(\n            ['mail', '-s', subject, recipient],\n            input=body.encode(),\n            check=True\n        )",
         "detail": "scripts.verifier_conformite",
+        "documentation": {}
+    },
+    {
+        "label": "budgets",
+        "kind": 5,
+        "importPath": "debug_budget",
+        "description": "debug_budget",
+        "peekOfCode": "budgets = GACBudget.objects.filter(montant_initial=Decimal('550000.00'))\nfor budget in budgets:\n    print(f\"Budget: {budget.code} - {budget.libelle}\")\n    print(f\"Exercice: {budget.exercice}\")\n    print(f\"Montant initial: {budget.montant_initial} €\")\n    print(f\"Montant engagé: {budget.montant_engage} €\")\n    print(f\"Montant commandé: {budget.montant_commande} €\")\n    print(f\"Montant consommé: {budget.montant_consomme} €\")\n    # Calcul manuel\n    total_utilise = budget.montant_engage + budget.montant_commande + budget.montant_consomme",
+        "detail": "debug_budget",
         "documentation": {}
     },
     {

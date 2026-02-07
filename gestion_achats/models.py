@@ -1512,6 +1512,11 @@ class GACReception(models.Model):
         related_query_name='reception'
     )
 
+    @property
+    def id(self):
+        """Alias pour pk, nécessaire pour GenericRelation."""
+        return self.pk
+
     class Meta:
         verbose_name = "Réception"
         verbose_name_plural = "Réceptions"

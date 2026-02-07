@@ -55,9 +55,9 @@ class ReceptionService:
             WorkflowError: Si le BC ne peut pas être réceptionné
         """
         # Vérifier que le BC peut être réceptionné
-        if bon_commande.statut not in ['CONFIRME', 'RECU_PARTIEL']:
+        if bon_commande.statut not in ['ENVOYE', 'CONFIRME', 'RECU_PARTIEL']:
             raise WorkflowError(
-                "Seuls les BC confirmés ou partiellement reçus peuvent être réceptionnés"
+                "Seuls les BC envoyés, confirmés ou partiellement reçus peuvent être réceptionnés"
             )
 
         try:
@@ -70,22 +70,9 @@ class ReceptionService:
                 cree_par=receptionnaire
             )
 
-            # Copier les lignes du BC comme lignes de réception
-            # On crée une ligne de réception pour chaque ligne BC non totalement reçue
-            for ligne_bc in bon_commande.lignes.all():
-                # Calculer la quantité restante à recevoir
-                quantite_deja_recue = ligne_bc.quantite_recue or Decimal('0')
-                quantite_restante = ligne_bc.quantite_commandee - quantite_deja_recue
-
-                if quantite_restante > 0:
-                    GACLigneReception.objects.create(
-                        reception=reception,
-                        ligne_bon_commande=ligne_bc,
-                        quantite_recue=Decimal('0'),
-                        quantite_acceptee=Decimal('0'),
-                        quantite_refusee=Decimal('0'),
-                        conforme=True  # Par défaut conforme
-                    )
+            # Note: Les lignes de réception sont créées par la vue,
+            # pas automatiquement par le service, pour permettre
+            # la saisie des quantités réelles dès la création
 
             # Créer l'historique
             GACHistorique.enregistrer_action(

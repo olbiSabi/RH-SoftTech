@@ -448,6 +448,62 @@ class ReceptionForm(forms.ModelForm):
             }),
         }
 
+    def __init__(self, *args, **kwargs):
+        self.bon_commande = kwargs.pop('bon_commande', None)
+        super().__init__(*args, **kwargs)
+
+        # Si un bon de commande est fourni, créer des champs dynamiques pour chaque ligne
+        if self.bon_commande:
+            for ligne_bc in self.bon_commande.lignes.all():
+                # Champ pour la quantité reçue
+                self.fields[f'quantite_recue_{ligne_bc.uuid}'] = forms.DecimalField(
+                    label=f'Quantité reçue',
+                    required=False,
+                    initial=0,
+                    min_value=0,
+                    widget=forms.NumberInput(attrs={
+                        'class': 'form-control',
+                        'min': '0',
+                        'step': '0.01',
+                    })
+                )
+
+                # Champ pour la quantité acceptée
+                self.fields[f'quantite_acceptee_{ligne_bc.uuid}'] = forms.DecimalField(
+                    label=f'Quantité acceptée',
+                    required=False,
+                    initial=0,
+                    min_value=0,
+                    widget=forms.NumberInput(attrs={
+                        'class': 'form-control',
+                        'min': '0',
+                        'step': '0.01',
+                    })
+                )
+
+                # Champ pour la quantité refusée
+                self.fields[f'quantite_refusee_{ligne_bc.uuid}'] = forms.DecimalField(
+                    label=f'Quantité refusée',
+                    required=False,
+                    initial=0,
+                    min_value=0,
+                    widget=forms.NumberInput(attrs={
+                        'class': 'form-control',
+                        'min': '0',
+                        'step': '0.01',
+                    })
+                )
+
+                # Champ pour le motif de refus
+                self.fields[f'motif_refus_{ligne_bc.uuid}'] = forms.CharField(
+                    label=f'Motif de refus',
+                    required=False,
+                    widget=forms.Textarea(attrs={
+                        'class': 'form-control',
+                        'rows': 2,
+                    })
+                )
+
 
 class LigneReceptionForm(forms.ModelForm):
     """Formulaire pour enregistrer une ligne de réception."""

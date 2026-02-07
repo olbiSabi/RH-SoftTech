@@ -2,6 +2,7 @@
 Vues pour la gestion des réceptions de marchandises.
 """
 
+from decimal import Decimal
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -65,11 +66,28 @@ def reception_list(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    # Calculer les statistiques (sur toutes les réceptions, pas juste la page filtrée)
+    from django.utils import timezone
+    from django.db.models import Count
+
+    all_receptions = GACReception.objects.all()
+
+    stats = {
+        'total': all_receptions.count(),
+        'brouillon': all_receptions.filter(statut='BROUILLON').count(),
+        'validees': all_receptions.filter(statut='VALIDEE').count(),
+        'ce_mois': all_receptions.filter(
+            date_creation__year=timezone.now().year,
+            date_creation__month=timezone.now().month
+        ).count(),
+    }
+
     context = {
         'page_obj': page_obj,
         'statut_filter': statut,
         'bc_numero': bc_numero,
         'search': search,
+        'stats': stats,
     }
 
     return render(request, 'gestion_achats/reception/reception_list.html', context)
@@ -103,11 +121,12 @@ def reception_create(request, bc_pk):
                 )
 
                 # Traiter les lignes de réception
+                # Note: Les champs sont soumis avec le format ligne_{id}_qte_recue depuis le template
                 for ligne_bc in bon_commande.lignes.all():
-                    quantite_recue = form.cleaned_data.get(f'quantite_recue_{ligne_bc.uuid}', 0)
-                    quantite_acceptee = form.cleaned_data.get(f'quantite_acceptee_{ligne_bc.uuid}', 0)
-                    quantite_refusee = form.cleaned_data.get(f'quantite_refusee_{ligne_bc.uuid}', 0)
-                    motif_refus = form.cleaned_data.get(f'motif_refus_{ligne_bc.uuid}', '')
+                    quantite_recue = Decimal(request.POST.get(f'ligne_{ligne_bc.id}_qte_recue', 0) or 0)
+                    quantite_acceptee = Decimal(request.POST.get(f'ligne_{ligne_bc.id}_qte_acceptee', 0) or 0)
+                    quantite_refusee = Decimal(request.POST.get(f'ligne_{ligne_bc.id}_qte_refusee', 0) or 0)
+                    motif_refus = request.POST.get(f'ligne_{ligne_bc.id}_motif_refus', '').strip()
 
                     if quantite_recue > 0:
                         ligne_reception = GACLigneReception.objects.create(
@@ -165,7 +184,7 @@ def reception_detail(request, pk):
         'lignes': lignes,
         'bon_commande': reception.bon_commande,
         'can_validate': GACPermissions.can_validate_reception(request.user, reception),
-        'can_cancel': GACPermissions.can_cancel_reception(request.user, reception),
+        'can_cancel': GACPermissions.can_cancel_reception(request.user),
     }
 
     return render(request, 'gestion_achats/reception/reception_detail.html', context)

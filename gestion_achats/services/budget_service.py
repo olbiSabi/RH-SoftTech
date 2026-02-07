@@ -436,8 +436,53 @@ class BudgetService:
             if total_initial > 0 else 0
         )
 
+        # Calcul des pourcentages individuels
+        pct_engage = (total_engage / total_initial * 100) if total_initial > 0 else 0
+        pct_commande = (total_commande / total_initial * 100) if total_initial > 0 else 0
+        pct_consomme = (total_consomme / total_initial * 100) if total_initial > 0 else 0
+        pct_disponible = (total_disponible / total_initial * 100) if total_initial > 0 else 0
+
         # Budgets en alerte
         budgets_en_alerte = BudgetService.get_budgets_en_alerte()
+
+        # Agrégation par département
+        par_departement = []
+        from gestion_achats.models import ZDDE  # Import du modèle de département
+        
+        departements = ZDDE.objects.filter(
+            id__in=queryset.values_list('departement_id', flat=True)
+        ).distinct()
+        
+        for dept in departements:
+            budgets_dept = queryset.filter(departement=dept)
+            
+            if budgets_dept.exists():
+                totaux_dept = budgets_dept.aggregate(
+                    montant_initial=Sum('montant_initial'),
+                    montant_engage=Sum('montant_engage'),
+                    montant_commande=Sum('montant_commande'),
+                    montant_consomme=Sum('montant_consomme')
+                )
+                
+                initial_dept = totaux_dept['montant_initial'] or Decimal('0')
+                engage_dept = totaux_dept['montant_engage'] or Decimal('0')
+                commande_dept = totaux_dept['montant_commande'] or Decimal('0')
+                consomme_dept = totaux_dept['montant_consomme'] or Decimal('0')
+                disponible_dept = initial_dept - engage_dept - commande_dept - consomme_dept
+                
+                total_utilise_dept = engage_dept + commande_dept + consomme_dept
+                taux_dept = (total_utilise_dept / initial_dept * 100) if initial_dept > 0 else 0
+                
+                par_departement.append({
+                    'nom': dept.LIBELLE or dept.CODE,
+                    'nb_budgets': budgets_dept.count(),
+                    'montant_initial': initial_dept,
+                    'montant_engage': engage_dept,
+                    'montant_commande': commande_dept,
+                    'montant_consomme': consomme_dept,
+                    'montant_disponible': disponible_dept,
+                    'taux': round(taux_dept, 1)
+                })
 
         return {
             'total_initial': total_initial,
@@ -446,8 +491,13 @@ class BudgetService:
             'total_consomme': total_consomme,
             'total_disponible': total_disponible,
             'taux_consommation_global': round(taux_consommation_global, 2),
+            'pct_engage': round(pct_engage, 1),
+            'pct_commande': round(pct_commande, 1),
+            'pct_consomme': round(pct_consomme, 1),
+            'pct_disponible': round(pct_disponible, 1),
             'nombre_budgets': queryset.count(),
             'budgets_en_alerte': budgets_en_alerte,
+            'par_departement': par_departement,
         }
 
     @staticmethod

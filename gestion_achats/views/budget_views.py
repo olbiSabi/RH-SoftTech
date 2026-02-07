@@ -6,11 +6,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Count, Sum, F
 from django.http import JsonResponse
 from django.utils import timezone
 
-from gestion_achats.models import GACBudget
+from gestion_achats.models import GACBudget, ZDDE
 from gestion_achats.forms import BudgetForm
 from gestion_achats.services.budget_service import BudgetService
 from gestion_achats.permissions import GACPermissions, require_permission
@@ -62,14 +62,44 @@ def budget_list(request):
     for budget in budgets:
         budget.montant_disponible_calc = budget.montant_disponible()
         budget.taux_consommation_calc = budget.taux_consommation()
-
     # Pagination
     paginator = Paginator(budgets, 25)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    # Récupérer les données pour les filtres
+    from decimal import Decimal
+    
+    exercices = list(GACBudget.objects.values_list('exercice', flat=True).distinct().order_by('-exercice'))
+    departements = ZDDE.objects.values('id', 'LIBELLE').order_by('LIBELLE')
+
     # Récupérer les budgets en alerte
     budgets_en_alerte = BudgetService.get_budgets_en_alerte() if not exercice else []
+
+    # Calcul des statistiques
+    stats_budgets = GACBudget.objects.all()
+    if exercice:
+        stats_budgets = stats_budgets.filter(exercice=exercice)
+    
+    # Statistiques globales
+    stats = stats_budgets.aggregate(
+        total=Count('id'),
+        montant_total=Sum('montant_initial'),
+        en_alerte=Count('id', filter=Q(montant_engage__gte=F('montant_initial')))
+    )
+    
+    # Calcul du taux moyen de consommation
+    taux_moyen = 0
+    if stats['montant_total']:
+        total_utilise_agg = stats_budgets.aggregate(
+            total_engage=Sum('montant_engage'),
+            total_commande=Sum('montant_commande'),
+            total_consomme=Sum('montant_consomme')
+        )
+        total_utilise = (total_utilise_agg['total_engage'] or 0) + \
+                       (total_utilise_agg['total_commande'] or 0) + \
+                       (total_utilise_agg['total_consomme'] or 0)
+        taux_moyen = (total_utilise / stats['montant_total'] * 100) if stats['montant_total'] > 0 else 0
 
     context = {
         'page_obj': page_obj,
@@ -78,6 +108,14 @@ def budget_list(request):
         'gestionnaire_filter': gestionnaire,
         'search': search,
         'budgets_en_alerte': budgets_en_alerte,
+        'exercices': exercices,
+        'departements': departements,
+        'stats': {
+            'total': stats['total'] or 0,
+            'montant_total': stats['montant_total'] or Decimal('0'),
+            'en_alerte': stats['en_alerte'] or 0,
+            'taux_moyen': taux_moyen,
+        }
     }
 
     return render(request, 'gestion_achats/budget/budget_list.html', context)
@@ -237,12 +275,27 @@ def synthese_budgets(request):
     try:
         exercice = int(exercice)
         synthese = BudgetService.get_synthese_budgets(exercice)
+        
+        # Récupérer la liste des exercices disponibles
+        from gestion_achats.models import GACBudget
+        exercices_disponibles = GACBudget.objects.values_list('exercice', flat=True).distinct().order_by('-exercice')
+        
+        # Ajouter l'année courante si pas dans la liste
+        annee_courante = timezone.now().year
+        if annee_courante not in exercices_disponibles:
+            exercices_disponibles = list(exercices_disponibles) + [annee_courante]
+        
+        # Trier par ordre décroissant
+        exercices_disponibles = sorted(exercices_disponibles, reverse=True)
+        
     except Exception as e:
         messages.error(request, f'Erreur: {str(e)}')
         synthese = {}
+        exercices_disponibles = [timezone.now().year]
 
     context = {
         'exercice': exercice,
+        'exercices': exercices_disponibles,
         'synthese': synthese,
     }
 

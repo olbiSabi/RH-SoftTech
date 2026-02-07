@@ -56,6 +56,7 @@ urlpatterns = [
     path('bons-commande/create-from-demande/<uuid:demande_pk>/', bon_commande_views.bon_commande_create_from_demande, name='bon_commande_create_from_demande'),
     path('bons-commande/<uuid:pk>/emit/', bon_commande_views.bon_commande_emit, name='bon_commande_emit'),
     path('bons-commande/<uuid:pk>/send/', bon_commande_views.bon_commande_send, name='bon_commande_send'),
+    path('bons-commande/<uuid:pk>/confirm/', bon_commande_views.bon_commande_confirm, name='bon_commande_confirm'),
     path('bons-commande/<uuid:pk>/pdf/', bon_commande_views.bon_commande_pdf, name='bon_commande_pdf'),
 
     # Lignes de bons de commande

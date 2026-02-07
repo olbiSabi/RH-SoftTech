@@ -118,6 +118,81 @@
                     </div>
                 {% endif %}
 
+                <h5 class="mt-4">Vérification des rôles GAC spécifiques</h5>
+                {% if info.roles_gac %}
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Rôle</th>
+                            <th>Statut</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>ADMIN_GAC</strong></td>
+                            <td>
+                                {% if info.roles_gac.ADMIN_GAC %}
+                                    <span class="badge bg-success">Actif</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactif</span>
+                                {% endif %}
+                            </td>
+                            <td>Accès complet au module GAC</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ACHETEUR</strong></td>
+                            <td>
+                                {% if info.roles_gac.ACHETEUR %}
+                                    <span class="badge bg-success">Actif</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactif</span>
+                                {% endif %}
+                            </td>
+                            <td>Peut créer des BCs et des réceptions</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RECEPTIONNAIRE</strong></td>
+                            <td>
+                                {% if info.roles_gac.RECEPTIONNAIRE %}
+                                    <span class="badge bg-success">Actif</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactif</span>
+                                {% endif %}
+                            </td>
+                            <td>Peut créer et valider des réceptions</td>
+                        </tr>
+                        <tr>
+                            <td><strong>VALIDATEUR_N1</strong></td>
+                            <td>
+                                {% if info.roles_gac.VALIDATEUR_N1 %}
+                                    <span class="badge bg-success">Actif</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactif</span>
+                                {% endif %}
+                            </td>
+                            <td>Validation niveau 1 des demandes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>VALIDATEUR_N2</strong></td>
+                            <td>
+                                {% if info.roles_gac.VALIDATEUR_N2 %}
+                                    <span class="badge bg-success">Actif</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactif</span>
+                                {% endif %}
+                            </td>
+                            <td>Validation niveau 2 des demandes</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Pour créer des réceptions:</strong> Vous devez avoir au moins un de ces rôles: ADMIN_GAC, ACHETEUR ou RECEPTIONNAIRE
+                </div>
+                {% endif %}
+
                 {% if info.roles_error %}
                     <div class="alert alert-danger mt-3">
                         <strong>Erreur lors de la récupération des rôles:</strong> {{ info.roles_error }}

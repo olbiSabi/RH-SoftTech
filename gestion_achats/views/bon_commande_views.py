@@ -60,6 +60,12 @@ def bon_commande_liste(request):
 @require_bon_commande_access
 def bon_commande_detail(request, pk, bon_commande):
     """Détail d'un bon de commande."""
+    # Vérifier si une réception peut être créée pour ce BC
+    can_create_reception = (
+        GACPermissions.can_create_reception(request.user) and
+        bon_commande.statut in ['CONFIRME', 'ENVOYE', 'RECU_PARTIEL']
+    )
+
     return render(request, 'gestion_achats/bon_commande/bc_detail.html', {
         'bc': bon_commande,
         'lignes': bon_commande.lignes.all().order_by('ordre'),
@@ -68,6 +74,7 @@ def bon_commande_detail(request, pk, bon_commande):
         'can_send': GACPermissions.can_send_bon_commande(request.user, bon_commande),
         'can_confirm': GACPermissions.can_confirm_bon_commande(request.user, bon_commande),
         'can_cancel': GACPermissions.can_cancel_bon_commande(request.user, bon_commande),
+        'can_create_reception': can_create_reception,
     })
 
 
@@ -151,6 +158,35 @@ def bon_commande_send(request, pk, bon_commande):
         'form': form,
         'bc': bon_commande,
     })
+
+
+@login_required
+@require_bon_commande_access
+def bon_commande_confirm(request, pk, bon_commande):
+    """Confirmer un bon de commande."""
+    require_permission(GACPermissions.can_confirm_bon_commande, request.user, bon_commande)
+
+    if request.method == 'POST':
+        try:
+            # Récupérer les données du formulaire (optionnelles)
+            numero_confirmation = request.POST.get('numero_confirmation_fournisseur', '').strip() or None
+            date_livraison = request.POST.get('date_livraison_confirmee', '').strip() or None
+
+            BonCommandeService.confirmer_commande(
+                bon_commande,
+                request.user.employe,
+                numero_confirmation_fournisseur=numero_confirmation,
+                date_livraison_confirmee=date_livraison
+            )
+            messages.success(request, f'BC {bon_commande.numero} confirmé.')
+            return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)
+        except Exception as e:
+            messages.error(request, f'Erreur: {str(e)}')
+            return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)
+
+    # Si ce n'est pas une requête POST, rediriger vers la page de détail
+    # (la confirmation se fait maintenant via le modal dans bc_detail.html)
+    return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)
 
 
 @login_required

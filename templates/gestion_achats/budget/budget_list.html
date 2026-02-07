@@ -54,7 +54,7 @@
                         <option value="">Tous</option>
                         {% for dept in departements %}
                         <option value="{{ dept.id }}" {% if request.GET.departement == dept.id|stringformat:"s" %}selected{% endif %}>
-                            {{ dept.nom }}
+                            {{ dept.LIBELLE }}
                         </option>
                         {% endfor %}
                     </select>
@@ -91,7 +91,7 @@
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-hover table-gac">
                     <thead class="table-light">
                         <tr>
                             <th>Code</th>

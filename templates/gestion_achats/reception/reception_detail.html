@@ -29,9 +29,9 @@
             <a href="{% url 'gestion_achats:reception_update' reception.uuid %}" class="btn btn-warning">
                 <i class="fas fa-edit me-2"></i>Modifier
             </a>
-            <a href="{% url 'gestion_achats:reception_valider' reception.uuid %}" class="btn btn-success">
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#validateReceptionModal">
                 <i class="fas fa-check me-2"></i>Valider
-            </a>
+            </button>
             {% endif %}
         </div>
     </div>
@@ -121,7 +121,7 @@
                 <div class="card-body">
                     {% if reception.lignes.all %}
                     <div class="table-responsive">
-                        <table class="table table-sm table-hover">
+                        <table class="table table-sm table-hover table-gac">
                             <thead class="table-light">
                                 <tr>
                                     <th>Article</th>
@@ -194,7 +194,7 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-sm">
+                        <table class="table table-sm table-gac">
                             <thead class="table-light">
                                 <tr>
                                     <th>Article</th>
@@ -273,9 +273,9 @@
                 <div class="card-body">
                     <p>Cette réception est encore en brouillon.</p>
                     {% if is_admin %}
-                    <a href="{% url 'gestion_achats:reception_valider' reception.uuid %}" class="btn btn-success w-100">
+                    <button type="button" class="btn btn-success w-100" data-toggle="modal" data-target="#validateReceptionModal">
                         <i class="fas fa-check me-2"></i>Valider la réception
-                    </a>
+                    </button>
                     {% endif %}
                 </div>
             </div>
@@ -305,6 +305,54 @@
             {% if historique %}
             {% include 'gestion_achats/includes/historique.html' %}
             {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal de validation de la réception -->
+<div class="modal fade" id="validateReceptionModal" tabindex="-1" aria-labelledby="validateReceptionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="validateReceptionModalLabel">
+                    <i class="fas fa-check-circle me-2"></i>Valider la réception
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{% url 'gestion_achats:reception_validate' reception.uuid %}" id="validateReceptionForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Attention !</strong> La validation de cette réception est irréversible.
+                    </div>
+
+                    <p>Êtes-vous sûr de vouloir valider cette réception ?</p>
+
+                    <h6 class="mt-3">Réception concernée :</h6>
+                    <ul class="list-unstyled mb-0">
+                        <li><strong>Numéro :</strong> {{ reception.numero }}</li>
+                        <li><strong>Bon de commande :</strong> {{ bon_commande.numero }}</li>
+                        <li><strong>Date de réception :</strong> {{ reception.date_reception|date:"d/m/Y" }}</li>
+                        <li><strong>Nombre de lignes :</strong> {{ lignes|length }}</li>
+                    </ul>
+
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Une fois validée, les quantités reçues seront mises à jour dans le bon de commande.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Annuler
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check me-2"></i>Confirmer la validation
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

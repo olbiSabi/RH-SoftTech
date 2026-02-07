@@ -46,6 +46,15 @@ def debug_user_info(request):
                 except Exception as e:
                     info['roles_error'] = str(e)
 
+            # Vérifier les rôles GAC spécifiques
+            info['roles_gac'] = {
+                'ADMIN_GAC': employe.has_role('ADMIN_GAC'),
+                'ACHETEUR': employe.has_role('ACHETEUR'),
+                'RECEPTIONNAIRE': employe.has_role('RECEPTIONNAIRE'),
+                'VALIDATEUR_N1': employe.has_role('VALIDATEUR_N1'),
+                'VALIDATEUR_N2': employe.has_role('VALIDATEUR_N2'),
+            }
+
         except Exception as e:
             info['employe'] = None
             info['employe_error'] = str(e)

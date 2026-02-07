@@ -148,6 +148,18 @@
                 </a>
                 {% endif %}
 
+                {% if can_confirm %}
+                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmBCModal">
+                    <i class="fas fa-check-circle me-2"></i>Confirmer
+                </button>
+                {% endif %}
+
+                {% if can_create_reception %}
+                <a href="{% url 'gestion_achats:reception_create' bc_pk=bc.uuid %}" class="btn btn-info">
+                    <i class="fas fa-truck-loading me-2"></i>Créer une réception
+                </a>
+                {% endif %}
+
                 {% if bc.fichier_pdf %}
                 <a href="{% url 'gestion_achats:bon_commande_pdf' bc.uuid %}" class="btn btn-outline-danger" target="_blank">
                     <i class="fas fa-file-pdf me-2"></i>Télécharger PDF
@@ -196,6 +208,74 @@
                     </button>
                     <button type="submit" class="btn btn-success">
                         <i class="fas fa-check me-2"></i>Confirmer l'émission
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation du BC (par le fournisseur) -->
+<div class="modal fade" id="confirmBCModal" tabindex="-1" aria-labelledby="confirmBCModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="confirmBCModalLabel">
+                    <i class="fas fa-check-circle me-2"></i>Confirmer le bon de commande
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{% url 'gestion_achats:bon_commande_confirm' bc.uuid %}" id="confirmBCForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Enregistrer la confirmation du fournisseur pour ce bon de commande.
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="numero_confirmation_fournisseur" class="form-label">
+                            N° de confirmation fournisseur
+                        </label>
+                        <input type="text"
+                               class="form-control"
+                               id="numero_confirmation_fournisseur"
+                               name="numero_confirmation_fournisseur"
+                               placeholder="Numéro de confirmation du fournisseur">
+                        <small class="form-text text-muted">Optionnel</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="date_livraison_confirmee" class="form-label">
+                            Date de livraison confirmée
+                        </label>
+                        <input type="date"
+                               class="form-control"
+                               id="date_livraison_confirmee"
+                               name="date_livraison_confirmee">
+                        <small class="form-text text-muted">
+                            Optionnel.
+                            {% if bc.date_livraison_souhaitee %}
+                            Date souhaitée: {{ bc.date_livraison_souhaitee|date:"d/m/Y" }}
+                            {% endif %}
+                        </small>
+                    </div>
+
+                    <h6 class="mt-3">Bon de commande :</h6>
+                    <ul class="list-unstyled mb-0">
+                        <li><strong>Numéro :</strong> {{ bc.numero }}</li>
+                        <li><strong>Fournisseur :</strong> {{ bc.fournisseur.raison_sociale }}</li>
+                        <li><strong>Montant TTC :</strong> {{ bc.montant_total_ttc|floatformat:2 }} €</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Annuler
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check me-2"></i>Confirmer
                     </button>
                 </div>
             </form>
