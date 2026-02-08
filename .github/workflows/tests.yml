@@ -1,0 +1,59 @@
+name: Tests CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: hrapp
+          POSTGRES_USER: hr
+          POSTGRES_PASSWORD: "12345"
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DJANGO_SETTINGS_MODULE: HR_ONIAN.settings
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate migrations
+        run: python manage.py makemigrations --noinput
+
+      - name: Apply migrations
+        run: python manage.py migrate --noinput
+
+      - name: Run tests
+        run: |
+          python manage.py test \
+            absence.tests.test_forms \
+            absence.tests.test_views \
+            frais.test_forms \
+            frais.test_views \
+            gestion_achats.tests.test_views \
+            materiel.test_forms \
+            --verbosity=2

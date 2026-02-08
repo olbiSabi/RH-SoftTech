@@ -398,8 +398,17 @@ def liste_regles(request):
         nb_alertes=Count('alertes', filter=Q(alertes__STATUT__in=['NOUVEAU', 'EN_COURS']))
     )
 
+    # Statistiques pour les info-boxes
+    stats = {
+        'actives': regles.filter(STATUT=True).count(),
+        'inactives': regles.filter(STATUT=False).count(),
+        'total_alertes': AUAL.objects.filter(STATUT__in=['NOUVEAU', 'EN_COURS']).count(),
+        'critiques': regles.filter(SEVERITE='CRITICAL', STATUT=True).count(),
+    }
+
     context = {
         'regles': regles,
+        'stats': stats,
     }
 
     return render(request, 'audit/liste_regles.html', context)

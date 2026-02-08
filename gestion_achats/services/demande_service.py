@@ -194,7 +194,7 @@ class DemandeService:
                 admin_gac_users = ZY00.objects.filter(
                     roles_attribues__role__CODE='ADMIN_GAC',
                     roles_attribues__actif=True
-                ).exclude(id=demande.demandeur.id).first()
+                ).exclude(uuid=demande.demandeur.uuid).first()
                 
                 if admin_gac_users:
                     demande.validateur_n1 = admin_gac_users

@@ -39,10 +39,9 @@ class HistoriqueService:
                 object_id=objet.pk,
                 utilisateur=utilisateur,
                 action=action,
-                description=details,
-                ancien_statut=ancien_statut,
-                nouveau_statut=nouveau_statut,
-                date_action=timezone.now()
+                details=details,
+                ancien_statut=ancien_statut or '',
+                nouveau_statut=nouveau_statut or '',
             )
 
             logger.debug(
@@ -120,6 +119,34 @@ class HistoriqueService:
             queryset = queryset[:limit]
 
         return queryset
+
+    @staticmethod
+    def enregistrer_action(objet, action, description, utilisateur=None, ancien_statut=None, nouveau_statut=None):
+        """
+        Enregistre une action dans l'historique (wrapper de ajouter_entree).
+
+        Cette méthode est un alias de ajouter_entree avec une signature
+        plus intuitive pour les appels depuis les signals.
+
+        Args:
+            objet: L'objet concerné (GenericForeignKey)
+            action: Code de l'action (CREATION, MODIFICATION, VALIDATION, etc.)
+            description: Description textuelle
+            utilisateur: L'utilisateur auteur (optionnel)
+            ancien_statut: Ancien statut (optionnel)
+            nouveau_statut: Nouveau statut (optionnel)
+
+        Returns:
+            GACHistorique: L'entrée d'historique créée
+        """
+        return HistoriqueService.ajouter_entree(
+            objet=objet,
+            utilisateur=utilisateur,
+            action=action,
+            details=description,
+            ancien_statut=ancien_statut,
+            nouveau_statut=nouveau_statut
+        )
 
     @staticmethod
     def get_statistiques_actions(date_debut=None, date_fin=None):

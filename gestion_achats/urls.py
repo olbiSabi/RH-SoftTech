@@ -13,10 +13,6 @@ from gestion_achats.views import (
     catalogue_views,
     budget_views,
     parametres_views,
-    debug_views,
-    diagnostic_validateurs,
-    test_permissions,
-    alt_submit,
     simple_submit,
 )
 
@@ -137,11 +133,4 @@ urlpatterns = [
     # ========================================
     path('parametres/', parametres_views.parametres_gac, name='parametres_gac'),
 
-    # ========================================
-    # DEBUG (À SUPPRIMER EN PRODUCTION)
-    # ========================================
-    path('debug/user-info/', debug_views.debug_user_info, name='debug_user_info'),
-    path('debug/validateurs/', diagnostic_validateurs.diagnostic_validateurs, name='diagnostic_validateurs'),
-    path('debug/test-permissions/<uuid:pk>/', test_permissions.test_submit_permission, name='test_submit_permission'),
-    path('debug/alt-submit/<uuid:pk>/', alt_submit.alt_demande_submit, name='alt_demande_submit'),
 ]

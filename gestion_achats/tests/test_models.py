@@ -20,8 +20,41 @@ from gestion_achats.models import (
     GACReception,
     GACLigneReception,
 )
+from datetime import date
+from django.contrib.auth.models import User
 from employee.models import ZY00
 from departement.models import ZDDE
+from entreprise.models import Entreprise
+
+
+def create_test_entreprise(code='TST'):
+    """Crée une entreprise de test."""
+    return Entreprise.objects.create(
+        code=code,
+        nom=f'Entreprise Test {code}',
+        raison_sociale=f'Test {code} SARL',
+        numero_impot=f'{code}123456',
+        rccm=f'RCCM-{code}',
+        adresse='123 Test Avenue',
+        ville='Lomé',
+        pays='Togo'
+    )
+
+
+def create_test_employee(nom, prenoms, numero_id, entreprise):
+    """Crée un employé de test avec tous les champs requis."""
+    return ZY00.objects.create(
+        nom=nom,
+        prenoms=prenoms,
+        date_naissance=date(1985, 1, 1),
+        sexe='M',
+        type_id='CNI',
+        numero_id=numero_id,
+        date_validite_id=date(2020, 1, 1),
+        date_expiration_id=date(2030, 1, 1),
+        entreprise=entreprise,
+        etat='actif'
+    )
 
 
 class GACFournisseurModelTest(TestCase):
@@ -133,13 +166,9 @@ class GACBudgetModelTest(TestCase):
 
     def setUp(self):
         """Prépare les données de test."""
-        # Créer un employé de test
-        self.employe = ZY00.objects.create(
-            MATRICULE='TEST001',
-            NOM='Test',
-            PRENOM='User',
-            EMAIL='test@example.com'
-        )
+        # Créer entreprise et employé de test
+        self.entreprise = create_test_entreprise('BD1')
+        self.employe = create_test_employee('Test', 'User', 'TEST001', self.entreprise)
 
         # Créer un budget
         today = timezone.now().date()
@@ -195,13 +224,9 @@ class GACDemandeAchatModelTest(TestCase):
 
     def setUp(self):
         """Prépare les données de test."""
-        # Créer un employé
-        self.employe = ZY00.objects.create(
-            MATRICULE='TEST002',
-            NOM='Demandeur',
-            PRENOM='Test',
-            EMAIL='demandeur@example.com'
-        )
+        # Créer entreprise et employé
+        self.entreprise = create_test_entreprise('DA1')
+        self.employe = create_test_employee('Demandeur', 'Test', 'TEST002', self.entreprise)
 
         # Créer une demande
         self.demande = GACDemandeAchat.objects.create(
@@ -240,12 +265,9 @@ class GACLigneDemandeAchatModelTest(TestCase):
 
     def setUp(self):
         """Prépare les données de test."""
-        # Créer employé, catégorie, article, demande
-        self.employe = ZY00.objects.create(
-            MATRICULE='TEST003',
-            NOM='Test',
-            PRENOM='User'
-        )
+        # Créer entreprise et employé, catégorie, article, demande
+        self.entreprise = create_test_entreprise('LD1')
+        self.employe = create_test_employee('Test', 'User', 'TEST003', self.entreprise)
 
         self.categorie = GACCategorie.objects.create(
             code='CAT_TEST',
@@ -297,11 +319,8 @@ class GACBonCommandeModelTest(TestCase):
 
     def setUp(self):
         """Prépare les données de test."""
-        self.employe = ZY00.objects.create(
-            MATRICULE='TEST004',
-            NOM='Acheteur',
-            PRENOM='Test'
-        )
+        self.entreprise = create_test_entreprise('BC1')
+        self.employe = create_test_employee('Acheteur', 'Test', 'TEST004', self.entreprise)
 
         self.fournisseur = GACFournisseur.objects.create(
             code='FRN_TEST',

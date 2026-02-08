@@ -297,7 +297,7 @@ def _get_description_nfnf(instance, created):
 def _get_description_nflf(instance, created):
     """Ligne de frais"""
     action = "Ajout" if created else "Modification"
-    return f"{action} ligne de frais {instance.CATEGORIE.LIBELLE} - {instance.MONTANT}€ sur {instance.NOTE.REFERENCE}"
+    return f"{action} ligne de frais {instance.CATEGORIE.LIBELLE} - {instance.MONTANT}€ sur {instance.NOTE_FRAIS.REFERENCE}"
 
 
 def _get_description_nfav(instance, created):

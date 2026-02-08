@@ -886,7 +886,10 @@ class Absence(models.Model):
                 if self.periode and self.periode != 'JOURNEE_COMPLETE':
                     self.periode = 'JOURNEE_COMPLETE'
 
-        # ✅ 1. Vérifier les dates
+        # ✅ 1. Vérifier les dates et le type d'absence
+        if not self.date_debut or not self.date_fin or not self.type_absence_id:
+            return
+
         if self.date_fin < self.date_debut:
             raise ValidationError({
                 'date_fin': "La date de fin ne peut pas être antérieure à la date de début"
