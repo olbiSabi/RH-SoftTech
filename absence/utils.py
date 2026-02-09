@@ -14,53 +14,48 @@ logger = logging.getLogger(__name__)
 
 def calculer_jours_acquis_au(employe, annee_reference, date_reference):
     """
-    Calcule les jours acquis jusqu'à une date donnée
+    Calcule les jours acquis jusqu'à une date donnée.
+
+    Règle de calcul :
+    - Date de début = date_debut du contrat actif (ZYCO, actif=True)
+    - Jours = date_reference - date_debut_contrat
+    - Chaque tranche de 30 jours = jours_acquis_par_mois (ex: 2.5)
+    - Reste >= 15 jours → +0.5 jours acquis
+
+    Args:
+        employe: Instance de l'employé (ZY00)
+        annee_reference: Année de référence
+        date_reference: Date jusqu'à laquelle calculer
+
+    Returns:
+        dict: Résultat du calcul avec détails
     """
-    logger.info("=" * 80)
-    logger.info("🔍 DÉBUT CALCUL - %s", employe)
-    logger.info("=" * 80)
-    logger.info("📅 Année référence: %s", annee_reference)
-    logger.info("📅 Date référence: %s", date_reference.strftime('%d/%m/%Y'))
+    logger.info("Calcul acquisition pour %s - Année %s - Date %s",
+                employe, annee_reference, date_reference)
 
     # 1. Récupérer la convention
     convention = employe.convention_applicable
     if not convention:
-        logger.error("❌ Aucune convention pour %s", employe)
         raise ValueError(f"Aucune convention applicable pour {employe}")
-
-    logger.info("✅ Convention: %s", convention.nom)
-    logger.info("   - Code: %s", convention.code)
-    logger.info("   - Jours/mois: %s", convention.jours_acquis_par_mois)
 
     # 2. Récupérer les paramètres
     try:
         parametres = convention.parametres_calcul
-    except Exception as e:
-        logger.warning("⚠️  Paramètres manquants, création par défaut")
+    except Exception:
         from absence.models import ParametreCalculConges
         parametres = ParametreCalculConges.objects.create(
             configuration=convention
         )
 
-    logger.info("📋 Paramètres calcul:")
-    logger.info("   - Mois minimum: %s", parametres.mois_acquisition_min)
-    logger.info("   - Plafond annuel: %s jours", parametres.plafond_jours_an)
-    logger.info("   - Temps partiel pris en compte: %s", parametres.prise_compte_temps_partiel)
-
-    # 3. Calculer les mois travaillés jusqu'à date_reference
-    logger.info("🧮 Calcul des mois travaillés...")
-    mois_travailles = calculer_mois_travailles_jusquau(
+    # 3. Calculer les mois travaillés et jours restants
+    mois_travailles, jours_restants = calculer_mois_travailles_jusquau(
         employe,
         annee_reference,
         date_reference
     )
 
-    logger.info("📊 Mois travaillés: %s", mois_travailles)
-
     # 4. Vérifier le minimum requis
     if mois_travailles < parametres.mois_acquisition_min:
-        logger.warning("⚠️  CONDITION NON REMPLIE: %s mois < %s mois minimum requis",
-                       mois_travailles, parametres.mois_acquisition_min)
         return {
             'jours_acquis': Decimal('0.00'),
             'mois_travailles': mois_travailles,
@@ -74,41 +69,34 @@ def calculer_jours_acquis_au(employe, annee_reference, date_reference):
             }
         }
 
-    # 5. Calcul de base
+    # 5. Calcul de base : mois_complets × jours_par_mois
     jours_base = convention.jours_acquis_par_mois * mois_travailles
-    logger.info("💰 Jours base: %s × %s = %s",
-                convention.jours_acquis_par_mois, mois_travailles, jours_base)
+
+    # 6. Bonus fraction : reste >= 15 jours → +0.5 jours acquis
+    if jours_restants >= 15:
+        jours_base += Decimal('0.50')
 
     plafond_applique = False
 
-    # 6. Appliquer le plafond
+    # 7. Appliquer le plafond
     if jours_base > parametres.plafond_jours_an:
-        logger.info("🔒 Plafond appliqué: %s → %s", jours_base, parametres.plafond_jours_an)
         jours_base = Decimal(str(parametres.plafond_jours_an))
         plafond_applique = True
 
-    # 7. Ajouter l'ancienneté
+    # 8. Ajouter l'ancienneté
     jours_anciennete = calculer_jours_anciennete(employe, parametres)
-    logger.info("🎖️  Jours ancienneté: %s (ancienneté: %s ans)",
-                jours_anciennete, employe.anciennete_annees)
 
     jours_total = jours_base + jours_anciennete
-    logger.info("📈 Total avant temps partiel: %s", jours_total)
 
-    # 8. Temps partiel
+    # 9. Temps partiel
     coefficient_tp = employe.coefficient_temps_travail
-    logger.info("⏰ Coefficient temps partiel: %s", coefficient_tp)
-
     if parametres.prise_compte_temps_partiel:
         jours_total = jours_total * coefficient_tp
-        logger.info("✅ Après temps partiel: %s × %s = %s",
-                    jours_base + jours_anciennete, coefficient_tp, jours_total)
 
     resultat_final = jours_total.quantize(Decimal('0.01'))
 
-    logger.info("=" * 80)
-    logger.info("✅ RÉSULTAT FINAL: %s jours", resultat_final)
-    logger.info("=" * 80)
+    logger.info("Résultat pour %s: %s jours acquis (%s mois, %s jours reste)",
+                employe, resultat_final, mois_travailles, jours_restants)
 
     return {
         'jours_acquis': resultat_final,
@@ -118,14 +106,18 @@ def calculer_jours_acquis_au(employe, annee_reference, date_reference):
             'jours_base': str(jours_base),
             'jours_anciennete': str(jours_anciennete),
             'coefficient_tp': str(coefficient_tp),
-            'plafond_applique': plafond_applique
+            'plafond_applique': plafond_applique,
+            'jours_restants': jours_restants
         }
     }
 
 
 def calculer_mois_travailles_jusquau(employe, annee_reference, date_limite):
     """
-    Calcule le nombre de mois travaillés jusqu'à une date donnée
+    Calcule le nombre de mois travaillés jusqu'à une date donnée.
+
+    Utilise la date_debut du contrat actif (ZYCO, actif=True)
+    au lieu de date_entree_entreprise.
 
     Args:
         employe (ZY00): Instance de l'employé
@@ -133,64 +125,49 @@ def calculer_mois_travailles_jusquau(employe, annee_reference, date_limite):
         date_limite (date): Date jusqu'à laquelle compter
 
     Returns:
-        Decimal: Nombre de mois travaillés
+        tuple: (mois_complets: Decimal, jours_restants: int)
     """
-    if not employe.date_entree_entreprise:
-        return Decimal('0.00')
+    from django.db.models import Q
+
+    # Récupérer la date de début du contrat actif (ZYCO)
+    contrat_actif = employe.contrats.filter(
+        actif=True
+    ).filter(
+        Q(date_fin__isnull=True) | Q(date_fin__gte=date_limite)
+    ).order_by('-date_debut').first()
+
+    if not contrat_actif:
+        return Decimal('0'), 0
+
+    date_debut_contrat = contrat_actif.date_debut
 
     # Récupérer la convention
     convention = employe.convention_applicable
     if not convention:
-        return Decimal('0.00')
+        return Decimal('0'), 0
 
     # Période d'acquisition
     debut_annee, fin_annee = convention.get_periode_acquisition(annee_reference)
 
-    # ✅ DIFFÉRENCE PRINCIPALE : Utiliser date_limite au lieu de date_actuelle
-
     # Si date_limite est avant le début de la période
     if date_limite < debut_annee:
-        return Decimal('0.00')
+        return Decimal('0'), 0
 
-    # Déterminer la date de fin effective
-    date_fin_effective = min(date_limite, fin_annee)
-
-    # Calculer la période de travail
-    date_debut = max(employe.date_entree_entreprise, debut_annee)
-    date_fin = date_fin_effective
+    # Borner les dates dans la période d'acquisition
+    date_fin = min(date_limite, fin_annee)
+    date_debut = max(date_debut_contrat, debut_annee)
 
     if date_debut > date_fin:
-        return Decimal('0.00')
+        return Decimal('0'), 0
 
-    # Calculer mois par mois
-    mois_total = Decimal('0.00')
-    current_date = date(date_debut.year, date_debut.month, 1)
+    # Nombre de jours = date_fin - date_debut (différence simple)
+    jours_total = (date_fin - date_debut).days
 
-    while current_date <= date_fin:
-        mois = current_date.month
-        annee = current_date.year
+    # Chaque tranche de 30 jours = 1 mois complet
+    mois_complets = jours_total // 30
+    jours_restants = jours_total % 30
 
-        premier_jour = date(annee, mois, 1)
-        dernier_jour = date(annee, mois, calendar.monthrange(annee, mois)[1])
-
-        debut_effectif = max(date_debut, premier_jour)
-        fin_effective = min(date_fin, dernier_jour)
-
-        if debut_effectif <= fin_effective:
-            jours_calendaires = (fin_effective - debut_effectif).days + 1
-
-            if jours_calendaires >= 25:
-                mois_total += Decimal('1.00')
-            elif jours_calendaires >= 15:
-                mois_total += Decimal('0.50')
-
-        # Passer au mois suivant
-        if mois == 12:
-            current_date = date(annee + 1, 1, 1)
-        else:
-            current_date = date(annee, mois + 1, 1)
-
-    return mois_total
+    return Decimal(str(mois_complets)), jours_restants
 
 
 def calculer_jours_anciennete(employe, parametres):

@@ -61,7 +61,7 @@ def send_email_notification(subject, body, recipient):
 def run_calcul(annee=None, dry_run=False, verbose=False):
     """Exécute la commande de calcul Django."""
     logger.info("="*70)
-    logger.info("DÉBUT DU CALCUL DES ACQUISITIONS DE CONGÉS")
+    logger.info("DEBUT DU CALCUL DES ACQUISITIONS DE CONGES")
     logger.info("="*70)
 
     # Construire la commande Django
@@ -71,28 +71,25 @@ def run_calcul(annee=None, dry_run=False, verbose=False):
         python_exec = VENV_DIR / 'Scripts' / 'python.exe'
 
     if not python_exec.exists():
-        logger.error(f"Python non trouvé dans l'environnement virtuel: {VENV_DIR}")
+        logger.error("Python non trouve dans l'environnement virtuel: %s", VENV_DIR)
         return False
 
     manage_py = PROJECT_DIR / 'manage.py'
     if not manage_py.exists():
-        logger.error(f"manage.py non trouvé: {manage_py}")
+        logger.error("manage.py non trouve: %s", manage_py)
         return False
 
-    # Construire la commande
-    cmd = [str(python_exec), str(manage_py), 'calculer_acquisitions', '--tous']
+    # Construire la commande - toujours --verbeux pour capturer les rejets
+    cmd = [str(python_exec), str(manage_py), 'calculer_acquisitions', '--tous', '--verbeux']
 
     if annee:
         cmd.extend(['--annee', str(annee)])
 
-    if verbose:
-        cmd.append('--verbeux')
-
     if dry_run:
         cmd.append('--dry-run')
 
-    logger.info(f"Répertoire de travail: {PROJECT_DIR}")
-    logger.info(f"Commande: {' '.join(cmd)}")
+    logger.info("Repertoire de travail: %s", PROJECT_DIR)
+    logger.info("Commande: %s", ' '.join(cmd))
 
     # Exécuter la commande
     try:
@@ -104,32 +101,41 @@ def run_calcul(annee=None, dry_run=False, verbose=False):
             check=False
         )
 
-        # Afficher la sortie
+        # Classer et afficher la sortie selon le type de message
         if result.stdout:
             for line in result.stdout.split('\n'):
-                if line.strip():
-                    logger.info(line)
+                stripped = line.strip()
+                if not stripped:
+                    continue
+                if 'REJET' in stripped or 'DETAIL DES REJETS' in stripped:
+                    logger.warning(stripped)
+                elif 'ERREUR' in stripped or 'DETAIL DES ERREURS' in stripped:
+                    logger.error(stripped)
+                elif 'IGNORE' in stripped:
+                    logger.debug(stripped) if not verbose else logger.info(stripped)
+                else:
+                    logger.info(stripped)
 
         if result.stderr:
             for line in result.stderr.split('\n'):
                 if line.strip():
-                    logger.error(line)
+                    logger.error(line.strip())
 
         success = result.returncode == 0
 
         if success:
-            logger.info("✅ Calcul terminé avec succès")
+            logger.info("Calcul termine avec succes")
         else:
-            logger.error(f"❌ Erreur lors du calcul (code: {result.returncode})")
+            logger.error("Erreur lors du calcul (code: %s)", result.returncode)
 
         logger.info("="*70)
-        logger.info("FIN DU CALCUL DES ACQUISITIONS DE CONGÉS")
+        logger.info("FIN DU CALCUL DES ACQUISITIONS DE CONGES")
         logger.info("="*70)
 
         return success
 
     except Exception as e:
-        logger.exception(f"Erreur lors de l'exécution de la commande: {e}")
+        logger.exception("Erreur lors de l'execution de la commande: %s", e)
         return False
 
 

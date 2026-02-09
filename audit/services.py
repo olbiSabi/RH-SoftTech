@@ -543,6 +543,23 @@ class RapportAuditService:
 
             rapport.NB_ENREGISTREMENTS = alertes.count()
             rapport.RESUME = resume
+            
+            # Générer le fichier selon le format
+            if format_export == 'PDF':
+                fichier_pdf = RapportAuditService.generer_fichier_pdf(rapport, alertes)
+                rapport.FICHIER = fichier_pdf
+                rapport.TAILLE_FICHIER = fichier_pdf.size
+            elif format_export == 'EXCEL':
+                fichier_excel = RapportAuditService.exporter_rapport_excel(rapport)
+                # Sauvegarder le fichier Excel
+                from django.core.files.base import ContentFile
+                rapport.FICHIER.save(f"{rapport.REFERENCE}.xlsx", ContentFile(fichier_excel.getvalue()))
+                rapport.TAILLE_FICHIER = fichier_excel.tell()
+            elif format_export == 'CSV':
+                fichier_csv = RapportAuditService.generer_fichier_csv(rapport, alertes)
+                rapport.FICHIER = fichier_csv
+                rapport.TAILLE_FICHIER = fichier_csv.size
+            
             rapport.STATUT = 'TERMINE'
             rapport.save()
 
@@ -694,3 +711,158 @@ class RapportAuditService:
         wb.save(output)
         output.seek(0)
         return output
+
+    @staticmethod
+    def generer_fichier_pdf(rapport, donnees):
+        """Génère un fichier PDF pour le rapport."""
+        try:
+            from reportlab.lib.pagesizes import letter, A4
+            from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+            from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+            from reportlab.lib.units import inch
+            from reportlab.lib import colors
+            import tempfile
+            from django.core.files.base import ContentFile
+            
+            # Créer un fichier temporaire
+            temp_file = tempfile.NamedTemporaryFile(suffix='.pdf', delete=False)
+            
+            # Configuration du document
+            doc = SimpleDocTemplate(temp_file.name, pagesize=A4)
+            styles = getSampleStyleSheet()
+            story = []
+            
+            # Style personnalisé pour les titres
+            title_style = ParagraphStyle(
+                'CustomTitle',
+                parent=styles['Heading1'],
+                fontSize=16,
+                spaceAfter=30,
+                textColor=colors.darkblue,
+                alignment=1  # centré
+            )
+            
+            # En-tête
+            story.append(Paragraph(rapport.TITRE, title_style))
+            story.append(Spacer(1, 12))
+            
+            # Informations générales
+            info_data = [
+                ['Référence:', rapport.REFERENCE],
+                ['Type:', rapport.get_TYPE_RAPPORT_display()],
+                ['Période:', f'{rapport.DATE_DEBUT.strftime("%d/%m/%Y")} au {rapport.DATE_FIN.strftime("%d/%m/%Y")}'],
+                ['Généré le:', rapport.DATE_GENERATION.strftime('%d/%m/%Y %H:%M')],
+                ['Statut:', rapport.get_STATUT_display()],
+                ['Nombre d\'enregistrements:', str(rapport.NB_ENREGISTREMENTS)],
+            ]
+            
+            info_table = Table(info_data, colWidths=[2*inch, 4*inch])
+            info_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
+                ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 0), (-1, -1), 10),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+            ]))
+            story.append(info_table)
+            story.append(Spacer(1, 20))
+            
+            # Résumé statistique
+            if rapport.RESUME:
+                story.append(Paragraph('Résumé statistique', styles['Heading2']))
+                story.append(Spacer(1, 12))
+                
+                resume_data = [['Métrique', 'Valeur']]
+                for key, value in rapport.RESUME.items():
+                    if not isinstance(value, list):
+                        resume_data.append([key.replace('_', ' ').title(), str(value)])
+                
+                resume_table = Table(resume_data, colWidths=[3*inch, 2*inch])
+                resume_table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1c5d5f')),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, 0), 12),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                    ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black)
+                ]))
+                story.append(resume_table)
+            
+            # Générer le PDF
+            doc.build(story)
+            
+            # Lire le fichier et le retourner comme ContentFile
+            with open(temp_file.name, 'rb') as f:
+                pdf_content = f.read()
+            
+            # Nettoyer le fichier temporaire
+            import os
+            os.unlink(temp_file.name)
+            
+            # Créer le fichier pour Django
+            filename = f"{rapport.REFERENCE}.pdf"
+            return ContentFile(pdf_content, name=filename)
+            
+        except ImportError:
+            # Si reportlab n'est pas installé, générer un fichier texte
+            content = f"""
+Rapport d'audit - {rapport.TITRE}
+{'='*50}
+
+Référence: {rapport.REFERENCE}
+Type: {rapport.get_TYPE_RAPPORT_display()}
+Période: {rapport.DATE_DEBUT.strftime('%d/%m/%Y')} au {rapport.DATE_FIN.strftime('%d/%m/%Y')}
+Généré le: {rapport.DATE_GENERATION.strftime('%d/%m/%Y %H:%M')}
+Statut: {rapport.get_STATUT_display()}
+Nombre d'enregistrements: {rapport.NB_ENREGISTREMENTS}
+
+Résumé statistique:
+{'-'*30}
+"""
+            if rapport.RESUME:
+                for key, value in rapport.RESUME.items():
+                    if not isinstance(value, list):
+                        content += f"{key.replace('_', ' ').title()}: {value}\n"
+            
+            filename = f"{rapport.REFERENCE}.txt"
+            return ContentFile(content.encode('utf-8'), name=filename)
+
+    @staticmethod
+    def generer_fichier_csv(rapport, donnees):
+        """Génère un fichier CSV pour le rapport."""
+        import csv
+        import io
+        from django.core.files.base import ContentFile
+        
+        output = io.StringIO()
+        writer = csv.writer(output)
+        
+        # En-tête
+        writer.writerow(['Rapport d\'audit'])
+        writer.writerow([rapport.TITRE])
+        writer.writerow([])
+        
+        # Informations
+        writer.writerow(['Informations générales'])
+        writer.writerow(['Référence', rapport.REFERENCE])
+        writer.writerow(['Type', rapport.get_TYPE_RAPPORT_display()])
+        writer.writerow(['Période', f'{rapport.DATE_DEBUT.strftime("%d/%m/%Y")} au {rapport.DATE_FIN.strftime("%d/%m/%Y")}'])
+        writer.writerow(['Généré le', rapport.DATE_GENERATION.strftime('%d/%m/%Y %H:%M')])
+        writer.writerow(['Statut', rapport.get_STATUT_display()])
+        writer.writerow(['Nombre d\'enregistrements', str(rapport.NB_ENREGISTREMENTS)])
+        writer.writerow([])
+        
+        # Résumé
+        if rapport.RESUME:
+            writer.writerow(['Résumé statistique'])
+            for key, value in rapport.RESUME.items():
+                if not isinstance(value, list):
+                    writer.writerow([key.replace('_', ' ').title(), str(value)])
+        
+        # Créer le fichier
+        content = output.getvalue()
+        filename = f"{rapport.REFERENCE}.csv"
+        return ContentFile(content.encode('utf-8'), name=filename)

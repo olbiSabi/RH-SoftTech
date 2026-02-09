@@ -232,7 +232,7 @@
 }
 
 .table-gac thead {
-    background-color: #f8f9fa;
+    background-color: #1c5d5f;
 }
 
 .table-gac thead th {
@@ -240,7 +240,7 @@
     text-transform: uppercase;
     font-size: 0.75rem;
     letter-spacing: 0.5px;
-    color: #495057 !important;
+    color: #ffffff !important;
     border-bottom: 2px solid #dee2e6;
     padding: 1rem 0.75rem;
 }

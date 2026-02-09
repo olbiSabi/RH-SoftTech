@@ -414,17 +414,23 @@ function resetEditForm() {
  * Recalculer une acquisition spécifique
  */
 function recalculerAcquisition(acquisitionId) {
+    console.log('🔄 recalculerAcquisition appelé avec ID:', acquisitionId);
+    
     // Ouvrir le modal personnalisé
     if (typeof ouvrirModalRecalcul === 'function') {
+        console.log('✅ ouvrirModalRecalcul trouvé, ouverture du modal');
         ouvrirModalRecalcul(acquisitionId);
     } else {
+        console.log('❌ ouvrirModalRecalcul NON trouvé, utilisation du fallback');
         // Fallback avec SweetAlert ou confirm
         if (typeof Swal === 'undefined') {
+            console.log('❌ Swal NON trouvé, utilisation de confirm');
             if (!confirm('Recalculer cette acquisition ?\n\nLes jours acquis seront recalculés selon la convention applicable.')) {
                 return;
             }
             executeRecalcul(acquisitionId);
         } else {
+            console.log('✅ Swal trouvé, ouverture SweetAlert');
             Swal.fire({
                 title: 'Recalculer cette acquisition ?',
                 text: 'Les jours acquis seront recalculés selon la convention applicable',
@@ -447,6 +453,8 @@ function recalculerAcquisition(acquisitionId) {
  * Exécuter le recalcul (fonction helper)
  */
 function executeRecalcul(acquisitionId) {
+    console.log('🚀 executeRecalcul appelé avec ID:', acquisitionId);
+    
     // Afficher un loader
     if (typeof Swal !== 'undefined') {
         Swal.fire({
@@ -457,7 +465,12 @@ function executeRecalcul(acquisitionId) {
                 Swal.showLoading();
             }
         });
+    } else {
+        console.log('⚠️ Swal non disponible, utilisation loader simple');
     }
+
+    console.log('📡 Envoi requête AJAX vers:', `/absence/api/acquisition/${acquisitionId}/recalculer/`);
+    console.log('🍪 CSRF Token:', getCookie('csrftoken'));
 
     $.ajax({
         url: `/absence/api/acquisition/${acquisitionId}/recalculer/`,
@@ -468,7 +481,11 @@ function executeRecalcul(acquisitionId) {
         data: {
             csrfmiddlewaretoken: getCookie('csrftoken')
         },
+        beforeSend: function(xhr) {
+            console.log('📤 beforeSend appelé');
+        },
         success: function(response) {
+            console.log('✅ Succès AJAX:', response);
             if (typeof Swal !== 'undefined') {
                 Swal.close();
             }
@@ -509,6 +526,13 @@ function executeRecalcul(acquisitionId) {
             }
         },
         error: function(xhr) {
+            console.error('❌ ERREUR AJAX - Détails complets:');
+            console.error('Status:', xhr.status);
+            console.error('Status Text:', xhr.statusText);
+            console.error('Response Text:', xhr.responseText);
+            console.error('Response JSON:', xhr.responseJSON);
+            console.error('Full XHR:', xhr);
+            
             if (typeof Swal !== 'undefined') {
                 Swal.close();
             }

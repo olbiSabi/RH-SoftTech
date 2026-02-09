@@ -377,6 +377,56 @@ def telecharger_rapport(request, uuid):
             )
             response['Content-Disposition'] = f'attachment; filename="{rapport.REFERENCE}.xlsx"'
             return response
+        elif rapport.FORMAT == 'PDF':
+            # Pour le PDF, générer un simple fichier texte avec les données
+            import io
+            from django.template.loader import render_to_string
+            
+            content = f"""
+Rapport d'audit
+===============
+Référence: {rapport.REFERENCE}
+Titre: {rapport.TITRE}
+Type: {rapport.get_TYPE_RAPPORT_display}
+Période: {rapport.DATE_DEBUT.strftime('%d/%m/%Y')} au {rapport.DATE_FIN.strftime('%d/%m/%Y')}
+Généré le: {rapport.DATE_GENERATION.strftime('%d/%m/%Y %H:%M')}
+Statut: {rapport.get_STATUT_display}
+Format: {rapport.FORMAT}
+
+Résumé:
+{rapport.RESUME if rapport.RESUME else 'Aucun résumé disponible'}
+
+Nombre d'enregistrements: {rapport.NB_ENREGISTREMENTS}
+"""
+            
+            response = HttpResponse(content, content_type='text/plain')
+            response['Content-Disposition'] = f'attachment; filename="{rapport.REFERENCE}.txt"'
+            return response
+        elif rapport.FORMAT == 'CSV':
+            # Pour le CSV, exporter les données brutes
+            import csv
+            import io
+            
+            output = io.StringIO()
+            writer = csv.writer(output)
+            
+            # En-tête
+            writer.writerow(['Référence', 'Titre', 'Type', 'Date début', 'Date fin', 'Statut', 'Généré le'])
+            
+            # Données
+            writer.writerow([
+                rapport.REFERENCE,
+                rapport.TITRE,
+                rapport.get_TYPE_RAPPORT_display,
+                rapport.DATE_DEBUT.strftime('%d/%m/%Y'),
+                rapport.DATE_FIN.strftime('%d/%m/%Y'),
+                rapport.get_STATUT_display,
+                rapport.DATE_GENERATION.strftime('%d/%m/%Y %H:%M')
+            ])
+            
+            response = HttpResponse(output.getvalue(), content_type='text/csv')
+            response['Content-Disposition'] = f'attachment; filename="{rapport.REFERENCE}.csv"'
+            return response
 
     messages.error(request, "Le fichier du rapport n'est pas disponible.")
     return redirect('audit:liste_rapports')

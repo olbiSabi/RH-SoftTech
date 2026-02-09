@@ -191,8 +191,6 @@ def api_calculer_acquisitions(request):
     from datetime import timedelta
 
     try:
-        logger.debug("POST data: %s", request.POST)
-
         form = CalculAcquisitionForm(request.POST)
 
         if not form.is_valid():
@@ -227,7 +225,9 @@ def api_calculer_acquisitions(request):
                 }, status=400)
 
             _, fin_periode = convention_entreprise.get_periode_acquisition(annee)
-            date_limite_recalcul = fin_periode + timedelta(days=2)
+
+            # Permettre le recalcul jusqu'à 6 mois après la fin de la période
+            date_limite_recalcul = fin_periode + timedelta(days=180)
 
             if date_actuelle > date_limite_recalcul:
                 return JsonResponse({
@@ -314,8 +314,6 @@ def api_calculer_acquisitions(request):
                     resultats['ignores'] += 1
 
             except Exception as e:
-                import traceback
-                logger.error("Erreur %s: %s", employe, traceback.format_exc())
                 resultats['erreurs'] += 1
                 resultats['details_erreurs'].append({
                     'employe': str(employe),
@@ -341,8 +339,7 @@ def api_calculer_acquisitions(request):
         })
 
     except Exception as e:
-        import traceback
-        logger.exception("ERREUR GLOBALE: %s", traceback.format_exc())
+        logger.exception("Erreur calcul acquisitions")
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
@@ -379,8 +376,7 @@ def api_recalculer_acquisition(request, id):
         })
 
     except Exception as e:
-        import traceback
-        logger.error("ERREUR recalcul: %s", traceback.format_exc())
+        logger.exception("Erreur recalcul acquisition ID %s", id)
         return JsonResponse({
             'success': False,
             'error': str(e)
@@ -422,12 +418,6 @@ def api_calculer_acquis_a_date(request):
             date_reference = datetime.strptime(date_str, '%Y-%m-%d').date()
         else:
             date_reference = timezone.now().date()
-
-        if date_reference.year != annee:
-            return JsonResponse({
-                'success': False,
-                'error': f'La date de référence doit être dans l\'année {annee}'
-            }, status=400)
 
         if not employe.convention_applicable:
             return JsonResponse({
