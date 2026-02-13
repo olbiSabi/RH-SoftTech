@@ -57,6 +57,8 @@ urlpatterns = [
     path('pm/', include('project_management.urls', namespace='pm')),
     # Module Gestion des Achats & Commandes
     path('gac/', include('gestion_achats.urls', namespace='gestion_achats')),
+    # Module Planning
+    path('planning/', include('planning.urls', namespace='planning')),
 
 ]
 if settings.DEBUG:

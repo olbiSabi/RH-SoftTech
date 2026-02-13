@@ -348,12 +348,13 @@ select.form-control[multiple], select.form-control[size] {
 .horizontal-menu {
     display: flex;
     align-items: center;
+    flex: 1;
 }
 
 .menu-list {
     display: flex;
     list-style: none;
-    /*gap: 5px;*/
+    gap: 2px;
 }
 
 .menu-list-admin {
@@ -364,19 +365,20 @@ select.form-control[multiple], select.form-control[size] {
 .menu-item {
     position: relative;
     padding-top: 10px;
+    flex-shrink: 0;
 }
 
 .menu-link {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px 16px;
+    gap: 6px;
+    padding: 12px 8px;
     color: white;
     text-decoration: none;
     border-radius: 4px;
-    transition: background-color 0.3s;
-    font-size: 0.9rem;
+    transition: all 0.3s ease;
     white-space: nowrap;
+    font-size: 0.85rem;
 }
 
 .menu-link:hover {
@@ -417,6 +419,11 @@ select.form-control[multiple], select.form-control[size] {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
+}
+
+/* Assurer que les sous-menus sont au-dessus du contenu */
+.horizontal-menu {
+    position: relative;
 }
 
 .menu-item {
@@ -1378,10 +1385,38 @@ select.form-control[multiple], select.form-control[size] {
     }
 }
 
+@media (max-width: 1400px) {
+    /* Réduction progressive pour grands écrans */
+    .menu-link {
+        padding: 10px 6px;
+        font-size: 0.8rem;
+    }
+    
+    .menu-link i:first-child {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 1200px) {
+    /* Réduction pour écrans moyens */
+    .menu-link {
+        padding: 8px 5px;
+        font-size: 0.75rem;
+    }
+    
+    .menu-link i:first-child {
+        font-size: 0.8rem;
+    }
+    
+    .menu-link span {
+        font-size: 0.7rem;
+    }
+}
+
 @media (max-width: 1024px) {
     /* Ajustements pour tablette */
     .menu-link {
-        padding: 12px 12px;
+        padding: 12px 8px;
         font-size: 0.85rem;
     }
 

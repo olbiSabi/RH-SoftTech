@@ -1,0 +1,138 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<!-- FullCalendar CSS -->
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
+<!-- Toastr CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<!-- Planning CSS -->
+<link rel="stylesheet" href="{% static 'assets/planning/css/planning.css' %}">
+<style>
+    #planningCalendar {
+        min-height: 650px;
+    }
+    .fc .fc-toolbar-title {
+        font-size: 1.2rem;
+    }
+    .fc .fc-button {
+        font-size: 0.85rem;
+    }
+    .fc-event {
+        cursor: pointer;
+        font-size: 0.8rem;
+    }
+    .legend-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .legend-badges .badge {
+        font-size: 0.75rem;
+        padding: 0.4em 0.6em;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-calendar-alt mr-2"></i>Mon Planning
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'home' %}">Accueil</a></li>
+                        <li class="breadcrumb-item active">Mon Planning</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Legende -->
+        <div class="card mb-3">
+            <div class="card-body py-2">
+                <div class="d-flex flex-wrap align-items-center">
+                    <strong class="mr-3 legend-label">Affectations :</strong>
+                    <div class="legend-badges mr-4">
+                        <span class="badge badge-planifie">Planifie</span>
+                        <span class="badge badge-confirme">Confirme</span>
+                        <span class="badge badge-en-cours">En cours</span>
+                        <span class="badge badge-termine">Termine</span>
+                    </div>
+                    <strong class="mr-3 legend-label">Evenements :</strong>
+                    <div class="legend-badges">
+                        <span class="badge badge-reunion">Reunion</span>
+                        <span class="badge badge-formation">Formation</span>
+                        <span class="badge badge-tache">Tache</span>
+                        <span class="badge badge-autre">Autre</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendrier -->
+        <div class="card">
+            <div class="card-body">
+                <div id="planningCalendar"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal Detail (lecture seule) -->
+<div class="modal fade" id="modalDetail" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header planning-header-primary" id="modalDetailHeader">
+                <h5 class="modal-title" id="modalDetailTitle">Detail</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modalDetailBody">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary"></div>
+                    <p class="mt-2">Chargement...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extrascript %}
+<!-- FullCalendar JS -->
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/locales/fr.global.min.js'></script>
+<!-- Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+window.PLANNING_CONFIG = {
+    role: '{{ role }}',
+    canEdit: false,
+    urls: {
+        affectations: '{% url "planning:api_affectations" %}',
+        affectationDetail: '{% url "planning:api_affectation_detail" pk=0 %}'.replace('/0/', '/{pk}/'),
+        evenements: '{% url "planning:api_evenements" %}',
+        evenementDetail: '{% url "planning:api_evenement_detail" pk=0 %}'.replace('/0/', '/{pk}/'),
+    },
+    postes: [],
+    employes: [],
+    plannings: [],
+    sites: [],
+};
+</script>
+<script src="{% static 'assets/planning/js/planning_calendar.js' %}"></script>
+{% endblock %}

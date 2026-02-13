@@ -1,0 +1,180 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'assets/planning/css/planning.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-calendar-alt mr-2"></i>{{ titre }}
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'home' %}">Accueil</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'planning:planning_calendar' %}">Planning</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'planning:liste_plannings' %}">Plannings</a></li>
+                        <li class="breadcrumb-item active">{% if planning %}Modifier{% else %}Nouveau{% endif %}</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle mr-1"></i>
+            Veuillez corriger les erreurs ci-dessous.
+            <ul class="mb-0 mt-2">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                    <li><strong>{{ field.label }} :</strong> {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div class="row">
+            <!-- Formulaire -->
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header" style="background:#1c5d5f;color:#fff;">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-edit mr-1"></i> Informations du planning
+                        </h5>
+                    </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="card-body">
+                            {% if planning %}
+                            <div class="form-group">
+                                <label>Reference</label>
+                                <input type="text" class="form-control" value="{{ planning.REFERENCE }}" disabled>
+                            </div>
+                            {% endif %}
+
+                            <div class="form-group">
+                                <label for="id_titre">Titre <span class="text-danger">*</span></label>
+                                {{ form.titre }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="id_description">Description</label>
+                                {{ form.description }}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="id_date_debut">Date de debut <span class="text-danger">*</span></label>
+                                        {{ form.date_debut }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="id_date_fin">Date de fin <span class="text-danger">*</span></label>
+                                        {{ form.date_fin }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="id_statut">Statut</label>
+                                        {{ form.statut }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if form.departement %}
+                            <div class="form-group">
+                                <label for="id_departement">Departement</label>
+                                {{ form.departement }}
+                                <small class="form-text text-muted">Laisser vide pour un planning global (visible par tous).</small>
+                            </div>
+                            {% elif planning and planning.departement %}
+                            <div class="form-group">
+                                <label>Departement</label>
+                                <input type="text" class="form-control" value="{{ planning.departement.LIBELLE }}" disabled>
+                            </div>
+                            {% elif user_role == 'manager' and not planning %}
+                            <div class="form-group">
+                                <label>Departement</label>
+                                <input type="text" class="form-control" value="Auto-attribue a votre departement" disabled>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save mr-1"></i>
+                                {% if planning %}Enregistrer{% else %}Creer{% endif %}
+                            </button>
+                            <a href="{% url 'planning:liste_plannings' %}" class="btn btn-secondary ml-2">
+                                <i class="fas fa-times mr-1"></i> Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Aide -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-info-circle mr-1"></i> Aide
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">
+                            Un <strong>planning</strong> est une periode de travail definie
+                            par une date de debut et une date de fin, pendant laquelle
+                            des affectations sont creees pour les employes.
+                        </p>
+                        <p class="text-muted">
+                            La <strong>reference</strong> est generee automatiquement
+                            au format <code>PLN-YYYY-XXXX</code>.
+                        </p>
+                        <h6>Statuts :</h6>
+                        <ul class="text-muted mb-0">
+                            <li><span class="badge badge-warning">Brouillon</span> : en cours de preparation</li>
+                            <li><span class="badge badge-primary">Publie</span> : visible par les employes</li>
+                            <li><span class="badge badge-success">Valide</span> : approuve et definitif</li>
+                            <li><span class="badge badge-dark">Archive</span> : planning passe</li>
+                        </ul>
+                    </div>
+                </div>
+
+                {% if planning %}
+                <div class="card mt-3">
+                    <div class="card-header bg-light">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-chart-bar mr-1"></i> Statistiques
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li><strong>Semaines :</strong> {{ planning.nombre_semaines }}</li>
+                            <li><strong>Affectations :</strong> {{ planning.affectation_set.count }}</li>
+                            <li><strong>Cree le :</strong> {{ planning.created_at|date:"d/m/Y H:i" }}</li>
+                            {% if planning.created_by %}
+                            <li><strong>Cree par :</strong> {{ planning.created_by.get_full_name|default:planning.created_by.username }}</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

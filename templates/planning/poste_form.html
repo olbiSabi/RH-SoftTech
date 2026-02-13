@@ -1,0 +1,182 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<link rel="stylesheet" href="{% static 'assets/planning/css/planning.css' %}">
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-briefcase mr-2"></i>{{ titre }}
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'home' %}">Accueil</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'planning:planning_calendar' %}">Planning</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'planning:liste_postes' %}">Postes</a></li>
+                        <li class="breadcrumb-item active">{% if poste %}Modifier{% else %}Nouveau{% endif %}</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle mr-1"></i>
+            Veuillez corriger les erreurs ci-dessous.
+            <ul class="mb-0 mt-2">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                    <li><strong>{{ field.label }} :</strong> {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div class="row">
+            <!-- Formulaire -->
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header" style="background:#1c5d5f;color:#fff;">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-edit mr-1"></i> Informations du poste
+                        </h5>
+                    </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label for="id_nom">Nom du poste <span class="text-danger">*</span></label>
+                                        {{ form.nom }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="id_type_poste">Type <span class="text-danger">*</span></label>
+                                        {{ form.type_poste }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="id_site">Site de travail <span class="text-danger">*</span></label>
+                                {{ form.site }}
+                                <small class="form-text text-muted">
+                                    Seuls les sites actifs sont affiches.
+                                    <a href="{% url 'planning:creer_site' %}">Creer un nouveau site</a>
+                                </small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="id_description">Description</label>
+                                {{ form.description }}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="id_heure_debut">Heure de debut <span class="text-danger">*</span></label>
+                                        {{ form.heure_debut }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="id_heure_fin">Heure de fin <span class="text-danger">*</span></label>
+                                        {{ form.heure_fin }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="id_pause_dejeune">Pause dejeuner</label>
+                                        {{ form.pause_dejeune }}
+                                        <small class="form-text text-muted">Format : HH:MM:SS</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="id_taux_horaire">Taux horaire (FCFA)</label>
+                                        {{ form.taux_horaire }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-check">
+                                    {{ form.is_active }}
+                                    <label class="form-check-label ml-2" for="id_is_active">
+                                        <strong>Poste actif</strong>
+                                        <small class="text-muted d-block">
+                                            Un poste inactif ne sera pas disponible pour les affectations.
+                                        </small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save mr-1"></i>
+                                {% if poste %}Enregistrer{% else %}Creer{% endif %}
+                            </button>
+                            <a href="{% url 'planning:liste_postes' %}" class="btn btn-secondary ml-2">
+                                <i class="fas fa-times mr-1"></i> Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Aide -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-info-circle mr-1"></i> Types de poste
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">
+                                <span class="badge badge-info">Journee</span>
+                                <small class="text-muted d-block">Poste en horaire de jour standard</small>
+                            </li>
+                            <li class="mb-2">
+                                <span class="badge badge-info">Soir</span>
+                                <small class="text-muted d-block">Poste en fin de journee / soiree</small>
+                            </li>
+                            <li class="mb-2">
+                                <span class="badge badge-info">Nuit</span>
+                                <small class="text-muted d-block">Poste de nuit</small>
+                            </li>
+                            <li class="mb-2">
+                                <span class="badge badge-info">Week-end</span>
+                                <small class="text-muted d-block">Poste samedi / dimanche</small>
+                            </li>
+                            <li>
+                                <span class="badge badge-info">Special</span>
+                                <small class="text-muted d-block">Poste avec horaires specifiques</small>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

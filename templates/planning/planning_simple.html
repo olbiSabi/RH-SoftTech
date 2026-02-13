@@ -1,0 +1,378 @@
+{% extends 'base/baseSansMatricule.html' %}
+{% load static %}
+
+{% block extrastylet %}
+<!-- FullCalendar CSS -->
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+<!-- Toastr CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<!-- Planning CSS -->
+<link rel="stylesheet" href="{% static 'assets/planning/css/planning.css' %}">
+<style>
+    #planningCalendar {
+        min-height: 650px;
+    }
+    .fc .fc-toolbar-title {
+        font-size: 1.2rem;
+    }
+    .fc .fc-button {
+        font-size: 0.85rem;
+    }
+    .fc-event {
+        cursor: pointer;
+        font-size: 0.8rem;
+    }
+    .legend-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .legend-badges .badge {
+        font-size: 0.75rem;
+        padding: 0.4em 0.6em;
+    }
+    .modal-planning .form-group {
+        margin-bottom: 1rem;
+    }
+    .modal-planning label {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<section class="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">
+                        <i class="fas fa-calendar-alt mr-2"></i>Planning
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'home' %}">Accueil</a></li>
+                        <li class="breadcrumb-item active">Planning</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        {% if can_edit %}
+        <!-- Barre d'actions -->
+        <div class="card mb-3">
+            <div class="card-body py-2">
+                <div class="d-flex flex-wrap align-items-center action-bar">
+                    <button class="btn btn-primary btn-sm" onclick="PlanningApp.openAffectationModal()">
+                        <i class="fas fa-plus mr-1"></i> Nouvelle affectation
+                    </button>
+                    <button class="btn btn-info btn-sm" onclick="PlanningApp.openEvenementModal()">
+                        <i class="fas fa-calendar-plus mr-1"></i> Nouvel evenement
+                    </button>
+                    <span class="border-left ml-2 pl-2"></span>
+                    <a href="{% url 'planning:liste_plannings' %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-th-list mr-1"></i> Plannings
+                    </a>
+                    <a href="{% url 'planning:liste_sites' %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-building mr-1"></i> Sites
+                    </a>
+                    <a href="{% url 'planning:liste_postes' %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-briefcase mr-1"></i> Postes
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Legende -->
+        <div class="card mb-3">
+            <div class="card-body py-2">
+                <div class="d-flex flex-wrap align-items-center">
+                    <strong class="mr-3 legend-label">Affectations :</strong>
+                    <div class="legend-badges mr-4">
+                        <span class="badge badge-planifie">Planifie</span>
+                        <span class="badge badge-confirme">Confirme</span>
+                        <span class="badge badge-en-cours">En cours</span>
+                        <span class="badge badge-termine">Termine</span>
+                        <span class="badge badge-annule">Annule</span>
+                    </div>
+                    <strong class="mr-3 legend-label">Evenements :</strong>
+                    <div class="legend-badges">
+                        <span class="badge badge-reunion">Reunion</span>
+                        <span class="badge badge-formation">Formation</span>
+                        <span class="badge badge-tache">Tache</span>
+                        <span class="badge badge-autre">Autre</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendrier -->
+        <div class="card">
+            <div class="card-body">
+                <div id="planningCalendar"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== MODAL AFFECTATION ===== -->
+<div class="modal fade modal-planning" id="modalAffectation" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header planning-header-primary">
+                <h5 class="modal-title" id="modalAffectationTitle">
+                    <i class="fas fa-user-clock mr-1"></i> Nouvelle affectation
+                </h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="formAffectation">
+                    <input type="hidden" id="affPk" value="">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="affPlanning">Planning *</label>
+                                <select id="affPlanning" class="form-control" required>
+                                    <option value="">-- Choisir --</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="affEmploye">Employe *</label>
+                                <select id="affEmploye" class="form-control" required>
+                                    <option value="">-- Choisir --</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="affSite">Site</label>
+                                <select id="affSite" class="form-control" onchange="PlanningApp.loadPostes(this.value)">
+                                    <option value="">-- Tous les sites --</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="affPoste">Poste de travail *</label>
+                                <select id="affPoste" class="form-control" required>
+                                    <option value="">-- Choisir --</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="affDate">Date *</label>
+                                <input type="date" id="affDate" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="affHeureDebut">Heure debut *</label>
+                                <input type="time" id="affHeureDebut" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="affHeureFin">Heure fin *</label>
+                                <input type="time" id="affHeureFin" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="affStatut">Statut</label>
+                                <select id="affStatut" class="form-control">
+                                    {% for val, label in statuts_affectation %}
+                                    <option value="{{ val }}">{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="affNotes">Notes</label>
+                        <textarea id="affNotes" class="form-control" rows="2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger mr-auto" id="btnDeleteAff" style="display:none;"
+                        onclick="PlanningApp.deleteAffectation()">
+                    <i class="fas fa-trash mr-1"></i> Supprimer
+                </button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" id="btnSaveAff" onclick="PlanningApp.saveAffectation()">
+                    <i class="fas fa-save mr-1"></i> Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODAL EVENEMENT ===== -->
+<div class="modal fade modal-planning" id="modalEvenement" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header planning-header-event">
+                <h5 class="modal-title" id="modalEvenementTitle">
+                    <i class="fas fa-calendar-plus mr-1"></i> Nouvel evenement
+                </h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="formEvenement">
+                    <input type="hidden" id="evtPk" value="">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="evtTitre">Titre *</label>
+                                <input type="text" id="evtTitre" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="evtType">Type *</label>
+                                <select id="evtType" class="form-control" required>
+                                    {% for val, label in types_evenement %}
+                                    <option value="{{ val }}">{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="evtDateDebut">Date/heure debut *</label>
+                                <input type="datetime-local" id="evtDateDebut" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="evtDateFin">Date/heure fin *</label>
+                                <input type="datetime-local" id="evtDateFin" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="evtLieu">Lieu</label>
+                        <input type="text" id="evtLieu" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="evtDescription">Description</label>
+                        <textarea id="evtDescription" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="evtEmployes">Participants</label>
+                        <select id="evtEmployes" class="form-control select2-participants" multiple>
+                        </select>
+                        <small class="text-muted">Tapez pour rechercher et selectionner des participants</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger mr-auto" id="btnDeleteEvt" style="display:none;"
+                        onclick="PlanningApp.deleteEvenement()">
+                    <i class="fas fa-trash mr-1"></i> Supprimer
+                </button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" id="btnSaveEvt" onclick="PlanningApp.saveEvenement()">
+                    <i class="fas fa-save mr-1"></i> Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODAL DETAIL (lecture seule) ===== -->
+<div class="modal fade" id="modalDetail" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header planning-header-primary" id="modalDetailHeader">
+                <h5 class="modal-title" id="modalDetailTitle">Detail</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modalDetailBody">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary"></div>
+                    <p class="mt-2">Chargement...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extrascript %}
+<!-- FullCalendar JS -->
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/locales/fr.global.min.js'></script>
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/i18n/fr.js"></script>
+<!-- Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+// Configuration Planning
+window.PLANNING_CONFIG = {
+    role: '{{ role }}',
+    canEdit: {{ can_edit|yesno:"true,false" }},
+    urls: {
+        affectations: '{% url "planning:api_affectations" %}',
+        affectationCreate: '{% url "planning:api_affectation_create" %}',
+        affectationDetail: '{% url "planning:api_affectation_detail" pk=0 %}'.replace('/0/', '/{pk}/'),
+        affectationUpdate: '{% url "planning:api_affectation_update" pk=0 %}'.replace('/0/', '/{pk}/'),
+        affectationDelete: '{% url "planning:api_affectation_delete" pk=0 %}'.replace('/0/', '/{pk}/'),
+        evenements: '{% url "planning:api_evenements" %}',
+        evenementCreate: '{% url "planning:api_evenement_create" %}',
+        evenementDetail: '{% url "planning:api_evenement_detail" pk=0 %}'.replace('/0/', '/{pk}/'),
+        evenementUpdate: '{% url "planning:api_evenement_update" pk=0 %}'.replace('/0/', '/{pk}/'),
+        evenementDelete: '{% url "planning:api_evenement_delete" pk=0 %}'.replace('/0/', '/{pk}/'),
+        postesBySite: '{% url "planning:api_postes_par_site" site_id=0 %}'.replace('/0/', '/{site_id}/'),
+    },
+    postes: {{ postes_json|safe }},
+    employes: {{ employes_json|safe }},
+    plannings: {{ plannings_json|safe }},
+    sites: {{ sites_json|safe }},
+};
+</script>
+<script src="{% static 'assets/planning/js/planning_calendar.js' %}"></script>
+<script>
+// Initialiser Select2 sur le multi-select participants
+$(document).ready(function() {
+    $('#evtEmployes').select2({
+        placeholder: 'Rechercher des participants...',
+        allowClear: true,
+        language: 'fr',
+        width: '100%',
+        dropdownParent: $('#modalEvenement')
+    });
+});
+</script>
+{% endblock %}

@@ -4,9 +4,6 @@
 <header class="header">
     <div class="header-content">
         <div class="header-left">
-            <button class="sidebar-toggle" id="sidebarToggle">
-                <i class="fas fa-bars"></i>
-            </button>
             <div class="logo-left">
                 <a href="{% url 'dashboard' %}" class="logo">
                     <img src="{% static 'assets/img/logo/Onian-EasyM.png' %}" width="50" height="50" alt="">
@@ -415,6 +412,53 @@
                         </ul>
                     </li>
                     {% endif %}
+                {% endif %}
+
+                    <!-- ========================================
+                        MENU PLANNING
+                        Visible pour : DRH, ADMIN, MANAGER, AUDITEUR, ASSISTANT_RH
+                    ======================================== -->
+                {% if user.is_authenticated and user.employe %}
+                    <li class="menu-item">
+                        <a href="{% url 'planning:planning_calendar' %}" class="menu-link">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Planning</span>
+                            <i class="fas fa-chevron-down menu-arrow"></i>
+                        </a>
+                        <ul class="submenu">
+                            <!-- Mon planning : Visible pour tous les employes -->
+                            <li>
+                                <a href="{% url 'planning:mon_planning' %}">
+                                    <i class="fas fa-user-clock"></i> Mon planning
+                                </a>
+                            </li>
+
+                            {% if user.employe.peut_embaucher or user.employe.peut_gerer_parametrage_app or user.is_superuser or user.employe.est_assistant_rh or user.employe.est_manager_departement %}
+                            <li class="submenu-divider"></li>
+                            <li>
+                                <a href="{% url 'planning:planning_calendar' %}">
+                                    <i class="fas fa-calendar-week"></i> Calendrier
+                                </a>
+                            </li>
+                            <li class="submenu-divider"></li>
+                            <!--<li>
+                                <a href="{% url 'planning:liste_plannings' %}">
+                                    <i class="fas fa-th-list"></i> Plannings
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'planning:liste_sites' %}">
+                                    <i class="fas fa-building"></i> Sites de travail
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'planning:liste_postes' %}">
+                                    <i class="fas fa-briefcase"></i> Postes de travail
+                                </a>
+                            </li>-->
+                            {% endif %}
+                        </ul>
+                    </li>
                 {% endif %}
 
                     <!-- ========================================

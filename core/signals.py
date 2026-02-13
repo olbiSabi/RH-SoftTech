@@ -75,11 +75,18 @@ def model_to_dict(instance, exclude_fields=None):
     data = {}
     for field in instance._meta.fields:
         if field.name not in exclude_fields:
-            value = getattr(instance, field.name)
-            if hasattr(value, 'isoformat'):
-                value = value.isoformat()
-            elif not isinstance(value, (str, int, float, bool, type(None))):
-                value = str(value)
+            try:
+                # Pour les FK, utiliser attname (ex: absence_id) pour eviter un query DB
+                if field.is_relation:
+                    value = getattr(instance, field.attname)
+                else:
+                    value = getattr(instance, field.name)
+                if hasattr(value, 'isoformat'):
+                    value = value.isoformat()
+                elif not isinstance(value, (str, int, float, bool, type(None))):
+                    value = str(value)
+            except Exception:
+                value = None
             data[field.name] = value
     return data
 

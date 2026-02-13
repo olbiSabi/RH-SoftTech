@@ -60,47 +60,6 @@ $(document).on('click', '.btn-annuler', function(e) {
     }
 });
 
-/**
- * Annule une absence sans confirmation (appelé par le modal)
- */
-function annulerAbsenceConfirmed(absenceId) {
-    const $button = $(`.btn-annuler[data-absence-id="${absenceId}"]`);
-    const $row = $button.closest('tr');
-
-    console.log('⚠️ Annulation ID:', absenceId);
-
-    $button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
-
-    $.ajax({
-        url: `/absence/api/absence/${absenceId}/annuler/`,
-        type: 'POST',
-        headers: {'X-CSRFToken': getCsrfToken()},
-        success: function(response) {
-            console.log('✅ Réponse serveur:', response);
-
-            if (response.success) {
-                toastr.success(response.message || 'Absence annulée avec succès');
-
-                setTimeout(function() {
-                    console.log('🔄 Rechargement de la page...');
-                    window.location.reload();
-                }, 1000);
-
-            } else {
-                console.error('❌ Erreur:', response.error);
-                toastr.error(response.error || 'Erreur lors de l\'annulation');
-                $button.prop('disabled', false).html('<i class="fas fa-ban"></i>');
-            }
-        },
-        error: function(xhr) {
-            console.error('❌ Erreur AJAX:', xhr);
-            const errorMsg = xhr.responseJSON?.error || 'Erreur serveur';
-            toastr.error(errorMsg);
-            $button.prop('disabled', false).html('<i class="fas fa-ban"></i>');
-        }
-    });
-}
-
 // ========================================
 // SUPPRIMER - VERSION AVEC MODAL
 // ========================================
@@ -119,71 +78,6 @@ $(document).on('click', '.btn-supprimer', function(e) {
         supprimerAbsenceConfirmed(absenceId);
     }
 });
-
-/**
- * Supprime une absence sans confirmation (appelé par le modal)
- */
-function supprimerAbsenceConfirmed(absenceId) {
-    const $button = $(`.btn-supprimer[data-absence-id="${absenceId}"]`);
-    const $row = $button.closest('tr');
-
-    console.log('🗑️ Suppression ID:', absenceId);
-    console.log('🗑️ Ligne trouvée:', $row.length);
-
-    $button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
-
-    $.ajax({
-        url: `/absence/api/absence/${absenceId}/delete/`,
-        type: 'POST',
-        headers: {'X-CSRFToken': getCsrfToken()},
-        success: function(response) {
-            console.log('✅ Réponse serveur:', response);
-
-            if (response.success) {
-                console.log('✅ Suppression réussie, animation de la ligne...');
-
-                // ✅ ANIMATION + SUPPRESSION DE LA LIGNE
-                $row.fadeOut(400, function() {
-                    console.log('🗑️ Ligne supprimée du DOM');
-                    $(this).remove();
-
-                    // Vérifier s'il reste des lignes
-                    const $tbody = $('#absencesTable tbody');
-                    const $remainingRows = $tbody.find('tr:not(.empty-message)');
-
-                    console.log('📊 Lignes restantes:', $remainingRows.length);
-
-                    if ($remainingRows.length === 0) {
-                        console.log('📭 Tableau vide, affichage du message');
-                        $tbody.html(`
-                            <tr class="empty-message">
-                                <td colspan="8" class="text-center text-muted py-4">
-                                    <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
-                                    Aucune absence trouvée
-                                </td>
-                            </tr>
-                        `);
-                    }
-                });
-
-                toastr.success(response.message || 'Supprimée avec succès');
-            } else {
-                console.error('❌ Erreur:', response.error);
-                toastr.error(response.error || 'Erreur lors de la suppression');
-                $button.prop('disabled', false).html('<i class="fas fa-trash"></i>');
-            }
-        },
-        error: function(xhr) {
-            console.error('❌ Erreur AJAX:', xhr);
-            console.error('❌ Status:', xhr.status);
-            console.error('❌ Response:', xhr.responseJSON);
-
-            const errorMsg = xhr.responseJSON?.error || 'Erreur serveur';
-            toastr.error(errorMsg);
-            $button.prop('disabled', false).html('<i class="fas fa-trash"></i>');
-        }
-    });
-}
 
     // ========================================
     // FERMETURE MODAL
@@ -204,6 +98,85 @@ function supprimerAbsenceConfirmed(absenceId) {
         $('#detailModal').modal('hide');
     });
 });
+
+// ========================================
+// FONCTIONS GLOBALES (appelees par les modals inline du template)
+// ========================================
+
+/**
+ * Annule une absence (appele par confirmerAnnulation dans le template)
+ */
+function annulerAbsenceConfirmed(absenceId) {
+    const $button = $(`.btn-annuler[data-absence-id="${absenceId}"]`);
+
+    $button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+
+    $.ajax({
+        url: `/absence/api/absence/${absenceId}/annuler/`,
+        type: 'POST',
+        headers: {'X-CSRFToken': getCsrfToken()},
+        success: function(response) {
+            if (response.success) {
+                toastr.success(response.message || 'Absence annulee avec succes');
+                setTimeout(function() {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                toastr.error(response.error || "Erreur lors de l'annulation");
+                $button.prop('disabled', false).html('<i class="fas fa-ban"></i>');
+            }
+        },
+        error: function(xhr) {
+            const errorMsg = xhr.responseJSON?.error || 'Erreur serveur';
+            toastr.error(errorMsg);
+            $button.prop('disabled', false).html('<i class="fas fa-ban"></i>');
+        }
+    });
+}
+
+/**
+ * Supprime une absence (appele par confirmerSuppression dans le template)
+ */
+function supprimerAbsenceConfirmed(absenceId) {
+    const $button = $(`.btn-supprimer[data-absence-id="${absenceId}"]`);
+    const $row = $button.closest('tr');
+
+    $button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+
+    $.ajax({
+        url: `/absence/api/absence/${absenceId}/delete/`,
+        type: 'POST',
+        headers: {'X-CSRFToken': getCsrfToken()},
+        success: function(response) {
+            if (response.success) {
+                $row.fadeOut(400, function() {
+                    $(this).remove();
+                    const $tbody = $('#absencesTable tbody');
+                    const $remainingRows = $tbody.find('tr:not(.empty-message)');
+                    if ($remainingRows.length === 0) {
+                        $tbody.html(`
+                            <tr class="empty-message">
+                                <td colspan="8" class="text-center text-muted py-4">
+                                    <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                                    Aucune absence trouvee
+                                </td>
+                            </tr>
+                        `);
+                    }
+                });
+                toastr.success(response.message || 'Supprimee avec succes');
+            } else {
+                toastr.error(response.error || 'Erreur lors de la suppression');
+                $button.prop('disabled', false).html('<i class="fas fa-trash"></i>');
+            }
+        },
+        error: function(xhr) {
+            const errorMsg = xhr.responseJSON?.error || 'Erreur serveur';
+            toastr.error(errorMsg);
+            $button.prop('disabled', false).html('<i class="fas fa-trash"></i>');
+        }
+    });
+}
 
 // ========================================
 // FONCTIONS UTILITAIRES

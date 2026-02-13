@@ -395,6 +395,14 @@
         "documentation": {}
     },
     {
+        "label": "path",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
         "label": "reverse",
         "importPath": "django.urls",
         "description": "django.urls",
@@ -787,6 +795,22 @@
         "documentation": {}
     },
     {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
         "label": "messages",
         "importPath": "django.contrib",
         "description": "django.contrib",
@@ -1040,6 +1064,30 @@
         "description": "django.views.generic",
         "isExtraImport": true,
         "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "settings",
+        "importPath": "django.conf",
+        "description": "django.conf",
+        "isExtraImport": true,
+        "detail": "django.conf",
+        "documentation": {}
+    },
+    {
+        "label": "settings",
+        "importPath": "django.conf",
+        "description": "django.conf",
+        "isExtraImport": true,
+        "detail": "django.conf",
+        "documentation": {}
+    },
+    {
+        "label": "settings",
+        "importPath": "django.conf",
+        "description": "django.conf",
+        "isExtraImport": true,
+        "detail": "django.conf",
         "documentation": {}
     },
     {
@@ -1972,6 +2020,38 @@
     },
     {
         "label": "redirect",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "get_object_or_404",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "redirect",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "get_object_or_404",
         "importPath": "django.shortcuts",
         "description": "django.shortcuts",
         "isExtraImport": true,
@@ -3069,6 +3149,14 @@
     },
     {
         "label": "ZYRE",
+        "importPath": "employee.models",
+        "description": "employee.models",
+        "isExtraImport": true,
+        "detail": "employee.models",
+        "documentation": {}
+    },
+    {
+        "label": "ZY00",
         "importPath": "employee.models",
         "description": "employee.models",
         "isExtraImport": true,
@@ -4677,6 +4765,102 @@
         "documentation": {}
     },
     {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "transaction",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
         "label": "models",
         "importPath": "django.db",
         "description": "django.db",
@@ -5405,6 +5589,14 @@
         "documentation": {}
     },
     {
+        "label": "Count",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
         "label": "Q",
         "importPath": "django.db.models",
         "description": "django.db.models",
@@ -5690,6 +5882,14 @@
         "description": "django.db.models",
         "isExtraImport": true,
         "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
         "documentation": {}
     },
     {
@@ -7342,6 +7542,14 @@
         "documentation": {}
     },
     {
+        "label": "get_user_model",
+        "importPath": "django.contrib.auth",
+        "description": "django.contrib.auth",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth",
+        "documentation": {}
+    },
+    {
         "label": "datetime",
         "kind": 6,
         "isExtraImport": true,
@@ -8224,6 +8432,14 @@
     },
     {
         "label": "timedelta",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
         "importPath": "datetime",
         "description": "datetime",
         "isExtraImport": true,
@@ -9865,6 +10081,22 @@
         "documentation": {}
     },
     {
+        "label": "HttpResponseForbidden",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
+        "label": "JsonResponse",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
         "label": "JsonResponse",
         "importPath": "django.http",
         "description": "django.http",
@@ -10353,35 +10585,19 @@
         "documentation": {}
     },
     {
-        "label": "require_http_methods",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
+        "label": "login_required",
+        "importPath": "django.contrib.auth.decorators",
+        "description": "django.contrib.auth.decorators",
         "isExtraImport": true,
-        "detail": "django.views.decorators.http",
+        "detail": "django.contrib.auth.decorators",
         "documentation": {}
     },
     {
-        "label": "require_POST",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
+        "label": "login_required",
+        "importPath": "django.contrib.auth.decorators",
+        "description": "django.contrib.auth.decorators",
         "isExtraImport": true,
-        "detail": "django.views.decorators.http",
-        "documentation": {}
-    },
-    {
-        "label": "require_http_methods",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
-        "isExtraImport": true,
-        "detail": "django.views.decorators.http",
-        "documentation": {}
-    },
-    {
-        "label": "require_POST",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
-        "isExtraImport": true,
-        "detail": "django.views.decorators.http",
+        "detail": "django.contrib.auth.decorators",
         "documentation": {}
     },
     {
@@ -10449,54 +10665,6 @@
         "documentation": {}
     },
     {
-        "label": "require_POST",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
-        "isExtraImport": true,
-        "detail": "django.views.decorators.http",
-        "documentation": {}
-    },
-    {
-        "label": "require_GET",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
-        "isExtraImport": true,
-        "detail": "django.views.decorators.http",
-        "documentation": {}
-    },
-    {
-        "label": "require_http_methods",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
-        "isExtraImport": true,
-        "detail": "django.views.decorators.http",
-        "documentation": {}
-    },
-    {
-        "label": "require_http_methods",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
-        "isExtraImport": true,
-        "detail": "django.views.decorators.http",
-        "documentation": {}
-    },
-    {
-        "label": "require_http_methods",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
-        "isExtraImport": true,
-        "detail": "django.views.decorators.http",
-        "documentation": {}
-    },
-    {
-        "label": "require_http_methods",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
-        "isExtraImport": true,
-        "detail": "django.views.decorators.http",
-        "documentation": {}
-    },
-    {
         "label": "require_http_methods",
         "importPath": "django.views.decorators.http",
         "description": "django.views.decorators.http",
@@ -10522,30 +10690,6 @@
     },
     {
         "label": "require_POST",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
-        "isExtraImport": true,
-        "detail": "django.views.decorators.http",
-        "documentation": {}
-    },
-    {
-        "label": "require_http_methods",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
-        "isExtraImport": true,
-        "detail": "django.views.decorators.http",
-        "documentation": {}
-    },
-    {
-        "label": "require_POST",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
-        "isExtraImport": true,
-        "detail": "django.views.decorators.http",
-        "documentation": {}
-    },
-    {
-        "label": "require_http_methods",
         "importPath": "django.views.decorators.http",
         "description": "django.views.decorators.http",
         "isExtraImport": true,
@@ -10593,6 +10737,110 @@
         "documentation": {}
     },
     {
+        "label": "require_http_methods",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_http_methods",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_POST",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_http_methods",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_POST",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_http_methods",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_POST",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_http_methods",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_POST",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_GET",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_http_methods",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_http_methods",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_http_methods",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
         "label": "require_POST",
         "importPath": "django.views.decorators.http",
         "description": "django.views.decorators.http",
@@ -10610,6 +10858,30 @@
     },
     {
         "label": "require_GET",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_POST",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_http_methods",
+        "importPath": "django.views.decorators.http",
+        "description": "django.views.decorators.http",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.http",
+        "documentation": {}
+    },
+    {
+        "label": "require_POST",
         "importPath": "django.views.decorators.http",
         "description": "django.views.decorators.http",
         "isExtraImport": true,
@@ -11146,6 +11418,14 @@
         "documentation": {}
     },
     {
+        "label": "AppConfig",
+        "importPath": "django.apps",
+        "description": "django.apps",
+        "isExtraImport": true,
+        "detail": "django.apps",
+        "documentation": {}
+    },
+    {
         "label": "wraps",
         "importPath": "functools",
         "description": "functools",
@@ -11235,6 +11515,14 @@
     },
     {
         "label": "template",
+        "importPath": "django",
+        "description": "django",
+        "isExtraImport": true,
+        "detail": "django",
+        "documentation": {}
+    },
+    {
+        "label": "forms",
         "importPath": "django",
         "description": "django",
         "isExtraImport": true,
@@ -12783,6 +13071,14 @@
     },
     {
         "label": "ZDPO",
+        "importPath": "departement.models",
+        "description": "departement.models",
+        "isExtraImport": true,
+        "detail": "departement.models",
+        "documentation": {}
+    },
+    {
+        "label": "ZDDE",
         "importPath": "departement.models",
         "description": "departement.models",
         "isExtraImport": true,
@@ -28852,6 +29148,510 @@
         "description": "materiel.views",
         "peekOfCode": "def api_stats_dashboard(request):\n    \"\"\"API pour les stats du dashboard (refresh AJAX).\"\"\"\n    employe = getattr(request.user, 'employe', None)\n    if not _peut_gerer_materiel(employe):\n        return JsonResponse({'error': 'Non autorisé'}, status=403)\n    stats = StatistiquesMaterielService.get_stats_globales()\n    alertes = StatistiquesMaterielService.get_alertes()\n    return JsonResponse({\n        'stats': {\n            'total_materiels': stats['total_materiels'],",
         "detail": "materiel.views",
+        "documentation": {}
+    },
+    {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "planning.migrations.0001_initial",
+        "description": "planning.migrations.0001_initial",
+        "peekOfCode": "class Migration(migrations.Migration):\n    initial = True\n    dependencies = [\n        ('employee', '0002_alter_zyre_unique_together'),\n        migrations.swappable_dependency(settings.AUTH_USER_MODEL),\n    ]\n    operations = [\n        migrations.CreateModel(\n            name='PosteTravail',\n            fields=[",
+        "detail": "planning.migrations.0001_initial",
+        "documentation": {}
+    },
+    {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "planning.migrations.0002_alter_planning_options_alter_quarttravail_options_and_more",
+        "description": "planning.migrations.0002_alter_planning_options_alter_quarttravail_options_and_more",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('planning', '0001_initial'),\n        migrations.swappable_dependency(settings.AUTH_USER_MODEL),\n    ]\n    operations = [\n        migrations.AlterModelOptions(\n            name='planning',\n            options={'ordering': ['-created_at'], 'verbose_name': 'Planning', 'verbose_name_plural': 'Plannings'},\n        ),",
+        "detail": "planning.migrations.0002_alter_planning_options_alter_quarttravail_options_and_more",
+        "documentation": {}
+    },
+    {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "planning.migrations.0003_remove_quarttravail_employe_and_more",
+        "description": "planning.migrations.0003_remove_quarttravail_employe_and_more",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('planning', '0002_alter_planning_options_alter_quarttravail_options_and_more'),\n    ]\n    operations = [\n        migrations.RemoveField(\n            model_name='quarttravail',\n            name='employe',\n        ),\n        migrations.RemoveField(",
+        "detail": "planning.migrations.0003_remove_quarttravail_employe_and_more",
+        "documentation": {}
+    },
+    {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "planning.migrations.0004_evenement_affectation",
+        "description": "planning.migrations.0004_evenement_affectation",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('employee', '0002_alter_zyre_unique_together'),\n        ('planning', '0003_remove_quarttravail_employe_and_more'),\n        migrations.swappable_dependency(settings.AUTH_USER_MODEL),\n    ]\n    operations = [\n        migrations.CreateModel(\n            name='Evenement',\n            fields=[",
+        "detail": "planning.migrations.0004_evenement_affectation",
+        "documentation": {}
+    },
+    {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "planning.migrations.0005_planning_departement",
+        "description": "planning.migrations.0005_planning_departement",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('departement', '0002_initial'),\n        ('planning', '0004_evenement_affectation'),\n    ]\n    operations = [\n        migrations.AddField(\n            model_name='planning',\n            name='departement',\n            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='plannings', to='departement.zdde', verbose_name='Département'),",
+        "detail": "planning.migrations.0005_planning_departement",
+        "documentation": {}
+    },
+    {
+        "label": "SiteTravailAdmin",
+        "kind": 6,
+        "importPath": "planning.admin",
+        "description": "planning.admin",
+        "peekOfCode": "class SiteTravailAdmin(admin.ModelAdmin):\n    \"\"\"Admin pour les sites de travail.\"\"\"\n    list_display = ['nom', 'telephone', 'heure_ouverture', 'heure_fermeture', 'is_active']\n    list_filter = ['is_active', 'fuseau_horaire']\n    search_fields = ['nom', 'adresse']\n    ordering = ['nom']\n@admin.register(PosteTravail)\nclass PosteTravailAdmin(admin.ModelAdmin):\n    \"\"\"Admin pour les postes de travail.\"\"\"\n    list_display = ['nom', 'site', 'type_poste', 'heure_debut', 'heure_fin', 'taux_horaire', 'is_active']",
+        "detail": "planning.admin",
+        "documentation": {}
+    },
+    {
+        "label": "PosteTravailAdmin",
+        "kind": 6,
+        "importPath": "planning.admin",
+        "description": "planning.admin",
+        "peekOfCode": "class PosteTravailAdmin(admin.ModelAdmin):\n    \"\"\"Admin pour les postes de travail.\"\"\"\n    list_display = ['nom', 'site', 'type_poste', 'heure_debut', 'heure_fin', 'taux_horaire', 'is_active']\n    list_filter = ['type_poste', 'site', 'is_active']\n    search_fields = ['nom', 'description', 'site__nom']\n    ordering = ['site', 'nom']\n    def get_queryset(self, request):\n        return super().get_queryset(request).select_related('site')\n@admin.register(Planning)\nclass PlanningAdmin(admin.ModelAdmin):",
+        "detail": "planning.admin",
+        "documentation": {}
+    },
+    {
+        "label": "PlanningAdmin",
+        "kind": 6,
+        "importPath": "planning.admin",
+        "description": "planning.admin",
+        "peekOfCode": "class PlanningAdmin(admin.ModelAdmin):\n    \"\"\"Admin pour les plannings.\"\"\"\n    list_display = ['titre', 'date_debut', 'date_fin', 'statut', 'created_by', 'created_at']\n    list_filter = ['statut', 'date_debut', 'date_fin', 'created_at']\n    search_fields = ['titre', 'description']\n    ordering = ['-date_debut']\n    readonly_fields = ['uuid', 'created_at', 'updated_at']\n    def get_queryset(self, request):\n        return super().get_queryset(request).select_related('created_by')\n@admin.register(Affectation)",
+        "detail": "planning.admin",
+        "documentation": {}
+    },
+    {
+        "label": "AffectationAdmin",
+        "kind": 6,
+        "importPath": "planning.admin",
+        "description": "planning.admin",
+        "peekOfCode": "class AffectationAdmin(admin.ModelAdmin):\n    \"\"\"Admin pour les affectations.\"\"\"\n    list_display = ['employe', 'poste', 'date', 'heure_debut', 'heure_fin', 'statut', 'created_by']\n    list_filter = ['statut', 'date', 'poste__site']\n    search_fields = ['employe__nom', 'employe__prenoms', 'poste__nom']\n    ordering = ['-date', 'heure_debut']\n    readonly_fields = ['uuid', 'created_at', 'updated_at']\n    def get_queryset(self, request):\n        return super().get_queryset(request).select_related(\n            'employe', 'poste', 'poste__site', 'planning', 'created_by'",
+        "detail": "planning.admin",
+        "documentation": {}
+    },
+    {
+        "label": "EvenementAdmin",
+        "kind": 6,
+        "importPath": "planning.admin",
+        "description": "planning.admin",
+        "peekOfCode": "class EvenementAdmin(admin.ModelAdmin):\n    \"\"\"Admin pour les evenements.\"\"\"\n    list_display = ['titre', 'type_evenement', 'date_debut', 'date_fin', 'lieu', 'created_by']\n    list_filter = ['type_evenement', 'date_debut']\n    search_fields = ['titre', 'description', 'lieu']\n    ordering = ['-date_debut']\n    readonly_fields = ['uuid', 'created_at', 'updated_at']\n    filter_horizontal = ['employes']\n    def get_queryset(self, request):\n        return super().get_queryset(request).select_related('created_by')",
+        "detail": "planning.admin",
+        "documentation": {}
+    },
+    {
+        "label": "PlanningConfig",
+        "kind": 6,
+        "importPath": "planning.apps",
+        "description": "planning.apps",
+        "peekOfCode": "class PlanningConfig(AppConfig):\n    default_auto_field = 'django.db.models.BigAutoField'\n    name = 'planning'\n    verbose_name = 'Planning et Pointage'\n    def ready(self):\n        # Import des signaux si nécessaire\n        pass",
+        "detail": "planning.apps",
+        "documentation": {}
+    },
+    {
+        "label": "SiteTravailForm",
+        "kind": 6,
+        "importPath": "planning.forms",
+        "description": "planning.forms",
+        "peekOfCode": "class SiteTravailForm(forms.ModelForm):\n    class Meta:\n        model = SiteTravail\n        fields = ['nom', 'adresse', 'telephone', 'heure_ouverture', 'heure_fermeture', 'fuseau_horaire', 'is_active']\n        widgets = {\n            'nom': forms.TextInput(attrs={\n                'class': 'form-control', 'placeholder': 'Nom du site'\n            }),\n            'adresse': forms.Textarea(attrs={\n                'class': 'form-control', 'rows': 2, 'placeholder': 'Adresse complete'",
+        "detail": "planning.forms",
+        "documentation": {}
+    },
+    {
+        "label": "PosteTravailForm",
+        "kind": 6,
+        "importPath": "planning.forms",
+        "description": "planning.forms",
+        "peekOfCode": "class PosteTravailForm(forms.ModelForm):\n    class Meta:\n        model = PosteTravail\n        fields = ['nom', 'description', 'type_poste', 'site', 'heure_debut', 'heure_fin',\n                  'pause_dejeune', 'taux_horaire', 'is_active']\n        widgets = {\n            'nom': forms.TextInput(attrs={\n                'class': 'form-control', 'placeholder': 'Nom du poste'\n            }),\n            'description': forms.Textarea(attrs={",
+        "detail": "planning.forms",
+        "documentation": {}
+    },
+    {
+        "label": "PlanningForm",
+        "kind": 6,
+        "importPath": "planning.forms",
+        "description": "planning.forms",
+        "peekOfCode": "class PlanningForm(forms.ModelForm):\n    class Meta:\n        model = Planning\n        fields = ['titre', 'description', 'date_debut', 'date_fin', 'statut', 'departement']\n        widgets = {\n            'titre': forms.TextInput(attrs={\n                'class': 'form-control', 'placeholder': 'Titre du planning'\n            }),\n            'description': forms.Textarea(attrs={\n                'class': 'form-control', 'rows': 3",
+        "detail": "planning.forms",
+        "documentation": {}
+    },
+    {
+        "label": "AffectationForm",
+        "kind": 6,
+        "importPath": "planning.forms",
+        "description": "planning.forms",
+        "peekOfCode": "class AffectationForm(forms.ModelForm):\n    class Meta:\n        model = Affectation\n        fields = ['planning', 'employe', 'poste', 'date', 'heure_debut', 'heure_fin', 'statut', 'notes']\n        widgets = {\n            'planning': forms.Select(attrs={'class': 'form-control'}),\n            'employe': forms.Select(attrs={'class': 'form-control'}),\n            'poste': forms.Select(attrs={'class': 'form-control'}),\n            'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),\n            'heure_debut': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),",
+        "detail": "planning.forms",
+        "documentation": {}
+    },
+    {
+        "label": "EvenementForm",
+        "kind": 6,
+        "importPath": "planning.forms",
+        "description": "planning.forms",
+        "peekOfCode": "class EvenementForm(forms.ModelForm):\n    class Meta:\n        model = Evenement\n        fields = ['titre', 'description', 'date_debut', 'date_fin', 'type_evenement', 'employes', 'lieu']\n        widgets = {\n            'titre': forms.TextInput(attrs={\n                'class': 'form-control', 'placeholder': 'Titre'\n            }),\n            'description': forms.Textarea(attrs={\n                'class': 'form-control', 'rows': 3",
+        "detail": "planning.forms",
+        "documentation": {}
+    },
+    {
+        "label": "Planning",
+        "kind": 6,
+        "importPath": "planning.models",
+        "description": "planning.models",
+        "peekOfCode": "class Planning(models.Model):\n    \"\"\"\n    Planning principal pour la gestion des plannings.\n    \"\"\"\n    STATUT_CHOICES = [\n        ('BROUILLON', 'Brouillon'),\n        ('PUBLIE', 'Publié'),\n        ('VALIDE', 'Validé'),\n        ('ARCHIVE', 'Archivé'),\n    ]",
+        "detail": "planning.models",
+        "documentation": {}
+    },
+    {
+        "label": "SiteTravail",
+        "kind": 6,
+        "importPath": "planning.models",
+        "description": "planning.models",
+        "peekOfCode": "class SiteTravail(models.Model):\n    \"\"\"\n    Site de travail.\n    \"\"\"\n    nom = models.CharField(\n        max_length=100,\n        verbose_name=\"Nom du site\"\n    )\n    adresse = models.TextField(\n        blank=True,",
+        "detail": "planning.models",
+        "documentation": {}
+    },
+    {
+        "label": "PosteTravail",
+        "kind": 6,
+        "importPath": "planning.models",
+        "description": "planning.models",
+        "peekOfCode": "class PosteTravail(models.Model):\n    \"\"\"\n    Poste de travail.\n    \"\"\"\n    TYPE_POSTE_CHOICES = [\n        ('JOURNEE', 'Poste journée'),\n        ('SOIR', 'Poste soir'),\n        ('NUIT', 'Poste nuit'),\n        ('WEEKEND', 'Poste week-end'),\n        ('SPECIAL', 'Poste spécial'),",
+        "detail": "planning.models",
+        "documentation": {}
+    },
+    {
+        "label": "Affectation",
+        "kind": 6,
+        "importPath": "planning.models",
+        "description": "planning.models",
+        "peekOfCode": "class Affectation(models.Model):\n    \"\"\"Affectation d'un employe a un poste de travail sur une date donnee.\"\"\"\n    STATUT_CHOICES = [\n        ('PLANIFIE', 'Planifie'),\n        ('CONFIRME', 'Confirme'),\n        ('EN_COURS', 'En cours'),\n        ('TERMINE', 'Termine'),\n        ('ANNULE', 'Annule'),\n    ]\n    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)",
+        "detail": "planning.models",
+        "documentation": {}
+    },
+    {
+        "label": "Evenement",
+        "kind": 6,
+        "importPath": "planning.models",
+        "description": "planning.models",
+        "peekOfCode": "class Evenement(models.Model):\n    \"\"\"Evenement de calendrier (reunion, formation, tache, etc.).\"\"\"\n    TYPE_CHOICES = [\n        ('REUNION', 'Reunion'),\n        ('FORMATION', 'Formation'),\n        ('TACHE', 'Tache'),\n        ('AUTRE', 'Autre'),\n    ]\n    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)\n    titre = models.CharField(max_length=200, verbose_name=\"Titre\")",
+        "detail": "planning.models",
+        "documentation": {}
+    },
+    {
+        "label": "User",
+        "kind": 5,
+        "importPath": "planning.models",
+        "description": "planning.models",
+        "peekOfCode": "User = get_user_model()\nclass Planning(models.Model):\n    \"\"\"\n    Planning principal pour la gestion des plannings.\n    \"\"\"\n    STATUT_CHOICES = [\n        ('BROUILLON', 'Brouillon'),\n        ('PUBLIE', 'Publié'),\n        ('VALIDE', 'Validé'),\n        ('ARCHIVE', 'Archivé'),",
+        "detail": "planning.models",
+        "documentation": {}
+    },
+    {
+        "label": "get_planning_role",
+        "kind": 2,
+        "importPath": "planning.permissions",
+        "description": "planning.permissions",
+        "peekOfCode": "def get_planning_role(user):\n    \"\"\"\n    Determine le role de l'utilisateur dans le module planning.\n    Returns:\n        str ou None: 'admin', 'manager', 'employee', ou None\n    \"\"\"\n    if not user.is_authenticated:\n        return None\n    if user.is_superuser:\n        return 'admin'",
+        "detail": "planning.permissions",
+        "documentation": {}
+    },
+    {
+        "label": "get_visible_employees",
+        "kind": 2,
+        "importPath": "planning.permissions",
+        "description": "planning.permissions",
+        "peekOfCode": "def get_visible_employees(user):\n    \"\"\"\n    Retourne le QuerySet des employes visibles selon le role.\n    - admin : tous les employes actifs\n    - manager : subordonnes + soi-meme\n    - employee : collegues du meme departement + soi-meme\n    \"\"\"\n    from employee.models import ZY00\n    from employee.services.hierarchy_service import HierarchyService\n    role = get_planning_role(user)",
+        "detail": "planning.permissions",
+        "documentation": {}
+    },
+    {
+        "label": "get_visible_plannings",
+        "kind": 2,
+        "importPath": "planning.permissions",
+        "description": "planning.permissions",
+        "peekOfCode": "def get_visible_plannings(user):\n    \"\"\"\n    Retourne les plannings visibles selon le role.\n    - admin : tous les plannings\n    - manager : plannings de son departement + plannings globaux (dept=null)\n    - employee : plannings de son departement + plannings globaux\n    \"\"\"\n    from .models import Planning\n    from employee.services.hierarchy_service import HierarchyService\n    role = get_planning_role(user)",
+        "detail": "planning.permissions",
+        "documentation": {}
+    },
+    {
+        "label": "can_edit_planning",
+        "kind": 2,
+        "importPath": "planning.permissions",
+        "description": "planning.permissions",
+        "peekOfCode": "def can_edit_planning(user):\n    \"\"\"Retourne True si l'utilisateur peut creer/modifier/supprimer.\"\"\"\n    return get_planning_role(user) in ('admin', 'manager')",
+        "detail": "planning.permissions",
+        "documentation": {}
+    },
+    {
+        "label": "app_name",
+        "kind": 5,
+        "importPath": "planning.urls",
+        "description": "planning.urls",
+        "peekOfCode": "app_name = 'planning'\nurlpatterns = [\n    # Pages\n    path('', views.planning_calendar, name='planning_calendar'),\n    path('mon-planning/', views.mon_planning, name='mon_planning'),\n    # API Affectations\n    path('api/affectations/', views_api.api_affectations, name='api_affectations'),\n    path('api/affectation/create/', views_api.api_affectation_create, name='api_affectation_create'),\n    path('api/affectation/<int:pk>/', views_api.api_affectation_detail, name='api_affectation_detail'),\n    path('api/affectation/<int:pk>/update/', views_api.api_affectation_update, name='api_affectation_update'),",
+        "detail": "planning.urls",
+        "documentation": {}
+    },
+    {
+        "label": "urlpatterns",
+        "kind": 5,
+        "importPath": "planning.urls",
+        "description": "planning.urls",
+        "peekOfCode": "urlpatterns = [\n    # Pages\n    path('', views.planning_calendar, name='planning_calendar'),\n    path('mon-planning/', views.mon_planning, name='mon_planning'),\n    # API Affectations\n    path('api/affectations/', views_api.api_affectations, name='api_affectations'),\n    path('api/affectation/create/', views_api.api_affectation_create, name='api_affectation_create'),\n    path('api/affectation/<int:pk>/', views_api.api_affectation_detail, name='api_affectation_detail'),\n    path('api/affectation/<int:pk>/update/', views_api.api_affectation_update, name='api_affectation_update'),\n    path('api/affectation/<int:pk>/delete/', views_api.api_affectation_delete, name='api_affectation_delete'),",
+        "detail": "planning.urls",
+        "documentation": {}
+    },
+    {
+        "label": "planning_calendar",
+        "kind": 2,
+        "importPath": "planning.views",
+        "description": "planning.views",
+        "peekOfCode": "def planning_calendar(request):\n    \"\"\"Vue calendrier principale avec FullCalendar (vue semaine).\"\"\"\n    role = get_planning_role(request.user)\n    if not role:\n        messages.error(request, \"Vous n'avez pas acces au module Planning.\")\n        return redirect('home')\n    can_edit = can_edit_planning(request.user)\n    visible_employees = get_visible_employees(request.user)\n    # Donnees pour les selects des modals (uniquement pour les editeurs)\n    postes_data = []",
+        "detail": "planning.views",
+        "documentation": {}
+    },
+    {
+        "label": "mon_planning",
+        "kind": 2,
+        "importPath": "planning.views",
+        "description": "planning.views",
+        "peekOfCode": "def mon_planning(request):\n    \"\"\"Vue 'Mon planning' - employe voit uniquement son planning.\"\"\"\n    employe = getattr(request.user, 'employe', None)\n    if not employe:\n        messages.error(request, \"Profil employe introuvable.\")\n        return redirect('home')\n    context = {\n        'role': 'employee',\n        'can_edit': False,\n        'employe': employe,",
+        "detail": "planning.views",
+        "documentation": {}
+    },
+    {
+        "label": "liste_sites",
+        "kind": 2,
+        "importPath": "planning.views",
+        "description": "planning.views",
+        "peekOfCode": "def liste_sites(request):\n    \"\"\"Liste des sites de travail.\"\"\"\n    if not can_edit_planning(request.user):\n        return HttpResponseForbidden(\"Acces non autorise\")\n    sites = SiteTravail.objects.annotate(\n        nb_postes=Count('postetravail')\n    ).order_by('nom')\n    return render(request, 'planning/sites_list.html', {'sites': sites})\n@login_required\ndef creer_site(request):",
+        "detail": "planning.views",
+        "documentation": {}
+    },
+    {
+        "label": "creer_site",
+        "kind": 2,
+        "importPath": "planning.views",
+        "description": "planning.views",
+        "peekOfCode": "def creer_site(request):\n    \"\"\"Creer un site de travail.\"\"\"\n    if not can_edit_planning(request.user):\n        return HttpResponseForbidden(\"Acces non autorise\")\n    if request.method == 'POST':\n        form = SiteTravailForm(request.POST)\n        if form.is_valid():\n            form.save()\n            messages.success(request, f\"Site '{form.instance.nom}' cree avec succes.\")\n            return redirect('planning:liste_sites')",
+        "detail": "planning.views",
+        "documentation": {}
+    },
+    {
+        "label": "modifier_site",
+        "kind": 2,
+        "importPath": "planning.views",
+        "description": "planning.views",
+        "peekOfCode": "def modifier_site(request, pk):\n    \"\"\"Modifier un site de travail.\"\"\"\n    if not can_edit_planning(request.user):\n        return HttpResponseForbidden(\"Acces non autorise\")\n    site = get_object_or_404(SiteTravail, pk=pk)\n    if request.method == 'POST':\n        form = SiteTravailForm(request.POST, instance=site)\n        if form.is_valid():\n            form.save()\n            messages.success(request, f\"Site '{site.nom}' modifie avec succes.\")",
+        "detail": "planning.views",
+        "documentation": {}
+    },
+    {
+        "label": "supprimer_site",
+        "kind": 2,
+        "importPath": "planning.views",
+        "description": "planning.views",
+        "peekOfCode": "def supprimer_site(request, pk):\n    \"\"\"Supprimer un site de travail.\"\"\"\n    if not can_edit_planning(request.user):\n        return HttpResponseForbidden(\"Acces non autorise\")\n    site = get_object_or_404(SiteTravail, pk=pk)\n    # Verifier qu'aucun poste n'est rattache\n    nb_postes = PosteTravail.objects.filter(site=site).count()\n    if nb_postes > 0:\n        messages.error(\n            request,",
+        "detail": "planning.views",
+        "documentation": {}
+    },
+    {
+        "label": "liste_postes",
+        "kind": 2,
+        "importPath": "planning.views",
+        "description": "planning.views",
+        "peekOfCode": "def liste_postes(request):\n    \"\"\"Liste des postes de travail.\"\"\"\n    if not can_edit_planning(request.user):\n        return HttpResponseForbidden(\"Acces non autorise\")\n    postes = PosteTravail.objects.select_related('site').all().order_by('site__nom', 'nom')\n    # Filtre par site\n    site_id = request.GET.get('site')\n    if site_id:\n        postes = postes.filter(site_id=site_id)\n    sites = SiteTravail.objects.filter(is_active=True).order_by('nom')",
+        "detail": "planning.views",
+        "documentation": {}
+    },
+    {
+        "label": "creer_poste",
+        "kind": 2,
+        "importPath": "planning.views",
+        "description": "planning.views",
+        "peekOfCode": "def creer_poste(request):\n    \"\"\"Creer un poste de travail.\"\"\"\n    if not can_edit_planning(request.user):\n        return HttpResponseForbidden(\"Acces non autorise\")\n    if request.method == 'POST':\n        form = PosteTravailForm(request.POST)\n        if form.is_valid():\n            form.save()\n            messages.success(request, f\"Poste '{form.instance.nom}' cree avec succes.\")\n            return redirect('planning:liste_postes')",
+        "detail": "planning.views",
+        "documentation": {}
+    },
+    {
+        "label": "modifier_poste",
+        "kind": 2,
+        "importPath": "planning.views",
+        "description": "planning.views",
+        "peekOfCode": "def modifier_poste(request, pk):\n    \"\"\"Modifier un poste de travail.\"\"\"\n    if not can_edit_planning(request.user):\n        return HttpResponseForbidden(\"Acces non autorise\")\n    poste = get_object_or_404(PosteTravail, pk=pk)\n    if request.method == 'POST':\n        form = PosteTravailForm(request.POST, instance=poste)\n        if form.is_valid():\n            form.save()\n            messages.success(request, f\"Poste '{poste.nom}' modifie avec succes.\")",
+        "detail": "planning.views",
+        "documentation": {}
+    },
+    {
+        "label": "supprimer_poste",
+        "kind": 2,
+        "importPath": "planning.views",
+        "description": "planning.views",
+        "peekOfCode": "def supprimer_poste(request, pk):\n    \"\"\"Supprimer un poste de travail.\"\"\"\n    if not can_edit_planning(request.user):\n        return HttpResponseForbidden(\"Acces non autorise\")\n    poste = get_object_or_404(PosteTravail, pk=pk)\n    # Verifier qu'aucune affectation n'est rattachee\n    nb_affectations = Affectation.objects.filter(poste=poste).count()\n    if nb_affectations > 0:\n        messages.error(\n            request,",
+        "detail": "planning.views",
+        "documentation": {}
+    },
+    {
+        "label": "liste_plannings",
+        "kind": 2,
+        "importPath": "planning.views",
+        "description": "planning.views",
+        "peekOfCode": "def liste_plannings(request):\n    \"\"\"Liste des plannings.\"\"\"\n    if not can_edit_planning(request.user):\n        return HttpResponseForbidden(\"Acces non autorise\")\n    plannings = get_visible_plannings(request.user).select_related(\n        'departement'\n    ).annotate(\n        nb_affectations=Count('affectations')\n    ).order_by('-date_debut')\n    return render(request, 'planning/plannings_list.html', {'plannings': plannings})",
+        "detail": "planning.views",
+        "documentation": {}
+    },
+    {
+        "label": "creer_planning",
+        "kind": 2,
+        "importPath": "planning.views",
+        "description": "planning.views",
+        "peekOfCode": "def creer_planning(request):\n    \"\"\"Creer un planning.\"\"\"\n    if not can_edit_planning(request.user):\n        return HttpResponseForbidden(\"Acces non autorise\")\n    role = get_planning_role(request.user)\n    if request.method == 'POST':\n        form = PlanningForm(request.POST, user_role=role)\n        if form.is_valid():\n            planning = form.save(commit=False)\n            planning.created_by = request.user",
+        "detail": "planning.views",
+        "documentation": {}
+    },
+    {
+        "label": "modifier_planning",
+        "kind": 2,
+        "importPath": "planning.views",
+        "description": "planning.views",
+        "peekOfCode": "def modifier_planning(request, pk):\n    \"\"\"Modifier un planning.\"\"\"\n    if not can_edit_planning(request.user):\n        return HttpResponseForbidden(\"Acces non autorise\")\n    planning = get_object_or_404(Planning, pk=pk)\n    # Verifier que le planning est visible par l'utilisateur\n    if not get_visible_plannings(request.user).filter(pk=pk).exists():\n        return HttpResponseForbidden(\"Acces non autorise\")\n    role = get_planning_role(request.user)\n    if request.method == 'POST':",
+        "detail": "planning.views",
+        "documentation": {}
+    },
+    {
+        "label": "supprimer_planning",
+        "kind": 2,
+        "importPath": "planning.views",
+        "description": "planning.views",
+        "peekOfCode": "def supprimer_planning(request, pk):\n    \"\"\"Supprimer un planning.\"\"\"\n    if not can_edit_planning(request.user):\n        return HttpResponseForbidden(\"Acces non autorise\")\n    planning = get_object_or_404(Planning, pk=pk)\n    # Verifier que le planning est visible par l'utilisateur\n    if not get_visible_plannings(request.user).filter(pk=pk).exists():\n        return HttpResponseForbidden(\"Acces non autorise\")\n    # Verifier qu'aucune affectation n'est rattachee\n    nb_affectations = Affectation.objects.filter(planning=planning).count()",
+        "detail": "planning.views",
+        "documentation": {}
+    },
+    {
+        "label": "api_affectations",
+        "kind": 2,
+        "importPath": "planning.views_api",
+        "description": "planning.views_api",
+        "peekOfCode": "def api_affectations(request):\n    \"\"\"Liste des affectations au format FullCalendar.\"\"\"\n    try:\n        start = request.GET.get('start', '')\n        end = request.GET.get('end', '')\n        visible = get_visible_employees(request.user)\n        qs = Affectation.objects.filter(\n            employe__in=visible\n        ).select_related('employe', 'poste', 'poste__site', 'planning')\n        if start:",
+        "detail": "planning.views_api",
+        "documentation": {}
+    },
+    {
+        "label": "api_affectation_create",
+        "kind": 2,
+        "importPath": "planning.views_api",
+        "description": "planning.views_api",
+        "peekOfCode": "def api_affectation_create(request):\n    \"\"\"Creer une affectation.\"\"\"\n    if not can_edit_planning(request.user):\n        return JsonResponse({'success': False, 'error': 'Permission refusee'}, status=403)\n    try:\n        visible = get_visible_employees(request.user)\n        employe_matricule = request.POST.get('employe')\n        if not visible.filter(matricule=employe_matricule).exists():\n            return JsonResponse({'success': False, 'error': 'Employe non autorise'}, status=403)\n        employe = ZY00.objects.get(matricule=employe_matricule)",
+        "detail": "planning.views_api",
+        "documentation": {}
+    },
+    {
+        "label": "api_affectation_detail",
+        "kind": 2,
+        "importPath": "planning.views_api",
+        "description": "planning.views_api",
+        "peekOfCode": "def api_affectation_detail(request, pk):\n    \"\"\"Detail d'une affectation.\"\"\"\n    try:\n        affectation = get_object_or_404(\n            Affectation.objects.select_related('employe', 'poste', 'poste__site', 'planning'),\n            pk=pk\n        )\n        visible = get_visible_employees(request.user)\n        if not visible.filter(matricule=affectation.employe.matricule).exists():\n            return JsonResponse({'success': False, 'error': 'Acces refuse'}, status=403)",
+        "detail": "planning.views_api",
+        "documentation": {}
+    },
+    {
+        "label": "api_affectation_update",
+        "kind": 2,
+        "importPath": "planning.views_api",
+        "description": "planning.views_api",
+        "peekOfCode": "def api_affectation_update(request, pk):\n    \"\"\"Modifier une affectation.\"\"\"\n    if not can_edit_planning(request.user):\n        return JsonResponse({'success': False, 'error': 'Permission refusee'}, status=403)\n    try:\n        affectation = get_object_or_404(Affectation, pk=pk)\n        visible = get_visible_employees(request.user)\n        if not visible.filter(matricule=affectation.employe.matricule).exists():\n            return JsonResponse({'success': False, 'error': 'Acces refuse'}, status=403)\n        with transaction.atomic():",
+        "detail": "planning.views_api",
+        "documentation": {}
+    },
+    {
+        "label": "api_affectation_delete",
+        "kind": 2,
+        "importPath": "planning.views_api",
+        "description": "planning.views_api",
+        "peekOfCode": "def api_affectation_delete(request, pk):\n    \"\"\"Supprimer une affectation.\"\"\"\n    if not can_edit_planning(request.user):\n        return JsonResponse({'success': False, 'error': 'Permission refusee'}, status=403)\n    try:\n        affectation = get_object_or_404(Affectation, pk=pk)\n        visible = get_visible_employees(request.user)\n        if not visible.filter(matricule=affectation.employe.matricule).exists():\n            return JsonResponse({'success': False, 'error': 'Acces refuse'}, status=403)\n        with transaction.atomic():",
+        "detail": "planning.views_api",
+        "documentation": {}
+    },
+    {
+        "label": "api_evenements",
+        "kind": 2,
+        "importPath": "planning.views_api",
+        "description": "planning.views_api",
+        "peekOfCode": "def api_evenements(request):\n    \"\"\"Liste des evenements au format FullCalendar.\"\"\"\n    try:\n        start = request.GET.get('start', '')\n        end = request.GET.get('end', '')\n        visible = get_visible_employees(request.user)\n        qs = Evenement.objects.filter(\n            employes__in=visible\n        ).distinct().prefetch_related('employes')\n        if start:",
+        "detail": "planning.views_api",
+        "documentation": {}
+    },
+    {
+        "label": "api_evenement_create",
+        "kind": 2,
+        "importPath": "planning.views_api",
+        "description": "planning.views_api",
+        "peekOfCode": "def api_evenement_create(request):\n    \"\"\"Creer un evenement.\"\"\"\n    if not can_edit_planning(request.user):\n        return JsonResponse({'success': False, 'error': 'Permission refusee'}, status=403)\n    try:\n        with transaction.atomic():\n            evenement = Evenement.objects.create(\n                titre=request.POST.get('titre'),\n                description=request.POST.get('description', ''),\n                date_debut=request.POST.get('date_debut'),",
+        "detail": "planning.views_api",
+        "documentation": {}
+    },
+    {
+        "label": "api_evenement_detail",
+        "kind": 2,
+        "importPath": "planning.views_api",
+        "description": "planning.views_api",
+        "peekOfCode": "def api_evenement_detail(request, pk):\n    \"\"\"Detail d'un evenement.\"\"\"\n    try:\n        evenement = get_object_or_404(Evenement.objects.prefetch_related('employes'), pk=pk)\n        participants = list(\n            evenement.employes.values('matricule', 'nom', 'prenoms')\n        )\n        data = {\n            'id': evenement.id,\n            'titre': evenement.titre,",
+        "detail": "planning.views_api",
+        "documentation": {}
+    },
+    {
+        "label": "api_evenement_update",
+        "kind": 2,
+        "importPath": "planning.views_api",
+        "description": "planning.views_api",
+        "peekOfCode": "def api_evenement_update(request, pk):\n    \"\"\"Modifier un evenement.\"\"\"\n    if not can_edit_planning(request.user):\n        return JsonResponse({'success': False, 'error': 'Permission refusee'}, status=403)\n    try:\n        evenement = get_object_or_404(Evenement, pk=pk)\n        with transaction.atomic():\n            for field in ('titre', 'description', 'type_evenement', 'lieu'):\n                value = request.POST.get(field)\n                if value is not None:",
+        "detail": "planning.views_api",
+        "documentation": {}
+    },
+    {
+        "label": "api_evenement_delete",
+        "kind": 2,
+        "importPath": "planning.views_api",
+        "description": "planning.views_api",
+        "peekOfCode": "def api_evenement_delete(request, pk):\n    \"\"\"Supprimer un evenement.\"\"\"\n    if not can_edit_planning(request.user):\n        return JsonResponse({'success': False, 'error': 'Permission refusee'}, status=403)\n    try:\n        evenement = get_object_or_404(Evenement, pk=pk)\n        with transaction.atomic():\n            evenement.delete()\n        return JsonResponse({'success': True, 'message': 'Evenement supprime'})\n    except Exception as e:",
+        "detail": "planning.views_api",
+        "documentation": {}
+    },
+    {
+        "label": "api_postes_par_site",
+        "kind": 2,
+        "importPath": "planning.views_api",
+        "description": "planning.views_api",
+        "peekOfCode": "def api_postes_par_site(request, site_id):\n    \"\"\"Retourne les postes actifs d'un site.\"\"\"\n    try:\n        postes = PosteTravail.objects.filter(\n            site_id=site_id, is_active=True\n        ).values('id', 'nom', 'type_poste', 'heure_debut', 'heure_fin')\n        return JsonResponse({'success': True, 'postes': list(postes)})\n    except Exception as e:\n        return JsonResponse({'success': False, 'error': str(e)}, status=400)",
+        "detail": "planning.views_api",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "planning.views_api",
+        "description": "planning.views_api",
+        "peekOfCode": "logger = logging.getLogger(__name__)\n# Couleurs par statut/type pour FullCalendar\nCOULEURS_AFFECTATION = {\n    'PLANIFIE': '#17a2b8',\n    'CONFIRME': '#1c5d5f',\n    'EN_COURS': '#28a745',\n    'TERMINE': '#6c757d',\n    'ANNULE': '#e74a3b',\n}\nCOULEURS_EVENEMENT = {",
+        "detail": "planning.views_api",
+        "documentation": {}
+    },
+    {
+        "label": "COULEURS_AFFECTATION",
+        "kind": 5,
+        "importPath": "planning.views_api",
+        "description": "planning.views_api",
+        "peekOfCode": "COULEURS_AFFECTATION = {\n    'PLANIFIE': '#17a2b8',\n    'CONFIRME': '#1c5d5f',\n    'EN_COURS': '#28a745',\n    'TERMINE': '#6c757d',\n    'ANNULE': '#e74a3b',\n}\nCOULEURS_EVENEMENT = {\n    'REUNION': '#6f42c1',\n    'FORMATION': '#fd7e14',",
+        "detail": "planning.views_api",
+        "documentation": {}
+    },
+    {
+        "label": "COULEURS_EVENEMENT",
+        "kind": 5,
+        "importPath": "planning.views_api",
+        "description": "planning.views_api",
+        "peekOfCode": "COULEURS_EVENEMENT = {\n    'REUNION': '#6f42c1',\n    'FORMATION': '#fd7e14',\n    'TACHE': '#20c997',\n    'AUTRE': '#858796',\n}\n# ===== AFFECTATIONS =====\n@require_http_methods([\"GET\"])\n@login_required\ndef api_affectations(request):",
+        "detail": "planning.views_api",
         "documentation": {}
     },
     {
