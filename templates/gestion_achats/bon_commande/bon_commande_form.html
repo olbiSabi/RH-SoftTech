@@ -130,9 +130,9 @@
                                                 {% endif %}
                                             </td>
                                             <td class="text-end">{{ ligne.quantite }}</td>
-                                            <td class="text-end">{{ ligne.prix_unitaire_ht|floatformat:2 }} €</td>
+                                            <td class="text-end">{{ ligne.prix_unitaire_ht|floatformat:2 }} FCFA</td>
                                             <td class="text-end">{{ ligne.taux_tva }} %</td>
-                                            <td class="text-end">{{ ligne.montant_ttc|floatformat:2 }} €</td>
+                                            <td class="text-end">{{ ligne.montant_ttc|floatformat:2 }} FCFA</td>
                                         </tr>
                                         {% empty %}
                                         <tr>
@@ -145,15 +145,15 @@
                                     <tfoot class="table-light">
                                         <tr>
                                             <th colspan="4" class="text-end">Total HT :</th>
-                                            <th class="text-end">{{ bon_commande.montant_total_ht|floatformat:2 }} €</th>
+                                            <th class="text-end">{{ bon_commande.montant_total_ht|floatformat:2 }} FCFA</th>
                                         </tr>
                                         <tr>
                                             <th colspan="4" class="text-end">Total TVA :</th>
-                                            <th class="text-end">{{ bon_commande.montant_total_tva|floatformat:2 }} €</th>
+                                            <th class="text-end">{{ bon_commande.montant_total_tva|floatformat:2 }} FCFA</th>
                                         </tr>
                                         <tr>
                                             <th colspan="4" class="text-end">Total TTC :</th>
-                                            <th class="text-end">{{ bon_commande.montant_total_ttc|floatformat:2 }} €</th>
+                                            <th class="text-end">{{ bon_commande.montant_total_ttc|floatformat:2 }} FCFA</th>
                                         </tr>
                                     </tfoot>
                                 </table>

@@ -146,6 +146,14 @@ class DemandeRefusForm(forms.Form):
         })
     )
 
+    def clean_motif_refus(self):
+        motif = self.cleaned_data.get('motif_refus', '').strip()
+        if not motif:
+            raise forms.ValidationError("Le motif de refus est obligatoire.")
+        if len(motif) < 10:
+            raise forms.ValidationError("Le motif doit contenir au moins 10 caractères.")
+        return motif
+
 
 class DemandeAnnulationForm(forms.Form):
     """Formulaire pour annuler une demande."""
@@ -158,6 +166,14 @@ class DemandeAnnulationForm(forms.Form):
             'placeholder': 'Veuillez indiquer le motif de l\'annulation',
         })
     )
+
+    def clean_motif_annulation(self):
+        motif = self.cleaned_data.get('motif_annulation', '').strip()
+        if not motif:
+            raise forms.ValidationError("Le motif d'annulation est obligatoire.")
+        if len(motif) < 10:
+            raise forms.ValidationError("Le motif doit contenir au moins 10 caractères.")
+        return motif
 
 
 class DemandeValidationForm(forms.Form):
@@ -745,6 +761,14 @@ class ReceptionAnnulationForm(forms.Form):
             'placeholder': 'Expliquez la raison de l\'annulation...'
         })
     )
+
+    def clean_motif(self):
+        motif = self.cleaned_data.get('motif', '').strip()
+        if not motif:
+            raise forms.ValidationError("Le motif d'annulation est obligatoire.")
+        if len(motif) < 10:
+            raise forms.ValidationError("Le motif doit contenir au moins 10 caractères.")
+        return motif
 
 
 # ========== Formulaires pour les ArticleFournisseur ==========

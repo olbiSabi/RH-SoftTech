@@ -193,11 +193,33 @@ class GACFournisseur(models.Model):
             models.Index(fields=['statut']),
         ]
     
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        errors = {}
+
+        if not self.raison_sociale or not self.raison_sociale.strip():
+            errors['raison_sociale'] = "La raison sociale est obligatoire."
+
+        if self.nif and self.nif.strip():
+            nif_clean = self.nif.strip()
+            if not nif_clean.isdigit():
+                errors['nif'] = "Le NIF doit contenir uniquement des chiffres."
+            elif len(nif_clean) < 9 or len(nif_clean) > 10:
+                errors['nif'] = "Le NIF doit contenir entre 9 et 10 chiffres."
+
+        if self.evaluation_moyenne is not None:
+            if self.evaluation_moyenne < 0 or self.evaluation_moyenne > 5:
+                errors['evaluation_moyenne'] = "L'évaluation doit être comprise entre 0 et 5."
+
+        if errors:
+            raise ValidationError(errors)
+
     def save(self, *args, **kwargs):
         """Génère automatiquement le code fournisseur."""
         if not self.code:
             from gestion_achats.utils import generer_code_fournisseur
             self.code = generer_code_fournisseur()
+        self.clean()
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -648,11 +670,61 @@ class GACBudget(models.Model):
             models.Index(fields=['gestionnaire']),
         ]
     
+    def clean(self):
+        """Validation métier du budget."""
+        super().clean()
+        from django.core.exceptions import ValidationError
+
+        errors = {}
+
+        # Validation des dates
+        if self.date_debut and self.date_fin:
+            if self.date_fin < self.date_debut:
+                errors['date_fin'] = "La date de fin ne peut pas être antérieure à la date de début."
+
+        # Validation du montant initial
+        if self.montant_initial is not None and self.montant_initial < Decimal('0.00'):
+            errors['montant_initial'] = "Le montant initial ne peut pas être négatif."
+
+        # Validation des seuils d'alerte (0-100%)
+        if self.seuil_alerte_1 is not None:
+            if self.seuil_alerte_1 < Decimal('0') or self.seuil_alerte_1 > Decimal('100'):
+                errors['seuil_alerte_1'] = "Le seuil d'alerte 1 doit être compris entre 0 et 100%."
+
+        if self.seuil_alerte_2 is not None:
+            if self.seuil_alerte_2 < Decimal('0') or self.seuil_alerte_2 > Decimal('100'):
+                errors['seuil_alerte_2'] = "Le seuil d'alerte 2 doit être compris entre 0 et 100%."
+
+        # Seuil 2 doit être supérieur au seuil 1
+        if (self.seuil_alerte_1 is not None and self.seuil_alerte_2 is not None
+                and self.seuil_alerte_2 <= self.seuil_alerte_1):
+            errors['seuil_alerte_2'] = (
+                f"Le seuil d'alerte 2 ({self.seuil_alerte_2}%) doit être supérieur "
+                f"au seuil 1 ({self.seuil_alerte_1}%)."
+            )
+
+        # Validation des montants (ne pas dépasser le montant initial)
+        if self.montant_initial is not None and self.montant_initial > Decimal('0'):
+            total_utilise = (
+                (self.montant_engage or Decimal('0'))
+                + (self.montant_commande or Decimal('0'))
+                + (self.montant_consomme or Decimal('0'))
+            )
+            if total_utilise > self.montant_initial:
+                errors['montant_engage'] = (
+                    f"Le total utilisé ({total_utilise} FCFA) dépasse le montant initial "
+                    f"({self.montant_initial} FCFA)."
+                )
+
+        if errors:
+            raise ValidationError(errors)
+
     def save(self, *args, **kwargs):
-        """Génère automatiquement le code budget."""
+        """Génère automatiquement le code budget et valide."""
         if not self.code:
             from gestion_achats.utils import generer_code_budget
             self.code = generer_code_budget()
+        self.clean()
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -905,15 +977,32 @@ class GACDemandeAchat(models.Model):
     def __str__(self):
         return f"{self.numero} - {self.objet}"
     
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        errors = {}
+
+        if not self.objet or not self.objet.strip():
+            errors['objet'] = "L'objet de la demande est obligatoire."
+
+        if not self.justification or not self.justification.strip():
+            errors['justification'] = "La justification est obligatoire."
+
+        if self.montant_total_ht and self.montant_total_ht < 0:
+            errors['montant_total_ht'] = "Le montant HT ne peut pas être négatif."
+
+        if errors:
+            raise ValidationError(errors)
+
     def save(self, *args, **kwargs):
         if not self.numero:
             self.numero = generer_numero_demande()
+        self.clean()
         super().save(*args, **kwargs)
-    
+
     def get_absolute_url(self):
         from django.urls import reverse
         return reverse('gestion_achats:demande_detail', args=[self.uuid])
-    
+
     def calculer_totaux(self):
         """Calcule les totaux HT, TVA et TTC."""
         total_ht = Decimal('0.00')
@@ -1839,7 +1928,7 @@ class GACBonRetour(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.numero} - {self.fournisseur.nom}"
+        return f"{self.numero} - {self.fournisseur.raison_sociale}"
 
     def save(self, *args, **kwargs):
         """Génère automatiquement le numéro de bon de retour."""
@@ -2272,7 +2361,7 @@ class GACParametres(models.Model):
         verbose_name_plural = "Paramètres GAC"
     
     def __str__(self):
-        return f"Paramètres GAC (Seuil N2: {self.seuil_validation_n2} €)"
+        return f"Paramètres GAC (Seuil N2: {self.seuil_validation_n2} FCFA)"
     
     def save(self, *args, **kwargs):
         """Surcharge save pour implémenter le pattern singleton et invalider le cache."""
@@ -2329,3 +2418,5 @@ class GACParametres(models.Model):
             Decimal: Le seuil de validation N2
         """
         return cls.get_parametres().seuil_validation_n2
+
+

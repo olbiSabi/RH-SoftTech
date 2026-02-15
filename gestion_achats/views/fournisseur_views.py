@@ -19,6 +19,9 @@ from gestion_achats.services.fournisseur_service import FournisseurService
 from gestion_achats.permissions import GACPermissions, require_permission
 from gestion_achats import constants
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 @login_required
 def fournisseur_list(request):
@@ -105,7 +108,8 @@ def fournisseur_create(request):
                 return redirect('gestion_achats:fournisseur_detail', pk=fournisseur.uuid)
 
             except Exception as e:
-                messages.error(request, f'Erreur lors de la création: {str(e)}')
+                logger.error(f"Erreur création fournisseur: {e}", exc_info=True)
+                messages.error(request, "Erreur lors de la création du fournisseur.")
     else:
         form = FournisseurForm()
 
@@ -177,7 +181,8 @@ def fournisseur_update(request, pk):
                 return redirect('gestion_achats:fournisseur_detail', pk=fournisseur.uuid)
 
             except Exception as e:
-                messages.error(request, f'Erreur lors de la modification: {str(e)}')
+                logger.error(f"Erreur modification fournisseur {fournisseur.code}: {e}", exc_info=True)
+                messages.error(request, "Erreur lors de la modification du fournisseur.")
     else:
         form = FournisseurForm(instance=fournisseur)
 
@@ -206,7 +211,8 @@ def fournisseur_suspend(request, pk):
         )
         messages.success(request, f'Fournisseur {fournisseur.raison_sociale} suspendu.')
     except Exception as e:
-        messages.error(request, f'Erreur: {str(e)}')
+        logger.error(f"Erreur suspension fournisseur {fournisseur.code}: {e}", exc_info=True)
+        messages.error(request, "Erreur lors de la suspension du fournisseur.")
 
     return redirect('gestion_achats:fournisseur_detail', pk=fournisseur.uuid)
 
@@ -227,7 +233,8 @@ def fournisseur_reactivate(request, pk):
         )
         messages.success(request, f'Fournisseur {fournisseur.raison_sociale} réactivé.')
     except Exception as e:
-        messages.error(request, f'Erreur: {str(e)}')
+        logger.error(f"Erreur réactivation fournisseur {fournisseur.code}: {e}", exc_info=True)
+        messages.error(request, "Erreur lors de la réactivation du fournisseur.")
 
     return redirect('gestion_achats:fournisseur_detail', pk=fournisseur.uuid)
 
@@ -258,7 +265,8 @@ def evaluer_fournisseur(request, pk):
                 return redirect('gestion_achats:fournisseur_detail', pk=fournisseur.uuid)
 
             except Exception as e:
-                messages.error(request, f'Erreur lors de l\'évaluation: {str(e)}')
+                logger.error(f"Erreur évaluation fournisseur {fournisseur.code}: {e}", exc_info=True)
+                messages.error(request, "Erreur lors de l'évaluation du fournisseur.")
         else:
             # Afficher les erreurs de validation du formulaire
             for field, errors in form.errors.items():
@@ -297,7 +305,8 @@ def fournisseurs_pour_article_ajax(request, article_pk):
         return JsonResponse({'success': True, 'fournisseurs': data})
 
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+        logger.error(f"Erreur récupération fournisseurs article: {e}", exc_info=True)
+        return JsonResponse({'success': False, 'error': "Erreur lors de la récupération des fournisseurs."}, status=400)
 
 
 @login_required
@@ -313,6 +322,7 @@ def fournisseur_delete(request, pk):
         fournisseur.delete()
         messages.success(request, f'Le fournisseur "{raison_sociale}" a été supprimé avec succès.')
     except Exception as e:
-        messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+        logger.error(f"Erreur suppression fournisseur {fournisseur.code}: {e}", exc_info=True)
+        messages.error(request, "Erreur lors de la suppression du fournisseur.")
 
     return redirect('gestion_achats:fournisseur_list')

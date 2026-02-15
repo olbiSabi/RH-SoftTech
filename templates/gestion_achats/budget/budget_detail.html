@@ -105,19 +105,19 @@
                     <div class="row mb-4">
                         <div class="col-md-3">
                             <label class="text-muted small">Montant initial</label>
-                            <h4 class="text-primary">{{ budget.montant_initial|floatformat:2 }} €</h4>
+                            <h4 class="text-primary">{{ budget.montant_initial|floatformat:2 }} FCFA</h4>
                         </div>
                         <div class="col-md-3">
                             <label class="text-muted small">Montant engagé</label>
-                            <h4 class="text-info">{{ budget.montant_engage|floatformat:2 }} €</h4>
+                            <h4 class="text-info">{{ budget.montant_engage|floatformat:2 }} FCFA</h4>
                         </div>
                         <div class="col-md-3">
                             <label class="text-muted small">Montant commandé</label>
-                            <h4 class="text-warning">{{ budget.montant_commande|floatformat:2 }} €</h4>
+                            <h4 class="text-warning">{{ budget.montant_commande|floatformat:2 }} FCFA</h4>
                         </div>
                         <div class="col-md-3">
                             <label class="text-muted small">Montant consommé</label>
-                            <h4 class="text-danger">{{ budget.montant_consomme|floatformat:2 }} €</h4>
+                            <h4 class="text-danger">{{ budget.montant_consomme|floatformat:2 }} FCFA</h4>
                         </div>
                     </div>
 
@@ -126,7 +126,7 @@
                         <div class="col-md-12">
                             <label class="text-muted small">Disponible</label>
                             <h3 class="{% if disponible < 0 %}text-danger{% else %}text-success{% endif %}">
-                                {{ disponible|floatformat:2 }} €
+                                {{ disponible|floatformat:2 }} FCFA
                             </h3>
                             <div class="progress" style="height: 30px;">
                                 <div class="progress-bar {% if taux >= budget.seuil_alerte_2 %}bg-danger{% elif taux >= budget.seuil_alerte_1 %}bg-warning{% else %}bg-success{% endif %}"
@@ -177,7 +177,7 @@
                                     <td>{{ demande.date_creation|date:"d/m/Y" }}</td>
                                     <td>{{ demande.demandeur.get_full_name }}</td>
                                     <td>{{ demande.objet|truncatewords:10 }}</td>
-                                    <td>{{ demande.montant_total_ttc|floatformat:2 }} €</td>
+                                    <td>{{ demande.montant_total_ttc|floatformat:2 }} FCFA</td>
                                     <td>{% include 'gestion_achats/includes/statut_badge.html' with statut=demande.statut %}</td>
                                 </tr>
                                 {% endfor %}

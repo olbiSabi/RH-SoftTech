@@ -46,9 +46,9 @@
                     {% if bon_retour.date_envoi %}
                     <p><strong>Date envoi :</strong> {{ bon_retour.date_envoi|date:"d/m/Y H:i" }}</p>
                     {% endif %}
-                    <p><strong>Montant HT :</strong> {{ bon_retour.montant_total_ht|floatformat:2 }} €</p>
-                    <p><strong>Montant TVA :</strong> {{ bon_retour.montant_total_tva|floatformat:2 }} €</p>
-                    <p><strong>Montant TTC :</strong> <strong class="text-danger">{{ bon_retour.montant_total_ttc|floatformat:2 }} €</strong></p>
+                    <p><strong>Montant HT :</strong> {{ bon_retour.montant_total_ht|floatformat:2 }} FCFA</p>
+                    <p><strong>Montant TVA :</strong> {{ bon_retour.montant_total_tva|floatformat:2 }} FCFA</p>
+                    <p><strong>Montant TTC :</strong> <strong class="text-danger">{{ bon_retour.montant_total_ttc|floatformat:2 }} FCFA</strong></p>
                 </div>
             </div>
 
@@ -102,18 +102,18 @@
                                 {% endif %}
                             </td>
                             <td class="text-end">{{ ligne.quantite_retournee }}</td>
-                            <td class="text-end">{{ ligne.prix_unitaire|floatformat:2 }} €</td>
+                            <td class="text-end">{{ ligne.prix_unitaire|floatformat:2 }} FCFA</td>
                             <td class="text-end">{{ ligne.taux_tva }}%</td>
-                            <td class="text-end">{{ ligne.montant|floatformat:2 }} €</td>
-                            <td class="text-end">{{ ligne.montant_ttc|floatformat:2 }} €</td>
+                            <td class="text-end">{{ ligne.montant|floatformat:2 }} FCFA</td>
+                            <td class="text-end">{{ ligne.montant_ttc|floatformat:2 }} FCFA</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                     <tfoot>
                         <tr class="table-secondary">
                             <td colspan="4" class="text-end"><strong>Total</strong></td>
-                            <td class="text-end"><strong>{{ bon_retour.montant_total_ht|floatformat:2 }} €</strong></td>
-                            <td class="text-end"><strong>{{ bon_retour.montant_total_ttc|floatformat:2 }} €</strong></td>
+                            <td class="text-end"><strong>{{ bon_retour.montant_total_ht|floatformat:2 }} FCFA</strong></td>
+                            <td class="text-end"><strong>{{ bon_retour.montant_total_ttc|floatformat:2 }} FCFA</strong></td>
                         </tr>
                     </tfoot>
                 </table>

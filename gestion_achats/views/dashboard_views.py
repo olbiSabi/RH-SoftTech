@@ -149,6 +149,27 @@ def dashboard(request):
         demandes_7j = GACDemandeAchat.objects.filter(date_creation__gte=date_7_jours).count()
         bcs_7j = GACBonCommande.objects.filter(date_creation__gte=date_7_jours).count()
 
+        # Demandes du mois courant
+        now = timezone.now()
+        demandes_mois_courant = GACDemandeAchat.objects.filter(
+            date_creation__year=now.year,
+            date_creation__month=now.month
+        ).count()
+
+        # Demandes en attente de validation (SOUMISE ou VALIDEE_N1)
+        demandes_en_attente = GACDemandeAchat.objects.filter(
+            statut__in=['SOUMISE', 'VALIDEE_N1']
+        ).count()
+
+        # Evolution mensuelle (nombre de demandes par mois pour l'année en cours)
+        evolution_mensuelle = []
+        for mois in range(1, 13):
+            count_mois = GACDemandeAchat.objects.filter(
+                date_creation__year=now.year,
+                date_creation__month=mois
+            ).count()
+            evolution_mensuelle.append(count_mois)
+
         stats_tendances = {
             'demandes_7j': demandes_7j,
             'demandes_30j': demandes_30j,
@@ -164,6 +185,9 @@ def dashboard(request):
             'montant_total_bcs': montant_total_bcs,
             'demandes_par_statut': {d['statut']: d['count'] for d in demandes_par_statut},
             'bcs_par_statut': {b['statut']: b['count'] for b in bcs_par_statut},
+            'demandes_mois_courant': demandes_mois_courant,
+            'demandes_en_attente': demandes_en_attente,
+            'evolution_mensuelle': evolution_mensuelle,
         }
 
     context = {

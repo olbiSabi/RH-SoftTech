@@ -20,6 +20,9 @@ from gestion_achats.services import BonCommandeService, DemandeService
 from gestion_achats.permissions import GACPermissions, require_permission
 from gestion_achats.decorators import require_bon_commande_access, require_role
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 @login_required
 def bon_commande_liste(request):
@@ -100,7 +103,8 @@ def bon_commande_create_from_demande(request, demande_pk):
                 return redirect('gestion_achats:bon_commande_detail', pk=bc.uuid)
 
             except Exception as e:
-                messages.error(request, f'Erreur: {str(e)}')
+                logger.error(f"Erreur création BC depuis demande: {e}", exc_info=True)
+                messages.error(request, "Erreur lors de la création du bon de commande.")
     else:
         form = BonCommandeForm()
 
@@ -122,7 +126,8 @@ def bon_commande_emit(request, pk, bon_commande):
             messages.success(request, f'BC {bon_commande.numero} émis.')
             return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)
         except Exception as e:
-            messages.error(request, f'Erreur: {str(e)}')
+            logger.error(f"Erreur émission BC {bon_commande.numero}: {e}", exc_info=True)
+            messages.error(request, "Erreur lors de l'émission du bon de commande.")
             return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)
 
     # Si ce n'est pas une requête POST, rediriger vers la page de détail
@@ -148,7 +153,8 @@ def bon_commande_send(request, pk, bon_commande):
                 messages.success(request, f'BC {bon_commande.numero} envoyé.')
                 return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)
             except Exception as e:
-                messages.error(request, f'Erreur: {str(e)}')
+                logger.error(f"Erreur envoi BC {bon_commande.numero}: {e}", exc_info=True)
+                messages.error(request, "Erreur lors de l'envoi du bon de commande.")
     else:
         # Pré-remplir avec l'email du fournisseur
         initial = {'email_destinataire': bon_commande.fournisseur.email}
@@ -181,7 +187,8 @@ def bon_commande_confirm(request, pk, bon_commande):
             messages.success(request, f'BC {bon_commande.numero} confirmé.')
             return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)
         except Exception as e:
-            messages.error(request, f'Erreur: {str(e)}')
+            logger.error(f"Erreur confirmation BC {bon_commande.numero}: {e}", exc_info=True)
+            messages.error(request, "Erreur lors de la confirmation du bon de commande.")
             return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)
 
     # Si ce n'est pas une requête POST, rediriger vers la page de détail
@@ -243,7 +250,8 @@ def ligne_bc_create(request, pk, bon_commande):
                 return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)
 
             except Exception as e:
-                messages.error(request, f'Erreur lors de l\'ajout de la ligne : {str(e)}')
+                logger.error(f"Erreur ajout ligne BC {bon_commande.numero}: {e}", exc_info=True)
+                messages.error(request, "Erreur lors de l'ajout de la ligne.")
     else:
         form = LigneBonCommandeForm()
 
@@ -281,7 +289,8 @@ def ligne_bc_update(request, pk, bon_commande, ligne_pk):
                 return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)
 
             except Exception as e:
-                messages.error(request, f'Erreur lors de la modification : {str(e)}')
+                logger.error(f"Erreur modification ligne BC {bon_commande.numero}: {e}", exc_info=True)
+                messages.error(request, "Erreur lors de la modification de la ligne.")
     else:
         form = LigneBonCommandeForm(instance=ligne)
 
@@ -324,7 +333,8 @@ def ligne_bc_delete(request, pk, bon_commande, ligne_pk):
             return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)
 
         except Exception as e:
-            messages.error(request, f'Erreur lors de la suppression : {str(e)}')
+            logger.error(f"Erreur suppression ligne BC {bon_commande.numero}: {e}", exc_info=True)
+            messages.error(request, "Erreur lors de la suppression de la ligne.")
 
     return render(request, 'gestion_achats/bon_commande/ligne_bc_confirm_delete.html', {
         'bc': bon_commande,

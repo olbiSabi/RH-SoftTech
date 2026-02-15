@@ -51,12 +51,12 @@
                         </div>
                         <div class="col-md-3">
                             <label class="text-muted small">Montant initial</label>
-                            <div><strong>{{ budget.montant_initial|floatformat:2 }} €</strong></div>
+                            <div><strong>{{ budget.montant_initial|floatformat:2 }} FCFA</strong></div>
                         </div>
                         <div class="col-md-3">
                             <label class="text-muted small">Disponible</label>
                             <div><strong class="{% if budget.get_montant_disponible < 0 %}text-danger{% else %}text-success{% endif %}">
-                                {{ budget.get_montant_disponible|floatformat:2 }} €
+                                {{ budget.get_montant_disponible|floatformat:2 }} FCFA
                             </strong></div>
                         </div>
                     </div>
@@ -150,11 +150,11 @@
                                     <td>{{ mouvement.description }}</td>
                                     <td class="text-end">
                                         <span class="{% if mouvement.type == 'REINTEGRATION' %}text-success{% else %}text-danger{% endif %}">
-                                            {% if mouvement.type == 'REINTEGRATION' %}+{% else %}-{% endif %}{{ mouvement.montant|floatformat:2 }} €
+                                            {% if mouvement.type == 'REINTEGRATION' %}+{% else %}-{% endif %}{{ mouvement.montant|floatformat:2 }} FCFA
                                         </span>
                                     </td>
                                     <td class="text-end">
-                                        <strong>{{ mouvement.solde_apres|floatformat:2 }} €</strong>
+                                        <strong>{{ mouvement.solde_apres|floatformat:2 }} FCFA</strong>
                                     </td>
                                 </tr>
                                 {% empty %}
@@ -170,29 +170,29 @@
                             <tfoot class="table-light">
                                 <tr>
                                     <th colspan="4" class="text-end">Montant initial :</th>
-                                    <th class="text-end">{{ budget.montant_initial|floatformat:2 }} €</th>
+                                    <th class="text-end">{{ budget.montant_initial|floatformat:2 }} FCFA</th>
                                     <th></th>
                                 </tr>
                                 <tr>
                                     <th colspan="4" class="text-end">Total engagé :</th>
-                                    <th class="text-end text-info">-{{ budget.montant_engage|floatformat:2 }} €</th>
+                                    <th class="text-end text-info">-{{ budget.montant_engage|floatformat:2 }} FCFA</th>
                                     <th></th>
                                 </tr>
                                 <tr>
                                     <th colspan="4" class="text-end">Total commandé :</th>
-                                    <th class="text-end text-warning">-{{ budget.montant_commande|floatformat:2 }} €</th>
+                                    <th class="text-end text-warning">-{{ budget.montant_commande|floatformat:2 }} FCFA</th>
                                     <th></th>
                                 </tr>
                                 <tr>
                                     <th colspan="4" class="text-end">Total consommé :</th>
-                                    <th class="text-end text-danger">-{{ budget.montant_consomme|floatformat:2 }} €</th>
+                                    <th class="text-end text-danger">-{{ budget.montant_consomme|floatformat:2 }} FCFA</th>
                                     <th></th>
                                 </tr>
                                 <tr class="table-primary">
                                     <th colspan="4" class="text-end">Solde disponible :</th>
                                     <th class="text-end">
                                         <strong class="{% if budget.get_montant_disponible < 0 %}text-danger{% else %}text-success{% endif %}">
-                                            {{ budget.get_montant_disponible|floatformat:2 }} €
+                                            {{ budget.get_montant_disponible|floatformat:2 }} FCFA
                                         </strong>
                                     </th>
                                     <th></th>

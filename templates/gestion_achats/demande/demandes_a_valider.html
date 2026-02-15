@@ -46,7 +46,7 @@
                             <td>{{ demande.date_soumission|date:"d/m/Y H:i" }}</td>
                             <td>{{ demande.demandeur.get_full_name }}</td>
                             <td>{{ demande.objet|truncatewords:8 }}</td>
-                            <td>{{ demande.montant_total_ttc|floatformat:2 }} €</td>
+                            <td>{{ demande.montant_total_ttc|floatformat:2 }} FCFA</td>
                             <td>
                                 <span class="badge bg-{{ demande.get_priorite_badge_class }}">
                                     {{ demande.get_priorite_display }}
@@ -108,7 +108,7 @@
                             <td>{{ demande.date_validation_n1|date:"d/m/Y H:i" }}</td>
                             <td>{{ demande.demandeur.get_full_name }}</td>
                             <td>{{ demande.objet|truncatewords:8 }}</td>
-                            <td>{{ demande.montant_total_ttc|floatformat:2 }} €</td>
+                            <td>{{ demande.montant_total_ttc|floatformat:2 }} FCFA</td>
                             <td>
                                 <span class="badge bg-{{ demande.get_priorite_badge_class }}">
                                     {{ demande.get_priorite_display }}
@@ -263,7 +263,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <ul class="list-unstyled mb-0">
                     <li><strong>Numéro :</strong> ${numero}</li>
                     <li><strong>Objet :</strong> ${objet}</li>
-                    <li><strong>Montant TTC :</strong> ${montant} €</li>
+                    <li><strong>Montant TTC :</strong> ${montant} FCFA</li>
                 </ul>
             `;
 
@@ -342,7 +342,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <ul class="list-unstyled mb-0">
                     <li><strong>Numéro :</strong> ${numero}</li>
                     <li><strong>Objet :</strong> ${objet}</li>
-                    <li><strong>Montant TTC :</strong> ${montant} €</li>
+                    <li><strong>Montant TTC :</strong> ${montant} FCFA</li>
                 </ul>
             `;
 

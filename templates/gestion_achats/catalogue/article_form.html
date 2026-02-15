@@ -100,14 +100,14 @@
                         <!-- Tarification -->
                         <div class="mb-4">
                             <h6 class="border-bottom pb-2">
-                                <i class="fas fa-euro-sign me-2"></i>Tarification
+                                <i class="fas fa-money-bill-wave me-2"></i>Tarification
                             </h6>
                             <div class="row">
                                 <div class="col-md-4 mb-3">
                                     {{ form.prix_unitaire.label_tag }}
                                     <div class="input-group">
                                         {{ form.prix_unitaire }}
-                                        <span class="input-group-text">€</span>
+                                        <span class="input-group-text">FCFA</span>
                                     </div>
                                     {% if form.prix_unitaire.errors %}
                                     <div class="text-danger small">{{ form.prix_unitaire.errors }}</div>
@@ -125,7 +125,7 @@
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label class="form-label">Prix unitaire TTC (calculé)</label>
-                                    <input type="text" class="form-control" id="prix_ttc" readonly value="0.00 €">
+                                    <input type="text" class="form-control" id="prix_ttc" readonly value="0.00 FCFA">
                                     <small class="form-text text-muted">
                                         Calculé automatiquement.
                                     </small>
@@ -170,7 +170,7 @@
         const prixHT = parseFloat(document.querySelector('[name="prix_unitaire"]').value) || 0;
         const tauxTVA = parseFloat(document.querySelector('[name="taux_tva"]').value) || 0;
         const prixTTC = prixHT * (1 + tauxTVA / 100);
-        document.getElementById('prix_ttc').value = prixTTC.toFixed(2) + ' €';
+        document.getElementById('prix_ttc').value = prixTTC.toFixed(2) + ' FCFA';
     }
 
     // Événements pour recalculer le prix TTC

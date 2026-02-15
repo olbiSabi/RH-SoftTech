@@ -77,7 +77,7 @@
             {% include 'gestion_achats/includes/stats_card.html' with title="Total budgets" value=stats.total icon="wallet" color="primary" %}
         </div>
         <div class="col-md-3">
-            {% include 'gestion_achats/includes/stats_card.html' with title="Montant total" value=stats.montant_total|floatformat:0 suffix="€" icon="euro-sign" color="success" %}
+            {% include 'gestion_achats/includes/stats_card.html' with title="Montant total" value=stats.montant_total|floatformat:0 suffix=" FCFA" icon="money-bill-wave" color="success" %}
         </div>
         <div class="col-md-3">
             {% include 'gestion_achats/includes/stats_card.html' with title="En alerte" value=stats.en_alerte icon="exclamation-triangle" color="warning" %}
@@ -128,8 +128,8 @@
                                 <span class="text-muted">-</span>
                                 {% endif %}
                             </td>
-                            <td>{{ budget.montant_initial|floatformat:2 }} €</td>
-                            <td>{{ budget.montant_consomme|floatformat:2 }} €</td>
+                            <td>{{ budget.montant_initial|floatformat:2 }} FCFA</td>
+                            <td>{{ budget.montant_consomme|floatformat:2 }} FCFA</td>
                             <td>
                                 <div class="progress" style="height: 25px;">
                                     <div class="progress-bar {% if taux >= budget.seuil_alerte_2 %}bg-danger{% elif taux >= budget.seuil_alerte_1 %}bg-warning{% else %}bg-success{% endif %}"

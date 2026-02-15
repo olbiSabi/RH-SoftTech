@@ -85,7 +85,7 @@
                                     {{ br.get_statut_display }}
                                 </span>
                             </td>
-                            <td class="text-end">{{ br.montant_total_ttc|floatformat:2 }} €</td>
+                            <td class="text-end">{{ br.montant_total_ttc|floatformat:2 }} FCFA</td>
                             <td class="text-center">
                                 <a href="{% url 'gestion_achats:bon_retour_detail' pk=br.uuid %}"
                                    class="btn btn-sm btn-outline-primary"

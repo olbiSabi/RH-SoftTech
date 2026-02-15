@@ -71,7 +71,7 @@
                             <td><strong>{{ demande.numero }}</strong></td>
                             <td>{{ demande.date_creation|date:"d/m/Y" }}</td>
                             <td>{{ demande.objet|truncatewords:10 }}</td>
-                            <td>{{ demande.montant_total_ttc|floatformat:2 }} €</td>
+                            <td>{{ demande.montant_total_ttc|floatformat:2 }} FCFA</td>
                             <td>
                                 <span class="badge bg-{{ demande.get_statut_badge_class }}">
                                     {{ demande.get_statut_display }}

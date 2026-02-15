@@ -23,6 +23,9 @@ from gestion_achats.services import DemandeService
 from gestion_achats.decorators import require_demande_access, ajax_login_required
 from gestion_achats.permissions import GACPermissions, require_permission
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 @login_required
 def demande_liste(request):
@@ -95,7 +98,8 @@ def demande_create(request):
                 return redirect('gestion_achats:demande_detail', pk=demande.uuid)
 
             except Exception as e:
-                messages.error(request, f'Erreur lors de la création: {str(e)}')
+                logger.error(f"Erreur création demande: {e}", exc_info=True)
+                messages.error(request, "Erreur lors de la création de la demande. Veuillez vérifier les données saisies.")
     else:
         form = DemandeAchatForm(user=request.user)
 
@@ -179,9 +183,10 @@ def demande_delete(request, pk, **kwargs):
                 })
 
             except Exception as e:
+                logger.error(f"Erreur suppression demande (AJAX): {e}", exc_info=True)
                 return JsonResponse({
                     'success': False,
-                    'message': f'Erreur lors de la suppression: {str(e)}'
+                    'message': "Erreur lors de la suppression de la demande."
                 }, status=400)
 
         # Gérer les requêtes normales (formulaire)
@@ -193,7 +198,8 @@ def demande_delete(request, pk, **kwargs):
             return redirect('gestion_achats:mes_demandes')
 
         except Exception as e:
-            messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+            logger.error(f"Erreur suppression demande {demande.numero}: {e}", exc_info=True)
+            messages.error(request, "Erreur lors de la suppression de la demande.")
             return redirect('gestion_achats:demande_detail', pk=demande.uuid)
 
     return render(request, 'gestion_achats/demande/demande_confirm_delete.html', {
@@ -225,7 +231,8 @@ def demande_ligne_create(request, pk, **kwargs):
                 return redirect('gestion_achats:demande_detail', pk=demande.uuid)
 
             except Exception as e:
-                messages.error(request, f'Erreur: {str(e)}')
+                logger.error(f"Erreur ajout ligne demande {demande.numero}: {e}", exc_info=True)
+                messages.error(request, "Erreur lors de l'ajout de la ligne. Veuillez vérifier les données.")
     else:
         form = LigneDemandeAchatForm()
 
@@ -262,7 +269,8 @@ def demande_ligne_update(request, pk, ligne_pk, **kwargs):
                 return redirect('gestion_achats:demande_detail', pk=demande.uuid)
 
             except Exception as e:
-                messages.error(request, f'Erreur: {str(e)}')
+                logger.error(f"Erreur modification ligne demande {demande.numero}: {e}", exc_info=True)
+                messages.error(request, "Erreur lors de la modification de la ligne.")
     else:
         form = LigneDemandeAchatForm(instance=ligne)
 
@@ -298,9 +306,10 @@ def demande_ligne_delete(request, pk, ligne_pk, **kwargs):
                 })
 
             except Exception as e:
+                logger.error(f"Erreur suppression ligne demande (AJAX): {e}", exc_info=True)
                 return JsonResponse({
                     'success': False,
-                    'message': f'Erreur: {str(e)}'
+                    'message': "Erreur lors de la suppression de la ligne."
                 }, status=400)
 
         # Gérer les requêtes normales (formulaire)
@@ -313,7 +322,8 @@ def demande_ligne_delete(request, pk, ligne_pk, **kwargs):
             return redirect('gestion_achats:demande_detail', pk=demande.uuid)
 
         except Exception as e:
-            messages.error(request, f'Erreur: {str(e)}')
+            logger.error(f"Erreur suppression ligne demande {demande.numero}: {e}", exc_info=True)
+            messages.error(request, "Erreur lors de la suppression de la ligne.")
             return redirect('gestion_achats:demande_detail', pk=demande.uuid)
 
     return render(request, 'gestion_achats/demande/ligne_confirm_delete.html', {
@@ -364,25 +374,23 @@ def demande_submit(request, pk):
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({
                     'success': False,
-                    'message': f'Permission refusée: {str(e)}'
+                    'message': "Vous n'avez pas la permission de soumettre cette demande."
                 }, status=403)
             else:
-                messages.error(request, f'Permission refusée: {str(e)}')
+                messages.error(request, "Vous n'avez pas la permission de soumettre cette demande.")
                 return redirect('gestion_achats:demande_detail', pk=demande.uuid)
 
         except Exception as e:
+            logger.error(f"Erreur soumission demande {demande.numero}: {e}", exc_info=True)
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                # Requête AJAX - retourner erreur JSON
                 return JsonResponse({
                     'success': False,
-                    'message': f'Erreur lors de la soumission: {str(e)}'
+                    'message': "Erreur lors de la soumission. Veuillez réessayer."
                 }, status=400)
             else:
-                # Requête normale - retourner message d'erreur
                 try:
-                    messages.error(request, f'Erreur lors de la soumission: {str(e)}')
+                    messages.error(request, "Erreur lors de la soumission. Veuillez réessayer.")
                 except Exception:
-                    # Si le middleware messages n'est pas disponible, continuer sans message
                     pass
                 return redirect('gestion_achats:demande_detail', pk=demande.uuid)
 
@@ -434,9 +442,10 @@ def demande_validate_n1(request, pk, **kwargs):
                 })
 
             except Exception as e:
+                logger.error(f"Erreur validation N1 demande {demande.numero} (AJAX): {e}", exc_info=True)
                 return JsonResponse({
                     'success': False,
-                    'message': f'Erreur: {str(e)}'
+                    'message': "Erreur lors de la validation. Veuillez réessayer."
                 }, status=400)
 
         # Gérer les requêtes normales (formulaire)
@@ -453,7 +462,8 @@ def demande_validate_n1(request, pk, **kwargs):
                 return redirect('gestion_achats:demande_detail', pk=demande.uuid)
 
             except Exception as e:
-                messages.error(request, f'Erreur: {str(e)}')
+                logger.error(f"Erreur validation N1 demande {demande.numero}: {e}", exc_info=True)
+                messages.error(request, "Erreur lors de la validation. Veuillez réessayer.")
     else:
         form = DemandeValidationForm()
 
@@ -508,9 +518,10 @@ def demande_validate_n2(request, pk, **kwargs):
                 })
 
             except Exception as e:
+                logger.error(f"Erreur validation N2 demande {demande.numero} (AJAX): {e}", exc_info=True)
                 return JsonResponse({
                     'success': False,
-                    'message': f'Erreur: {str(e)}'
+                    'message': "Erreur lors de la validation. Veuillez réessayer."
                 }, status=400)
 
         # Gérer les requêtes normales (formulaire)
@@ -527,7 +538,8 @@ def demande_validate_n2(request, pk, **kwargs):
                 return redirect('gestion_achats:demande_detail', pk=demande.uuid)
 
             except Exception as e:
-                messages.error(request, f'Erreur: {str(e)}')
+                logger.error(f"Erreur validation N2 demande {demande.numero}: {e}", exc_info=True)
+                messages.error(request, "Erreur lors de la validation. Veuillez réessayer.")
     else:
         form = DemandeValidationForm()
 
@@ -588,9 +600,10 @@ def demande_refuse(request, pk, **kwargs):
                 })
 
             except Exception as e:
+                logger.error(f"Erreur refus demande {demande.numero} (AJAX): {e}", exc_info=True)
                 return JsonResponse({
                     'success': False,
-                    'message': f'Erreur: {str(e)}'
+                    'message': "Erreur lors du refus. Veuillez réessayer."
                 }, status=400)
 
         # Gérer les requêtes normales (formulaire)
@@ -607,7 +620,8 @@ def demande_refuse(request, pk, **kwargs):
                 return redirect('gestion_achats:demande_detail', pk=demande.uuid)
 
             except Exception as e:
-                messages.error(request, f'Erreur: {str(e)}')
+                logger.error(f"Erreur refus demande {demande.numero}: {e}", exc_info=True)
+                messages.error(request, "Erreur lors du refus de la demande.")
     else:
         form = DemandeRefusForm()
 
@@ -667,9 +681,10 @@ def demande_cancel(request, pk, **kwargs):
                 })
 
             except Exception as e:
+                logger.error(f"Erreur annulation demande {demande.numero} (AJAX): {e}", exc_info=True)
                 return JsonResponse({
                     'success': False,
-                    'message': f'Erreur: {str(e)}'
+                    'message': "Erreur lors de l'annulation. Veuillez réessayer."
                 }, status=400)
 
         # Gérer les requêtes normales (formulaire)
@@ -686,7 +701,8 @@ def demande_cancel(request, pk, **kwargs):
                 return redirect('gestion_achats:demande_detail', pk=demande.uuid)
 
             except Exception as e:
-                messages.error(request, f'Erreur: {str(e)}')
+                logger.error(f"Erreur annulation demande {demande.numero}: {e}", exc_info=True)
+                messages.error(request, "Erreur lors de l'annulation de la demande.")
     else:
         form = DemandeAnnulationForm()
 

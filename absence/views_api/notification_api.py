@@ -34,6 +34,16 @@ def notification_detail(request, id):
     if notification.projet:
         return redirect('pm:projet_detail', pk=notification.projet.pk)
 
+    # Rediriger vers les objets Gestion des Achats
+    if notification.demande_achat:
+        return redirect('gestion_achats:demande_detail', pk=notification.demande_achat.uuid)
+    if notification.bon_commande:
+        return redirect('gestion_achats:bon_commande_detail', pk=notification.bon_commande.uuid)
+    if notification.budget_gac:
+        return redirect('gestion_achats:budget_detail', pk=notification.budget_gac.uuid)
+    if notification.contexte == 'GAC':
+        return redirect('gestion_achats:dashboard')
+
     # Rediriger vers l'absence selon le contexte
     contexte = notification.contexte
     if contexte == 'MANAGER':
@@ -63,7 +73,8 @@ def toutes_notifications(request):
         destinataire=request.user.employe
     ).select_related(
         'absence', 'absence__employe', 'absence__type_absence',
-        'ticket', 'ticket__projet', 'projet'
+        'ticket', 'ticket__projet', 'projet',
+        'demande_achat', 'bon_commande', 'budget_gac'
     ).order_by('-date_creation')
 
     statut_filter = request.GET.get('statut', '')

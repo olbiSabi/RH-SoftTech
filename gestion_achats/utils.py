@@ -271,7 +271,7 @@ def determiner_validateur_n2(demande):
     Détermine le validateur N2 selon les règles métier.
 
     Règles:
-    - Si montant > 10 000 € → Direction générale
+    - Si montant > 10 000 FCFA → Direction générale
     - Si catégorie IT → Responsable IT
     - Sinon → Responsable achats
 
@@ -283,7 +283,7 @@ def determiner_validateur_n2(demande):
     """
     from employee.models import ZY00, ZYRO
 
-    # Règle 1: Montant > 10 000 € → Direction générale
+    # Règle 1: Montant > 10 000 FCFA → Direction générale
     if demande.montant_total_ttc > Decimal('10000.00'):
         try:
             role_dg = ZYRO.objects.get(CODE='DIRECTEUR_GENERAL')
@@ -343,7 +343,7 @@ def determiner_validateur_n2(demande):
     return None
 
 
-def formater_montant(montant, symbole='€'):
+def formater_montant(montant, symbole='FCFA'):
     """
     Formate un montant pour l'affichage.
 
@@ -352,7 +352,7 @@ def formater_montant(montant, symbole='€'):
         symbole (str): Symbole monétaire
 
     Returns:
-        str: Montant formaté (ex: "1 234,56 €")
+        str: Montant formaté (ex: "1 234,56 FCFA")
     """
     if montant is None:
         return f"0,00 {symbole}"

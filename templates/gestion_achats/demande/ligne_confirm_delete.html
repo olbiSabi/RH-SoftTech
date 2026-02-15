@@ -36,13 +36,13 @@
                                 <dd class="col-sm-9">{{ ligne.quantite }} {{ ligne.article.unite }}</dd>
 
                                 <dt class="col-sm-3">Prix unitaire HT</dt>
-                                <dd class="col-sm-9">{{ ligne.prix_unitaire|floatformat:2 }} €</dd>
+                                <dd class="col-sm-9">{{ ligne.prix_unitaire|floatformat:2 }} FCFA</dd>
 
                                 <dt class="col-sm-3">TVA</dt>
                                 <dd class="col-sm-9">{{ ligne.taux_tva }}%</dd>
 
                                 <dt class="col-sm-3">Montant total HT</dt>
-                                <dd class="col-sm-9"><strong>{{ ligne.montant_ht|floatformat:2 }} €</strong></dd>
+                                <dd class="col-sm-9"><strong>{{ ligne.montant_ht|floatformat:2 }} FCFA</strong></dd>
 
                                 {% if ligne.commentaire %}
                                 <dt class="col-sm-3">Commentaire</dt>

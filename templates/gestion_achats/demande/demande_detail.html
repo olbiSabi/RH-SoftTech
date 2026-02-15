@@ -159,9 +159,9 @@
                                         {% endif %}
                                     </td>
                                     <td>{{ ligne.quantite }} {{ ligne.article.unite }}</td>
-                                    <td class="text-end">{{ ligne.prix_unitaire|floatformat:2 }} €</td>
+                                    <td class="text-end">{{ ligne.prix_unitaire|floatformat:2 }} FCFA</td>
                                     <td class="text-center">{{ ligne.taux_tva }}%</td>
-                                    <td class="text-end"><strong>{{ ligne.montant_ht|floatformat:2 }} €</strong></td>
+                                    <td class="text-end"><strong>{{ ligne.montant_ht|floatformat:2 }} FCFA</strong></td>
                                     {% if can_modify %}
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
@@ -190,17 +190,17 @@
                             <tfoot class="table-light">
                                 <tr>
                                     <td colspan="{% if can_modify %}5{% else %}4{% endif %}" class="text-end"><strong>Total HT:</strong></td>
-                                    <td class="text-end"><strong>{{ demande.montant_total_ht|floatformat:2 }} €</strong></td>
+                                    <td class="text-end"><strong>{{ demande.montant_total_ht|floatformat:2 }} FCFA</strong></td>
                                     {% if can_modify %}<td></td>{% endif %}
                                 </tr>
                                 <tr>
                                     <td colspan="{% if can_modify %}5{% else %}4{% endif %}" class="text-end"><strong>Total TVA:</strong></td>
-                                    <td class="text-end"><strong>{{ demande.montant_total_tva|floatformat:2 }} €</strong></td>
+                                    <td class="text-end"><strong>{{ demande.montant_total_tva|floatformat:2 }} FCFA</strong></td>
                                     {% if can_modify %}<td></td>{% endif %}
                                 </tr>
                                 <tr class="table-primary">
                                     <td colspan="{% if can_modify %}5{% else %}4{% endif %}" class="text-end"><strong>Total TTC:</strong></td>
-                                    <td class="text-end"><strong>{{ demande.montant_total_ttc|floatformat:2 }} €</strong></td>
+                                    <td class="text-end"><strong>{{ demande.montant_total_ttc|floatformat:2 }} FCFA</strong></td>
                                     {% if can_modify %}<td></td>{% endif %}
                                 </tr>
                             </tfoot>
@@ -375,7 +375,7 @@
                 <ul class="list-unstyled">
                     <li><strong>Numéro :</strong> {{ demande.numero }}</li>
                     <li><strong>Objet :</strong> {{ demande.objet }}</li>
-                    <li><strong>Montant TTC :</strong> {{ demande.montant_total_ttc|floatformat:2 }} €</li>
+                    <li><strong>Montant TTC :</strong> {{ demande.montant_total_ttc|floatformat:2 }} FCFA</li>
                     <li><strong>Statut actuel :</strong>
                         <span class="badge badge-{{ demande.get_statut_badge_class }}">
                             {{ demande.get_statut_display }}
@@ -412,7 +412,7 @@
                 <ul class="list-unstyled mb-3">
                     <li><strong>Numéro :</strong> {{ demande.numero }}</li>
                     <li><strong>Objet :</strong> {{ demande.objet }}</li>
-                    <li><strong>Montant TTC :</strong> {{ demande.montant_total_ttc|floatformat:2 }} €</li>
+                    <li><strong>Montant TTC :</strong> {{ demande.montant_total_ttc|floatformat:2 }} FCFA</li>
                 </ul>
                 <div class="mb-3">
                     <label for="commentaireN1" class="form-label">Commentaire (optionnel)</label>
@@ -448,7 +448,7 @@
                 <ul class="list-unstyled mb-3">
                     <li><strong>Numéro :</strong> {{ demande.numero }}</li>
                     <li><strong>Objet :</strong> {{ demande.objet }}</li>
-                    <li><strong>Montant TTC :</strong> {{ demande.montant_total_ttc|floatformat:2 }} €</li>
+                    <li><strong>Montant TTC :</strong> {{ demande.montant_total_ttc|floatformat:2 }} FCFA</li>
                 </ul>
                 <div class="mb-3">
                     <label for="commentaireN2" class="form-label">Commentaire (optionnel)</label>
@@ -482,7 +482,7 @@
                 <ul class="list-unstyled mb-3">
                     <li><strong>Numéro :</strong> {{ demande.numero }}</li>
                     <li><strong>Objet :</strong> {{ demande.objet }}</li>
-                    <li><strong>Montant TTC :</strong> {{ demande.montant_total_ttc|floatformat:2 }} €</li>
+                    <li><strong>Montant TTC :</strong> {{ demande.montant_total_ttc|floatformat:2 }} FCFA</li>
                 </ul>
                 <div class="mb-3">
                     <label for="motifRefus" class="form-label">Motif du refus <span class="text-danger">*</span></label>
@@ -522,7 +522,7 @@
                 <ul class="list-unstyled mb-3">
                     <li><strong>Numéro :</strong> {{ demande.numero }}</li>
                     <li><strong>Objet :</strong> {{ demande.objet }}</li>
-                    <li><strong>Montant TTC :</strong> {{ demande.montant_total_ttc|floatformat:2 }} €</li>
+                    <li><strong>Montant TTC :</strong> {{ demande.montant_total_ttc|floatformat:2 }} FCFA</li>
                 </ul>
                 <div class="mb-3">
                     <label for="motifAnnulation" class="form-label">Motif de l'annulation <span class="text-danger">*</span></label>
@@ -562,7 +562,7 @@
                 <ul class="list-unstyled mb-3">
                     <li><strong>Numéro :</strong> {{ demande.numero }}</li>
                     <li><strong>Objet :</strong> {{ demande.objet }}</li>
-                    <li><strong>Montant TTC :</strong> {{ demande.montant_total_ttc|floatformat:2 }} €</li>
+                    <li><strong>Montant TTC :</strong> {{ demande.montant_total_ttc|floatformat:2 }} FCFA</li>
                     <li><strong>Nombre de lignes :</strong> {{ demande.lignes.count }}</li>
                 </ul>
             </div>
@@ -983,8 +983,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <ul class="list-unstyled mb-0">
                     <li><strong>Article :</strong> ${ligneArticle}</li>
                     <li><strong>Quantité :</strong> ${ligneQuantite}</li>
-                    <li><strong>Prix unitaire HT :</strong> ${lignePrix} €</li>
-                    <li><strong>Montant total HT :</strong> ${ligneMontant} €</li>
+                    <li><strong>Prix unitaire HT :</strong> ${lignePrix} FCFA</li>
+                    <li><strong>Montant total HT :</strong> ${ligneMontant} FCFA</li>
                 </ul>
             `;
 

@@ -67,7 +67,7 @@
                             <td><strong>{{ bc.numero }}</strong></td>
                             <td>{{ bc.date_creation|date:"d/m/Y" }}</td>
                             <td>{{ bc.fournisseur.raison_sociale }}</td>
-                            <td>{{ bc.montant_total_ttc|floatformat:2 }} €</td>
+                            <td>{{ bc.montant_total_ttc|floatformat:2 }} FCFA</td>
                             <td>
                                 <span class="badge bg-{{ bc.get_statut_badge_class }}">
                                     {{ bc.get_statut_display }}

@@ -91,9 +91,9 @@
                 </td>
                 <td style="text-align: right;">{{ ligne.quantite_commandee }}</td>
                 <td>{{ ligne.article.unite }}</td>
-                <td style="text-align: right;">{{ ligne.prix_unitaire|floatformat:2 }} €</td>
+                <td style="text-align: right;">{{ ligne.prix_unitaire|floatformat:2 }} FCFA</td>
                 <td style="text-align: center;">{{ ligne.taux_tva }}%</td>
-                <td style="text-align: right;">{{ ligne.montant_ht|floatformat:2 }} €</td>
+                <td style="text-align: right;">{{ ligne.montant_ht|floatformat:2 }} FCFA</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -103,15 +103,15 @@
         <table>
             <tr>
                 <td><strong>Total HT:</strong></td>
-                <td style="text-align: right;">{{ bc.montant_total_ht|floatformat:2 }} €</td>
+                <td style="text-align: right;">{{ bc.montant_total_ht|floatformat:2 }} FCFA</td>
             </tr>
             <tr>
                 <td><strong>Total TVA:</strong></td>
-                <td style="text-align: right;">{{ bc.montant_total_tva|floatformat:2 }} €</td>
+                <td style="text-align: right;">{{ bc.montant_total_tva|floatformat:2 }} FCFA</td>
             </tr>
             <tr style="font-size: 12pt; font-weight: bold; background-color: #f0f0f0;">
                 <td><strong>Total TTC:</strong></td>
-                <td style="text-align: right;">{{ bc.montant_total_ttc|floatformat:2 }} €</td>
+                <td style="text-align: right;">{{ bc.montant_total_ttc|floatformat:2 }} FCFA</td>
             </tr>
         </table>
     </div>

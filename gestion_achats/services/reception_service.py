@@ -267,9 +267,7 @@ class ReceptionService:
                 details=f"Réception {reception.numero} validée. Statut: {bc.get_statut_display()}"
             )
 
-            # Notifier l'acheteur et le demandeur
-            from gestion_achats.services.notification_service import NotificationService
-            NotificationService.notifier_reception_validee(reception)
+            # Les notifications sont gérées automatiquement par les signaux (signals.py)
 
             logger.info(
                 f"Réception {reception.numero} validée par {utilisateur}. "

@@ -15,6 +15,9 @@ from gestion_achats.forms import BudgetForm
 from gestion_achats.services.budget_service import BudgetService
 from gestion_achats.permissions import GACPermissions, require_permission
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 @login_required
 def budget_list(request):
@@ -153,7 +156,8 @@ def budget_create(request):
                 return redirect('gestion_achats:budget_detail', pk=budget.uuid)
 
             except Exception as e:
-                messages.error(request, f'Erreur lors de la création: {str(e)}')
+                logger.error(f"Erreur création budget: {e}", exc_info=True)
+                messages.error(request, "Erreur lors de la création du budget.")
     else:
         form = BudgetForm(user=request.user)
 
@@ -226,7 +230,8 @@ def budget_update(request, pk):
                 return redirect('gestion_achats:budget_detail', pk=budget.uuid)
 
             except Exception as e:
-                messages.error(request, f'Erreur: {str(e)}')
+                logger.error(f"Erreur modification budget {budget.code}: {e}", exc_info=True)
+                messages.error(request, "Erreur lors de la modification du budget.")
     else:
         form = BudgetForm(instance=budget, user=request.user)
 
@@ -289,7 +294,8 @@ def synthese_budgets(request):
         exercices_disponibles = sorted(exercices_disponibles, reverse=True)
         
     except Exception as e:
-        messages.error(request, f'Erreur: {str(e)}')
+        logger.error(f"Erreur synthèse budgets exercice {exercice}: {e}", exc_info=True)
+        messages.error(request, "Erreur lors du chargement de la synthèse.")
         synthese = {}
         exercices_disponibles = [timezone.now().year]
 
@@ -323,4 +329,5 @@ def budgets_en_alerte_ajax(request):
         return JsonResponse({'success': True, 'budgets': data})
 
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+        logger.error(f"Erreur récupération budgets en alerte: {e}", exc_info=True)
+        return JsonResponse({'success': False, 'error': "Erreur lors de la récupération des budgets."}, status=400)

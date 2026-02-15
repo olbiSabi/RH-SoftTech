@@ -858,7 +858,12 @@ class ZYCO(models.Model):
         return f"{self.employe.matricule} - {self.type_contrat} ({self.date_debut})"
 
     def clean(self):
-        """Validation: un seul contrat actif par employé"""
+        """Validation: un seul contrat actif par employé + date_fin > date_debut"""
+        if self.date_fin and self.date_debut and self.date_fin < self.date_debut:
+            raise ValidationError(
+                "La date de fin du contrat ne peut pas être antérieure à la date de début."
+            )
+
         if not self.date_fin:  # Contrat actif
             contrats_actifs = ZYCO.objects.filter(
                 employe=self.employe,
@@ -966,7 +971,12 @@ class ZYAF(models.Model):
         return f"{self.employe.matricule} - {self.poste.LIBELLE} ({self.date_debut})"
 
     def clean(self):
-        """Validation: une seule affectation active par employé"""
+        """Validation: une seule affectation active par employé + date_fin > date_debut"""
+        if self.date_fin and self.date_debut and self.date_fin < self.date_debut:
+            raise ValidationError(
+                "La date de fin d'affectation ne peut pas être antérieure à la date de début."
+            )
+
         if not self.date_fin:  # Affectation active
             affectations_actives = ZYAF.objects.filter(
                 employe=self.employe,
@@ -1036,7 +1046,12 @@ class ZYAD(models.Model):
         super().save(*args, **kwargs)
 
     def clean(self):
-        """Validation: une seule adresse principale ACTIVE par employé"""
+        """Validation: une seule adresse principale ACTIVE par employé + date_fin > date_debut"""
+        if self.date_fin and self.date_debut and self.date_fin < self.date_debut:
+            raise ValidationError(
+                "La date de fin ne peut pas être antérieure à la date de début."
+            )
+
         # Vérifier seulement si c'est une adresse principale SANS date de fin (active)
         if self.type_adresse == 'PRINCIPALE' and not self.date_fin:
             # Chercher les autres adresses principales ACTIVES pour le même employé

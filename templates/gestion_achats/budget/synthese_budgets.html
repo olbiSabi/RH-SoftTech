@@ -35,7 +35,7 @@
                 <div class="card-body text-center">
                     <i class="fas fa-wallet fa-3x text-primary mb-3"></i>
                     <h5>Total Initial</h5>
-                    <h3 class="text-primary">{{ synthese.total_initial|floatformat:2 }} €</h3>
+                    <h3 class="text-primary">{{ synthese.total_initial|floatformat:2 }} FCFA</h3>
                 </div>
             </div>
         </div>
@@ -45,7 +45,7 @@
                 <div class="card-body text-center">
                     <i class="fas fa-chart-line fa-3x text-info mb-3"></i>
                     <h5>Engagé</h5>
-                    <h3 class="text-info">{{ synthese.total_engage|floatformat:2 }} €</h3>
+                    <h3 class="text-info">{{ synthese.total_engage|floatformat:2 }} FCFA</h3>
                     <small class="text-muted">{{ synthese.pct_engage|floatformat:1 }}%</small>
                 </div>
             </div>
@@ -56,7 +56,7 @@
                 <div class="card-body text-center">
                     <i class="fas fa-file-invoice fa-3x text-secondary mb-3"></i>
                     <h5>Commandé</h5>
-                    <h3 class="text-secondary">{{ synthese.total_commande|floatformat:2 }} €</h3>
+                    <h3 class="text-secondary">{{ synthese.total_commande|floatformat:2 }} FCFA</h3>
                     <small class="text-muted">{{ synthese.pct_commande|floatformat:1 }}%</small>
                 </div>
             </div>
@@ -67,7 +67,7 @@
                 <div class="card-body text-center">
                     <i class="fas fa-shopping-cart fa-3x text-warning mb-3"></i>
                     <h5>Consommé</h5>
-                    <h3 class="text-warning">{{ synthese.total_consomme|floatformat:2 }} €</h3>
+                    <h3 class="text-warning">{{ synthese.total_consomme|floatformat:2 }} FCFA</h3>
                     <small class="text-muted">{{ synthese.pct_consomme|floatformat:1 }}%</small>
                 </div>
             </div>
@@ -78,7 +78,7 @@
                 <div class="card-body text-center">
                     <i class="fas fa-hand-holding-usd fa-3x text-success mb-3"></i>
                     <h5>Disponible</h5>
-                    <h3 class="text-success">{{ synthese.total_disponible|floatformat:2 }} €</h3>
+                    <h3 class="text-success">{{ synthese.total_disponible|floatformat:2 }} FCFA</h3>
                     <small class="text-muted">{{ synthese.pct_disponible|floatformat:1 }}%</small>
                 </div>
             </div>
@@ -149,11 +149,11 @@
                                 <strong>{{ dept.nom }}</strong><br>
                                 <small class="text-muted">{{ dept.nb_budgets }} budget(s)</small>
                             </td>
-                            <td class="text-right">{{ dept.montant_initial|floatformat:2 }} €</td>
-                            <td class="text-right">{{ dept.montant_engage|floatformat:2 }} €</td>
-                            <td class="text-right">{{ dept.montant_commande|floatformat:2 }} €</td>
-                            <td class="text-right">{{ dept.montant_consomme|floatformat:2 }} €</td>
-                            <td class="text-right">{{ dept.montant_disponible|floatformat:2 }} €</td>
+                            <td class="text-right">{{ dept.montant_initial|floatformat:2 }} FCFA</td>
+                            <td class="text-right">{{ dept.montant_engage|floatformat:2 }} FCFA</td>
+                            <td class="text-right">{{ dept.montant_commande|floatformat:2 }} FCFA</td>
+                            <td class="text-right">{{ dept.montant_consomme|floatformat:2 }} FCFA</td>
+                            <td class="text-right">{{ dept.montant_disponible|floatformat:2 }} FCFA</td>
                             <td class="text-center">
                                 <div class="progress" style="height: 20px;">
                                     <div class="progress-bar {% if dept.taux >= 90 %}bg-danger{% elif dept.taux >= 70 %}bg-warning{% else %}bg-success{% endif %}"
@@ -209,7 +209,7 @@
                             <td><strong>{{ budget.code }}</strong></td>
                             <td>{{ budget.libelle }}</td>
                             <td>{{ budget.departement|default:"--" }}</td>
-                            <td class="text-right">{{ budget.disponible|floatformat:2 }} €</td>
+                            <td class="text-right">{{ budget.disponible|floatformat:2 }} FCFA</td>
                             <td class="text-center">
                                 <span class="badge {% if budget.taux >= 90 %}badge-danger{% else %}badge-warning{% endif %}">
                                     {{ budget.taux|floatformat:1 }}%
@@ -318,7 +318,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return value.toLocaleString('fr-FR') + ' €';
+                                return value.toLocaleString('fr-FR') + ' FCFA';
                             }
                         }
                     }

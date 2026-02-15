@@ -204,6 +204,12 @@
         {% elif notif.type_notification == 'STATUT_TICKET_CHANGE' or notif.type_notification == 'STATUT_PROJET_CHANGE' %}icon-info
         {% elif notif.type_notification == 'COMMENTAIRE_TICKET' %}icon-info
         {% elif notif.type_notification == 'ECHEANCE_PROCHE' %}icon-warning
+        {% elif 'GAC_DEMANDE' in notif.type_notification %}icon-info
+        {% elif 'GAC_BC' in notif.type_notification %}icon-info
+        {% elif notif.type_notification == 'GAC_RECEPTION' %}icon-success
+        {% elif notif.type_notification == 'GAC_ALERTE_BUDGET' or notif.type_notification == 'GAC_FIN_VALIDITE_BUDGET' %}icon-danger
+        {% elif notif.type_notification == 'GAC_RETARD_LIVRAISON' %}icon-warning
+        {% elif notif.type_notification == 'GAC_RAPPEL' %}icon-warning
         {% elif 'VALIDATION' in notif.type_notification %}icon-success
         {% elif 'REJET' in notif.type_notification %}icon-danger
         {% else %}icon-info{% endif %}">
@@ -226,6 +232,26 @@
             <i class="fas fa-times-circle"></i>
         {% elif notif.type_notification == 'ABSENCE_ANNULEE' %}
             <i class="fas fa-ban"></i>
+        {% elif notif.type_notification == 'GAC_DEMANDE_SOUMISE' %}
+            <i class="fas fa-file-alt"></i>
+        {% elif notif.type_notification == 'GAC_DEMANDE_VALIDEE' %}
+            <i class="fas fa-check-circle"></i>
+        {% elif notif.type_notification == 'GAC_DEMANDE_REFUSEE' %}
+            <i class="fas fa-times-circle"></i>
+        {% elif notif.type_notification == 'GAC_DEMANDE_ANNULEE' %}
+            <i class="fas fa-ban"></i>
+        {% elif notif.type_notification == 'GAC_DEMANDE_CONVERTIE' %}
+            <i class="fas fa-exchange-alt"></i>
+        {% elif 'GAC_BC' in notif.type_notification %}
+            <i class="fas fa-file-invoice"></i>
+        {% elif notif.type_notification == 'GAC_RECEPTION' %}
+            <i class="fas fa-box-open"></i>
+        {% elif notif.type_notification == 'GAC_ALERTE_BUDGET' or notif.type_notification == 'GAC_FIN_VALIDITE_BUDGET' %}
+            <i class="fas fa-exclamation-triangle"></i>
+        {% elif notif.type_notification == 'GAC_RETARD_LIVRAISON' %}
+            <i class="fas fa-truck"></i>
+        {% elif notif.type_notification == 'GAC_RAPPEL' %}
+            <i class="fas fa-clock"></i>
         {% else %}
             <i class="fas fa-bell"></i>
         {% endif %}

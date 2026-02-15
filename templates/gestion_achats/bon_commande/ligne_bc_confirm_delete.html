@@ -25,7 +25,7 @@
                         <hr>
                         <p class="mb-0">
                             <strong>Fournisseur :</strong> {{ bc.fournisseur.raison_sociale }}<br>
-                            <strong>Total actuel TTC :</strong> {{ bc.montant_total_ttc|floatformat:2 }} €
+                            <strong>Total actuel TTC :</strong> {{ bc.montant_total_ttc|floatformat:2 }} FCFA
                         </p>
                     </div>
 
@@ -42,10 +42,10 @@
                                     <strong>Quantité :</strong> {{ ligne.quantite_commandee }}
                                 </p>
                                 <p class="mb-2">
-                                    <strong>Prix unitaire HT :</strong> {{ ligne.prix_unitaire|floatformat:2 }} €
+                                    <strong>Prix unitaire HT :</strong> {{ ligne.prix_unitaire|floatformat:2 }} FCFA
                                 </p>
                                 <p class="mb-0">
-                                    <strong>Montant TTC :</strong> {{ ligne.montant_ttc|floatformat:2 }} €
+                                    <strong>Montant TTC :</strong> {{ ligne.montant_ttc|floatformat:2 }} FCFA
                                 </p>
                             </div>
                         </div>

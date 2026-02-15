@@ -213,7 +213,7 @@
                                         </a>
                                     </td>
                                     <td>{{ bc.date_emission|date:"d/m/Y" }}</td>
-                                    <td>{{ bc.montant_total_ttc|floatformat:2 }} €</td>
+                                    <td>{{ bc.montant_total_ttc|floatformat:2 }} FCFA</td>
                                     <td>{% include 'gestion_achats/includes/statut_badge.html' with statut=bc.statut %}</td>
                                 </tr>
                                 {% endfor %}

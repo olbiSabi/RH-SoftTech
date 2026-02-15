@@ -26,7 +26,7 @@
                                 <p><strong>Objet :</strong> {{ demande.objet }}</p>
                             </div>
                             <div class="col-md-6">
-                                <p><strong>Montant TTC :</strong> {{ demande.montant_total_ttc|floatformat:2 }} €</p>
+                                <p><strong>Montant TTC :</strong> {{ demande.montant_total_ttc|floatformat:2 }} FCFA</p>
                                 <p><strong>Date validation N2 :</strong> {{ demande.date_validation_n2|date:"d/m/Y" }}</p>
                             </div>
                         </div>
@@ -50,8 +50,8 @@
                                     <tr>
                                         <td>{{ ligne.article.nom }}</td>
                                         <td class="text-end">{{ ligne.quantite }}</td>
-                                        <td class="text-end">{{ ligne.prix_unitaire|floatformat:2 }} €</td>
-                                        <td class="text-end">{{ ligne.montant_ttc|floatformat:2 }} €</td>
+                                        <td class="text-end">{{ ligne.prix_unitaire|floatformat:2 }} FCFA</td>
+                                        <td class="text-end">{{ ligne.montant_ttc|floatformat:2 }} FCFA</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>

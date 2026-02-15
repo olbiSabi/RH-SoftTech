@@ -137,7 +137,7 @@ class CatalogueService:
                 objet=article,
                 action='CREATION',
                 utilisateur=cree_par,
-                details=f"Création de l'article '{article.reference}' - {designation} ({prix_unitaire} €)"
+                details=f"Création de l'article '{article.reference}' - {designation} ({prix_unitaire} FCFA)"
             )
 
             logger.info(f"Article '{article.reference}' créé: {designation}")
@@ -289,7 +289,7 @@ class CatalogueService:
         # TODO: Implémenter avec un modèle GACArticleFournisseur si ajouté
         logger.info(
             f"Association article-fournisseur: {article.reference} - {fournisseur.code} "
-            f"(prix: {prix_fournisseur} €, délai: {delai_livraison}j)"
+            f"(prix: {prix_fournisseur} FCFA, délai: {delai_livraison}j)"
         )
 
         # Pour l'instant, on log seulement

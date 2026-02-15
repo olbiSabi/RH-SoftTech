@@ -216,7 +216,7 @@ class DemandeService:
             demande.validateur_n2 = determiner_validateur_n2(demande)
             if not demande.validateur_n2:
                 raise GACValidationError(
-                    f"Le montant de la demande ({demande.montant_total_ttc} €) dépasse le seuil ({seuil} €) "
+                    f"Le montant de la demande ({demande.montant_total_ttc} FCFA) dépasse le seuil ({seuil} FCFA) "
                     "mais aucun validateur N2 n'a pu être trouvé. "
                     "Veuillez créer au moins un utilisateur avec le rôle ADMIN_GAC, ACHETEUR, "
                     "RESPONSABLE_ACHATS ou DIRECTEUR_GENERAL."
@@ -235,11 +235,10 @@ class DemandeService:
             utilisateur=utilisateur,
             ancien_statut=ancien_statut,
             nouveau_statut=demande.statut,
-            details=f"Demande soumise pour validation (Montant: {demande.montant_total_ttc} €)"
+            details=f"Demande soumise pour validation (Montant: {demande.montant_total_ttc} FCFA)"
         )
 
-        # TODO: Envoyer notification au validateur N1
-        # NotificationService.notifier_nouvelle_demande_a_valider(demande)
+        # Les notifications sont gérées automatiquement par les signaux (signals.py)
 
         logger.info(
             f"Demande {demande.numero} soumise par {utilisateur} "
@@ -304,11 +303,7 @@ class DemandeService:
             details=details
         )
 
-        # TODO: Envoyer notification
-        # if demande.validateur_n2:
-        #     NotificationService.notifier_nouvelle_demande_a_valider_n2(demande)
-        # else:
-        #     NotificationService.notifier_demande_validee(demande)
+        # Les notifications sont gérées automatiquement par les signaux (signals.py)
 
         logger.info(f"Demande {demande.numero} validée N1 par {validateur}")
 
@@ -382,7 +377,7 @@ class DemandeService:
                     reference=f"Demande {demande.numero}"
                 )
                 logger.info(
-                    f"Budget {demande.budget.code} engagé pour {demande.montant_total_ttc} € "
+                    f"Budget {demande.budget.code} engagé pour {demande.montant_total_ttc} FCFA "
                     f"(demande {demande.numero})"
                 )
             except BudgetInsuffisantError as e:
@@ -401,9 +396,7 @@ class DemandeService:
             details=f"Validation N2 par {validateur}. Demande complètement validée."
         )
 
-        # Notification
-        from gestion_achats.services.notification_service import NotificationService
-        NotificationService.notifier_demande_validee_n2(demande)
+        # Les notifications sont gérées automatiquement par les signaux (signals.py)
 
         logger.info(f"Demande {demande.numero} validée N2 par {validateur}")
 
@@ -447,7 +440,7 @@ class DemandeService:
                     reference=f"Refus demande {demande.numero}"
                 )
                 logger.info(
-                    f"Budget {demande.budget.code} libéré de {demande.montant_total_ttc} € "
+                    f"Budget {demande.budget.code} libéré de {demande.montant_total_ttc} FCFA "
                     f"suite au refus de la demande {demande.numero}"
                 )
             except Exception as e:
@@ -463,9 +456,8 @@ class DemandeService:
             details=f"Demande refusée par {validateur}. Motif: {motif}"
         )
 
-        # Notification
-        from gestion_achats.services.notification_service import NotificationService
-        NotificationService.notifier_demande_refusee(demande)
+        # Les notifications sont gérées automatiquement par les signaux (signals.py)
+        # Le motif est récupéré depuis demande.motif_refus par le signal
 
         logger.info(f"Demande {demande.numero} refusée par {validateur}")
 
@@ -512,7 +504,7 @@ class DemandeService:
                     reference=f"Annulation demande {demande.numero}"
                 )
                 logger.info(
-                    f"Budget {demande.budget.code} libéré de {demande.montant_total_ttc} € "
+                    f"Budget {demande.budget.code} libéré de {demande.montant_total_ttc} FCFA "
                     f"suite à l'annulation de la demande {demande.numero}"
                 )
             except Exception as e:
@@ -528,9 +520,7 @@ class DemandeService:
             details=f"Demande annulée par {utilisateur}. Motif: {motif}"
         )
 
-        # Notification
-        from gestion_achats.services.notification_service import NotificationService
-        NotificationService.notifier_demande_annulee(demande)
+        # Les notifications sont gérées automatiquement par les signaux (signals.py)
 
         logger.info(f"Demande {demande.numero} annulée par {utilisateur}")
 
@@ -555,8 +545,8 @@ class DemandeService:
 
         if montant_disponible < demande.montant_total_ttc:
             raise BudgetInsuffisantError(
-                f"Budget insuffisant. Disponible: {montant_disponible}€, "
-                f"Demandé: {demande.montant_total_ttc}€"
+                f"Budget insuffisant. Disponible: {montant_disponible} FCFA, "
+                f"Demandé: {demande.montant_total_ttc} FCFA"
             )
 
     @staticmethod

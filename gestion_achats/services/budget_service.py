@@ -55,7 +55,7 @@ class BudgetService:
 
         if montant > disponible:
             raise BudgetInsuffisantError(
-                f"Budget insuffisant. Disponible: {disponible} €, Demandé: {montant} €"
+                f"Budget insuffisant. Disponible: {disponible} FCFA, Demandé: {montant} FCFA"
             )
 
         return True
@@ -93,10 +93,10 @@ class BudgetService:
                 objet=budget,
                 action='ENGAGEMENT',
                 utilisateur=None,
-                details=f"Engagement de {montant} € ({reference})"
+                details=f"Engagement de {montant} FCFA ({reference})"
             )
 
-            logger.info(f"Montant {montant} € engagé sur budget {budget.code} ({reference})")
+            logger.info(f"Montant {montant} FCFA engagé sur budget {budget.code} ({reference})")
 
             return budget
 
@@ -146,10 +146,10 @@ class BudgetService:
                 objet=budget,
                 action='COMMANDE',
                 utilisateur=None,
-                details=f"Commande de {montant} € ({reference})"
+                details=f"Commande de {montant} FCFA ({reference})"
             )
 
-            logger.info(f"Montant {montant} € commandé sur budget {budget.code} ({reference})")
+            logger.info(f"Montant {montant} FCFA commandé sur budget {budget.code} ({reference})")
 
             return budget
 
@@ -197,10 +197,10 @@ class BudgetService:
                 objet=budget,
                 action='CONSOMMATION',
                 utilisateur=None,
-                details=f"Consommation de {montant} € ({reference})"
+                details=f"Consommation de {montant} FCFA ({reference})"
             )
 
-            logger.info(f"Montant {montant} € consommé sur budget {budget.code} ({reference})")
+            logger.info(f"Montant {montant} FCFA consommé sur budget {budget.code} ({reference})")
 
             return budget
 
@@ -240,10 +240,10 @@ class BudgetService:
                 objet=budget,
                 action='LIBERATION',
                 utilisateur=None,
-                details=f"Libération de {montant} € ({reference})"
+                details=f"Libération de {montant} FCFA ({reference})"
             )
 
-            logger.info(f"Montant {montant} € libéré sur budget {budget.code} ({reference})")
+            logger.info(f"Montant {montant} FCFA libéré sur budget {budget.code} ({reference})")
 
             return budget
 
@@ -266,7 +266,6 @@ class BudgetService:
 
         # Alerte critique (seuil 2)
         if taux >= budget.seuil_alerte_2 and not budget.alerte_2_envoyee:
-            # TODO: Utiliser NotificationService pour envoyer une alerte
             logger.warning(
                 f"ALERTE CRITIQUE - Budget {budget.code}: {taux:.1f}% consommé "
                 f"(seuil 2: {budget.seuil_alerte_2}%)"
@@ -275,15 +274,15 @@ class BudgetService:
             budget.alerte_2_envoyee = True
             budget.save()
 
-            # NotificationService.notifier_alerte_budget(
-            #     budget=budget,
-            #     niveau='CRITIQUE',
-            #     message=f"Budget {budget.code}: {taux}% consommé (seuil 2: {budget.seuil_alerte_2}%)"
-            # )
+            from gestion_achats.services.notification_service import NotificationService
+            NotificationService.notifier_alerte_budget(
+                budget=budget,
+                niveau='CRITIQUE',
+                message=f"Budget {budget.code}: {taux:.1f}% consommé (seuil 2: {budget.seuil_alerte_2}%)"
+            )
 
         # Alerte avertissement (seuil 1)
         elif taux >= budget.seuil_alerte_1 and not budget.alerte_1_envoyee:
-            # TODO: Utiliser NotificationService pour envoyer une alerte
             logger.warning(
                 f"ALERTE AVERTISSEMENT - Budget {budget.code}: {taux:.1f}% consommé "
                 f"(seuil 1: {budget.seuil_alerte_1}%)"
@@ -292,11 +291,12 @@ class BudgetService:
             budget.alerte_1_envoyee = True
             budget.save()
 
-            # NotificationService.notifier_alerte_budget(
-            #     budget=budget,
-            #     niveau='AVERTISSEMENT',
-            #     message=f"Budget {budget.code}: {taux}% consommé (seuil 1: {budget.seuil_alerte_1}%)"
-            # )
+            from gestion_achats.services.notification_service import NotificationService
+            NotificationService.notifier_alerte_budget(
+                budget=budget,
+                niveau='AVERTISSEMENT',
+                message=f"Budget {budget.code}: {taux:.1f}% consommé (seuil 1: {budget.seuil_alerte_1}%)"
+            )
 
     @staticmethod
     @transaction.atomic
@@ -356,10 +356,10 @@ class BudgetService:
                 objet=budget,
                 action='CREATION',
                 utilisateur=cree_par,
-                details=f"Création du budget {budget.code} - {libelle} ({montant_initial} €)"
+                details=f"Création du budget {budget.code} - {libelle} ({montant_initial} FCFA)"
             )
 
-            logger.info(f"Budget {budget.code} créé: {montant_initial} € pour l'exercice {exercice}")
+            logger.info(f"Budget {budget.code} créé: {montant_initial} FCFA pour l'exercice {exercice}")
 
             return budget
 

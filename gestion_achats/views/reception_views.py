@@ -26,6 +26,9 @@ from gestion_achats.forms import (
 from gestion_achats.services.reception_service import ReceptionService
 from gestion_achats.permissions import GACPermissions, require_permission
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 @login_required
 def reception_list(request):
@@ -145,7 +148,8 @@ def reception_create(request, bc_pk):
                 return redirect('gestion_achats:reception_detail', pk=reception.uuid)
 
             except Exception as e:
-                messages.error(request, f'Erreur lors de la création: {str(e)}')
+                logger.error(f"Erreur création réception pour BC {bon_commande.numero}: {e}", exc_info=True)
+                messages.error(request, "Erreur lors de la création de la réception.")
     else:
         form = ReceptionForm(bon_commande=bon_commande)
 
@@ -228,7 +232,8 @@ def reception_update(request, pk):
                 return redirect('gestion_achats:reception_detail', pk=reception.uuid)
 
             except Exception as e:
-                messages.error(request, f'Erreur: {str(e)}')
+                logger.error(f"Erreur modification réception {reception.numero}: {e}", exc_info=True)
+                messages.error(request, "Erreur lors de la modification de la réception.")
     else:
         form = ReceptionForm(instance=reception, bon_commande=reception.bon_commande)
 
@@ -266,7 +271,8 @@ def valider_reception(request, pk):
         messages.success(request, f'Réception {reception.numero} validée avec succès.')
 
     except Exception as e:
-        messages.error(request, f'Erreur lors de la validation: {str(e)}')
+        logger.error(f"Erreur validation réception {reception.numero}: {e}", exc_info=True)
+        messages.error(request, "Erreur lors de la validation de la réception.")
 
     return redirect('gestion_achats:reception_detail', pk=reception.uuid)
 
@@ -298,7 +304,8 @@ def annuler_reception(request, pk):
         messages.success(request, f'Réception {reception.numero} annulée.')
 
     except Exception as e:
-        messages.error(request, f'Erreur: {str(e)}')
+        logger.error(f"Erreur annulation réception {reception.numero}: {e}", exc_info=True)
+        messages.error(request, "Erreur lors de l'annulation de la réception.")
 
     return redirect('gestion_achats:reception_detail', pk=reception.uuid)
 

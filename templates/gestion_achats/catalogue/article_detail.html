@@ -107,7 +107,7 @@
             <div class="card mb-4">
                 <div class="card-header">
                     <h5 class="mb-0">
-                        <i class="fas fa-euro-sign me-2"></i>
+                        <i class="fas fa-money-bill-wave me-2"></i>
                         Tarification
                     </h5>
                 </div>
@@ -115,7 +115,7 @@
                     <div class="row">
                         <div class="col-md-4">
                             <label class="text-muted small">Prix unitaire HT</label>
-                            <h4 class="text-primary">{{ article.prix_unitaire|floatformat:2 }} €</h4>
+                            <h4 class="text-primary">{{ article.prix_unitaire|floatformat:2 }} FCFA</h4>
                         </div>
                         <div class="col-md-4">
                             <label class="text-muted small">Taux TVA</label>
@@ -123,7 +123,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="text-muted small">Prix unitaire TTC</label>
-                            <h4 class="text-success">{{ article.calculer_prix_ttc|floatformat:2 }} €</h4>
+                            <h4 class="text-success">{{ article.calculer_prix_ttc|floatformat:2 }} FCFA</h4>
                         </div>
                     </div>
                 </div>
@@ -161,7 +161,7 @@
                                     <td>{{ af.reference_fournisseur|default:"-" }}</td>
                                     <td class="text-end">
                                         {% if af.prix_unitaire %}
-                                        {{ af.prix_unitaire|floatformat:2 }} €
+                                        {{ af.prix_unitaire|floatformat:2 }} FCFA
                                         {% else %}
                                         <span class="text-muted">-</span>
                                         {% endif %}
@@ -222,7 +222,7 @@
                                     <td>{{ ligne.bon_commande.date_emission|date:"d/m/Y" }}</td>
                                     <td>{{ ligne.bon_commande.fournisseur.raison_sociale }}</td>
                                     <td class="text-end">{{ ligne.quantite_commandee }}</td>
-                                    <td class="text-end">{{ ligne.montant_ttc|floatformat:2 }} €</td>
+                                    <td class="text-end">{{ ligne.montant_ttc|floatformat:2 }} FCFA</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -258,7 +258,7 @@
                     </div>
                     <div>
                         <label class="text-muted small">Montant total</label>
-                        <h4>{{ stats.montant_total|floatformat:2 }} €</h4>
+                        <h4>{{ stats.montant_total|floatformat:2 }} FCFA</h4>
                     </div>
                 </div>
             </div>

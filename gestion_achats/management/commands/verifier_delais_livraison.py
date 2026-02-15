@@ -124,7 +124,7 @@ class Command(BaseCommand):
             self.stdout.write(f'    Date livraison: {bc.date_livraison_souhaitee.strftime("%d/%m/%Y")}')
             self.stdout.write(self.style.ERROR(f'    Retard: {jours_retard} jour(s)'))
             self.stdout.write(f'    Statut: {bc.get_statut_display()}')
-            self.stdout.write(f'    Montant TTC: {bc.montant_total_ttc:.2f} €')
+            self.stdout.write(f'    Montant TTC: {bc.montant_total_ttc:.2f} FCFA')
 
             if not dry_run:
                 try:
@@ -152,7 +152,7 @@ class Command(BaseCommand):
             self.stdout.write(f'    Date livraison: {bc.date_livraison_souhaitee.strftime("%d/%m/%Y")}')
             self.stdout.write(self.style.WARNING(f'    Jours restants: {jours_restants}'))
             self.stdout.write(f'    Statut: {bc.get_statut_display()}')
-            self.stdout.write(f'    Montant TTC: {bc.montant_total_ttc:.2f} €')
+            self.stdout.write(f'    Montant TTC: {bc.montant_total_ttc:.2f} FCFA')
 
             if not dry_run:
                 try:

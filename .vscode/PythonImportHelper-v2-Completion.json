@@ -1219,6 +1219,14 @@
         "documentation": {}
     },
     {
+        "label": "settings",
+        "importPath": "django.conf",
+        "description": "django.conf",
+        "isExtraImport": true,
+        "detail": "django.conf",
+        "documentation": {}
+    },
+    {
         "label": "static",
         "importPath": "django.conf.urls.static",
         "description": "django.conf.urls.static",
@@ -3164,6 +3172,22 @@
         "documentation": {}
     },
     {
+        "label": "ZYRO",
+        "importPath": "employee.models",
+        "description": "employee.models",
+        "isExtraImport": true,
+        "detail": "employee.models",
+        "documentation": {}
+    },
+    {
+        "label": "ZYRE",
+        "importPath": "employee.models",
+        "description": "employee.models",
+        "isExtraImport": true,
+        "detail": "employee.models",
+        "documentation": {}
+    },
+    {
         "label": "ZY00",
         "importPath": "employee.models",
         "description": "employee.models",
@@ -4133,6 +4157,22 @@
         "documentation": {}
     },
     {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
         "label": "transaction",
         "importPath": "django.db",
         "description": "django.db",
@@ -4598,6 +4638,30 @@
     },
     {
         "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "migrations",
         "importPath": "django.db",
         "description": "django.db",
         "isExtraImport": true,
@@ -8770,14 +8834,6 @@
     },
     {
         "label": "Client",
-        "importPath": "django.test",
-        "description": "django.test",
-        "isExtraImport": true,
-        "detail": "django.test",
-        "documentation": {}
-    },
-    {
-        "label": "TestCase",
         "importPath": "django.test",
         "description": "django.test",
         "isExtraImport": true,
@@ -16821,6 +16877,14 @@
         "documentation": {}
     },
     {
+        "label": "STATUT_DEMANDE_CONVERTIE_BC",
+        "importPath": "gestion_achats.constants",
+        "description": "gestion_achats.constants",
+        "isExtraImport": true,
+        "detail": "gestion_achats.constants",
+        "documentation": {}
+    },
+    {
         "label": "SEUIL_ALERTE_BUDGET_1",
         "importPath": "gestion_achats.constants",
         "description": "gestion_achats.constants",
@@ -17134,6 +17198,14 @@
     },
     {
         "label": "ValidationError",
+        "importPath": "gestion_achats.exceptions",
+        "description": "gestion_achats.exceptions",
+        "isExtraImport": true,
+        "detail": "gestion_achats.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "GACException",
         "importPath": "gestion_achats.exceptions",
         "description": "gestion_achats.exceptions",
         "isExtraImport": true,
@@ -18652,7 +18724,7 @@
         "kind": 5,
         "importPath": "HR_ONIAN.settings",
         "description": "HR_ONIAN.settings",
-        "peekOfCode": "SESSION_COOKIE_AGE = 3600  # 1 heure en secondes\nSESSION_SAVE_EVERY_REQUEST = True  # Renouveler la session à chaque requête\n# ============================================\n# CONFIGURATION EMAIL\n# ============================================\n# Sécurité des connexions\nLOGIN_ATTEMPTS_LIMIT = 3\nACCOUNT_LOCKOUT_DURATION = 24  # heures\nDEFAULT_FROM_EMAIL = 'ONIAN-EasyM <noreply@hronian.local>'\n# URL du site pour les emails",
+        "peekOfCode": "SESSION_COOKIE_AGE = 3600  # 1 heure en secondes\nSESSION_SAVE_EVERY_REQUEST = True  # Renouveler la session à chaque requête\n# ============================================\n# CONFIGURATION EMAIL\n# ============================================\n# Sécurité des connexions\nLOGIN_ATTEMPTS_LIMIT = 3\nACCOUNT_LOCKOUT_DURATION = 24  # heures\n# URL du site pour les emails\nSITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000')",
         "detail": "HR_ONIAN.settings",
         "documentation": {}
     },
@@ -18661,7 +18733,7 @@
         "kind": 5,
         "importPath": "HR_ONIAN.settings",
         "description": "HR_ONIAN.settings",
-        "peekOfCode": "SESSION_SAVE_EVERY_REQUEST = True  # Renouveler la session à chaque requête\n# ============================================\n# CONFIGURATION EMAIL\n# ============================================\n# Sécurité des connexions\nLOGIN_ATTEMPTS_LIMIT = 3\nACCOUNT_LOCKOUT_DURATION = 24  # heures\nDEFAULT_FROM_EMAIL = 'ONIAN-EasyM <noreply@hronian.local>'\n# URL du site pour les emails\nSITE_URL = 'http://127.0.0.1:8000'  # Pour le développement",
+        "peekOfCode": "SESSION_SAVE_EVERY_REQUEST = True  # Renouveler la session à chaque requête\n# ============================================\n# CONFIGURATION EMAIL\n# ============================================\n# Sécurité des connexions\nLOGIN_ATTEMPTS_LIMIT = 3\nACCOUNT_LOCKOUT_DURATION = 24  # heures\n# URL du site pour les emails\nSITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000')\n# Sélection automatique du backend email selon DEBUG",
         "detail": "HR_ONIAN.settings",
         "documentation": {}
     },
@@ -18670,7 +18742,7 @@
         "kind": 5,
         "importPath": "HR_ONIAN.settings",
         "description": "HR_ONIAN.settings",
-        "peekOfCode": "LOGIN_ATTEMPTS_LIMIT = 3\nACCOUNT_LOCKOUT_DURATION = 24  # heures\nDEFAULT_FROM_EMAIL = 'ONIAN-EasyM <noreply@hronian.local>'\n# URL du site pour les emails\nSITE_URL = 'http://127.0.0.1:8000'  # Pour le développement\n# SITE_URL = 'https://votre-domaine.com'  # Pour la production\n# Configuration email (assurez-vous d'avoir ces settings)\nEMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Pour le développement\n# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Pour la production\n# Si vous utilisez SMTP, configurez ces paramètres :",
+        "peekOfCode": "LOGIN_ATTEMPTS_LIMIT = 3\nACCOUNT_LOCKOUT_DURATION = 24  # heures\n# URL du site pour les emails\nSITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000')\n# Sélection automatique du backend email selon DEBUG\nif DEBUG:\n    # Développement : les emails s'affichent dans la console\n    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'\n    DEFAULT_FROM_EMAIL = 'ONIAN-EasyM <noreply@hronian.local>'\nelse:",
         "detail": "HR_ONIAN.settings",
         "documentation": {}
     },
@@ -18679,16 +18751,7 @@
         "kind": 5,
         "importPath": "HR_ONIAN.settings",
         "description": "HR_ONIAN.settings",
-        "peekOfCode": "ACCOUNT_LOCKOUT_DURATION = 24  # heures\nDEFAULT_FROM_EMAIL = 'ONIAN-EasyM <noreply@hronian.local>'\n# URL du site pour les emails\nSITE_URL = 'http://127.0.0.1:8000'  # Pour le développement\n# SITE_URL = 'https://votre-domaine.com'  # Pour la production\n# Configuration email (assurez-vous d'avoir ces settings)\nEMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Pour le développement\n# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Pour la production\n# Si vous utilisez SMTP, configurez ces paramètres :\n# EMAIL_HOST = 'votre-smtp.gmail.com'",
-        "detail": "HR_ONIAN.settings",
-        "documentation": {}
-    },
-    {
-        "label": "DEFAULT_FROM_EMAIL",
-        "kind": 5,
-        "importPath": "HR_ONIAN.settings",
-        "description": "HR_ONIAN.settings",
-        "peekOfCode": "DEFAULT_FROM_EMAIL = 'ONIAN-EasyM <noreply@hronian.local>'\n# URL du site pour les emails\nSITE_URL = 'http://127.0.0.1:8000'  # Pour le développement\n# SITE_URL = 'https://votre-domaine.com'  # Pour la production\n# Configuration email (assurez-vous d'avoir ces settings)\nEMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Pour le développement\n# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Pour la production\n# Si vous utilisez SMTP, configurez ces paramètres :\n# EMAIL_HOST = 'votre-smtp.gmail.com'\n# EMAIL_PORT = 587",
+        "peekOfCode": "ACCOUNT_LOCKOUT_DURATION = 24  # heures\n# URL du site pour les emails\nSITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000')\n# Sélection automatique du backend email selon DEBUG\nif DEBUG:\n    # Développement : les emails s'affichent dans la console\n    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'\n    DEFAULT_FROM_EMAIL = 'ONIAN-EasyM <noreply@hronian.local>'\nelse:\n    # Production : envoi réel via SMTP",
         "detail": "HR_ONIAN.settings",
         "documentation": {}
     },
@@ -18697,16 +18760,7 @@
         "kind": 5,
         "importPath": "HR_ONIAN.settings",
         "description": "HR_ONIAN.settings",
-        "peekOfCode": "SITE_URL = 'http://127.0.0.1:8000'  # Pour le développement\n# SITE_URL = 'https://votre-domaine.com'  # Pour la production\n# Configuration email (assurez-vous d'avoir ces settings)\nEMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Pour le développement\n# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Pour la production\n# Si vous utilisez SMTP, configurez ces paramètres :\n# EMAIL_HOST = 'votre-smtp.gmail.com'\n# EMAIL_PORT = 587\n# EMAIL_USE_TLS = True\n# EMAIL_HOST_USER = 'votre-email@gmail.com'",
-        "detail": "HR_ONIAN.settings",
-        "documentation": {}
-    },
-    {
-        "label": "EMAIL_BACKEND",
-        "kind": 5,
-        "importPath": "HR_ONIAN.settings",
-        "description": "HR_ONIAN.settings",
-        "peekOfCode": "EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Pour le développement\n# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Pour la production\n# Si vous utilisez SMTP, configurez ces paramètres :\n# EMAIL_HOST = 'votre-smtp.gmail.com'\n# EMAIL_PORT = 587\n# EMAIL_USE_TLS = True\n# EMAIL_HOST_USER = 'votre-email@gmail.com'\n# EMAIL_HOST_PASSWORD = 'votre-mot-de-passe'\n# DEFAULT_FROM_EMAIL = 'ONIAN-EasyM <noreply@onian-easym.com>'",
+        "peekOfCode": "SITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000')\n# Sélection automatique du backend email selon DEBUG\nif DEBUG:\n    # Développement : les emails s'affichent dans la console\n    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'\n    DEFAULT_FROM_EMAIL = 'ONIAN-EasyM <noreply@hronian.local>'\nelse:\n    # Production : envoi réel via SMTP\n    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'\n    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')",
         "detail": "HR_ONIAN.settings",
         "documentation": {}
     },
@@ -19014,6 +19068,15 @@
         "description": "absence.migrations.0019_alter_notificationabsence_contexte_and_more",
         "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('absence', '0018_alter_notificationabsence_type_notification'),\n    ]\n    operations = [\n        migrations.AlterField(\n            model_name='notificationabsence',\n            name='contexte',\n            field=models.CharField(choices=[('EMPLOYE', \"En tant qu'employé\"), ('MANAGER', 'En tant que manager'), ('RH', 'En tant que RH'), ('PM', 'Project Management'), ('AUDIT', 'Conformité & Audit')], default='EMPLOYE', max_length=20, verbose_name='Contexte de la notification'),\n        ),",
         "detail": "absence.migrations.0019_alter_notificationabsence_contexte_and_more",
+        "documentation": {}
+    },
+    {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "absence.migrations.0020_notificationabsence_bon_commande_and_more",
+        "description": "absence.migrations.0020_notificationabsence_bon_commande_and_more",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('absence', '0019_alter_notificationabsence_contexte_and_more'),\n        ('gestion_achats', '0011_delete_gacnotification'),\n    ]\n    operations = [\n        migrations.AddField(\n            model_name='notificationabsence',\n            name='bon_commande',\n            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='notifications', to='gestion_achats.gacboncommande', verbose_name='Bon de commande'),",
+        "detail": "absence.migrations.0020_notificationabsence_bon_commande_and_more",
         "documentation": {}
     },
     {
@@ -19615,7 +19678,7 @@
         "kind": 2,
         "importPath": "absence.views_api.notification_api",
         "description": "absence.views_api.notification_api",
-        "peekOfCode": "def toutes_notifications(request):\n    \"\"\"Page listant toutes les notifications avec filtres\"\"\"\n    notifications = NotificationAbsence.objects.filter(\n        destinataire=request.user.employe\n    ).select_related(\n        'absence', 'absence__employe', 'absence__type_absence',\n        'ticket', 'ticket__projet', 'projet'\n    ).order_by('-date_creation')\n    statut_filter = request.GET.get('statut', '')\n    type_filter = request.GET.get('type', '')",
+        "peekOfCode": "def toutes_notifications(request):\n    \"\"\"Page listant toutes les notifications avec filtres\"\"\"\n    notifications = NotificationAbsence.objects.filter(\n        destinataire=request.user.employe\n    ).select_related(\n        'absence', 'absence__employe', 'absence__type_absence',\n        'ticket', 'ticket__projet', 'projet',\n        'demande_achat', 'bon_commande', 'budget_gac'\n    ).order_by('-date_creation')\n    statut_filter = request.GET.get('statut', '')",
         "detail": "absence.views_api.notification_api",
         "documentation": {}
     },
@@ -24831,6 +24894,24 @@
         "documentation": {}
     },
     {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "gestion_achats.migrations.0010_ajouter_gac_notification",
+        "description": "gestion_achats.migrations.0010_ajouter_gac_notification",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('gestion_achats', '0009_remove_gacfournisseur_gestion_ach_siret_dafd57_idx_and_more'),\n        migrations.swappable_dependency(settings.AUTH_USER_MODEL),\n    ]\n    operations = [\n        migrations.CreateModel(\n            name='GACNotification',\n            fields=[\n                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),",
+        "detail": "gestion_achats.migrations.0010_ajouter_gac_notification",
+        "documentation": {}
+    },
+    {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "gestion_achats.migrations.0011_delete_gacnotification",
+        "description": "gestion_achats.migrations.0011_delete_gacnotification",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('gestion_achats', '0010_ajouter_gac_notification'),\n    ]\n    operations = [\n        migrations.DeleteModel(\n            name='GACNotification',\n        ),\n    ]",
+        "detail": "gestion_achats.migrations.0011_delete_gacnotification",
+        "documentation": {}
+    },
+    {
         "label": "BonCommandeService",
         "kind": 6,
         "importPath": "gestion_achats.services.bon_commande_service",
@@ -25843,7 +25924,7 @@
         "kind": 2,
         "importPath": "gestion_achats.views.bon_commande_views",
         "description": "gestion_achats.views.bon_commande_views",
-        "peekOfCode": "def bon_commande_emit(request, pk, bon_commande):\n    \"\"\"Émettre un bon de commande.\"\"\"\n    require_permission(GACPermissions.can_emit_bon_commande, request.user, bon_commande)\n    if request.method == 'POST':\n        try:\n            BonCommandeService.emettre_bon_commande(bon_commande, request.user.employe)\n            messages.success(request, f'BC {bon_commande.numero} émis.')\n            return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)\n        except Exception as e:\n            messages.error(request, f'Erreur: {str(e)}')",
+        "peekOfCode": "def bon_commande_emit(request, pk, bon_commande):\n    \"\"\"Émettre un bon de commande.\"\"\"\n    require_permission(GACPermissions.can_emit_bon_commande, request.user, bon_commande)\n    if request.method == 'POST':\n        try:\n            BonCommandeService.emettre_bon_commande(bon_commande, request.user.employe)\n            messages.success(request, f'BC {bon_commande.numero} émis.')\n            return redirect('gestion_achats:bon_commande_detail', pk=bon_commande.uuid)\n        except Exception as e:\n            logger.error(f\"Erreur émission BC {bon_commande.numero}: {e}\", exc_info=True)",
         "detail": "gestion_achats.views.bon_commande_views",
         "documentation": {}
     },
@@ -25902,6 +25983,15 @@
         "documentation": {}
     },
     {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "gestion_achats.views.bon_commande_views",
+        "description": "gestion_achats.views.bon_commande_views",
+        "peekOfCode": "logger = logging.getLogger(__name__)\n@login_required\ndef bon_commande_liste(request):\n    \"\"\"Liste des bons de commande.\"\"\"\n    if GACPermissions.can_view_all_bons_commande(request.user):\n        bcs = GACBonCommande.objects.all()\n    else:\n        # Voir les BCs liés aux demandes de l'utilisateur\n        bcs = GACBonCommande.objects.filter(\n            demande_achat__demandeur=request.user.employe",
+        "detail": "gestion_achats.views.bon_commande_views",
+        "documentation": {}
+    },
+    {
         "label": "bon_retour_list",
         "kind": 2,
         "importPath": "gestion_achats.views.bon_retour_views",
@@ -25952,6 +26042,15 @@
         "importPath": "gestion_achats.views.bon_retour_views",
         "description": "gestion_achats.views.bon_retour_views",
         "peekOfCode": "def bon_retour_receive(request, pk):\n    \"\"\"Marquer un bon de retour comme reçu par le fournisseur.\"\"\"\n    bon_retour = get_object_or_404(GACBonRetour, uuid=pk)\n    require_permission(GACPermissions.can_create_reception, request.user)\n    if bon_retour.statut != 'ENVOYE':\n        messages.error(request, 'Seuls les bons de retour envoyés peuvent être marqués comme reçus.')\n        return redirect('gestion_achats:bon_retour_detail', pk=bon_retour.uuid)\n    if request.method == 'POST':\n        try:\n            from django.utils import timezone",
+        "detail": "gestion_achats.views.bon_retour_views",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "gestion_achats.views.bon_retour_views",
+        "description": "gestion_achats.views.bon_retour_views",
+        "peekOfCode": "logger = logging.getLogger(__name__)\n@login_required\ndef bon_retour_list(request):\n    \"\"\"Liste des bons de retour.\"\"\"\n    # Filtrer selon les permissions\n    if GACPermissions.can_view_all_bons_commande(request.user):\n        bons_retour = GACBonRetour.objects.all()\n    else:\n        # Voir les bons de retour liés aux demandes de l'utilisateur\n        bons_retour = GACBonRetour.objects.filter(",
         "detail": "gestion_achats.views.bon_retour_views",
         "documentation": {}
     },
@@ -26015,6 +26114,15 @@
         "importPath": "gestion_achats.views.budget_views",
         "description": "gestion_achats.views.budget_views",
         "peekOfCode": "def budgets_en_alerte_ajax(request):\n    \"\"\"API AJAX pour récupérer les budgets en alerte.\"\"\"\n    try:\n        budgets = BudgetService.get_budgets_en_alerte()\n        data = [\n            {\n                'uuid': str(budget.uuid),\n                'code': budget.code,\n                'libelle': budget.libelle,\n                'taux_consommation': float(budget.taux_consommation()),",
+        "detail": "gestion_achats.views.budget_views",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "gestion_achats.views.budget_views",
+        "description": "gestion_achats.views.budget_views",
+        "peekOfCode": "logger = logging.getLogger(__name__)\n@login_required\ndef budget_list(request):\n    \"\"\"Liste des budgets.\"\"\"\n    require_permission(GACPermissions.can_view_all_budgets, request.user)\n    # Récupérer tous les budgets\n    budgets = GACBudget.objects.select_related(\n        'gestionnaire',\n        'departement',\n        'cree_par'",
         "detail": "gestion_achats.views.budget_views",
         "documentation": {}
     },
@@ -26123,6 +26231,15 @@
         "importPath": "gestion_achats.views.catalogue_views",
         "description": "gestion_achats.views.catalogue_views",
         "peekOfCode": "def recherche_articles_ajax(request):\n    \"\"\"API AJAX pour la recherche d'articles.\"\"\"\n    query = request.GET.get('q', '')\n    categorie_uuid = request.GET.get('categorie')\n    limit = int(request.GET.get('limit', 20))\n    try:\n        categorie = None\n        if categorie_uuid:\n            categorie = GACCategorie.objects.get(uuid=categorie_uuid)\n        articles = CatalogueService.rechercher_articles(",
+        "detail": "gestion_achats.views.catalogue_views",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "gestion_achats.views.catalogue_views",
+        "description": "gestion_achats.views.catalogue_views",
+        "peekOfCode": "logger = logging.getLogger(__name__)\n# ========================================\n# VUES ARTICLES\n# ========================================\n@login_required\ndef article_list(request):\n    \"\"\"Liste des articles du catalogue.\"\"\"\n    require_permission(GACPermissions.can_view_catalogue, request.user)\n    # Récupérer tous les articles\n    articles = GACArticle.objects.select_related('categorie').all()",
         "detail": "gestion_achats.views.catalogue_views",
         "documentation": {}
     },
@@ -26271,6 +26388,15 @@
         "documentation": {}
     },
     {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "gestion_achats.views.demande_views",
+        "description": "gestion_achats.views.demande_views",
+        "peekOfCode": "logger = logging.getLogger(__name__)\n@login_required\ndef demande_liste(request):\n    \"\"\"Liste des demandes d'achat.\"\"\"\n    # Filtrer selon les permissions\n    if GACPermissions.can_view_all_demandes(request.user):\n        demandes = GACDemandeAchat.objects.all()\n    else:\n        # Voir uniquement ses demandes et celles à valider\n        demandes = GACDemandeAchat.objects.filter(",
+        "detail": "gestion_achats.views.demande_views",
+        "documentation": {}
+    },
+    {
         "label": "fournisseur_list",
         "kind": 2,
         "importPath": "gestion_achats.views.fournisseur_views",
@@ -26347,7 +26473,16 @@
         "kind": 2,
         "importPath": "gestion_achats.views.fournisseur_views",
         "description": "gestion_achats.views.fournisseur_views",
-        "peekOfCode": "def fournisseur_delete(request, pk):\n    \"\"\"Supprimer un fournisseur.\"\"\"\n    require_permission(GACPermissions.can_delete_fournisseur, request.user)\n    fournisseur = get_object_or_404(GACFournisseur, uuid=pk)\n    try:\n        raison_sociale = fournisseur.raison_sociale\n        fournisseur.delete()\n        messages.success(request, f'Le fournisseur \"{raison_sociale}\" a été supprimé avec succès.')\n    except Exception as e:\n        messages.error(request, f'Erreur lors de la suppression: {str(e)}')",
+        "peekOfCode": "def fournisseur_delete(request, pk):\n    \"\"\"Supprimer un fournisseur.\"\"\"\n    require_permission(GACPermissions.can_delete_fournisseur, request.user)\n    fournisseur = get_object_or_404(GACFournisseur, uuid=pk)\n    try:\n        raison_sociale = fournisseur.raison_sociale\n        fournisseur.delete()\n        messages.success(request, f'Le fournisseur \"{raison_sociale}\" a été supprimé avec succès.')\n    except Exception as e:\n        logger.error(f\"Erreur suppression fournisseur {fournisseur.code}: {e}\", exc_info=True)",
+        "detail": "gestion_achats.views.fournisseur_views",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "gestion_achats.views.fournisseur_views",
+        "description": "gestion_achats.views.fournisseur_views",
+        "peekOfCode": "logger = logging.getLogger(__name__)\n@login_required\ndef fournisseur_list(request):\n    \"\"\"Liste des fournisseurs.\"\"\"\n    require_permission(GACPermissions.can_view_fournisseur, request.user)\n    # Récupérer tous les fournisseurs\n    fournisseurs = GACFournisseur.objects.all()\n    # Filtres\n    statut = request.GET.get('statut')\n    if statut:",
         "detail": "gestion_achats.views.fournisseur_views",
         "documentation": {}
     },
@@ -26424,11 +26559,29 @@
         "documentation": {}
     },
     {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "gestion_achats.views.reception_views",
+        "description": "gestion_achats.views.reception_views",
+        "peekOfCode": "logger = logging.getLogger(__name__)\n@login_required\ndef reception_list(request):\n    \"\"\"Liste des réceptions.\"\"\"\n    require_permission(GACPermissions.can_view_all_receptions, request.user)\n    # Récupérer toutes les réceptions\n    receptions = GACReception.objects.select_related(\n        'bon_commande',\n        'bon_commande__fournisseur',\n        'receptionnaire'",
+        "detail": "gestion_achats.views.reception_views",
+        "documentation": {}
+    },
+    {
         "label": "simple_demande_submit",
         "kind": 2,
         "importPath": "gestion_achats.views.simple_submit",
         "description": "gestion_achats.views.simple_submit",
         "peekOfCode": "def simple_demande_submit(request, pk):\n    \"\"\"\n    Soumission ultra-simple sans décorateurs complexes.\n    Fonctionne avec ou sans AJAX.\n    \"\"\"\n    try:\n        # 1. Charger la demande\n        demande = get_object_or_404(GACDemandeAchat, uuid=pk)\n        # 2. Vérifier que l'utilisateur est authentifié\n        if not request.user.is_authenticated:",
+        "detail": "gestion_achats.views.simple_submit",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "gestion_achats.views.simple_submit",
+        "description": "gestion_achats.views.simple_submit",
+        "peekOfCode": "logger = logging.getLogger(__name__)\n@csrf_exempt  # TEMPORAIRE: Désactiver CSRF pour déboguer\n@require_POST  # Seulement POST\ndef simple_demande_submit(request, pk):\n    \"\"\"\n    Soumission ultra-simple sans décorateurs complexes.\n    Fonctionne avec ou sans AJAX.\n    \"\"\"\n    try:\n        # 1. Charger la demande",
         "detail": "gestion_achats.views.simple_submit",
         "documentation": {}
     },
@@ -28291,7 +28444,7 @@
         "kind": 2,
         "importPath": "gestion_achats.utils",
         "description": "gestion_achats.utils",
-        "peekOfCode": "def determiner_validateur_n2(demande):\n    \"\"\"\n    Détermine le validateur N2 selon les règles métier.\n    Règles:\n    - Si montant > 10 000 € → Direction générale\n    - Si catégorie IT → Responsable IT\n    - Sinon → Responsable achats\n    Args:\n        demande (GACDemandeAchat): La demande d'achat\n    Returns:",
+        "peekOfCode": "def determiner_validateur_n2(demande):\n    \"\"\"\n    Détermine le validateur N2 selon les règles métier.\n    Règles:\n    - Si montant > 10 000 FCFA → Direction générale\n    - Si catégorie IT → Responsable IT\n    - Sinon → Responsable achats\n    Args:\n        demande (GACDemandeAchat): La demande d'achat\n    Returns:",
         "detail": "gestion_achats.utils",
         "documentation": {}
     },
@@ -28300,7 +28453,7 @@
         "kind": 2,
         "importPath": "gestion_achats.utils",
         "description": "gestion_achats.utils",
-        "peekOfCode": "def formater_montant(montant, symbole='€'):\n    \"\"\"\n    Formate un montant pour l'affichage.\n    Args:\n        montant (Decimal): Montant à formater\n        symbole (str): Symbole monétaire\n    Returns:\n        str: Montant formaté (ex: \"1 234,56 €\")\n    \"\"\"\n    if montant is None:",
+        "peekOfCode": "def formater_montant(montant, symbole='FCFA'):\n    \"\"\"\n    Formate un montant pour l'affichage.\n    Args:\n        montant (Decimal): Montant à formater\n        symbole (str): Symbole monétaire\n    Returns:\n        str: Montant formaté (ex: \"1 234,56 FCFA\")\n    \"\"\"\n    if montant is None:",
         "detail": "gestion_achats.utils",
         "documentation": {}
     },

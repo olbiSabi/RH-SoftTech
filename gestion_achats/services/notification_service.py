@@ -60,41 +60,74 @@ class NotificationService:
             return False
 
     @staticmethod
-    def _creer_notification_inapp(utilisateur, titre, message, lien=None, niveau='INFO'):
+    def _creer_notification_inapp(utilisateur, titre, message, lien=None, niveau='INFO',
+                                   type_notification='GAC_RAPPEL',
+                                   demande_achat=None, bon_commande=None, budget_gac=None):
         """
-        Crée une notification in-app.
+        Crée une notification in-app via le système unifié NotificationAbsence.
 
         Args:
-            utilisateur: L'utilisateur destinataire
+            utilisateur: L'employé destinataire (ZY00 ou User avec .employe)
             titre: Titre de la notification
             message: Message de la notification
-            lien: Lien vers la ressource concernée (optionnel)
-            niveau: Niveau de la notification (INFO, AVERTISSEMENT, CRITIQUE)
+            lien: Non utilisé (conservé pour compatibilité de signature)
+            niveau: Non utilisé (conservé pour compatibilité de signature)
+            type_notification: Type GAC (GAC_DEMANDE_SOUMISE, GAC_BC_STATUT, etc.)
+            demande_achat: Instance de GACDemandeAchat (optionnel)
+            bon_commande: Instance de GACBonCommande (optionnel)
+            budget_gac: Instance de GACBudget (optionnel)
 
         Returns:
-            Notification créée (ou None si pas de modèle Notification)
-
-        Note:
-            Cette méthode nécessiterait un modèle GACNotification qui n'est pas
-            dans les specs actuelles. Pour l'instant, on log seulement.
+            NotificationAbsence: La notification créée, ou None en cas d'erreur
         """
-        # TODO: Implémenter avec un modèle GACNotification si ajouté
-        logger.info(
-            f"Notification [{niveau}] pour {utilisateur}: {titre} - {message}"
-        )
+        try:
+            from absence.models import NotificationAbsence
+            from employee.models import ZY00
+            from django.db import transaction as db_transaction
 
-        # Une fois le modèle créé, ajouter:
-        # notification = GACNotification.objects.create(
-        #     utilisateur=utilisateur,
-        #     titre=titre,
-        #     message=message,
-        #     lien=lien,
-        #     niveau=niveau,
-        #     lu=False
-        # )
-        # return notification
+            # Résoudre l'employé ZY00
+            employe = None
+            if utilisateur is None:
+                logger.warning("Destinataire None pour notification, ignorée")
+                return None
 
-        return None
+            if isinstance(utilisateur, ZY00):
+                employe = utilisateur
+            elif hasattr(utilisateur, 'employe'):
+                try:
+                    employe = utilisateur.employe
+                except Exception:
+                    pass
+
+            if employe is None:
+                logger.warning(f"Impossible de résoudre l'employé pour notification: {utilisateur}")
+                return None
+
+            # Construire le message complet (titre + détail)
+            message_complet = f"{titre}\n{message}" if titre else message
+
+            # Utiliser un savepoint pour ne pas corrompre le bloc atomic parent
+            with db_transaction.atomic():
+                notification = NotificationAbsence.creer_notification(
+                    destinataire=employe,
+                    type_notif=type_notification,
+                    message=message_complet,
+                    contexte='GAC',
+                    demande_achat=demande_achat,
+                    bon_commande=bon_commande,
+                    budget_gac=budget_gac,
+                )
+
+            logger.info(
+                f"Notification GAC [{type_notification}] créée pour {employe}: {titre}"
+            )
+
+            return notification
+
+        except Exception as e:
+            # Ne pas faire échouer le processus métier pour une notification
+            logger.error(f"Erreur création notification in-app: {str(e)}")
+            return None
 
     # ==========================================
     # NOTIFICATIONS POUR LES DEMANDES D'ACHAT
@@ -118,9 +151,9 @@ class NotificationService:
         NotificationService._creer_notification_inapp(
             utilisateur=validateur,
             titre=f"Nouvelle demande d'achat à valider: {demande.numero}",
-            message=f"Demande de {demande.demandeur} - Montant: {demande.montant_total_ttc} €",
-            lien=f"/gestion-achats/demandes/{demande.uuid}/",
-            niveau='INFO'
+            message=f"Demande de {demande.demandeur} - Montant: {demande.montant_total_ttc} FCFA",
+            type_notification='GAC_DEMANDE_SOUMISE',
+            demande_achat=demande
         )
 
         # Email
@@ -141,7 +174,7 @@ Détails de la demande:
 - Numéro: {demande.numero}
 - Demandeur: {demande.demandeur}
 - Objet: {demande.objet}
-- Montant TTC: {demande.montant_total_ttc} €
+- Montant TTC: {demande.montant_total_ttc} FCFA
 - Date de soumission: {demande.date_soumission.strftime('%d/%m/%Y %H:%M') if demande.date_soumission else 'N/A'}
 
 Justification:
@@ -173,9 +206,9 @@ Système de gestion des achats
         NotificationService._creer_notification_inapp(
             utilisateur=validateur,
             titre=f"Demande d'achat à valider: {demande.numero}",
-            message=f"Nouvelle demande de {demande.demandeur} - Montant: {demande.montant_total_ttc} €",
-            lien=f"/gestion-achats/demandes/{demande.id}/",
-            niveau='INFO'
+            message=f"Nouvelle demande de {demande.demandeur} - Montant: {demande.montant_total_ttc} FCFA",
+            type_notification='GAC_DEMANDE_SOUMISE',
+            demande_achat=demande
         )
 
         # Email
@@ -190,7 +223,7 @@ Détails de la demande:
 - Numéro: {demande.numero}
 - Demandeur: {demande.demandeur}
 - Objet: {demande.objet}
-- Montant TTC: {demande.montant_total_ttc} €
+- Montant TTC: {demande.montant_total_ttc} FCFA
 - Date de soumission: {demande.date_soumission.strftime('%d/%m/%Y %H:%M')}
 
 Justification:
@@ -222,9 +255,9 @@ Système de gestion des achats
         NotificationService._creer_notification_inapp(
             utilisateur=validateur,
             titre=f"Demande d'achat à valider (N2): {demande.numero}",
-            message=f"Demande validée N1 - Montant: {demande.montant_total_ttc} €",
-            lien=f"/gestion-achats/demandes/{demande.uuid}/",
-            niveau='INFO'
+            message=f"Demande validée N1 - Montant: {demande.montant_total_ttc} FCFA",
+            type_notification='GAC_DEMANDE_SOUMISE',
+            demande_achat=demande
         )
 
         # Email
@@ -245,7 +278,7 @@ Détails de la demande:
 - Numéro: {demande.numero}
 - Demandeur: {demande.demandeur}
 - Objet: {demande.objet}
-- Montant TTC: {demande.montant_total_ttc} €
+- Montant TTC: {demande.montant_total_ttc} FCFA
 - Validée N1 par: {demande.validateur_n1}
 - Date validation N1: {demande.date_validation_n1.strftime('%d/%m/%Y %H:%M') if demande.date_validation_n1 else 'N/A'}
 
@@ -275,9 +308,9 @@ Système de gestion des achats
         NotificationService._creer_notification_inapp(
             utilisateur=validateur,
             titre=f"Demande d'achat à valider (N2): {demande.numero}",
-            message=f"Demande validée N1 - Montant: {demande.montant_total_ttc} €",
-            lien=f"/gestion-achats/demandes/{demande.id}/",
-            niveau='INFO'
+            message=f"Demande validée N1 - Montant: {demande.montant_total_ttc} FCFA",
+            type_notification='GAC_DEMANDE_SOUMISE',
+            demande_achat=demande
         )
 
         # Email
@@ -292,7 +325,7 @@ Détails de la demande:
 - Numéro: {demande.numero}
 - Demandeur: {demande.demandeur}
 - Objet: {demande.objet}
-- Montant TTC: {demande.montant_total_ttc} €
+- Montant TTC: {demande.montant_total_ttc} FCFA
 - Validée N1 par: {demande.validateur_n1}
 - Date validation N1: {demande.date_validation_n1.strftime('%d/%m/%Y %H:%M') if demande.date_validation_n1 else 'N/A'}
 
@@ -318,9 +351,9 @@ Système de gestion des achats
         NotificationService._creer_notification_inapp(
             utilisateur=demandeur,
             titre=f"Demande validée: {demande.numero}",
-            message=f"Votre demande d'achat a été validée - Montant: {demande.montant_total_ttc} €",
-            lien=f"/gestion-achats/demandes/{demande.uuid}/",
-            niveau='INFO'
+            message=f"Votre demande d'achat a été validée - Montant: {demande.montant_total_ttc} FCFA",
+            type_notification='GAC_DEMANDE_VALIDEE',
+            demande_achat=demande
         )
 
         email = None
@@ -339,7 +372,7 @@ Votre demande d'achat a été validée et sera traitée par le service achats.
 Détails de la demande:
 - Numéro: {demande.numero}
 - Objet: {demande.objet}
-- Montant TTC: {demande.montant_total_ttc} €
+- Montant TTC: {demande.montant_total_ttc} FCFA
 - Validée le: {demande.date_validation_n2.strftime('%d/%m/%Y %H:%M') if demande.date_validation_n2 else 'N/A'}
 
 Vous serez notifié de l'avancement du traitement.
@@ -366,9 +399,9 @@ Service Achats
         NotificationService._creer_notification_inapp(
             utilisateur=demandeur,
             titre=f"Demande validée: {demande.numero}",
-            message=f"Votre demande d'achat a été validée - Montant: {demande.montant_total_ttc} €",
-            lien=f"/gestion-achats/demandes/{demande.id}/",
-            niveau='INFO'
+            message=f"Votre demande d'achat a été validée - Montant: {demande.montant_total_ttc} FCFA",
+            type_notification='GAC_DEMANDE_VALIDEE',
+            demande_achat=demande
         )
 
         # Email
@@ -382,7 +415,7 @@ Votre demande d'achat a été validée et sera traitée par le service achats.
 Détails de la demande:
 - Numéro: {demande.numero}
 - Objet: {demande.objet}
-- Montant TTC: {demande.montant_total_ttc} €
+- Montant TTC: {demande.montant_total_ttc} FCFA
 - Validée le: {demande.date_validation_n2.strftime('%d/%m/%Y %H:%M') if demande.date_validation_n2 else 'N/A'}
 
 Vous serez notifié de l'avancement du traitement.
@@ -408,8 +441,8 @@ Service Achats
             utilisateur=demandeur,
             titre=f"Demande annulée: {demande.numero}",
             message=f"La demande d'achat {demande.numero} a été annulée",
-            lien=f"/gestion-achats/demandes/{demande.uuid}/",
-            niveau='AVERTISSEMENT'
+            type_notification='GAC_DEMANDE_ANNULEE',
+            demande_achat=demande
         )
 
         email = None
@@ -428,7 +461,7 @@ La demande d'achat suivante a été annulée.
 Détails de la demande:
 - Numéro: {demande.numero}
 - Objet: {demande.objet}
-- Montant TTC: {demande.montant_total_ttc} €
+- Montant TTC: {demande.montant_total_ttc} FCFA
 
 Pour plus d'informations, veuillez contacter le service achats.
 
@@ -444,8 +477,8 @@ Service Achats
                 utilisateur=demande.validateur_n1,
                 titre=f"Demande annulée: {demande.numero}",
                 message=f"La demande que vous deviez valider a été annulée",
-                lien=f"/gestion-achats/demandes/{demande.uuid}/",
-                niveau='INFO'
+                type_notification='GAC_DEMANDE_ANNULEE',
+                demande_achat=demande
             )
 
     @staticmethod
@@ -463,8 +496,8 @@ Service Achats
             utilisateur=demandeur,
             titre=f"Demande convertie en BC: {demande.numero}",
             message=f"Votre demande a été convertie en bon de commande",
-            lien=f"/gestion-achats/demandes/{demande.uuid}/",
-            niveau='INFO'
+            type_notification='GAC_DEMANDE_CONVERTIE',
+            demande_achat=demande
         )
 
         email = None
@@ -483,7 +516,7 @@ Votre demande d'achat a été convertie en bon de commande.
 Détails de la demande:
 - Numéro: {demande.numero}
 - Objet: {demande.objet}
-- Montant TTC: {demande.montant_total_ttc} €
+- Montant TTC: {demande.montant_total_ttc} FCFA
 
 Vous serez notifié lors de la réception des marchandises.
 
@@ -494,14 +527,16 @@ Service Achats
             NotificationService._envoyer_email(email, sujet, message)
 
     @staticmethod
-    def notifier_demande_refusee(demande, motif):
+    def notifier_demande_refusee(demande, motif=None):
         """
         Notifie le demandeur que sa demande est refusée.
 
         Args:
             demande: La demande d'achat refusée
-            motif: Le motif du refus
+            motif: Le motif du refus (optionnel, récupéré depuis demande.motif_refus si absent)
         """
+        if motif is None:
+            motif = getattr(demande, 'motif_refus', '') or 'Non spécifié'
         demandeur = demande.demandeur
 
         # Notification in-app
@@ -509,8 +544,8 @@ Service Achats
             utilisateur=demandeur,
             titre=f"Demande refusée: {demande.numero}",
             message=f"Votre demande a été refusée. Motif: {motif}",
-            lien=f"/gestion-achats/demandes/{demande.id}/",
-            niveau='AVERTISSEMENT'
+            type_notification='GAC_DEMANDE_REFUSEE',
+            demande_achat=demande
         )
 
         # Email
@@ -524,7 +559,7 @@ Votre demande d'achat a été refusée.
 Détails de la demande:
 - Numéro: {demande.numero}
 - Objet: {demande.objet}
-- Montant TTC: {demande.montant_total_ttc} €
+- Montant TTC: {demande.montant_total_ttc} FCFA
 
 Motif du refus:
 {motif}
@@ -553,8 +588,8 @@ Service Achats
             utilisateur=demandeur,
             titre=f"Bon de commande créé: {bc.numero}",
             message=f"Un BC a été créé pour votre demande {demande.numero}",
-            lien=f"/gestion-achats/bons-commande/{bc.id}/",
-            niveau='INFO'
+            type_notification='GAC_BC_STATUT',
+            bon_commande=bc
         )
 
         # Email
@@ -569,7 +604,7 @@ Détails:
 - Demande: {demande.numero}
 - Bon de commande: {bc.numero}
 - Fournisseur: {bc.fournisseur.raison_sociale if bc.fournisseur else 'Non défini'}
-- Montant TTC: {bc.montant_total_ttc} €
+- Montant TTC: {bc.montant_total_ttc} FCFA
 
 Vous serez notifié lors de la réception des marchandises.
 
@@ -594,8 +629,8 @@ Service Achats
             utilisateur=acheteur,
             titre=f"Bon de commande émis: {bon_commande.numero}",
             message=f"BC {bon_commande.numero} émis - Fournisseur: {bon_commande.fournisseur.raison_sociale if bon_commande.fournisseur else 'N/A'}",
-            lien=f"/gestion-achats/bons-commande/{bon_commande.uuid}/",
-            niveau='INFO'
+            type_notification='GAC_BC_STATUT',
+            bon_commande=bon_commande
         )
 
         email = None
@@ -614,7 +649,7 @@ Un bon de commande a été émis.
 Détails:
 - Numéro: {bon_commande.numero}
 - Fournisseur: {bon_commande.fournisseur.raison_sociale if bon_commande.fournisseur else 'Non défini'}
-- Montant TTC: {bon_commande.montant_total_ttc} €
+- Montant TTC: {bon_commande.montant_total_ttc} FCFA
 - Date d'émission: {bon_commande.date_emission.strftime('%d/%m/%Y') if bon_commande.date_emission else 'N/A'}
 
 Le bon de commande peut maintenant être envoyé au fournisseur.
@@ -640,8 +675,8 @@ Service Achats
             utilisateur=acheteur,
             titre=f"BC envoyé: {bon_commande.numero}",
             message=f"Le BC a été envoyé au fournisseur {bon_commande.fournisseur.raison_sociale if bon_commande.fournisseur else 'N/A'}",
-            lien=f"/gestion-achats/bons-commande/{bon_commande.uuid}/",
-            niveau='INFO'
+            type_notification='GAC_BC_STATUT',
+            bon_commande=bon_commande
         )
 
         email = None
@@ -660,7 +695,7 @@ Le bon de commande a été envoyé au fournisseur.
 Détails:
 - Numéro: {bon_commande.numero}
 - Fournisseur: {bon_commande.fournisseur.raison_sociale if bon_commande.fournisseur else 'Non défini'}
-- Montant TTC: {bon_commande.montant_total_ttc} €
+- Montant TTC: {bon_commande.montant_total_ttc} FCFA
 - Date d'envoi: {bon_commande.date_envoi.strftime('%d/%m/%Y') if bon_commande.date_envoi else 'N/A'}
 
 En attente de confirmation du fournisseur.
@@ -678,8 +713,8 @@ Service Achats
                 utilisateur=demandeur,
                 titre=f"BC envoyé: {bon_commande.numero}",
                 message=f"Le BC pour votre demande {bon_commande.demande_achat.numero} a été envoyé au fournisseur",
-                lien=f"/gestion-achats/bons-commande/{bon_commande.uuid}/",
-                niveau='INFO'
+                type_notification='GAC_BC_STATUT',
+                bon_commande=bon_commande
             )
 
     @staticmethod
@@ -697,8 +732,8 @@ Service Achats
             utilisateur=acheteur,
             titre=f"BC confirmé: {bon_commande.numero}",
             message=f"Le fournisseur a confirmé le BC {bon_commande.numero}",
-            lien=f"/gestion-achats/bons-commande/{bon_commande.uuid}/",
-            niveau='INFO'
+            type_notification='GAC_BC_STATUT',
+            bon_commande=bon_commande
         )
 
         email = None
@@ -717,7 +752,7 @@ Le fournisseur a confirmé le bon de commande.
 Détails:
 - Numéro: {bon_commande.numero}
 - Fournisseur: {bon_commande.fournisseur.raison_sociale if bon_commande.fournisseur else 'Non défini'}
-- Montant TTC: {bon_commande.montant_total_ttc} €
+- Montant TTC: {bon_commande.montant_total_ttc} FCFA
 - Date de livraison prévue: {bon_commande.date_livraison_prevue.strftime('%d/%m/%Y') if bon_commande.date_livraison_prevue else 'N/A'}
 
 En attente de la réception des marchandises.
@@ -743,8 +778,8 @@ Service Achats
             utilisateur=acheteur,
             titre=f"Réception partielle: {bon_commande.numero}",
             message=f"Réception partielle pour le BC {bon_commande.numero}",
-            lien=f"/gestion-achats/bons-commande/{bon_commande.uuid}/",
-            niveau='AVERTISSEMENT'
+            type_notification='GAC_BC_STATUT',
+            bon_commande=bon_commande
         )
 
         email = None
@@ -763,7 +798,7 @@ Une réception partielle a été enregistrée pour ce bon de commande.
 Détails:
 - Numéro: {bon_commande.numero}
 - Fournisseur: {bon_commande.fournisseur.raison_sociale if bon_commande.fournisseur else 'Non défini'}
-- Montant TTC: {bon_commande.montant_total_ttc} €
+- Montant TTC: {bon_commande.montant_total_ttc} FCFA
 
 Veuillez vérifier les détails de la réception et suivre avec le fournisseur pour les articles manquants.
 
@@ -788,8 +823,8 @@ Service Achats
             utilisateur=acheteur,
             titre=f"Réception complète: {bon_commande.numero}",
             message=f"Le BC {bon_commande.numero} a été complètement réceptionné",
-            lien=f"/gestion-achats/bons-commande/{bon_commande.uuid}/",
-            niveau='INFO'
+            type_notification='GAC_BC_STATUT',
+            bon_commande=bon_commande
         )
 
         email = None
@@ -808,7 +843,7 @@ Le bon de commande a été complètement réceptionné.
 Détails:
 - Numéro: {bon_commande.numero}
 - Fournisseur: {bon_commande.fournisseur.raison_sociale if bon_commande.fournisseur else 'Non défini'}
-- Montant TTC: {bon_commande.montant_total_ttc} €
+- Montant TTC: {bon_commande.montant_total_ttc} FCFA
 
 Le dossier peut maintenant être clôturé.
 
@@ -826,8 +861,8 @@ Service Achats
                 utilisateur=demandeur,
                 titre=f"Commande réceptionnée: {bon_commande.numero}",
                 message=f"Votre commande (DA {bon_commande.demande_achat.numero}) a été complètement réceptionnée",
-                lien=f"/gestion-achats/bons-commande/{bon_commande.uuid}/",
-                niveau='INFO'
+                type_notification='GAC_BC_STATUT',
+                bon_commande=bon_commande
             )
 
             email_dem = None
@@ -869,8 +904,8 @@ Service Achats
             utilisateur=acheteur,
             titre=f"BC annulé: {bon_commande.numero}",
             message=f"Le BC {bon_commande.numero} a été annulé",
-            lien=f"/gestion-achats/bons-commande/{bon_commande.uuid}/",
-            niveau='AVERTISSEMENT'
+            type_notification='GAC_BC_ANNULE',
+            bon_commande=bon_commande
         )
 
         email = None
@@ -889,7 +924,7 @@ Le bon de commande a été annulé.
 Détails:
 - Numéro: {bon_commande.numero}
 - Fournisseur: {bon_commande.fournisseur.raison_sociale if bon_commande.fournisseur else 'Non défini'}
-- Montant TTC: {bon_commande.montant_total_ttc} €
+- Montant TTC: {bon_commande.montant_total_ttc} FCFA
 
 Veuillez contacter le fournisseur pour confirmer l'annulation.
 
@@ -907,8 +942,8 @@ Service Achats
                 utilisateur=demandeur,
                 titre=f"BC annulé: {bon_commande.numero}",
                 message=f"Le BC pour votre demande {bon_commande.demande_achat.numero} a été annulé",
-                lien=f"/gestion-achats/bons-commande/{bon_commande.uuid}/",
-                niveau='AVERTISSEMENT'
+                type_notification='GAC_BC_ANNULE',
+                bon_commande=bon_commande
             )
 
     # ==========================================
@@ -931,8 +966,8 @@ Service Achats
                 utilisateur=bc.acheteur,
                 titre=f"Réception validée: {reception.numero}",
                 message=f"BC {bc.numero} - {'Conforme' if reception.conforme else 'Non conforme'}",
-                lien=f"/gestion-achats/receptions/{reception.id}/",
-                niveau='INFO' if reception.conforme else 'AVERTISSEMENT'
+                type_notification='GAC_RECEPTION',
+                bon_commande=bc
             )
 
             if hasattr(bc.acheteur, 'email') and bc.acheteur.email:
@@ -964,8 +999,8 @@ Service Réception
                 utilisateur=demandeur,
                 titre=f"Réception: {reception.numero}",
                 message=f"Votre commande (DA {bc.demande_achat.numero}) a été réceptionnée",
-                lien=f"/gestion-achats/receptions/{reception.id}/",
-                niveau='INFO'
+                type_notification='GAC_RECEPTION',
+                bon_commande=bc
             )
 
     @staticmethod
@@ -984,8 +1019,8 @@ Service Réception
                 utilisateur=bc.acheteur,
                 titre=f"Nouvelle réception: {reception.numero}",
                 message=f"Réception créée pour le BC {bc.numero}",
-                lien=f"/gestion-achats/receptions/{reception.uuid}/",
-                niveau='INFO'
+                type_notification='GAC_RECEPTION',
+                bon_commande=bc
             )
 
             email = None
@@ -1031,8 +1066,8 @@ Service Réception
                 utilisateur=bc.acheteur,
                 titre=f"Réception annulée: {reception.numero}",
                 message=f"La réception {reception.numero} a été annulée",
-                lien=f"/gestion-achats/receptions/{reception.uuid}/",
-                niveau='AVERTISSEMENT'
+                type_notification='GAC_RECEPTION',
+                bon_commande=bc
             )
 
             email = None
@@ -1067,8 +1102,8 @@ Service Réception
                 utilisateur=reception.receptionnaire,
                 titre=f"Réception annulée: {reception.numero}",
                 message=f"La réception que vous avez créée a été annulée",
-                lien=f"/gestion-achats/receptions/{reception.uuid}/",
-                niveau='AVERTISSEMENT'
+                type_notification='GAC_RECEPTION',
+                bon_commande=bc
             )
 
     # ==========================================
@@ -1076,40 +1111,62 @@ Service Réception
     # ==========================================
 
     @staticmethod
-    def notifier_alerte_budget(budget, niveau, message):
+    def notifier_alerte_budget(budget, niveau, message=None, destinataires=None):
         """
         Notifie les gestionnaires de budget d'une alerte.
 
         Args:
             budget: L'enveloppe budgétaire
-            niveau: Niveau d'alerte (AVERTISSEMENT, CRITIQUE)
-            message: Message d'alerte
+            niveau: Niveau d'alerte (1, 2, AVERTISSEMENT, CRITIQUE)
+            message: Message d'alerte (optionnel, auto-généré si absent)
+            destinataires: Liste d'utilisateurs à notifier (optionnel, gestionnaire par défaut)
         """
-        # Notifier le gestionnaire du budget
-        if budget.gestionnaire:
+        # Auto-générer le message si absent
+        if not message:
+            taux = budget.taux_consommation()
+            message = f"Le budget {budget.code} a atteint {taux:.1f}% de consommation (alerte niveau {niveau})"
+
+        # Normaliser le niveau pour l'affichage
+        niveau_display = 'CRITIQUE' if str(niveau) == '2' else 'AVERTISSEMENT'
+
+        # Déterminer les destinataires
+        if not destinataires:
+            destinataires = [budget.gestionnaire] if budget.gestionnaire else []
+
+        for dest in destinataires:
+            if not dest:
+                continue
+
             NotificationService._creer_notification_inapp(
-                utilisateur=budget.gestionnaire,
+                utilisateur=dest,
                 titre=f"Alerte budget: {budget.code}",
                 message=message,
-                lien=f"/gestion-achats/budgets/{budget.id}/",
-                niveau=niveau
+                type_notification='GAC_ALERTE_BUDGET',
+                budget_gac=budget
             )
 
-            if hasattr(budget.gestionnaire, 'email') and budget.gestionnaire.email:
-                sujet = f"[GAC] Alerte budget {niveau}: {budget.code}"
+            # Récupérer l'email
+            email = None
+            if hasattr(dest, 'employe') and hasattr(dest.employe, 'EMAIL'):
+                email = dest.employe.EMAIL
+            elif hasattr(dest, 'email'):
+                email = dest.email
 
-                email_message = f"""Bonjour {budget.gestionnaire.get_full_name() if hasattr(budget.gestionnaire, 'get_full_name') else budget.gestionnaire},
+            if email:
+                sujet = f"[GAC] Alerte budget {niveau_display}: {budget.code}"
+
+                email_message = f"""Bonjour {dest.get_full_name() if hasattr(dest, 'get_full_name') else dest},
 
 {message}
 
 Détails du budget:
 - Code: {budget.code}
 - Libellé: {budget.libelle}
-- Montant initial: {budget.montant_initial} €
-- Montant engagé: {budget.montant_engage} €
-- Montant commandé: {budget.montant_commande} €
-- Montant consommé: {budget.montant_consomme} €
-- Disponible: {budget.montant_disponible()} €
+- Montant initial: {budget.montant_initial} FCFA
+- Montant engagé: {budget.montant_engage} FCFA
+- Montant commandé: {budget.montant_commande} FCFA
+- Montant consommé: {budget.montant_consomme} FCFA
+- Disponible: {budget.montant_disponible()} FCFA
 - Taux de consommation: {budget.taux_consommation():.1f}%
 
 Veuillez prendre les mesures nécessaires.
@@ -1118,9 +1175,9 @@ Cordialement,
 Système de gestion budgétaire
                 """
 
-                NotificationService._envoyer_email(budget.gestionnaire.email, sujet, email_message)
+                NotificationService._envoyer_email(email, sujet, email_message)
 
-        logger.warning(f"Alerte budget [{niveau}]: {budget.code} - {message}")
+        logger.warning(f"Alerte budget [{niveau_display}]: {budget.code} - {message}")
 
     @staticmethod
     def notifier_budget_seuil_1(budget, taux):
@@ -1139,8 +1196,8 @@ Système de gestion budgétaire
                 utilisateur=budget.gestionnaire,
                 titre=f"Alerte budget (Seuil 1): {budget.code}",
                 message=message,
-                lien=f"/gestion-achats/budgets/{budget.uuid}/",
-                niveau='AVERTISSEMENT'
+                type_notification='GAC_ALERTE_BUDGET',
+                budget_gac=budget
             )
 
             email = None
@@ -1159,11 +1216,11 @@ Le premier seuil d'alerte budgétaire a été atteint.
 Détails du budget:
 - Code: {budget.code}
 - Libellé: {budget.libelle}
-- Montant initial: {budget.montant_initial} €
-- Montant engagé: {budget.montant_engage} €
-- Montant commandé: {budget.montant_commande} €
-- Montant consommé: {budget.montant_consomme} €
-- Disponible: {budget.montant_disponible()} €
+- Montant initial: {budget.montant_initial} FCFA
+- Montant engagé: {budget.montant_engage} FCFA
+- Montant commandé: {budget.montant_commande} FCFA
+- Montant consommé: {budget.montant_consomme} FCFA
+- Disponible: {budget.montant_disponible()} FCFA
 - Taux de consommation: {taux:.1f}%
 - Seuil d'alerte 1: {budget.seuil_alerte_1}%
 
@@ -1194,8 +1251,8 @@ Système de gestion budgétaire
                 utilisateur=budget.gestionnaire,
                 titre=f"ALERTE CRITIQUE - Budget: {budget.code}",
                 message=message,
-                lien=f"/gestion-achats/budgets/{budget.uuid}/",
-                niveau='CRITIQUE'
+                type_notification='GAC_ALERTE_BUDGET',
+                budget_gac=budget
             )
 
             email = None
@@ -1214,11 +1271,11 @@ ALERTE CRITIQUE: Le deuxième seuil d'alerte budgétaire a été atteint.
 Détails du budget:
 - Code: {budget.code}
 - Libellé: {budget.libelle}
-- Montant initial: {budget.montant_initial} €
-- Montant engagé: {budget.montant_engage} €
-- Montant commandé: {budget.montant_commande} €
-- Montant consommé: {budget.montant_consomme} €
-- Disponible: {budget.montant_disponible()} €
+- Montant initial: {budget.montant_initial} FCFA
+- Montant engagé: {budget.montant_engage} FCFA
+- Montant commandé: {budget.montant_commande} FCFA
+- Montant consommé: {budget.montant_consomme} FCFA
+- Disponible: {budget.montant_disponible()} FCFA
 - Taux de consommation: {taux:.1f}%
 - Seuil d'alerte 2: {budget.seuil_alerte_2}%
 
@@ -1261,7 +1318,7 @@ RAPPEL: Une demande d'achat est en attente de votre validation depuis {jours_att
 Demande : {demande.numero}
 Demandeur : {demande.demandeur.PRENOM} {demande.demandeur.NOM}
 Objet : {demande.objet}
-Montant TTC : {demande.montant_total_ttc} €
+Montant TTC : {demande.montant_total_ttc} FCFA
 Date de soumission : {demande.date_soumission.strftime('%d/%m/%Y à %H:%M')}
 
 Merci de traiter cette demande dans les plus brefs délais :
@@ -1276,8 +1333,8 @@ Le système GAC
                 utilisateur=validateur,
                 titre=f"RAPPEL - Demande {demande.numero} en attente",
                 message=f"En attente depuis {jours_attente} jours",
-                lien=f"/gestion-achats/demandes/{demande.uuid}/",
-                niveau='WARNING'
+                type_notification='GAC_RAPPEL',
+                demande_achat=demande
             )
 
         except Exception as e:
@@ -1309,7 +1366,7 @@ RAPPEL: Une demande d'achat est en attente de votre validation N2 depuis {jours_
 Demande : {demande.numero}
 Demandeur : {demande.demandeur.PRENOM} {demande.demandeur.NOM}
 Objet : {demande.objet}
-Montant TTC : {demande.montant_total_ttc} €
+Montant TTC : {demande.montant_total_ttc} FCFA
 Date validation N1 : {demande.date_validation_n1.strftime('%d/%m/%Y à %H:%M')}
 
 Merci de traiter cette demande dans les plus brefs délais :
@@ -1324,8 +1381,8 @@ Le système GAC
                 utilisateur=validateur,
                 titre=f"RAPPEL - Demande {demande.numero} en attente N2",
                 message=f"En attente depuis {jours_attente} jours",
-                lien=f"/gestion-achats/demandes/{demande.uuid}/",
-                niveau='WARNING'
+                type_notification='GAC_RAPPEL',
+                demande_achat=demande
             )
 
         except Exception as e:
@@ -1350,7 +1407,7 @@ BC : {bon_commande.numero}
 Fournisseur : {bon_commande.fournisseur.raison_sociale}
 Date livraison prévue : {bon_commande.date_livraison_souhaitee.strftime('%d/%m/%Y')}
 Retard : {jours_retard} jour(s)
-Montant TTC : {bon_commande.montant_total_ttc} €
+Montant TTC : {bon_commande.montant_total_ttc} FCFA
 Statut : {bon_commande.get_statut_display()}
 
 Actions recommandées :
@@ -1370,8 +1427,8 @@ Le système GAC
                         utilisateur=bon_commande.acheteur,
                         titre=f"BC {bon_commande.numero} en retard",
                         message=f"Retard de {jours_retard} jours",
-                        lien=f"/gestion-achats/bons-commande/{bon_commande.pk}/",
-                        niveau='ERROR'
+                        type_notification='GAC_RETARD_LIVRAISON',
+                        bon_commande=bon_commande
                     )
 
         except Exception as e:
@@ -1396,7 +1453,7 @@ BC : {bon_commande.numero}
 Fournisseur : {bon_commande.fournisseur.raison_sociale}
 Date livraison prévue : {bon_commande.date_livraison_souhaitee.strftime('%d/%m/%Y')}
 Jours restants : {jours_restants}
-Montant TTC : {bon_commande.montant_total_ttc} €
+Montant TTC : {bon_commande.montant_total_ttc} FCFA
 Statut : {bon_commande.get_statut_display()}
 
 Pensez à :
@@ -1416,8 +1473,8 @@ Le système GAC
                         utilisateur=bon_commande.acheteur,
                         titre=f"Livraison proche - BC {bon_commande.numero}",
                         message=f"Dans {jours_restants} jour(s)",
-                        lien=f"/gestion-achats/bons-commande/{bon_commande.pk}/",
-                        niveau='INFO'
+                        type_notification='GAC_RAPPEL',
+                        bon_commande=bon_commande
                     )
 
         except Exception as e:
@@ -1457,8 +1514,8 @@ Le système GAC
                 utilisateur=receptionnaire,
                 titre=f"RAPPEL - Réception {reception.numero}",
                 message=f"En attente depuis {jours_attente} jours",
-                lien=f"/gestion-achats/receptions/{reception.pk}/",
-                niveau='WARNING'
+                type_notification='GAC_RAPPEL',
+                bon_commande=reception.bon_commande
             )
 
         except Exception as e:
@@ -1506,9 +1563,144 @@ Le système GAC
                     utilisateur=destinataire,
                     titre=f"Réception {reception.numero} prête",
                     message="Toutes les lignes renseignées",
-                    lien=f"/gestion-achats/receptions/{reception.pk}/validate/",
-                    niveau='INFO'
+                    type_notification='GAC_RAPPEL',
+                    bon_commande=reception.bon_commande
                 )
 
         except Exception as e:
             logger.error(f"Erreur rappel validation réception {reception.numero}: {str(e)}")
+
+    @staticmethod
+    def notifier_fin_validite_budget(budget, jours_restants, destinataires=None):
+        """
+        Notifie les gestionnaires qu'un budget arrive en fin de validité.
+
+        Args:
+            budget: L'enveloppe budgétaire
+            jours_restants: Nombre de jours avant expiration
+            destinataires: Liste d'utilisateurs à notifier (optionnel)
+        """
+        if not destinataires:
+            destinataires = [budget.gestionnaire] if budget.gestionnaire else []
+
+        niveau = 'CRITIQUE' if jours_restants <= 3 else 'AVERTISSEMENT'
+        message_court = f"Budget {budget.code} expire dans {jours_restants} jour(s)"
+
+        for dest in destinataires:
+            if not dest:
+                continue
+
+            NotificationService._creer_notification_inapp(
+                utilisateur=dest,
+                titre=f"Fin de validité budget: {budget.code}",
+                message=message_court,
+                type_notification='GAC_FIN_VALIDITE_BUDGET',
+                budget_gac=budget
+            )
+
+            # Récupérer l'email
+            email = None
+            if hasattr(dest, 'employe') and hasattr(dest.employe, 'EMAIL'):
+                email = dest.employe.EMAIL
+            elif hasattr(dest, 'email'):
+                email = dest.email
+
+            if email:
+                sujet = f"[GAC] Budget {budget.code} - Fin de validité dans {jours_restants} jour(s)"
+
+                email_message = f"""Bonjour {dest.get_full_name() if hasattr(dest, 'get_full_name') else dest},
+
+Le budget suivant arrive en fin de validité.
+
+Détails du budget:
+- Code: {budget.code}
+- Libellé: {budget.libelle}
+- Date de fin: {budget.date_fin.strftime('%d/%m/%Y')}
+- Jours restants: {jours_restants}
+- Montant initial: {budget.montant_initial} FCFA
+- Disponible: {budget.montant_disponible()} FCFA
+- Taux de consommation: {budget.taux_consommation():.1f}%
+
+Veuillez anticiper la clôture ou le renouvellement de ce budget.
+
+Cordialement,
+Système de gestion budgétaire
+                """
+
+                NotificationService._envoyer_email(email, sujet, email_message)
+
+        logger.warning(f"Fin de validité budget {budget.code} dans {jours_restants} jour(s)")
+
+    @staticmethod
+    def notifier_commande_en_retard(bon_commande, jours_retard, niveau_alerte, destinataires):
+        """
+        Notifie les responsables qu'un bon de commande est en retard de livraison.
+
+        Args:
+            bon_commande: Le bon de commande en retard
+            jours_retard: Nombre de jours de retard
+            niveau_alerte: Niveau d'alerte ('leger', 'moyen', 'important')
+            destinataires: Liste d'utilisateurs à notifier
+        """
+        try:
+            niveau_map = {'leger': 'INFO', 'moyen': 'AVERTISSEMENT', 'important': 'CRITIQUE'}
+            niveau = niveau_map.get(niveau_alerte, 'AVERTISSEMENT')
+
+            for dest in destinataires:
+                if not dest:
+                    continue
+
+                NotificationService._creer_notification_inapp(
+                    utilisateur=dest,
+                    titre=f"BC {bon_commande.numero} en retard ({jours_retard}j)",
+                    message=f"Fournisseur: {bon_commande.fournisseur.raison_sociale} - Retard: {jours_retard} jour(s)",
+                    type_notification='GAC_RETARD_LIVRAISON',
+                    bon_commande=bon_commande
+                )
+
+                # Récupérer l'email
+                email = None
+                if hasattr(dest, 'EMAIL'):
+                    email = dest.EMAIL
+                elif hasattr(dest, 'user') and hasattr(dest.user, 'email'):
+                    email = dest.user.email
+                elif hasattr(dest, 'email'):
+                    email = dest.email
+
+                if email:
+                    sujet = f"[GAC] RAPPEL - BC {bon_commande.numero} en retard de {jours_retard} jour(s)"
+                    nom = f"{dest.PRENOM} {dest.NOM}" if hasattr(dest, 'PRENOM') else str(dest)
+
+                    email_message = f"""Bonjour {nom},
+
+RAPPEL: Le bon de commande suivant est en retard de livraison.
+
+BC : {bon_commande.numero}
+Fournisseur : {bon_commande.fournisseur.raison_sociale}
+Date livraison prévue : {bon_commande.date_livraison_confirmee.strftime('%d/%m/%Y') if bon_commande.date_livraison_confirmee else 'N/A'}
+Retard : {jours_retard} jour(s)
+Niveau d'alerte : {niveau_alerte.upper()}
+Montant TTC : {bon_commande.montant_total_ttc} FCFA
+Statut : {bon_commande.get_statut_display()}
+
+Actions recommandées :
+- Contacter le fournisseur pour connaître le statut de la livraison
+- Mettre à jour la date de livraison si nécessaire
+- Créer une réception si la livraison a eu lieu
+
+Consulter le BC :
+{settings.SITE_URL}/gestion-achats/bons-commande/{bon_commande.pk}/
+
+Cordialement,
+Le système GAC
+                    """
+
+                    NotificationService._envoyer_email(email, sujet, email_message)
+
+            logger.warning(
+                f"Rappel commande en retard: BC {bon_commande.numero} - "
+                f"{jours_retard} jours de retard (niveau: {niveau_alerte})"
+            )
+
+        except Exception as e:
+            logger.error(f"Erreur notification commande en retard BC {bon_commande.numero}: {str(e)}")

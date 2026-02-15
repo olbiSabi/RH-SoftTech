@@ -40,7 +40,7 @@ from gestion_achats.exceptions import (
 )
 from datetime import date
 from django.contrib.auth.models import User
-from employee.models import ZY00
+from employee.models import ZY00, ZYRO, ZYRE
 from departement.models import ZDDE
 from entreprise.models import Entreprise
 
@@ -178,9 +178,31 @@ class BaseWorkflowTestCase(TestCase):
             raison_sociale='Fournisseur Test',
             nif='123456789',
             telephone='0123456789',
+            email='fournisseur@test.com',
             adresse='1 rue Test',
             ville='Lomé',
             pays='Togo'
+        )
+
+        # Créer le rôle ADMIN_GAC et l'assigner aux validateurs
+        self.role_admin_gac, _ = ZYRO.objects.get_or_create(
+            CODE='ADMIN_GAC',
+            defaults={
+                'LIBELLE': 'Administrateur GAC',
+                'DESCRIPTION': 'Administrateur du module Gestion des Achats'
+            }
+        )
+        ZYRE.objects.create(
+            employe=self.validateur_n1,
+            role=self.role_admin_gac,
+            date_debut=date.today(),
+            actif=True
+        )
+        ZYRE.objects.create(
+            employe=self.validateur_n2,
+            role=self.role_admin_gac,
+            date_debut=date.today(),
+            actif=True
         )
 
 
@@ -233,6 +255,7 @@ class WorkflowDemandeCompletTest(BaseWorkflowTestCase):
 
         # 4. Valider N1
         demande.validateur_n1 = self.validateur_n1
+        demande.validateur_n2 = self.validateur_n2  # Nécessaire pour rester en VALIDEE_N1
         demande.save()
 
         DemandeService.valider_n1(
@@ -267,12 +290,12 @@ class WorkflowDemandeCompletTest(BaseWorkflowTestCase):
             priorite='HAUTE'
         )
 
-        # 2. Ajouter une ligne avec montant élevé nécessitant validation N2
+        # 2. Ajouter une ligne avec montant élevé nécessitant validation N2 (> 5000 seuil)
         DemandeService.ajouter_ligne(
             demande=demande,
             article=self.article1,
-            quantite=Decimal('1000'),
-            prix_unitaire=Decimal('100.00')
+            quantite=Decimal('10'),
+            prix_unitaire=Decimal('1000.00')
         )
 
         # 3. Soumettre
@@ -621,6 +644,7 @@ class WorkflowReceptionCompletTest(BaseWorkflowTestCase):
             quantite_recue=Decimal('100'),
             quantite_acceptee=Decimal('80'),  # 20 refusés
             quantite_refusee=Decimal('20'),
+            conforme=False,
             motif_refus='Articles endommagés'
         )
 
@@ -726,12 +750,13 @@ class WorkflowBudgetTest(BaseWorkflowTestCase):
         )
         self.assertTrue(disponible)
 
-        # Test montant trop élevé
-        disponible = BudgetService.verifier_disponibilite(
-            budget=self.budget,
-            montant=Decimal('150000.00')
-        )
-        self.assertFalse(disponible)
+        # Test montant trop élevé → doit lever BudgetInsuffisantError
+        from gestion_achats.exceptions import BudgetInsuffisantError
+        with self.assertRaises(BudgetInsuffisantError):
+            BudgetService.verifier_disponibilite(
+                budget=self.budget,
+                montant=Decimal('150000.00')
+            )
 
 
 # Fonction pour exécuter tous les tests de workflows

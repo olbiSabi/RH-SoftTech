@@ -26,7 +26,7 @@
                                 <p><strong>Justification :</strong> {{ demande.justification }}</p>
                             </div>
                             <div class="col-md-6">
-                                <p><strong>Montant TTC :</strong> {{ demande.montant_total_ttc|floatformat:2 }} €</p>
+                                <p><strong>Montant TTC :</strong> {{ demande.montant_total_ttc|floatformat:2 }} FCFA</p>
                                 <p><strong>Statut :</strong>
                                     <span class="badge bg-{{ demande.get_statut_badge_class }}">
                                         {{ demande.get_statut_display }}

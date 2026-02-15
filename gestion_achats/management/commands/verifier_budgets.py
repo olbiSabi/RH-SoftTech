@@ -71,8 +71,8 @@ class Command(BaseCommand):
             taux = budget.taux_consommation()
 
             self.stdout.write(f"\n🔍 Budget: {budget.code} - {budget.libelle}")
-            self.stdout.write(f"   Montant initial: {budget.montant_initial} €")
-            self.stdout.write(f"   Montant disponible: {budget.montant_disponible()} €")
+            self.stdout.write(f"   Montant initial: {budget.montant_initial} FCFA")
+            self.stdout.write(f"   Montant disponible: {budget.montant_disponible()} FCFA")
             self.stdout.write(f"   Taux de consommation: {taux}%")
 
             # Vérifier les seuils d'alerte
@@ -108,7 +108,7 @@ class Command(BaseCommand):
             # Vérifier si le budget est dépassé
             if budget.montant_disponible() < 0:
                 stats['depasses'] += 1
-                self.stdout.write(self.style.ERROR(f"   ❌ DÉPASSEMENT: {abs(budget.montant_disponible())} € en négatif!"))
+                self.stdout.write(self.style.ERROR(f"   ❌ DÉPASSEMENT: {abs(budget.montant_disponible())} FCFA en négatif!"))
 
             # Vérifier la fin de validité
             jours_restants = (budget.date_fin - timezone.now().date()).days

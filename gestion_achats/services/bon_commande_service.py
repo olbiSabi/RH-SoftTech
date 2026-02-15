@@ -28,6 +28,7 @@ from gestion_achats.constants import (
     STATUT_BC_ENVOYE,
     STATUT_BC_CONFIRME,
     STATUT_BC_ANNULE,
+    STATUT_DEMANDE_CONVERTIE_BC,
 )
 from gestion_achats.exceptions import (
     BonCommandeError,
@@ -92,6 +93,10 @@ class BonCommandeService:
                     )
 
                 # Les totaux sont calculés automatiquement dans le save()
+
+                # Marquer la demande comme convertie en BC
+                demande_achat.statut = STATUT_DEMANDE_CONVERTIE_BC
+                demande_achat.save()
 
             # Créer l'historique
             description = f"Création du BC {bc.numero}"
@@ -238,7 +243,7 @@ class BonCommandeService:
                 utilisateur=utilisateur,
                 ancien_statut=ancien_statut,
                 nouveau_statut=bc.statut,
-                details=f"BC {bc.numero} émis (Montant: {bc.montant_total_ttc} €)"
+                details=f"BC {bc.numero} émis (Montant: {bc.montant_total_ttc} FCFA)"
             )
 
             logger.info(f"BC {bc.numero} émis par {utilisateur}")
@@ -295,7 +300,7 @@ class BonCommandeService:
 Veuillez trouver ci-joint notre bon de commande {bc.numero}.
 
 Date de livraison souhaitée : {bc.date_livraison_souhaitee or 'À définir'}
-Montant total TTC : {bc.montant_total_ttc} €
+Montant total TTC : {bc.montant_total_ttc} FCFA
 
 Conditions de paiement : {bc.conditions_paiement or 'Selon accord'}
 
@@ -397,8 +402,7 @@ Service Achats
                 details=details
             )
 
-            # TODO: Notifier le demandeur
-            # NotificationService.notifier_bc_confirme(bc)
+            # Les notifications sont gérées automatiquement par les signaux (signals.py)
 
             logger.info(f"BC {bc.numero} confirmé par le fournisseur")
 

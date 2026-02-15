@@ -68,7 +68,7 @@
                         <!-- Montants -->
                         <div class="mb-4">
                             <h6 class="border-bottom pb-2">
-                                <i class="fas fa-euro-sign me-2"></i>Montants
+                                <i class="fas fa-money-bill-wave me-2"></i>Montants
                             </h6>
                             <div class="row">
                                 <div class="col-md-3 mb-3">
@@ -81,17 +81,17 @@
                                 {% if budget %}
                                 <div class="col-md-3 mb-3">
                                     <label class="form-label">Montant engagé</label>
-                                    <input type="text" class="form-control" value="{{ budget.montant_engage|floatformat:2 }} €" readonly>
+                                    <input type="text" class="form-control" value="{{ budget.montant_engage|floatformat:2 }} FCFA" readonly>
                                     <small class="form-text text-muted">Calculé automatiquement</small>
                                 </div>
                                 <div class="col-md-3 mb-3">
                                     <label class="form-label">Montant commandé</label>
-                                    <input type="text" class="form-control" value="{{ budget.montant_commande|floatformat:2 }} €" readonly>
+                                    <input type="text" class="form-control" value="{{ budget.montant_commande|floatformat:2 }} FCFA" readonly>
                                     <small class="form-text text-muted">Calculé automatiquement</small>
                                 </div>
                                 <div class="col-md-3 mb-3">
                                     <label class="form-label">Montant consommé</label>
-                                    <input type="text" class="form-control" value="{{ budget.montant_consomme|floatformat:2 }} €" readonly>
+                                    <input type="text" class="form-control" value="{{ budget.montant_consomme|floatformat:2 }} FCFA" readonly>
                                     <small class="form-text text-muted">Calculé automatiquement</small>
                                 </div>
                                 {% endif %}

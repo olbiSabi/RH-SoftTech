@@ -29,7 +29,7 @@
                                 <span class="badge bg-{{ bc.get_statut_badge_class }}">
                                     {{ bc.get_statut_display }}
                                 </span><br>
-                                <strong>Total actuel TTC :</strong> {{ bc.montant_total_ttc|floatformat:2 }} €
+                                <strong>Total actuel TTC :</strong> {{ bc.montant_total_ttc|floatformat:2 }} FCFA
                             </div>
                         </div>
                     </div>
@@ -69,7 +69,7 @@
 
                             <div class="col-md-4 mb-3">
                                 <label for="{{ form.prix_unitaire.id_for_label }}" class="form-label required">
-                                    Prix unitaire HT (€)
+                                    Prix unitaire HT (FCFA)
                                 </label>
                                 {{ form.prix_unitaire }}
                                 {% if form.prix_unitaire.errors %}

@@ -20,6 +20,9 @@ from gestion_achats.forms import (
 from gestion_achats.services.catalogue_service import CatalogueService
 from gestion_achats.permissions import GACPermissions, require_permission
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 # ========================================
 # VUES ARTICLES
@@ -120,7 +123,8 @@ def article_create(request):
                 return redirect('gestion_achats:article_detail', pk=article.uuid)
 
             except Exception as e:
-                messages.error(request, f'Erreur lors de la création: {str(e)}')
+                logger.error(f"Erreur création article: {e}", exc_info=True)
+                messages.error(request, "Erreur lors de la création de l'article.")
     else:
         form = ArticleForm()
 
@@ -218,7 +222,8 @@ def article_update(request, pk):
                 return redirect('gestion_achats:article_detail', pk=article.uuid)
 
             except Exception as e:
-                messages.error(request, f'Erreur: {str(e)}')
+                logger.error(f"Erreur modification article {article.reference}: {e}", exc_info=True)
+                messages.error(request, "Erreur lors de la modification de l'article.")
     else:
         form = ArticleForm(instance=article)
 
@@ -249,7 +254,8 @@ def article_desactiver(request, pk):
         )
         messages.success(request, f'Article {article.reference} désactivé.')
     except Exception as e:
-        messages.error(request, f'Erreur: {str(e)}')
+        logger.error(f"Erreur désactivation article {article.reference}: {e}", exc_info=True)
+        messages.error(request, "Erreur lors de la désactivation de l'article.")
 
     return redirect('gestion_achats:article_detail', pk=article.uuid)
 
@@ -270,7 +276,8 @@ def article_reactiver(request, pk):
         )
         messages.success(request, f'Article {article.reference} réactivé.')
     except Exception as e:
-        messages.error(request, f'Erreur: {str(e)}')
+        logger.error(f"Erreur réactivation article {article.reference}: {e}", exc_info=True)
+        messages.error(request, "Erreur lors de la réactivation de l'article.")
 
     return redirect('gestion_achats:article_detail', pk=article.uuid)
 
@@ -310,7 +317,8 @@ def article_delete(request, pk):
         return redirect('gestion_achats:article_list')
         
     except Exception as e:
-        messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+        logger.error(f"Erreur suppression article {article.reference}: {e}", exc_info=True)
+        messages.error(request, "Erreur lors de la suppression de l'article.")
         return redirect('gestion_achats:article_detail', pk=article.uuid)
 
 
@@ -372,7 +380,8 @@ def categorie_create(request):
                 return redirect('gestion_achats:categorie_list')
 
             except Exception as e:
-                messages.error(request, f'Erreur: {str(e)}')
+                logger.error(f"Erreur création catégorie: {e}", exc_info=True)
+                messages.error(request, "Erreur lors de la création de la catégorie.")
     else:
         form = CategorieForm()
 
@@ -400,7 +409,8 @@ def categorie_update(request, pk):
                 return redirect('gestion_achats:categorie_list')
 
             except Exception as e:
-                messages.error(request, f'Erreur: {str(e)}')
+                logger.error(f"Erreur modification catégorie {categorie.nom}: {e}", exc_info=True)
+                messages.error(request, "Erreur lors de la modification de la catégorie.")
     else:
         form = CategorieForm(instance=categorie)
 
@@ -437,8 +447,9 @@ def categorie_delete(request, pk):
             return redirect('gestion_achats:categorie_list')
             
         except Exception as e:
-            messages.error(request, f'Erreur lors de la suppression: {str(e)}')
-    
+            logger.error(f"Erreur suppression catégorie {categorie.nom}: {e}", exc_info=True)
+            messages.error(request, "Erreur lors de la suppression de la catégorie.")
+
     return redirect('gestion_achats:categorie_list')
 
 
@@ -480,4 +491,5 @@ def recherche_articles_ajax(request):
         return JsonResponse({'success': True, 'articles': data})
 
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+        logger.error(f"Erreur recherche articles: {e}", exc_info=True)
+        return JsonResponse({'success': False, 'error': "Erreur lors de la recherche."}, status=400)

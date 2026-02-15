@@ -14,6 +14,9 @@ from gestion_achats.models import GACBonRetour, GACReception, GACLigneReception
 from gestion_achats.services.reception_service import ReceptionService
 from gestion_achats.permissions import GACPermissions, require_permission
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 @login_required
 def bon_retour_list(request):
@@ -153,7 +156,8 @@ def bon_retour_create_from_reception(request, reception_pk):
                     return redirect('gestion_achats:bon_retour_detail', pk=bon_retour.uuid)
 
             except Exception as e:
-                messages.error(request, f'Erreur lors de la création : {str(e)}')
+                logger.error(f"Erreur création bon de retour: {e}", exc_info=True)
+                messages.error(request, "Erreur lors de la création du bon de retour.")
 
     return render(request, 'gestion_achats/bon_retour/bon_retour_create.html', {
         'reception': reception,
@@ -194,7 +198,8 @@ def bon_retour_emit(request, pk):
             return redirect('gestion_achats:bon_retour_detail', pk=bon_retour.uuid)
 
         except Exception as e:
-            messages.error(request, f'Erreur : {str(e)}')
+            logger.error(f"Erreur émission bon de retour {bon_retour.numero}: {e}", exc_info=True)
+            messages.error(request, "Erreur lors de l'émission du bon de retour.")
 
     return render(request, 'gestion_achats/bon_retour/bon_retour_confirm.html', {
         'bon_retour': bon_retour,
@@ -234,7 +239,8 @@ def bon_retour_send(request, pk):
             return redirect('gestion_achats:bon_retour_detail', pk=bon_retour.uuid)
 
         except Exception as e:
-            messages.error(request, f'Erreur : {str(e)}')
+            logger.error(f"Erreur envoi bon de retour {bon_retour.numero}: {e}", exc_info=True)
+            messages.error(request, "Erreur lors de l'envoi du bon de retour.")
 
     return render(request, 'gestion_achats/bon_retour/bon_retour_confirm.html', {
         'bon_retour': bon_retour,
@@ -274,7 +280,8 @@ def bon_retour_receive(request, pk):
             return redirect('gestion_achats:bon_retour_detail', pk=bon_retour.uuid)
 
         except Exception as e:
-            messages.error(request, f'Erreur : {str(e)}')
+            logger.error(f"Erreur réception bon de retour {bon_retour.numero}: {e}", exc_info=True)
+            messages.error(request, "Erreur lors du traitement du bon de retour.")
 
     return render(request, 'gestion_achats/bon_retour/bon_retour_confirm.html', {
         'bon_retour': bon_retour,

@@ -12,6 +12,9 @@ from django.views.decorators.http import require_POST
 from gestion_achats.models import GACDemandeAchat
 from gestion_achats.services import DemandeService
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 @csrf_exempt  # TEMPORAIRE: Désactiver CSRF pour déboguer
 @require_POST  # Seulement POST
@@ -59,14 +62,13 @@ def simple_demande_submit(request, pk):
             return redirect('gestion_achats:demande_detail', pk=demande.uuid)
 
     except Exception as e:
-        # Gérer toutes les erreurs
-        error_message = str(e)
+        logger.error(f"Erreur soumission simple demande {pk}: {e}", exc_info=True)
 
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': False,
-                'message': f'Erreur: {error_message}'
+                'message': "Erreur lors de la soumission. Veuillez réessayer."
             }, status=400)
         else:
-            messages.error(request, f'Erreur: {error_message}')
+            messages.error(request, "Erreur lors de la soumission. Veuillez réessayer.")
             return redirect('gestion_achats:demande_detail', pk=pk)

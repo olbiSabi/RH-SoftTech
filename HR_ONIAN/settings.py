@@ -198,19 +198,21 @@ SESSION_SAVE_EVERY_REQUEST = True  # Renouveler la session à chaque requête
 LOGIN_ATTEMPTS_LIMIT = 3
 ACCOUNT_LOCKOUT_DURATION = 24  # heures
 
-
-DEFAULT_FROM_EMAIL = 'ONIAN-EasyM <noreply@hronian.local>'
-
 # URL du site pour les emails
-SITE_URL = 'http://127.0.0.1:8000'  # Pour le développement
-# SITE_URL = 'https://votre-domaine.com'  # Pour la production
-# Configuration email (assurez-vous d'avoir ces settings)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Pour le développement
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Pour la production
-# Si vous utilisez SMTP, configurez ces paramètres :
-# EMAIL_HOST = 'votre-smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'votre-email@gmail.com'
-# EMAIL_HOST_PASSWORD = 'votre-mot-de-passe'
-# DEFAULT_FROM_EMAIL = 'ONIAN-EasyM <noreply@onian-easym.com>'
+SITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000')
+
+# Sélection automatique du backend email selon DEBUG
+if DEBUG:
+    # Développement : les emails s'affichent dans la console
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    DEFAULT_FROM_EMAIL = 'ONIAN-EasyM <noreply@hronian.local>'
+else:
+    # Production : envoi réel via SMTP
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+    EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() == 'true'
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'ONIAN-EasyM <noreply@onian-easym.com>')
+    EMAIL_TIMEOUT = 10  # Timeout en secondes pour les connexions SMTP

@@ -40,9 +40,9 @@
                     {% endif %}
                 </div>
                 <div class="col-md-6">
-                    <p><strong>Montant HT :</strong> {{ bc.montant_total_ht|floatformat:2 }} €</p>
-                    <p><strong>Montant TVA :</strong> {{ bc.montant_tva|floatformat:2 }} €</p>
-                    <p><strong>Montant TTC :</strong> <strong class="text-primary">{{ bc.montant_total_ttc|floatformat:2 }} €</strong></p>
+                    <p><strong>Montant HT :</strong> {{ bc.montant_total_ht|floatformat:2 }} FCFA</p>
+                    <p><strong>Montant TVA :</strong> {{ bc.montant_tva|floatformat:2 }} FCFA</p>
+                    <p><strong>Montant TTC :</strong> <strong class="text-primary">{{ bc.montant_total_ttc|floatformat:2 }} FCFA</strong></p>
                     {% if bc.date_emission %}
                     <p><strong>Date émission :</strong> {{ bc.date_emission|date:"d/m/Y" }}</p>
                     {% endif %}
@@ -87,10 +87,10 @@
                                 {% endif %}
                             </td>
                             <td class="text-end">{{ ligne.quantite_commandee }}</td>
-                            <td class="text-end">{{ ligne.prix_unitaire|floatformat:2 }} €</td>
+                            <td class="text-end">{{ ligne.prix_unitaire|floatformat:2 }} FCFA</td>
                             <td class="text-end">{{ ligne.taux_tva }}%</td>
-                            <td class="text-end">{{ ligne.montant|floatformat:2 }} €</td>
-                            <td class="text-end">{{ ligne.montant_ttc|floatformat:2 }} €</td>
+                            <td class="text-end">{{ ligne.montant|floatformat:2 }} FCFA</td>
+                            <td class="text-end">{{ ligne.montant_ttc|floatformat:2 }} FCFA</td>
                             {% if can_modify and bc.statut == 'BROUILLON' %}
                             <td class="text-center">
                                 <div class="btn-group btn-group-sm" role="group">
@@ -194,7 +194,7 @@
                     <ul class="list-unstyled mb-0">
                         <li><strong>Numéro :</strong> {{ bc.numero }}</li>
                         <li><strong>Fournisseur :</strong> {{ bc.fournisseur.raison_sociale }}</li>
-                        <li><strong>Montant TTC :</strong> {{ bc.montant_total_ttc|floatformat:2 }} €</li>
+                        <li><strong>Montant TTC :</strong> {{ bc.montant_total_ttc|floatformat:2 }} FCFA</li>
                         <li><strong>Statut actuel :</strong>
                             <span class="badge bg-{{ bc.get_statut_badge_class }}">
                                 {{ bc.get_statut_display }}
@@ -267,7 +267,7 @@
                     <ul class="list-unstyled mb-0">
                         <li><strong>Numéro :</strong> {{ bc.numero }}</li>
                         <li><strong>Fournisseur :</strong> {{ bc.fournisseur.raison_sociale }}</li>
-                        <li><strong>Montant TTC :</strong> {{ bc.montant_total_ttc|floatformat:2 }} €</li>
+                        <li><strong>Montant TTC :</strong> {{ bc.montant_total_ttc|floatformat:2 }} FCFA</li>
                     </ul>
                 </div>
                 <div class="modal-footer">

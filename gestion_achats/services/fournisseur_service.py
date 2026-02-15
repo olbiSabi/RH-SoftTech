@@ -79,20 +79,20 @@ class FournisseurService:
             # Créer le fournisseur (le code sera généré automatiquement par la méthode save())
             fournisseur = GACFournisseur.objects.create(
                 raison_sociale=raison_sociale,
-                nif=nif,
+                nif=nif or '',
                 email=email,
                 telephone=telephone,
                 adresse=adresse,
-                code_postal=code_postal,
-                ville=ville,
+                code_postal=code_postal or '',
+                ville=ville or '',
                 pays=pays,
-                conditions_paiement=conditions_paiement,
-                nom_contact=nom_contact,
-                email_contact=email_contact,
-                telephone_contact=telephone_contact,
-                iban=iban,
-                numero_tva=numero_tva,
-                fax=fax,
+                conditions_paiement=conditions_paiement or '',
+                nom_contact=nom_contact or '',
+                email_contact=email_contact or '',
+                telephone_contact=telephone_contact or '',
+                iban=iban or '',
+                numero_tva=numero_tva or '',
+                fax=fax or '',
                 statut=STATUT_FOURNISSEUR_ACTIF,
                 cree_par=cree_par
             )
@@ -112,6 +112,16 @@ class FournisseurService:
         except Exception as e:
             logger.error(f"Erreur lors de la création du fournisseur: {str(e)}")
             raise FournisseurError(f"Impossible de créer le fournisseur: {str(e)}")
+
+    @staticmethod
+    def get_fournisseurs_actifs():
+        """
+        Récupère tous les fournisseurs actifs.
+
+        Returns:
+            QuerySet: Les fournisseurs avec le statut ACTIF
+        """
+        return GACFournisseur.objects.filter(statut=STATUT_FOURNISSEUR_ACTIF)
 
     @staticmethod
     @transaction.atomic

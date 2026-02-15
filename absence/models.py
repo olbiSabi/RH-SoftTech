@@ -1457,6 +1457,25 @@ class NotificationAbsence(models.Model):
 
         # Audit - Alertes de conformité
         ('ALERTE_CONFORMITE', 'Nouvelle alerte de conformité'),
+
+        # Gestion des Achats - Demandes
+        ('GAC_DEMANDE_SOUMISE', 'Demande d\'achat soumise'),
+        ('GAC_DEMANDE_VALIDEE', 'Demande d\'achat validée'),
+        ('GAC_DEMANDE_REFUSEE', 'Demande d\'achat refusée'),
+        ('GAC_DEMANDE_ANNULEE', 'Demande d\'achat annulée'),
+        ('GAC_DEMANDE_CONVERTIE', 'Demande convertie en BC'),
+        # Gestion des Achats - Bons de commande
+        ('GAC_BC_STATUT', 'Changement statut bon de commande'),
+        ('GAC_BC_ANNULE', 'Bon de commande annulé'),
+        # Gestion des Achats - Réceptions
+        ('GAC_RECEPTION', 'Notification réception'),
+        # Gestion des Achats - Budget
+        ('GAC_ALERTE_BUDGET', 'Alerte budgétaire'),
+        ('GAC_FIN_VALIDITE_BUDGET', 'Fin de validité budget'),
+        # Gestion des Achats - Rappels
+        ('GAC_RAPPEL', 'Rappel gestion achats'),
+        # Gestion des Achats - Retard
+        ('GAC_RETARD_LIVRAISON', 'Retard de livraison'),
     ]
 
     CONTEXTE_CHOICES = [
@@ -1465,6 +1484,7 @@ class NotificationAbsence(models.Model):
         ('RH', 'En tant que RH'),
         ('PM', 'Project Management'),
         ('AUDIT', 'Conformité & Audit'),
+        ('GAC', 'Gestion des Achats'),
     ]
 
     destinataire = models.ForeignKey(
@@ -1502,6 +1522,36 @@ class NotificationAbsence(models.Model):
         verbose_name="Projet",
         null=True,
         blank=True
+    )
+
+    # Référence vers la demande d'achat (Gestion Achats)
+    demande_achat = models.ForeignKey(
+        'gestion_achats.GACDemandeAchat',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='notifications',
+        verbose_name="Demande d'achat"
+    )
+
+    # Référence vers le bon de commande (Gestion Achats)
+    bon_commande = models.ForeignKey(
+        'gestion_achats.GACBonCommande',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='notifications',
+        verbose_name="Bon de commande"
+    )
+
+    # Référence vers le budget (Gestion Achats)
+    budget_gac = models.ForeignKey(
+        'gestion_achats.GACBudget',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='notifications',
+        verbose_name="Budget"
     )
 
     type_notification = models.CharField(
@@ -1560,13 +1610,19 @@ class NotificationAbsence(models.Model):
             self.save(update_fields=['lue', 'date_lecture'])
 
     def get_objet_lie(self):
-        """Retourne l'objet lié (absence, ticket ou projet)"""
+        """Retourne l'objet lié (absence, ticket, projet ou objet GAC)"""
         if self.absence:
             return self.absence
         elif self.ticket:
             return self.ticket
         elif self.projet:
             return self.projet
+        elif self.demande_achat:
+            return self.demande_achat
+        elif self.bon_commande:
+            return self.bon_commande
+        elif self.budget_gac:
+            return self.budget_gac
         return None
 
     def get_url(self):
@@ -1585,6 +1641,16 @@ class NotificationAbsence(models.Model):
         # Notifications de projet (champ projet renseigné)
         if self.projet:
             return reverse('pm:projet_detail', args=[self.projet.pk])
+
+        # Notifications Gestion des Achats
+        if self.contexte == 'GAC' or self.type_notification.startswith('GAC_'):
+            if self.demande_achat:
+                return reverse('gestion_achats:demande_detail', args=[self.demande_achat.uuid])
+            if self.bon_commande:
+                return reverse('gestion_achats:bon_commande_detail', args=[self.bon_commande.uuid])
+            if self.budget_gac:
+                return reverse('gestion_achats:budget_detail', args=[self.budget_gac.uuid])
+            return reverse('gestion_achats:dashboard')
 
         # Notifications d'alerte de conformité (Audit)
         if self.type_notification == 'ALERTE_CONFORMITE' or self.contexte == 'AUDIT':
@@ -1610,24 +1676,32 @@ class NotificationAbsence(models.Model):
         return '#'
 
     @classmethod
-    def creer_notification(cls, destinataire, type_notif, message, contexte='EMPLOYE', absence=None, ticket=None, projet=None):
+    def creer_notification(cls, destinataire, type_notif, message, contexte='EMPLOYE',
+                           absence=None, ticket=None, projet=None,
+                           demande_achat=None, bon_commande=None, budget_gac=None):
         """
-        Créer une nouvelle notification (absence, ticket ou projet)
+        Créer une nouvelle notification (absence, ticket, projet ou gestion achats)
 
         Args:
-            destinataire: Employé destinataire
+            destinataire: Employé destinataire (ZY00)
             type_notif: Type de notification
             message: Message de la notification
-            contexte: Contexte (EMPLOYE, MANAGER, RH, PM)
+            contexte: Contexte (EMPLOYE, MANAGER, RH, PM, AUDIT, GAC)
             absence: Instance d'Absence (optionnel)
             ticket: Instance de JRTicket (optionnel)
             projet: Instance de JRProject (optionnel)
+            demande_achat: Instance de GACDemandeAchat (optionnel)
+            bon_commande: Instance de GACBonCommande (optionnel)
+            budget_gac: Instance de GACBudget (optionnel)
         """
         return cls.objects.create(
             destinataire=destinataire,
             absence=absence,
             ticket=ticket,
             projet=projet,
+            demande_achat=demande_achat,
+            bon_commande=bon_commande,
+            budget_gac=budget_gac,
             type_notification=type_notif,
             contexte=contexte,
             message=message
@@ -1639,7 +1713,11 @@ class NotificationAbsence(models.Model):
         return cls.objects.filter(
             destinataire=employe,
             lue=False
-        ).select_related('absence', 'ticket', 'projet', 'absence__employe', 'absence__type_absence', 'ticket__projet')
+        ).select_related(
+            'absence', 'ticket', 'projet',
+            'demande_achat', 'bon_commande', 'budget_gac',
+            'absence__employe', 'absence__type_absence', 'ticket__projet'
+        )
 
     @classmethod
     def count_non_lues(cls, employe):
@@ -1664,6 +1742,14 @@ class NotificationAbsence(models.Model):
             destinataire=employe,
             ticket__isnull=False
         ).select_related('ticket', 'ticket__projet', 'ticket__assigne')
+
+    @classmethod
+    def get_notifications_gac(cls, employe):
+        """Notifications Gestion des Achats uniquement"""
+        return cls.objects.filter(
+            destinataire=employe,
+            contexte='GAC'
+        ).select_related('demande_achat', 'bon_commande', 'budget_gac')
 
 
 # 7. ValidationAbsence (Optionnel - pour traçabilité détaillée)
