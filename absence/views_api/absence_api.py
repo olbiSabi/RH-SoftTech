@@ -181,7 +181,10 @@ def api_valider_absence(request, id):
 
         if absence.statut == 'EN_ATTENTE_MANAGER':
             absence.valider_par_manager(user_employe, decision, commentaire)
-            message = f'Absence {decision.lower()}e par le manager'
+            if absence.statut == 'VALIDE':
+                message = 'Absence validée définitivement'
+            else:
+                message = f'Absence {decision.lower()}e par le manager'
 
         elif absence.statut == 'EN_ATTENTE_RH':
             absence.valider_par_rh(user_employe, decision, commentaire)

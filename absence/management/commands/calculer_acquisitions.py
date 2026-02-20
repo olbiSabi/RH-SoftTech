@@ -222,7 +222,7 @@ class Command(BaseCommand):
         })
 
         if verbeux:
-            bonus = "+0.5j" if jours_restants_calc >= 15 else ""
+            bonus = "+1.25j" if jours_restants_calc >= 15 else ""
             self.stdout.write(self.style.SUCCESS(
                 f"  {status} {matricule} - {nom_complet}: "
                 f"{jours_acquis} jours "

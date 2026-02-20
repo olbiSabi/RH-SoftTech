@@ -341,6 +341,24 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="mode_validation">Mode de validation des absences <span class="text-danger">*</span></label>
+                                        <select class="form-control" id="mode_validation" name="mode_validation" required>
+                                            <option value="MANAGER_ET_RH">Validation manager + RH (double validation)</option>
+                                            <option value="MANAGER_SEUL">Validation manager uniquement</option>
+                                        </select>
+                                        <small class="form-text text-muted">
+                                            <i class="fas fa-info-circle"></i>
+                                            <strong>Manager + RH :</strong> Le manager approuve, puis les RH valident.<br>
+                                            <strong>Manager seul :</strong> Le manager valide directement sans passer par les RH.
+                                        </small>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

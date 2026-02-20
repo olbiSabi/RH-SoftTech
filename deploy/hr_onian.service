@@ -1,0 +1,38 @@
+# ============================================
+# Service systemd pour HR_ONIAN (Gunicorn)
+# ============================================
+#
+# Installation :
+#   1. Copier : sudo cp deploy/hr_onian.service /etc/systemd/system/
+#   2. Activer : sudo systemctl enable hr_onian
+#   3. Demarrer : sudo systemctl start hr_onian
+#   4. Verifier : sudo systemctl status hr_onian
+#
+# Logs : sudo journalctl -u hr_onian -f
+
+[Unit]
+Description=HR_ONIAN Gunicorn Application Server
+After=network.target postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=notify
+User=www-data
+Group=www-data
+WorkingDirectory=/chemin/vers/HR_ONIAN
+Environment="PATH=/chemin/vers/venv/bin"
+ExecStart=/chemin/vers/venv/bin/gunicorn HR_ONIAN.wsgi:application -c gunicorn.conf.py
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+KillMode=mixed
+TimeoutStopSec=30
+
+# Securite
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/chemin/vers/HR_ONIAN/logs /chemin/vers/HR_ONIAN/media
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

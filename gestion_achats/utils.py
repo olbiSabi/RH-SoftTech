@@ -5,199 +5,153 @@ Fonctions utilitaires pour le module Gestion des Achats & Commandes (GAC).
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 from django.utils import timezone
+from django.db import transaction
+
+
+def _generer_numero(model_class, prefix, champ='numero'):
+    """
+    Genere un numero sequentiel unique avec verrouillage transactionnel.
+
+    Utilise select_for_update() pour eviter les doublons en acces concurrent.
+
+    Args:
+        model_class: Le modele Django
+        prefix: Le prefixe du numero (ex: 'DA-2026-')
+        champ: Le nom du champ contenant le numero
+
+    Returns:
+        str: Le nouveau numero genere
+    """
+    with transaction.atomic():
+        filtre = {f'{champ}__startswith': prefix}
+        dernier = (
+            model_class.objects
+            .select_for_update()
+            .filter(**filtre)
+            .order_by(f'-{champ}')
+            .values_list(champ, flat=True)
+            .first()
+        )
+
+        if dernier:
+            dernier_numero = int(dernier.split('-')[-1])
+        else:
+            dernier_numero = 0
+
+        return f'{prefix}{str(dernier_numero + 1).zfill(4)}'
 
 
 def generer_numero_demande():
     """
-    Génère un numéro de demande d'achat unique.
+    Genere un numero de demande d'achat unique.
 
     Format: DA-YYYY-NNNN
     Exemple: DA-2026-0001
-
-    Returns:
-        str: Numéro de demande généré
     """
     from gestion_achats.models import GACDemandeAchat
 
     annee = timezone.now().year
-    dernier_numero = GACDemandeAchat.objects.filter(
-        numero__startswith=f'DA-{annee}-'
-    ).count()
-
-    return f'DA-{annee}-{str(dernier_numero + 1).zfill(4)}'
+    return _generer_numero(GACDemandeAchat, f'DA-{annee}-')
 
 
 def generer_numero_bon_commande():
     """
-    Génère un numéro de bon de commande unique.
+    Genere un numero de bon de commande unique.
 
     Format: BC-YYYY-NNNN
     Exemple: BC-2026-0001
-
-    Returns:
-        str: Numéro de bon de commande généré
     """
     from gestion_achats.models import GACBonCommande
 
     annee = timezone.now().year
-    dernier_numero = GACBonCommande.objects.filter(
-        numero__startswith=f'BC-{annee}-'
-    ).count()
-
-    return f'BC-{annee}-{str(dernier_numero + 1).zfill(4)}'
+    return _generer_numero(GACBonCommande, f'BC-{annee}-')
 
 
 def generer_numero_reception():
     """
-    Génère un numéro de réception unique.
+    Genere un numero de reception unique.
 
     Format: REC-YYYY-NNNN
     Exemple: REC-2026-0001
-
-    Returns:
-        str: Numéro de réception généré
     """
     from gestion_achats.models import GACReception
 
     annee = timezone.now().year
-    dernier_numero = GACReception.objects.filter(
-        numero__startswith=f'REC-{annee}-'
-    ).count()
-
-    return f'REC-{annee}-{str(dernier_numero + 1).zfill(4)}'
+    return _generer_numero(GACReception, f'REC-{annee}-')
 
 
 def generer_numero_bon_retour():
     """
-    Génère un numéro de bon de retour unique.
+    Genere un numero de bon de retour unique.
 
     Format: BR-YYYY-NNNN
     Exemple: BR-2026-0001
-
-    Returns:
-        str: Numéro de bon de retour généré
     """
     from gestion_achats.models import GACBonRetour
 
     annee = timezone.now().year
-    dernier_numero = GACBonRetour.objects.filter(
-        numero__startswith=f'BR-{annee}-'
-    ).count()
-
-    return f'BR-{annee}-{str(dernier_numero + 1).zfill(4)}'
+    return _generer_numero(GACBonRetour, f'BR-{annee}-')
 
 
 def generer_code_categorie():
     """
-    Génère un code de catégorie unique.
+    Genere un code de categorie unique.
 
     Format: CAT-NNNN
     Exemple: CAT-0001
-
-    Returns:
-        str: Code de catégorie généré
     """
     from gestion_achats.models import GACCategorie
 
-    dernier_numero = GACCategorie.objects.filter(
-        code__startswith='CAT-'
-    ).count()
-
-    return f'CAT-{str(dernier_numero + 1).zfill(4)}'
+    return _generer_numero(GACCategorie, 'CAT-', champ='code')
 
 
 def generer_code_fournisseur():
     """
-    Génère un code fournisseur unique.
+    Genere un code fournisseur unique.
 
     Format: FRN-NNNN
     Exemple: FRN-0001
-
-    Returns:
-        str: Code fournisseur généré
     """
     from gestion_achats.models import GACFournisseur
 
-    dernier_numero = GACFournisseur.objects.filter(
-        code__startswith='FRN-'
-    ).count()
-
-    return f'FRN-{str(dernier_numero + 1).zfill(4)}'
+    return _generer_numero(GACFournisseur, 'FRN-', champ='code')
 
 
 def generer_code_article():
     """
-    Génère un code article unique.
-    
+    Genere un code article unique.
+
     Format: ART-NNNN
     Exemple: ART-0001
-    
-    Returns:
-        str: Code article généré
     """
     from gestion_achats.models import GACArticle
-    import re
 
-    # Trouver le dernier numéro existant avec une approche plus directe
-    dernier_numero = 0
-    
-    # Récupérer toutes les références et trouver le maximum
-    references = GACArticle.objects.filter(
-        reference__regex=r'^ART-\d{4}$'
-    ).values_list('reference', flat=True)
-    
-    for ref in references:
-        match = re.search(r'ART-(\d{4})$', ref)
-        if match:
-            try:
-                numero = int(match.group(1))
-                if numero > dernier_numero:
-                    dernier_numero = numero
-            except ValueError:
-                continue
-    
-    # Générer le nouveau code
-    nouveau_code = f'ART-{str(dernier_numero + 1).zfill(4)}'
-    
-    # Vérification finale d'unicité (sécurité)
-    tentatives = 0
-    while GACArticle.objects.filter(reference=nouveau_code).exists() and tentatives < 100:
-        tentatives += 1
-        nouveau_code = f'ART-{str(dernier_numero + 1 + tentatives).zfill(4)}'
-    
-    return nouveau_code
+    return _generer_numero(GACArticle, 'ART-', champ='reference')
 
 
 def generer_code_budget():
     """
-    Génère un code budget unique.
+    Genere un code budget unique.
 
     Format: BUD-NNNN
     Exemple: BUD-0001
-
-    Returns:
-        str: Code budget généré
     """
     from gestion_achats.models import GACBudget
 
-    dernier_numero = GACBudget.objects.filter(
-        code__startswith='BUD-'
-    ).count()
-
-    return f'BUD-{str(dernier_numero + 1).zfill(4)}'
+    return _generer_numero(GACBudget, 'BUD-', champ='code')
 
 
 def calculer_montant_ttc(montant_ht, taux_tva=None):
     """
-    Calcule le montant TTC à partir du montant HT et du taux de TVA.
+    Calcule le montant TTC a partir du montant HT et du taux de TVA.
 
     Args:
         montant_ht (Decimal): Montant hors taxe
-        taux_tva (Decimal, optional): Taux de TVA en pourcentage. 
-                                       Défaut: TAUX_TVA_DEFAUT (20%)
+        taux_tva (Decimal, optional): Taux de TVA en pourcentage.
+                                       Defaut: TAUX_TVA_DEFAUT (20%)
 
     Returns:
-        Decimal: Montant TTC arrondi à 2 décimales
+        Decimal: Montant TTC arrondi a 2 decimales
     """
     from gestion_achats.constants import TAUX_TVA_DEFAUT
 
@@ -215,15 +169,15 @@ def calculer_montant_ttc(montant_ht, taux_tva=None):
 
 def calculer_montant_tva(montant_ht, taux_tva=None):
     """
-    Calcule le montant de TVA à partir du montant HT et du taux de TVA.
+    Calcule le montant de TVA a partir du montant HT et du taux de TVA.
 
     Args:
         montant_ht (Decimal): Montant hors taxe
-        taux_tva (Decimal, optional): Taux de TVA en pourcentage. 
-                                       Défaut: TAUX_TVA_DEFAUT (20%)
+        taux_tva (Decimal, optional): Taux de TVA en pourcentage.
+                                       Defaut: TAUX_TVA_DEFAUT (20%)
 
     Returns:
-        Decimal: Montant de TVA arrondi à 2 décimales
+        Decimal: Montant de TVA arrondi a 2 decimales
     """
     from gestion_achats.constants import TAUX_TVA_DEFAUT
 
@@ -240,14 +194,14 @@ def calculer_montant_tva(montant_ht, taux_tva=None):
 
 def calculer_jours_ouvres(date_debut, date_fin):
     """
-    Calcule le nombre de jours ouvrés entre deux dates.
+    Calcule le nombre de jours ouvres entre deux dates.
 
     Args:
-        date_debut (date): Date de début
+        date_debut (date): Date de debut
         date_fin (date): Date de fin
 
     Returns:
-        int: Nombre de jours ouvrés (excluant samedis et dimanches)
+        int: Nombre de jours ouvres (excluant samedis et dimanches)
     """
     if isinstance(date_debut, datetime):
         date_debut = date_debut.date()
@@ -259,7 +213,7 @@ def calculer_jours_ouvres(date_debut, date_fin):
 
     while current_date <= date_fin:
         # 0 = Lundi, 6 = Dimanche
-        if current_date.weekday() < 5:  # Lundi à Vendredi
+        if current_date.weekday() < 5:  # Lundi a Vendredi
             jours += 1
         current_date += timedelta(days=1)
 
@@ -268,22 +222,22 @@ def calculer_jours_ouvres(date_debut, date_fin):
 
 def determiner_validateur_n2(demande):
     """
-    Détermine le validateur N2 selon les règles métier.
+    Determine le validateur N2 selon les regles metier.
 
-    Règles:
-    - Si montant > 10 000 FCFA → Direction générale
-    - Si catégorie IT → Responsable IT
-    - Sinon → Responsable achats
+    Regles:
+    - Si montant > 10 000 FCFA -> Direction generale
+    - Si categorie IT -> Responsable IT
+    - Sinon -> Responsable achats
 
     Args:
         demande (GACDemandeAchat): La demande d'achat
 
     Returns:
-        ZY00: L'employé validateur N2, ou None si non trouvé
+        ZY00: L'employe validateur N2, ou None si non trouve
     """
     from employee.models import ZY00, ZYRO
 
-    # Règle 1: Montant > 10 000 FCFA → Direction générale
+    # Regle 1: Montant > 10 000 FCFA -> Direction generale
     if demande.montant_total_ttc > Decimal('10000.00'):
         try:
             role_dg = ZYRO.objects.get(CODE='DIRECTEUR_GENERAL')
@@ -297,10 +251,10 @@ def determiner_validateur_n2(demande):
         except ZYRO.DoesNotExist:
             pass
 
-    # Règle 2: Catégorie IT → Responsable IT
-    # (À implémenter si catégorisation disponible sur demandes)
+    # Regle 2: Categorie IT -> Responsable IT
+    # (A implementer si categorisation disponible sur demandes)
 
-    # Règle 3: Par défaut → Responsable achats
+    # Regle 3: Par defaut -> Responsable achats
     try:
         role_achats = ZYRO.objects.get(CODE='RESPONSABLE_ACHATS')
         validateur = ZY00.objects.filter(
@@ -313,7 +267,7 @@ def determiner_validateur_n2(demande):
     except ZYRO.DoesNotExist:
         pass
 
-    # Fallback 1: Premier utilisateur avec rôle ACHETEUR
+    # Fallback 1: Premier utilisateur avec role ACHETEUR
     try:
         role_acheteur = ZYRO.objects.get(CODE='ACHETEUR')
         validateur = ZY00.objects.filter(
@@ -326,7 +280,7 @@ def determiner_validateur_n2(demande):
     except ZYRO.DoesNotExist:
         pass
 
-    # Fallback 2: Premier utilisateur avec rôle ADMIN_GAC
+    # Fallback 2: Premier utilisateur avec role ADMIN_GAC
     try:
         role_admin_gac = ZYRO.objects.get(CODE='ADMIN_GAC')
         validateur = ZY00.objects.filter(
@@ -339,7 +293,6 @@ def determiner_validateur_n2(demande):
     except ZYRO.DoesNotExist:
         pass
 
-    # Si aucun validateur trouvé, retourner None (devrait lever une erreur)
     return None
 
 
@@ -348,39 +301,39 @@ def formater_montant(montant, symbole='FCFA'):
     Formate un montant pour l'affichage.
 
     Args:
-        montant (Decimal): Montant à formater
-        symbole (str): Symbole monétaire
+        montant (Decimal): Montant a formater
+        symbole (str): Symbole monetaire
 
     Returns:
-        str: Montant formaté (ex: "1 234,56 FCFA")
+        str: Montant formate (ex: "1 234,56 FCFA")
     """
     if montant is None:
         return f"0,00 {symbole}"
 
     montant = Decimal(str(montant))
-    
-    # Arrondir à 2 décimales
+
+    # Arrondir a 2 decimales
     montant_arrondi = montant.quantize(Decimal('0.01'))
-    
-    # Séparer partie entière et décimale
+
+    # Separer partie entiere et decimale
     partie_entiere = int(montant_arrondi)
     partie_decimale = abs(montant_arrondi - Decimal(partie_entiere))
-    
-    # Formater la partie entière avec séparateur de milliers
+
+    # Formater la partie entiere avec separateur de milliers
     partie_entiere_str = f"{partie_entiere:,}".replace(',', ' ')
-    
-    # Formater la partie décimale
+
+    # Formater la partie decimale
     decimales = int((partie_decimale * 100).quantize(Decimal('1')))
-    
+
     return f"{partie_entiere_str},{decimales:02d} {symbole}"
 
 
 def valider_nif(nif):
     """
-    Valide un Numéro d'Identification Fiscale (NIF) togolais.
+    Valide un Numero d'Identification Fiscale (NIF) togolais.
 
     Args:
-        nif (str): Numéro NIF à valider (9 à 10 chiffres)
+        nif (str): Numero NIF a valider (9 a 10 chiffres)
 
     Returns:
         bool: True si valide, False sinon
@@ -391,11 +344,11 @@ def valider_nif(nif):
     # Enlever les espaces
     nif = nif.replace(' ', '')
 
-    # Vérifier la longueur (9 ou 10 chiffres)
+    # Verifier la longueur (9 ou 10 chiffres)
     if len(nif) < 9 or len(nif) > 10:
         return False
 
-    # Vérifier que ce sont des chiffres
+    # Verifier que ce sont des chiffres
     if not nif.isdigit():
         return False
 
@@ -407,7 +360,7 @@ def valider_email(email):
     Valide basiquement une adresse email.
 
     Args:
-        email (str): Adresse email à valider
+        email (str): Adresse email a valider
 
     Returns:
         bool: True si valide, False sinon
@@ -419,24 +372,24 @@ def valider_email(email):
 
     # Pattern basique pour email
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    
+
     return re.match(pattern, email) is not None
 
 
 def formater_telephone(telephone):
     """
-    Formate un numéro de téléphone français.
+    Formate un numero de telephone.
 
     Args:
-        telephone (str): Numéro de téléphone
+        telephone (str): Numero de telephone
 
     Returns:
-        str: Numéro formaté (ex: "01 23 45 67 89")
+        str: Numero formate (ex: "01 23 45 67 89")
     """
     if not telephone:
         return ""
 
-    # Enlever tous les caractères non numériques
+    # Enlever tous les caracteres non numeriques
     chiffres = ''.join(c for c in telephone if c.isdigit())
 
     # Formater par groupes de 2
@@ -448,13 +401,13 @@ def formater_telephone(telephone):
 
 def calculer_delai_livraison(date_livraison):
     """
-    Calcule le délai en jours avant une date de livraison.
+    Calcule le delai en jours avant une date de livraison.
 
     Args:
         date_livraison (date): Date de livraison
 
     Returns:
-        int: Nombre de jours (négatif si en retard)
+        int: Nombre de jours (negatif si en retard)
     """
     if not date_livraison:
         return None
@@ -470,10 +423,10 @@ def calculer_delai_livraison(date_livraison):
 
 def est_en_retard(date_livraison):
     """
-    Détermine si une livraison est en retard.
+    Determine si une livraison est en retard.
 
     Args:
-        date_livraison (date): Date de livraison prévue
+        date_livraison (date): Date de livraison prevue
 
     Returns:
         bool: True si en retard, False sinon

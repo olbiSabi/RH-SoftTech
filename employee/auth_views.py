@@ -6,7 +6,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import PasswordResetConfirmView
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode, url_has_allowed_host_and_scheme
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
@@ -89,8 +89,10 @@ def login_view(request):
                 login(request, user)
                 logger.info("✅ CONNEXION RÉUSSIE - Redirection vers dashboard")
                 # Rediriger vers la page demandée ou le dashboard
-                next_url = request.GET.get('next', 'dashboard')
-                return redirect(next_url)
+                next_url = request.GET.get('next', '')
+                if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+                    return redirect(next_url)
+                return redirect('dashboard')
 
             except ZY00.DoesNotExist:
                 messages.warning(request, "⚠️ Aucun profil employé associé à ce compte.")
@@ -139,7 +141,7 @@ def send_lock_notification_email(user, request):
     try:
         employe = user.employe
         nom_complet = f"{employe.prenoms} {employe.nom}"
-    except:
+    except Exception:
         nom_complet = user.username
 
     subject = "🔒 Compte bloqué - ONIAN-EasyM"
@@ -153,9 +155,8 @@ def send_lock_notification_email(user, request):
         reset_url = request.build_absolute_uri(
             f'/employe/password-reset-confirm/{uid}/{token}/'
         )
-    except:
-        # Fallback si SITE_URL n'est pas défini
-        reset_url = f"http://127.0.0.1:8000/employe/password-reset-confirm/{uid}/{token}/"
+    except Exception:
+        reset_url = f"{settings.SITE_URL}/employe/password-reset-confirm/{uid}/{token}/"
 
     message = f"""
     Bonjour {nom_complet},
@@ -199,7 +200,7 @@ def logout_view(request):
         # Correction pour récupérer le nom de l'employé
         try:
             username = request.user.employe.nom if hasattr(request.user, 'employe') else request.user.username
-        except:
+        except Exception:
             username = request.user.username
         logout(request)
         #messages.success(request, f"👋 Au revoir {username}, vous avez été déconnecté avec succès.")
@@ -282,7 +283,7 @@ def dashboard_view(request):
                 from departement.models import ZYMA
                 manager_obj = ZYMA.get_manager_actif(affectation.poste.DEPARTEMENT)
                 manager = manager_obj.employe if manager_obj else None
-        except:
+        except Exception:
             pass
 
         # Context de base (pour employé)
@@ -465,7 +466,7 @@ def password_reset_request(request):
                 try:
                     employe = user.employe
                     logger.debug("   - Employé: {employe.nom} {employe.prenoms}")
-                except:
+                except Exception:
                     logger.debug("   - Pas de profil employé associé")
 
                 # ✅ DÉBLOQUER LE COMPTE SI IL ÉTAIT BLOQUÉ (UNIQUEMENT ICI)
@@ -500,7 +501,7 @@ def password_reset_request(request):
                 employe = None
                 try:
                     employe = user.employe
-                except:
+                except Exception:
                     pass
 
                 email_context = {
@@ -565,7 +566,7 @@ def password_reset_request(request):
 
                     messages.error(
                         request,
-                        f'❌ Erreur lors de l\'envoi de l\'email: {str(e)}'
+                        "❌ Une erreur est survenue lors de l'envoi de l'email. Veuillez réessayer."
                     )
                     # Même en cas d'erreur d'envoi, le compte est débloqué
                     return redirect('login')

@@ -1,11 +1,15 @@
 # employee/views_api/api/email_api.py
 """
 API modale pour la gestion des emails (ZYME).
+Synchronise automatiquement auth_user.email avec le ZYME actif le plus récent.
 """
+import logging
 from typing import Dict, Any
 
 from employee.models import ZYME
 from employee.views_api.api.base import GenericModalCRUDView, make_modal_view_functions
+
+logger = logging.getLogger(__name__)
 
 
 class EmailModalView(GenericModalCRUDView):
@@ -39,6 +43,24 @@ class EmailModalView(GenericModalCRUDView):
             'date_fin_validite': self.parsed_dates.get('date_fin_validite'),
             'actif': request.POST.get('actif') == 'on',
         }
+
+    @staticmethod
+    def _sync_user_email(employe):
+        """Synchronise auth_user.email avec le ZYME actif le plus récent."""
+        if not employe.user:
+            return
+        # ZYME.Meta.ordering = ['-date_debut_validite'] → .first() = le plus récent
+        email_recent = employe.emails.filter(actif=True).first()
+        if email_recent:
+            employe.user.email = email_recent.email
+            employe.user.save(update_fields=['email'])
+            logger.info(f"Email auth_user synchronisé pour {employe.matricule}: {email_recent.email}")
+
+    def post_create(self, request, obj):
+        self._sync_user_email(obj.employe)
+
+    def post_update(self, request, obj):
+        self._sync_user_email(obj.employe)
 
 
 # Générer les fonctions de vue

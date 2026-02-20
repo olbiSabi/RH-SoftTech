@@ -2169,11 +2169,12 @@ class GACPieceJointe(models.Model):
 
     def get_taille_lisible(self):
         """Retourne la taille du fichier dans un format lisible."""
+        taille = self.taille_fichier
         for unit in ['o', 'Ko', 'Mo', 'Go']:
-            if self.taille_fichier < 1024.0:
-                return f"{self.taille_fichier:.1f} {unit}"
-            self.taille_fichier /= 1024.0
-        return f"{self.taille_fichier:.1f} To"
+            if taille < 1024.0:
+                return f"{taille:.1f} {unit}"
+            taille /= 1024.0
+        return f"{taille:.1f} To"
 
 
 class GACHistorique(models.Model):

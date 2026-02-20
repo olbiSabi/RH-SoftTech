@@ -70,9 +70,9 @@ class AcquisitionService:
         # 5. Calcul de base : mois_complets × jours_par_mois
         jours_base = convention.jours_acquis_par_mois * mois_travailles
 
-        # 6. Bonus fraction : reste >= 15 jours → +0.5 jours acquis
+        # 6. Bonus fraction : reste >= 15 jours → +1.25 jours acquis
         if jours_restants >= 15:
-            jours_base += Decimal('0.50')
+            jours_base += Decimal('1.25')
 
         plafond_applique = False
 

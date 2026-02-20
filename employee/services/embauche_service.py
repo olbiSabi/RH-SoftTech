@@ -120,21 +120,18 @@ class EmbaucheService:
 
             logger.info(f"Employé créé: {employe.matricule} - {employe.nom} {employe.prenoms}")
 
-            # 2. Créer le compte utilisateur
-            username, password = EmbaucheService.create_user_account(employe)
+            date_jour = timezone.now().date()
 
-            # 3. Créer l'historique nom/prénom
+            # 2. Créer l'historique nom/prénom
             ZYNP.objects.create(
                 employe=employe,
                 nom=employe.nom,
                 prenoms=employe.prenoms,
-                date_debut_validite=timezone.now().date(),
+                date_debut_validite=date_jour,
                 actif=True
             )
 
-            date_jour = timezone.now().date()
-
-            # 4. Créer le contrat
+            # 3. Créer le contrat
             ZYCO.objects.create(
                 employe=employe,
                 type_contrat=form_data['type_contrat'],
@@ -142,19 +139,22 @@ class EmbaucheService:
                 date_fin=form_data.get('date_fin_contrat')
             )
 
-            # 5. Créer le téléphone
+            # 4. Créer le téléphone
             ZYTE.objects.create(
                 employe=employe,
                 numero=form_data['numero_telephone'],
                 date_debut_validite=date_jour
             )
 
-            # 6. Créer l'email
+            # 5. Créer l'email (AVANT le compte utilisateur pour que l'email ZYME soit utilisé)
             ZYME.objects.create(
                 employe=employe,
                 email=form_data['email'],
                 date_debut_validite=date_jour
             )
+
+            # 6. Créer le compte utilisateur (utilise l'email ZYME le plus récent)
+            username, password = EmbaucheService.create_user_account(employe)
 
             # 7. Créer l'affectation
             ZYAF.objects.create(

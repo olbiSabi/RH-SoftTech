@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.http import JsonResponse
 from django.urls import reverse
-from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 
 from gestion_achats.models import GACDemandeAchat
@@ -16,8 +16,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-@csrf_exempt  # TEMPORAIRE: Désactiver CSRF pour déboguer
-@require_POST  # Seulement POST
+@login_required
+@require_POST
 def simple_demande_submit(request, pk):
     """
     Soumission ultra-simple sans décorateurs complexes.

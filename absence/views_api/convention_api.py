@@ -54,6 +54,7 @@ def api_convention_detail(request, id):
             'periode_prise_fin_mois': f"{convention.periode_prise_fin.month:02d}",
             'periode_prise_fin_annee': annee_fin_relative,
             'methode_calcul': convention.methode_calcul,
+            'mode_validation': convention.mode_validation,
         }
         return JsonResponse(data)
     except Exception as e:
@@ -152,6 +153,7 @@ def api_convention_create(request):
                 periode_prise_fin=periode_prise_fin,
                 periode_prise_fin_annee_suivante=periode_prise_fin_annee_suivante,
                 methode_calcul=request.POST.get('methode_calcul'),
+                mode_validation=request.POST.get('mode_validation', 'MANAGER_ET_RH'),
             )
 
             try:
@@ -265,6 +267,7 @@ def api_convention_update(request, id):
             convention.periode_prise_fin = periode_prise_fin
             convention.periode_prise_fin_annee_suivante = periode_prise_fin_annee_suivante
             convention.methode_calcul = request.POST.get('methode_calcul')
+            convention.mode_validation = request.POST.get('mode_validation', 'MANAGER_ET_RH')
 
             try:
                 convention.full_clean()

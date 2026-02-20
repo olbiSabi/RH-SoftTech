@@ -89,35 +89,18 @@ function populateForm(data) {
     $('#jours_acquis_par_mois').val(data.jours_acquis_par_mois);
     $('#duree_conges_principale').val(data.duree_conges_principale);
     $('#methode_calcul').val(data.methode_calcul);
+    $('#mode_validation').val(data.mode_validation || 'MANAGER_ET_RH');
 
-    const anneeReference = parseInt(data.annee_reference);
-
-    if (data.periode_prise_debut) {
-        const dateDebut = new Date(data.periode_prise_debut);
-        const anneeDebut = dateDebut.getFullYear();
-
-        $('#periode_prise_debut_jour').val(dateDebut.getDate());
-        $('#periode_prise_debut_mois').val(String(dateDebut.getMonth() + 1).padStart(2, '0'));
-
-        if (anneeDebut === anneeReference) {
-            $('#periode_prise_debut_annee').val('N');
-        } else if (anneeDebut === anneeReference + 1) {
-            $('#periode_prise_debut_annee').val('N+1');
-        }
+    if (data.periode_prise_debut_jour) {
+        $('#periode_prise_debut_jour').val(String(data.periode_prise_debut_jour));
+        $('#periode_prise_debut_mois').val(data.periode_prise_debut_mois);
+        $('#periode_prise_debut_annee').val(data.periode_prise_debut_annee || 'N');
     }
 
-    if (data.periode_prise_fin) {
-        const dateFin = new Date(data.periode_prise_fin);
-        const anneeFin = dateFin.getFullYear();
-
-        $('#periode_prise_fin_jour').val(dateFin.getDate());
-        $('#periode_prise_fin_mois').val(String(dateFin.getMonth() + 1).padStart(2, '0'));
-
-        if (anneeFin === anneeReference) {
-            $('#periode_prise_fin_annee').val('N');
-        } else if (anneeFin === anneeReference + 1) {
-            $('#periode_prise_fin_annee').val('N+1');
-        }
+    if (data.periode_prise_fin_jour) {
+        $('#periode_prise_fin_jour').val(String(data.periode_prise_fin_jour));
+        $('#periode_prise_fin_mois').val(data.periode_prise_fin_mois);
+        $('#periode_prise_fin_annee').val(data.periode_prise_fin_annee || 'N+1');
     }
 
     setTimeout(() => {
@@ -270,6 +253,7 @@ function resetForm() {
     $('#jours_acquis_par_mois').val('2.5');
     $('#duree_conges_principale').val('12');
     $('#methode_calcul').val('MOIS_TRAVAILLES');
+    $('#mode_validation').val('MANAGER_ET_RH');
 
     $('#periode_prise_debut_jour').val('');
     $('#periode_prise_debut_mois').val('');

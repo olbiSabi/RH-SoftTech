@@ -110,6 +110,18 @@ class ConfigurationConventionnelle(models.Model):
         help_text="Cochez si la période de prise se termine l'année suivante (ex: mai N → avril N+1)"
     )
 
+    MODE_VALIDATION_CHOICES = [
+        ('MANAGER_ET_RH', 'Validation manager + RH'),
+        ('MANAGER_SEUL', 'Validation manager uniquement'),
+    ]
+
+    mode_validation = models.CharField(
+        max_length=20,
+        choices=MODE_VALIDATION_CHOICES,
+        default='MANAGER_ET_RH',
+        verbose_name="Mode de validation des absences",
+        help_text="MANAGER_ET_RH : double validation. MANAGER_SEUL : le manager valide seul."
+    )
 
     class Meta:
         ordering = ['-annee_reference']
@@ -996,6 +1008,20 @@ class Absence(models.Model):
                 message=f"Nouvelle demande à valider (RH) : {self.employe.nom} {self.employe.prenoms} - {self.type_absence.libelle} - Approuvée par {self.manager_validateur.nom}"
             )
 
+    def _notifier_validation_finale_manager(self):
+        """Notifier l'employé de la validation finale par le manager (mode MANAGER_SEUL)"""
+        NotificationAbsence.creer_notification(
+            destinataire=self.employe,
+            absence=self,
+            type_notif='VALIDATION_MANAGER',
+            contexte='EMPLOYE',
+            message=(
+                f"Votre demande d'absence ({self.type_absence.libelle}) "
+                f"a été validée par votre manager {self.manager_validateur.nom}. "
+                f"Elle est maintenant confirmée."
+            )
+        )
+
     def _notifier_rejet_manager(self):
         """Notifier l'employé du rejet par le manager"""
         NotificationAbsence.creer_notification(
@@ -1135,6 +1161,13 @@ class Absence(models.Model):
     # MÉTHODES DE VALIDATION AVEC NOTIFICATIONS
     # ========================================
 
+    def _get_mode_validation(self):
+        """Retourne le mode de validation applicable à cette absence."""
+        convention = self.employe.convention_applicable
+        if convention:
+            return convention.mode_validation
+        return 'MANAGER_ET_RH'
+
     def valider_par_manager(self, manager, decision, commentaire=""):
         """Validation par le manager avec vérification départementale et notifications"""
         if self.statut != 'EN_ATTENTE_MANAGER':
@@ -1184,7 +1217,13 @@ class Absence(models.Model):
         # 4. Appliquer la décision
         with transaction.atomic():
             if decision == 'APPROUVE':
-                self.statut = 'EN_ATTENTE_RH'
+                mode = self._get_mode_validation()
+
+                if mode == 'MANAGER_SEUL':
+                    self.statut = 'VALIDE'
+                else:
+                    self.statut = 'EN_ATTENTE_RH'
+
                 self.manager_validateur = manager
                 self.date_validation_manager = timezone.now()
                 self.commentaire_manager = commentaire
@@ -1198,8 +1237,14 @@ class Absence(models.Model):
                     'date_validation_manager', 'commentaire_manager'
                 ])
 
-                # ✅ NOTIFICATIONS
-                self._notifier_validation_manager()
+                if mode == 'MANAGER_SEUL':
+                    # Décompter le solde (normalement fait par RH)
+                    self.decompter_solde()
+                    # Notification finale à l'employé
+                    self._notifier_validation_finale_manager()
+                else:
+                    # Notifications standard (employé + RH)
+                    self._notifier_validation_manager()
 
             elif decision in ['REJETE', 'RETOURNE']:
                 self.statut = decision

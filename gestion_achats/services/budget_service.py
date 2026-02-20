@@ -78,6 +78,9 @@ class BudgetService:
             BudgetInsuffisantError: Si le budget est insuffisant
         """
         try:
+            # Verrouiller la ligne budget pour eviter les race conditions
+            budget = GACBudget.objects.select_for_update().get(pk=budget.pk)
+
             # Vérifier la disponibilité
             BudgetService.verifier_disponibilite(budget, montant)
 
@@ -121,6 +124,9 @@ class BudgetService:
             GACBudget: Le budget mis à jour
         """
         try:
+            # Verrouiller la ligne budget pour eviter les race conditions
+            budget = GACBudget.objects.select_for_update().get(pk=budget.pk)
+
             # Vérifier que le montant engagé est suffisant
             if budget.montant_engage < montant:
                 logger.warning(
@@ -172,6 +178,9 @@ class BudgetService:
             GACBudget: Le budget mis à jour
         """
         try:
+            # Verrouiller la ligne budget pour eviter les race conditions
+            budget = GACBudget.objects.select_for_update().get(pk=budget.pk)
+
             # Vérifier que le montant commandé est suffisant
             if budget.montant_commande < montant:
                 logger.warning(
@@ -223,6 +232,9 @@ class BudgetService:
             GACBudget: Le budget mis à jour
         """
         try:
+            # Verrouiller la ligne budget pour eviter les race conditions
+            budget = GACBudget.objects.select_for_update().get(pk=budget.pk)
+
             # Libérer en priorité du montant commandé, puis engagé
             if budget.montant_commande >= montant:
                 budget.montant_commande -= montant

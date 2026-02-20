@@ -92,14 +92,9 @@ static-collected/
 # ========================================
 # MIGRATIONS DJANGO
 # ========================================
-# Ignorer tout le contenu des migrations SAUF __init__.py
-*/migrations/*
-!*/migrations/
-!*/migrations/__init__.py
-
-# Optionnel : ignorer les migrations spécifiques si vous voulez
-# */migrations/0*.py
-# */migrations/*.pyc
+# Les migrations DOIVENT etre versionnees pour la production
+# Ne jamais ignorer les fichiers de migration
+# */migrations/*.pyc est deja couvert par *.pyc plus haut
 
 # ========================================
 # IDEs & ÉDITEURS

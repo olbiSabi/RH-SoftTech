@@ -38,20 +38,17 @@ def embauche_agent(request):
                     # Sauvegarder l'employé (génération automatique du matricule)
                     employe.save()
 
-                    # Création automatique du compte utilisateur
-                    username, password = EmbaucheService.create_user_account(employe)
+                    # Date du jour pour les dates de début
+                    date_jour = timezone.now().date()
 
                     # Création automatique dans ZYNP (Historique nom/prénom)
                     ZYNP.objects.create(
                         employe=employe,
                         nom=employe.nom,
                         prenoms=employe.prenoms,
-                        date_debut_validite=timezone.now().date(),
+                        date_debut_validite=date_jour,
                         actif=True
                     )
-
-                    # Date du jour pour les dates de début
-                    date_jour = timezone.now().date()
 
                     # Créer le contrat
                     ZYCO.objects.create(
@@ -68,12 +65,15 @@ def embauche_agent(request):
                         date_debut_validite=date_jour
                     )
 
-                    # Créer l'email
+                    # Créer l'email (AVANT le compte utilisateur)
                     ZYME.objects.create(
                         employe=employe,
                         email=form.cleaned_data['email'],
                         date_debut_validite=date_jour
                     )
+
+                    # Création du compte utilisateur (utilise l'email ZYME ci-dessus)
+                    username, password = EmbaucheService.create_user_account(employe)
 
                     # Créer l'affectation
                     ZYAF.objects.create(
