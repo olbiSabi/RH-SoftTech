@@ -1,0 +1,314 @@
+[
+  {
+    "CODE": "PST001",
+    "LIBELLE": "Directeur des Ressources Humaines (DRH)",
+    "DEPARTEMENT_CODE": "DRH",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST002",
+    "LIBELLE": "Chargé(e) de Recrutement et de la Formation",
+    "DEPARTEMENT_CODE": "DRH",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST003",
+    "LIBELLE": "Chargé(e) de la Communication Interne",
+    "DEPARTEMENT_CODE": "DRH",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST004",
+    "LIBELLE": "Responsable du Développement des Talents",
+    "DEPARTEMENT_CODE": "DRH",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST005",
+    "LIBELLE": "Directeur Financier (CFO)",
+    "DEPARTEMENT_CODE": "FIN",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST006",
+    "LIBELLE": "Analyste Financier",
+    "DEPARTEMENT_CODE": "FIN",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST007",
+    "LIBELLE": "Responsable Budget",
+    "DEPARTEMENT_CODE": "FIN",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST008",
+    "LIBELLE": "Expert en Fiscalité",
+    "DEPARTEMENT_CODE": "FIN",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST009",
+    "LIBELLE": "Directeur Marketing",
+    "DEPARTEMENT_CODE": "MKG",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST010",
+    "LIBELLE": "Responsable Marketing Digital",
+    "DEPARTEMENT_CODE": "MKG",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST011",
+    "LIBELLE": "Community Manager",
+    "DEPARTEMENT_CODE": "MKG",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST012",
+    "LIBELLE": "Directeur Commercial",
+    "DEPARTEMENT_CODE": "VTS",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST013",
+    "LIBELLE": "Responsable des Ventes / Sales Manager",
+    "DEPARTEMENT_CODE": "VTS",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST014",
+    "LIBELLE": "Ingénieur d’Affaires",
+    "DEPARTEMENT_CODE": "VTS",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST015",
+    "LIBELLE": "Directeur des Opérations (COO)",
+    "DEPARTEMENT_CODE": "OPS",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST016",
+    "LIBELLE": "Responsable de la Production",
+    "DEPARTEMENT_CODE": "OPS",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST017",
+    "LIBELLE": "Chef d’Équipe",
+    "DEPARTEMENT_CODE": "OPS",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST018",
+    "LIBELLE": "Responsable Supply Chain",
+    "DEPARTEMENT_CODE": "OPS",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST019",
+    "LIBELLE": "Gestionnaire de Stocks",
+    "DEPARTEMENT_CODE": "OPS",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST020",
+    "LIBELLE": "Responsable Achats",
+    "DEPARTEMENT_CODE": "OPS",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST021",
+    "LIBELLE": "Responsable Qualité",
+    "DEPARTEMENT_CODE": "OPS",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST022",
+    "LIBELLE": "Responsable Sécurité et Environnement",
+    "DEPARTEMENT_CODE": "OPS",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST023",
+    "LIBELLE": "Responsable du Service Client",
+    "DEPARTEMENT_CODE": "SCL",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST024",
+    "LIBELLE": "Chargé(e) de la Relation Client (CRM)",
+    "DEPARTEMENT_CODE": "SCL",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST025",
+    "LIBELLE": "Responsable SAV (Service Après-Vente)",
+    "DEPARTEMENT_CODE": "SCL",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST026",
+    "LIBELLE": "Technicien Support Client",
+    "DEPARTEMENT_CODE": "SCL",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST027",
+    "LIBELLE": "Directeur des Systèmes d'Information (DSI)",
+    "DEPARTEMENT_CODE": "ITD",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST028",
+    "LIBELLE": "IT Manager",
+    "DEPARTEMENT_CODE": "ITD",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST029",
+    "LIBELLE": "Administrateur Système et Réseau",
+    "DEPARTEMENT_CODE": "ITD",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST030",
+    "LIBELLE": "Ingénieur Logiciel",
+    "DEPARTEMENT_CODE": "ITD",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST031",
+    "LIBELLE": "Chef de Projet IT",
+    "DEPARTEMENT_CODE": "ITD",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST032",
+    "LIBELLE": "Responsable Cybersécurité",
+    "DEPARTEMENT_CODE": "ITD",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST033",
+    "LIBELLE": "Analyste en Systèmes d'Information",
+    "DEPARTEMENT_CODE": "ITD",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST034",
+    "LIBELLE": "Support Technique",
+    "DEPARTEMENT_CODE": "ITD",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST035",
+    "LIBELLE": "Architecte IT",
+    "DEPARTEMENT_CODE": "ITD",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST036",
+    "LIBELLE": "Data Analyst",
+    "DEPARTEMENT_CODE": "ITD",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST037",
+    "LIBELLE": "Data Scientist",
+    "DEPARTEMENT_CODE": "ITD",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST038",
+    "LIBELLE": "Administrateur de Bases de Données (DBA)",
+    "DEPARTEMENT_CODE": "ITD",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "PST039",
+    "LIBELLE": "Responsable Infrastructure",
+    "DEPARTEMENT_CODE": "ITD",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  }
+]

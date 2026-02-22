@@ -6,7 +6,11 @@
         <div class="header-left">
             <div class="logo-left">
                 <a href="{% url 'dashboard' %}" class="logo">
+                    {% if entreprise_logo_url %}
+                    <img src="{{ entreprise_logo_url }}" width="50" height="50" alt="{{ entreprise_nom }}" style="object-fit: contain;">
+                    {% else %}
                     <img src="{% static 'assets/img/logo/Onian-EasyM.png' %}" width="50" height="50" alt="">
+                    {% endif %}
                 </a>
             </div>
             <!--<div class="page-title-box">

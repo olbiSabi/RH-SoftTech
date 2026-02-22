@@ -1,0 +1,256 @@
+[
+  {
+    "CODE": "ACHETEUR",
+    "LIBELLE": "Acheteur",
+    "DESCRIPTION": "Personne en charge de créer et gérer les bons de commande",
+    "PERMISSIONS_CUSTOM": {},
+    "actif": true,
+    "django_group_name": null
+  },
+  {
+    "CODE": "ADMIN_GAC",
+    "LIBELLE": "Administrateur GAC",
+    "DESCRIPTION": "Administrateur complet du module Gestion des Achats & Commandes",
+    "PERMISSIONS_CUSTOM": {},
+    "actif": true,
+    "django_group_name": null
+  },
+  {
+    "CODE": "ASSISTANT_RH",
+    "LIBELLE": "Assistant RH",
+    "DESCRIPTION": "Accès en lecture à la gestion RH",
+    "PERMISSIONS_CUSTOM": {
+      "can_view_employees": true,
+      "can_view_all_absences": true,
+      "can_view_all_imputations": true
+    },
+    "actif": true,
+    "django_group_name": "ASSISTANT_RH"
+  },
+  {
+    "CODE": "COMPTABLE",
+    "LIBELLE": "Comptable",
+    "DESCRIPTION": "Accès à la comptabilité et à la paie",
+    "PERMISSIONS_CUSTOM": {
+      "can_view_payroll": true,
+      "can_view_reports": true,
+      "can_manage_contracts": true,
+      "can_view_facturables": true,
+      "can_view_all_imputations": true
+    },
+    "actif": true,
+    "django_group_name": "ROLE_COMPTABLE"
+  },
+  {
+    "CODE": "DAF",
+    "LIBELLE": "Directeur Administratif et Financier",
+    "DESCRIPTION": "Accès complet à la gestion financière, comptable et administrative",
+    "PERMISSIONS_CUSTOM": {
+      "can_view_payroll": true,
+      "can_view_reports": true,
+      "can_manage_clients": true,
+      "can_manage_projets": true,
+      "can_validate_frais": true,
+      "can_approve_avances": true,
+      "can_manage_contracts": true,
+      "can_view_all_projets": true,
+      "can_view_facturables": true,
+      "can_view_all_absences": true,
+      "can_validate_timesheets": true,
+      "can_validate_imputations": true,
+      "can_view_all_imputations": true,
+      "can_view_frais_statistics": true,
+      "can_view_financial_reports": true,
+      "can_manage_frais_categories": true
+    },
+    "actif": true,
+    "django_group_name": null
+  },
+  {
+    "CODE": "DEMANDEUR",
+    "LIBELLE": "Demandeur",
+    "DESCRIPTION": "Tout employé pouvant créer une demande d'achat",
+    "PERMISSIONS_CUSTOM": {},
+    "actif": true,
+    "django_group_name": null
+  },
+  {
+    "CODE": "DIRECTEUR",
+    "LIBELLE": "Directeur / Président",
+    "DESCRIPTION": "Accès complet à toutes les fonctionnalités",
+    "PERMISSIONS_CUSTOM": {
+      "can_validate_rh": true,
+      "can_manage_roles": true,
+      "can_view_payroll": true,
+      "can_manage_taches": true,
+      "can_manage_clients": true,
+      "can_manage_company": true,
+      "can_manage_projets": true,
+      "can_view_dashboard": true,
+      "can_manage_activites": true,
+      "can_manage_employees": true,
+      "can_validate_manager": true,
+      "can_view_all_projets": true,
+      "can_view_all_absences": true,
+      "can_validate_imputations": true,
+      "can_view_all_imputations": true
+    },
+    "actif": true,
+    "django_group_name": null
+  },
+  {
+    "CODE": "DRH",
+    "LIBELLE": "Directeur des Ressources Humaines",
+    "DESCRIPTION": "Accès complet à la gestion RH",
+    "PERMISSIONS_CUSTOM": {
+      "can_validate_rh": true,
+      "can_manage_roles": true,
+      "can_view_payroll": true,
+      "can_manage_taches": true,
+      "can_manage_clients": true,
+      "can_manage_projets": true,
+      "can_manage_activites": true,
+      "can_manage_employees": true,
+      "can_validate_manager": true,
+      "can_view_all_projets": true,
+      "can_view_all_absences": true,
+      "can_validate_imputations": true,
+      "can_view_all_imputations": true,
+      "absence.valider_absence_rh": true
+    },
+    "actif": true,
+    "django_group_name": "ROLE_DRH"
+  },
+  {
+    "CODE": "EMPLOYE",
+    "LIBELLE": "Employé",
+    "DESCRIPTION": "Employé standard avec accès de base",
+    "PERMISSIONS_CUSTOM": {
+      "can_view_own_data": true,
+      "can_request_absence": true,
+      "can_update_own_profile": true
+    },
+    "actif": true,
+    "django_group_name": "ROLE_EMPLOYE"
+  },
+  {
+    "CODE": "EMPLOYE_STD",
+    "LIBELLE": "Employé standard",
+    "DESCRIPTION": "Peut déclarer et voir ses propres absences et imputations",
+    "PERMISSIONS_CUSTOM": {
+      "can_create_absence": true,
+      "can_create_imputation": true,
+      "can_view_own_absences": true,
+      "can_view_own_imputations": true
+    },
+    "actif": true,
+    "django_group_name": "EMPLOYE_STD"
+  },
+  {
+    "CODE": "GESTION_APP",
+    "LIBELLE": "Gestionnaire Application",
+    "DESCRIPTION": "Accès complet au paramétrage de l'application",
+    "PERMISSIONS_CUSTOM": {
+      "can_validate_rh": true,
+      "can_manage_taches": true,
+      "can_manage_clients": true,
+      "can_manage_projets": true,
+      "full_absence_access": true,
+      "can_manage_activites": true,
+      "can_manage_employees": true,
+      "can_validate_manager": true,
+      "can_view_all_projets": true,
+      "can_view_all_absences": true,
+      "can_manage_conventions": true,
+      "full_entreprise_access": true,
+      "can_manage_acquisitions": true,
+      "can_manage_jours_feries": true,
+      "can_manage_types_absence": true,
+      "can_validate_imputations": true,
+      "can_view_all_imputations": true,
+      "can_manage_absence_settings": true,
+      "can_manage_entreprise_settings": true
+    },
+    "actif": true,
+    "django_group_name": "GESTION_APP"
+  },
+  {
+    "CODE": "GESTIONNAIRE_BUDGET",
+    "LIBELLE": "Gestionnaire de budget",
+    "DESCRIPTION": "Personne gérant les enveloppes budgétaires",
+    "PERMISSIONS_CUSTOM": {},
+    "actif": true,
+    "django_group_name": null
+  },
+  {
+    "CODE": "MANAGER",
+    "LIBELLE": "Manager",
+    "DESCRIPTION": "Validation des demandes de son équipe",
+    "PERMISSIONS_CUSTOM": {
+      "can_manage_team": true,
+      "can_manage_projets": true,
+      "can_validate_manager": true,
+      "can_view_all_projets": true,
+      "can_view_team_absences": true,
+      "can_validate_imputations": true,
+      "can_view_team_imputations": true
+    },
+    "actif": true,
+    "django_group_name": "ROLE_MANAGER"
+  },
+  {
+    "CODE": "MANAGER_ABS",
+    "LIBELLE": "Manager - Validation absences",
+    "DESCRIPTION": "Validation des absences de ses subordonnés",
+    "PERMISSIONS_CUSTOM": {
+      "can_validate_manager": true,
+      "can_view_team_absences": true
+    },
+    "actif": true,
+    "django_group_name": "MANAGER_ABS"
+  },
+  {
+    "CODE": "PDG",
+    "LIBELLE": "Président Directeur Général",
+    "DESCRIPTION": "",
+    "PERMISSIONS_CUSTOM": {},
+    "actif": true,
+    "django_group_name": null
+  },
+  {
+    "CODE": "RECEPTIONNAIRE",
+    "LIBELLE": "Réceptionnaire",
+    "DESCRIPTION": "Personne habilitée à réceptionner les marchandises",
+    "PERMISSIONS_CUSTOM": {},
+    "actif": true,
+    "django_group_name": null
+  },
+  {
+    "CODE": "RH_VALIDATION_ABS",
+    "LIBELLE": "RH - Validation absences",
+    "DESCRIPTION": "Validation finale des absences au niveau RH",
+    "PERMISSIONS_CUSTOM": {
+      "can_validate_rh": true,
+      "can_view_all_absences": true,
+      "absence.valider_absence_rh": true
+    },
+    "actif": true,
+    "django_group_name": "RH_VALIDATION_ABS"
+  },
+  {
+    "CODE": "VALIDATEUR_N1",
+    "LIBELLE": "Validateur niveau 1",
+    "DESCRIPTION": "Manager validant les demandes de son équipe",
+    "PERMISSIONS_CUSTOM": {},
+    "actif": true,
+    "django_group_name": null
+  },
+  {
+    "CODE": "VALIDATEUR_N2",
+    "LIBELLE": "Validateur niveau 2",
+    "DESCRIPTION": "Direction ou responsable achats validant les demandes importantes",
+    "PERMISSIONS_CUSTOM": {},
+    "actif": true,
+    "django_group_name": null
+  }
+]

@@ -1,0 +1,233 @@
+[
+  {
+    "code": "CONS_CAFETERIA",
+    "nom": "Cafétéria",
+    "description": "",
+    "parent_code": "CONSOMMABLES",
+    "ordre": 3
+  },
+  {
+    "code": "CONS_ENCRE",
+    "nom": "Cartouches d'encre",
+    "description": "",
+    "parent_code": "CONSOMMABLES",
+    "ordre": 1
+  },
+  {
+    "code": "CONS_ENTRETIEN",
+    "nom": "Fournitures d'entretien",
+    "description": "",
+    "parent_code": "CONSOMMABLES",
+    "ordre": 2
+  },
+  {
+    "code": "CONSOMMABLES",
+    "nom": "Consommables",
+    "description": "Consommables divers",
+    "parent_code": null,
+    "ordre": 0
+  },
+  {
+    "code": "EQP_CABLES",
+    "nom": "Câbles et connectique",
+    "description": "",
+    "parent_code": "EQP_INFO",
+    "ordre": 3
+  },
+  {
+    "code": "EQP_INFO",
+    "nom": "Équipements informatiques",
+    "description": "Matériel informatique et accessoires",
+    "parent_code": null,
+    "ordre": 0
+  },
+  {
+    "code": "EQP_ORDINATEURS",
+    "nom": "Ordinateurs",
+    "description": "",
+    "parent_code": "EQP_INFO",
+    "ordre": 1
+  },
+  {
+    "code": "EQP_PERIPHERIQUES",
+    "nom": "Périphériques",
+    "description": "",
+    "parent_code": "EQP_INFO",
+    "ordre": 2
+  },
+  {
+    "code": "EQP_STOCKAGE",
+    "nom": "Stockage",
+    "description": "",
+    "parent_code": "EQP_INFO",
+    "ordre": 4
+  },
+  {
+    "code": "FRN_BUREAU",
+    "nom": "Fournitures de bureau",
+    "description": "Fournitures et consommables de bureau",
+    "parent_code": null,
+    "ordre": 0
+  },
+  {
+    "code": "FRN_CLASSEMENT",
+    "nom": "Classement et archivage",
+    "description": "",
+    "parent_code": "FRN_BUREAU",
+    "ordre": 2
+  },
+  {
+    "code": "FRN_ECRITURE",
+    "nom": "Outils d'écriture",
+    "description": "",
+    "parent_code": "FRN_BUREAU",
+    "ordre": 3
+  },
+  {
+    "code": "FRN_PAPETERIE",
+    "nom": "Papeterie",
+    "description": "",
+    "parent_code": "FRN_BUREAU",
+    "ordre": 1
+  },
+  {
+    "code": "LOG_BUREAUTIQUE",
+    "nom": "Licences bureautique",
+    "description": "",
+    "parent_code": "LOG_LICENCES",
+    "ordre": 1
+  },
+  {
+    "code": "LOG_DEV",
+    "nom": "Licences développement",
+    "description": "",
+    "parent_code": "LOG_LICENCES",
+    "ordre": 2
+  },
+  {
+    "code": "LOG_LICENCES",
+    "nom": "Logiciels et licences",
+    "description": "Logiciels, licences et abonnements",
+    "parent_code": null,
+    "ordre": 0
+  },
+  {
+    "code": "LOG_SAAS",
+    "nom": "Abonnements SaaS",
+    "description": "",
+    "parent_code": "LOG_LICENCES",
+    "ordre": 3
+  },
+  {
+    "code": "MKT_COMM",
+    "nom": "Marketing et communication",
+    "description": "Supports marketing et communication",
+    "parent_code": null,
+    "ordre": 0
+  },
+  {
+    "code": "MKT_GOODIES",
+    "nom": "Goodies et cadeaux",
+    "description": "",
+    "parent_code": "MKT_COMM",
+    "ordre": 2
+  },
+  {
+    "code": "MKT_IMPRESSION",
+    "nom": "Impression",
+    "description": "",
+    "parent_code": "MKT_COMM",
+    "ordre": 3
+  },
+  {
+    "code": "MKT_PUBLICITE",
+    "nom": "Supports publicitaires",
+    "description": "",
+    "parent_code": "MKT_COMM",
+    "ordre": 1
+  },
+  {
+    "code": "MOB_AMENAG",
+    "nom": "Mobilier et aménagement",
+    "description": "Mobilier de bureau et aménagement des locaux",
+    "parent_code": null,
+    "ordre": 0
+  },
+  {
+    "code": "MOB_BUREAUX",
+    "nom": "Bureaux et tables",
+    "description": "",
+    "parent_code": "MOB_AMENAG",
+    "ordre": 1
+  },
+  {
+    "code": "MOB_ECLAIRAGE",
+    "nom": "Éclairage",
+    "description": "",
+    "parent_code": "MOB_AMENAG",
+    "ordre": 4
+  },
+  {
+    "code": "MOB_RANGEMENTS",
+    "nom": "Rangements",
+    "description": "",
+    "parent_code": "MOB_AMENAG",
+    "ordre": 3
+  },
+  {
+    "code": "MOB_SIEGES",
+    "nom": "Sièges",
+    "description": "les sièges",
+    "parent_code": "MOB_AMENAG",
+    "ordre": 2
+  },
+  {
+    "code": "SRV_CONSULTING",
+    "nom": "Consulting",
+    "description": "",
+    "parent_code": "SRV_PRESTA",
+    "ordre": 3
+  },
+  {
+    "code": "SRV_FORMATION",
+    "nom": "Formation",
+    "description": "",
+    "parent_code": "SRV_PRESTA",
+    "ordre": 2
+  },
+  {
+    "code": "SRV_MAINTENANCE",
+    "nom": "Maintenance",
+    "description": "",
+    "parent_code": "SRV_PRESTA",
+    "ordre": 1
+  },
+  {
+    "code": "SRV_PRESTA",
+    "nom": "Services et prestations",
+    "description": "Services externes et prestations intellectuelles",
+    "parent_code": null,
+    "ordre": 0
+  },
+  {
+    "code": "TEL_ABONNEMENTS",
+    "nom": "Abonnements téléphoniques",
+    "description": "",
+    "parent_code": "TEL_COMM",
+    "ordre": 2
+  },
+  {
+    "code": "TEL_APPAREILS",
+    "nom": "Téléphones",
+    "description": "",
+    "parent_code": "TEL_COMM",
+    "ordre": 1
+  },
+  {
+    "code": "TEL_COMM",
+    "nom": "Téléphonie et communication",
+    "description": "Équipements et services de téléphonie",
+    "parent_code": null,
+    "ordre": 0
+  }
+]

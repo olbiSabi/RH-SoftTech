@@ -47,6 +47,13 @@ jobs:
       - name: Apply migrations
         run: python manage.py migrate --noinput
 
+      - name: Collect static files
+        run: python manage.py collectstatic --noinput
+
+      - name: Django deployment check
+        run: python manage.py check --deploy --fail-level WARNING
+        continue-on-error: true
+
       - name: Run tests
         run: |
           python manage.py test \

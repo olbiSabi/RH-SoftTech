@@ -383,6 +383,165 @@ def _get_description_aura(instance, created):
 
 
 # ==============================================================================
+# DESCRIPTIONS POUR MODÈLES EMPLOYEE MANQUANTS
+# ==============================================================================
+
+def _get_description_user_security(instance, created):
+    """Sécurité utilisateur"""
+    action = "Création" if created else "Modification"
+    username = instance.user.username if instance.user else "N/A"
+    return f"{action} sécurité utilisateur pour {username}"
+
+
+def _get_description_zyro(instance, created):
+    """Rôle employé"""
+    action = "Création" if created else "Modification"
+    return f"{action} du rôle {instance.CODE} - {instance.LIBELLE}"
+
+
+def _get_description_zyre(instance, created):
+    """Attribution de rôle"""
+    action = "Attribution" if created else "Modification attribution"
+    return f"{action} du rôle {instance.role.CODE} à {instance.employe.matricule}"
+
+
+# ==============================================================================
+# DESCRIPTIONS POUR MODULE GESTION ACHATS
+# ==============================================================================
+
+def _get_description_gac_fournisseur(instance, created):
+    """Fournisseur achats"""
+    action = "Création" if created else "Modification"
+    return f"{action} du fournisseur {instance.code} - {instance.raison_sociale}"
+
+
+def _get_description_gac_categorie(instance, created):
+    """Catégorie produits achats"""
+    action = "Création" if created else "Modification"
+    return f"{action} de la catégorie {instance.nom}"
+
+
+def _get_description_gac_article(instance, created):
+    """Article catalogue achats"""
+    action = "Création" if created else "Modification"
+    return f"{action} de l'article {instance.reference} - {instance.designation}"
+
+
+def _get_description_gac_article_fournisseur(instance, created):
+    """Liaison article-fournisseur"""
+    action = "Création" if created else "Modification"
+    return f"{action} liaison {instance.article.reference} chez {instance.fournisseur.code}"
+
+
+def _get_description_gac_budget(instance, created):
+    """Budget achats"""
+    action = "Création" if created else "Modification"
+    return f"{action} du budget {instance.code} - {instance.libelle} ({instance.exercice})"
+
+
+def _get_description_gac_demande(instance, created):
+    """Demande d'achat"""
+    action = "Création" if created else "Modification"
+    return f"{action} de la demande {instance.numero} - {instance.objet}"
+
+
+def _get_description_gac_ligne_demande(instance, created):
+    """Ligne demande d'achat"""
+    action = "Ajout" if created else "Modification"
+    return f"{action} ligne {instance.article.reference} x {instance.quantite} sur demande {instance.demande_achat.numero}"
+
+
+def _get_description_gac_bon_commande(instance, created):
+    """Bon de commande"""
+    action = "Création" if created else "Modification"
+    return f"{action} du bon de commande {instance.numero} - {instance.fournisseur.raison_sociale}"
+
+
+def _get_description_gac_ligne_bc(instance, created):
+    """Ligne bon de commande"""
+    action = "Ajout" if created else "Modification"
+    return f"{action} ligne {instance.article.reference} x {instance.quantite_commandee} sur BC {instance.bon_commande.numero}"
+
+
+def _get_description_gac_reception(instance, created):
+    """Réception marchandises"""
+    action = "Création" if created else "Modification"
+    return f"{action} de la réception {instance.numero} - BC {instance.bon_commande.numero}"
+
+
+def _get_description_gac_ligne_reception(instance, created):
+    """Ligne réception"""
+    action = "Ajout" if created else "Modification"
+    article = instance.ligne_bon_commande.article.designation if instance.ligne_bon_commande else "N/A"
+    return f"{action} ligne réception {article} sur {instance.reception.numero}"
+
+
+def _get_description_gac_bon_retour(instance, created):
+    """Bon de retour fournisseur"""
+    action = "Création" if created else "Modification"
+    return f"{action} du bon de retour {instance.numero} - {instance.fournisseur.raison_sociale}"
+
+
+def _get_description_gac_ligne_retour(instance, created):
+    """Ligne bon de retour"""
+    action = "Ajout" if created else "Modification"
+    return f"{action} ligne retour {instance.article.reference} x {instance.quantite_retournee}"
+
+
+def _get_description_gac_piece_jointe(instance, created):
+    """Pièce jointe achats"""
+    action = "Ajout" if created else "Modification"
+    return f"{action} pièce jointe '{instance.nom_fichier}'"
+
+
+def _get_description_gac_historique(instance, created):
+    """Historique achats"""
+    action = "Création" if created else "Modification"
+    utilisateur = instance.utilisateur if instance.utilisateur else "N/A"
+    return f"{action} entrée historique par {utilisateur} - {instance.get_action_display()}"
+
+
+def _get_description_gac_parametres(instance, created):
+    """Paramètres module achats"""
+    action = "Création" if created else "Modification"
+    return f"{action} des paramètres GAC (Seuil N2: {instance.seuil_validation_n2} FCFA)"
+
+
+# ==============================================================================
+# DESCRIPTIONS POUR MODULE PLANNING
+# ==============================================================================
+
+def _get_description_planning(instance, created):
+    """Planning"""
+    action = "Création" if created else "Modification"
+    return f"{action} du planning {instance.REFERENCE} - {instance.titre}"
+
+
+def _get_description_site_travail(instance, created):
+    """Site de travail"""
+    action = "Création" if created else "Modification"
+    return f"{action} du site de travail {instance.nom}"
+
+
+def _get_description_poste_travail(instance, created):
+    """Poste de travail"""
+    action = "Création" if created else "Modification"
+    return f"{action} du poste {instance.nom} ({instance.site.nom})"
+
+
+def _get_description_affectation_planning(instance, created):
+    """Affectation planning"""
+    action = "Affectation" if created else "Modification affectation"
+    return f"{action} de {instance.employe.matricule} au poste {instance.poste.nom} le {instance.date.strftime('%d/%m/%Y')}"
+
+
+def _get_description_evenement(instance, created):
+    """Événement calendrier"""
+    action = "Création" if created else "Modification"
+    return f"{action} de l'événement '{instance.titre}' ({instance.get_type_evenement_display()})"
+
+
+# ==============================================================================
 # FACTORY POUR CRÉER LES HANDLERS DE SIGNALS
 # ==============================================================================
 
@@ -510,7 +669,7 @@ def register_all_audit_signals():
         return
 
     # Import des modèles ici pour éviter les imports circulaires
-    from employee.models import ZY00, ZYNP, ZYCO, ZYTE, ZYME, ZYAF, ZYAD, ZYDO, ZYFA, ZYPP, ZYIB
+    from employee.models import ZY00, UserSecurity, ZYNP, ZYCO, ZYTE, ZYME, ZYAF, ZYAD, ZYDO, ZYFA, ZYPP, ZYIB, ZYRO, ZYRE
     from departement.models import ZDDE, ZDPO, ZYMA
     from absence.models import (
         ConfigurationConventionnelle,
@@ -530,6 +689,15 @@ def register_all_audit_signals():
     from frais.models import NFCA, NFPL, NFNF, NFLF, NFAV
     from materiel.models import MTCA, MTFO, MTMT, MTAF, MTMV, MTMA
     from audit.models import AURC, AUAL, AURA
+    from gestion_achats.models import (
+        GACFournisseur, GACCategorie, GACArticle, GACArticleFournisseur,
+        GACBudget, GACDemandeAchat, GACLigneDemandeAchat,
+        GACBonCommande, GACLigneBonCommande,
+        GACReception, GACLigneReception,
+        GACBonRetour, GACLigneBonRetour,
+        GACPieceJointe, GACHistorique, GACParametres
+    )
+    from planning.models import Planning, SiteTravail, PosteTravail, Affectation, Evenement
 
     # Liste des modèles à auditer: (model_class, table_name, description_func)
     AUDIT_CONFIG = [
@@ -540,6 +708,7 @@ def register_all_audit_signals():
 
         # Employee
         (ZY00, 'ZY00', _get_description_zy00),
+        (UserSecurity, 'UserSecurity', _get_description_user_security),
         (ZYNP, 'ZYNP', _get_description_zynp),
         (ZYCO, 'ZYCO', _get_description_zyco),
         (ZYTE, 'ZYTE', _get_description_zyte),
@@ -550,6 +719,8 @@ def register_all_audit_signals():
         (ZYFA, 'ZYFA', _get_description_zyfa),
         (ZYPP, 'ZYPP', _get_description_zypp),
         (ZYIB, 'ZYIB', _get_description_zyib),
+        (ZYRO, 'ZYRO', _get_description_zyro),
+        (ZYRE, 'ZYRE', _get_description_zyre),
 
         # Absence
         (ConfigurationConventionnelle, 'ConfigurationConventionnelle', _get_description_config_conv),
@@ -593,6 +764,31 @@ def register_all_audit_signals():
         (AURC, 'AURC', _get_description_aurc),
         (AUAL, 'AUAL', _get_description_aual),
         (AURA, 'AURA', _get_description_aura),
+
+        # Gestion Achats
+        (GACFournisseur, 'GACFournisseur', _get_description_gac_fournisseur),
+        (GACCategorie, 'GACCategorie', _get_description_gac_categorie),
+        (GACArticle, 'GACArticle', _get_description_gac_article),
+        (GACArticleFournisseur, 'GACArticleFournisseur', _get_description_gac_article_fournisseur),
+        (GACBudget, 'GACBudget', _get_description_gac_budget),
+        (GACDemandeAchat, 'GACDemandeAchat', _get_description_gac_demande),
+        (GACLigneDemandeAchat, 'GACLigneDemandeAchat', _get_description_gac_ligne_demande),
+        (GACBonCommande, 'GACBonCommande', _get_description_gac_bon_commande),
+        (GACLigneBonCommande, 'GACLigneBonCommande', _get_description_gac_ligne_bc),
+        (GACReception, 'GACReception', _get_description_gac_reception),
+        (GACLigneReception, 'GACLigneReception', _get_description_gac_ligne_reception),
+        (GACBonRetour, 'GACBonRetour', _get_description_gac_bon_retour),
+        (GACLigneBonRetour, 'GACLigneBonRetour', _get_description_gac_ligne_retour),
+        (GACPieceJointe, 'GACPieceJointe', _get_description_gac_piece_jointe),
+        (GACHistorique, 'GACHistorique', _get_description_gac_historique),
+        (GACParametres, 'GACParametres', _get_description_gac_parametres),
+
+        # Planning
+        (Planning, 'Planning', _get_description_planning),
+        (SiteTravail, 'SiteTravail', _get_description_site_travail),
+        (PosteTravail, 'PosteTravail', _get_description_poste_travail),
+        (Affectation, 'Affectation', _get_description_affectation_planning),
+        (Evenement, 'Evenement', _get_description_evenement),
     ]
 
     registered_count = 0

@@ -3,6 +3,8 @@
 Vues pour le module Suivi du Matériel & Parc.
 """
 from decimal import Decimal
+from django.conf import settings
+from django.core.cache import cache
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -13,6 +15,8 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST, require_GET
 import openpyxl
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+
+_CACHE_TTL = getattr(settings, 'CACHE_TTL_DASHBOARD', 300)
 
 from materiel.models import MTCA, MTFO, MTMT, MTAF, MTMV, MTMA
 from materiel.forms import (
@@ -44,37 +48,33 @@ def _peut_affecter_materiel(employe):
 
 @login_required
 def dashboard(request):
-    """Dashboard du module matériel."""
+    """Dashboard du module matériel (statistiques mises en cache Redis 5 min)."""
     employe = getattr(request.user, 'employe', None)
     if not _peut_gerer_materiel(employe) and not _peut_affecter_materiel(employe):
         messages.error(request, "Vous n'avez pas accès à ce module.")
         return redirect('home')
 
-    stats = StatistiquesMaterielService.get_stats_globales()
-    stats_categories = StatistiquesMaterielService.get_stats_par_categorie()
-    alertes = StatistiquesMaterielService.get_alertes()
-    valeur_parc = StatistiquesMaterielService.get_valeur_parc()
+    # Statistiques globales : cachées (calculs coûteux, données stables)
+    stats_cache_key = 'materiel_dashboard_stats'
+    cached = cache.get(stats_cache_key)
+    if cached is None:
+        cached = {
+            'stats': StatistiquesMaterielService.get_stats_globales(),
+            'stats_categories': StatistiquesMaterielService.get_stats_par_categorie(),
+            'alertes': StatistiquesMaterielService.get_alertes(),
+            'valeur_parc': StatistiquesMaterielService.get_valeur_parc(),
+            'dernieres_acquisitions': list(
+                MTMT.objects.exclude(STATUT='REFORME').order_by('-DATE_ACQUISITION')[:5]
+            ),
+            'maintenances_a_venir': list(
+                MTMA.objects.filter(
+                    STATUT='PLANIFIE', DATE_PLANIFIEE__gte=timezone.now().date()
+                ).order_by('DATE_PLANIFIEE')[:5]
+            ),
+        }
+        cache.set(stats_cache_key, cached, _CACHE_TTL)
 
-    # Dernières acquisitions
-    dernieres_acquisitions = MTMT.objects.exclude(
-        STATUT='REFORME'
-    ).order_by('-DATE_ACQUISITION')[:5]
-
-    # Maintenances à venir
-    maintenances_a_venir = MTMA.objects.filter(
-        STATUT='PLANIFIE',
-        DATE_PLANIFIEE__gte=timezone.now().date()
-    ).order_by('DATE_PLANIFIEE')[:5]
-
-    context = {
-        'stats': stats,
-        'stats_categories': stats_categories,
-        'alertes': alertes,
-        'valeur_parc': valeur_parc,
-        'dernieres_acquisitions': dernieres_acquisitions,
-        'maintenances_a_venir': maintenances_a_venir,
-        'peut_gerer': _peut_gerer_materiel(employe),
-    }
+    context = {**cached, 'peut_gerer': _peut_gerer_materiel(employe)}
     return render(request, 'materiel/dashboard.html', context)
 
 

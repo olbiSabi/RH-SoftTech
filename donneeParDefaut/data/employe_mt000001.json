@@ -1,0 +1,133 @@
+{
+  "matricule": "MT000001",
+  "user": {
+    "username": "oniankitan.sabi",
+    "email": "oniankitan.sabi@hronian.com",
+    "first_name": "Sabi",
+    "last_name": "ONIANKITAN",
+    "is_active": true,
+    "is_staff": false,
+    "is_superuser": false,
+    "password": "pbkdf2_sha256$720000$FOJ2nsd1gLDVcbHrWIzENC$UmiwY4m4P9/fyBCYYr4MVKN1H7tcH9cOROtueBjWgS0=",
+    "groups": [
+      "ROLE_COMPTABLE"
+    ]
+  },
+  "zy00": {
+    "matricule": "MT000001",
+    "nom": "ONIANKITAN",
+    "prenoms": "Sabi",
+    "username": "ONIANKITAN",
+    "prenomuser": "Sabi",
+    "date_naissance": "1989-12-11",
+    "sexe": "M",
+    "ville_naissance": "Massy",
+    "pays_naissance": "FRANCE",
+    "situation_familiale": "CELIBATAIRE",
+    "type_id": "CNI",
+    "numero_id": "Eb162601",
+    "date_validite_id": "2025-09-08",
+    "date_expiration_id": "2027-03-18",
+    "type_dossier": "SAL",
+    "date_validation_embauche": "2025-12-01",
+    "etat": "actif",
+    "entreprise_id": 2,
+    "convention_code": null,
+    "date_entree_entreprise": "2024-05-24",
+    "coefficient_temps_travail": "1.00"
+  },
+  "zynp": [],
+  "zyco": [
+    {
+      "type_contrat": "CDI",
+      "date_debut": "2025-12-01",
+      "date_fin": null,
+      "actif": true
+    }
+  ],
+  "zyte": [
+    {
+      "numero": "0618684858",
+      "date_debut_validite": "2025-12-01",
+      "date_fin_validite": null,
+      "actif": true
+    }
+  ],
+  "zyme": [
+    {
+      "email": "rabixx25@gmail.com",
+      "date_debut_validite": "2025-12-01",
+      "date_fin_validite": null,
+      "actif": true
+    }
+  ],
+  "zyaf": [
+    {
+      "poste_code": "PST002",
+      "date_debut": "2025-12-12",
+      "date_fin": null,
+      "actif": true
+    }
+  ],
+  "zyad": [
+    {
+      "rue": "17 rue bergé",
+      "complement": "2 Avenue Pozzo Di Borgo",
+      "ville": "Saint-Cloud",
+      "pays": "France",
+      "code_postal": "92210",
+      "type_adresse": "PRINCIPALE",
+      "date_debut": "2026-01-02",
+      "date_fin": null,
+      "actif": true
+    }
+  ],
+  "zydo": [
+    {
+      "type_document": "CERTIFICAT_MEDICAL",
+      "description": "",
+      "taille_fichier": 520157,
+      "actif": true
+    }
+  ],
+  "zyfa": [],
+  "zypp": [],
+  "zyib": null,
+  "zyre": [
+    {
+      "role_code": "ACHETEUR",
+      "date_debut": "2026-02-06",
+      "date_fin": null,
+      "actif": true,
+      "commentaire": ""
+    },
+    {
+      "role_code": "ADMIN_GAC",
+      "date_debut": "2026-02-02",
+      "date_fin": null,
+      "actif": true,
+      "commentaire": ""
+    },
+    {
+      "role_code": "COMPTABLE",
+      "date_debut": "2026-01-23",
+      "date_fin": null,
+      "actif": true,
+      "commentaire": ""
+    },
+    {
+      "role_code": "GESTION_APP",
+      "date_debut": "2026-01-01",
+      "date_fin": null,
+      "actif": true,
+      "commentaire": ""
+    },
+    {
+      "role_code": "DRH",
+      "date_debut": "2025-12-12",
+      "date_fin": null,
+      "actif": true,
+      "commentaire": ""
+    }
+  ]
+}

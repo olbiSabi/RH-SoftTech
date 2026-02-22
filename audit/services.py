@@ -130,8 +130,11 @@ class ConformiteService:
             try:
                 if alerte.EMPLOYE.user.email:
                     destinataires.append(alerte.EMPLOYE.user.email)
-            except:
-                pass
+            except Exception:
+                import logging
+                logging.getLogger(__name__).warning(
+                    f"Impossible de récupérer l'email de l'employé {alerte.EMPLOYE.matricule}"
+                )
 
         # Notifier le manager
         if regle.NOTIFIER_MANAGER and alerte.EMPLOYE:
@@ -141,8 +144,11 @@ class ConformiteService:
                 manager = HierarchyService.get_manager_direct(alerte.EMPLOYE)
                 if manager and hasattr(manager, 'user') and manager.user.email:
                     destinataires.append(manager.user.email)
-            except:
-                pass
+            except Exception:
+                import logging
+                logging.getLogger(__name__).warning(
+                    f"Impossible de récupérer le manager de {alerte.EMPLOYE.matricule}"
+                )
 
         # Notifier les RH
         if regle.NOTIFIER_RH:
@@ -157,8 +163,11 @@ class ConformiteService:
                 for rh in rh_users:
                     if hasattr(rh, 'user') and rh.user.email:
                         destinataires.append(rh.user.email)
-            except:
-                pass
+            except Exception:
+                import logging
+                logging.getLogger(__name__).warning(
+                    "Impossible de récupérer les emails des RH pour la notification"
+                )
 
         # Ajouter les emails supplémentaires
         if regle.EMAILS_SUPPLEMENTAIRES:

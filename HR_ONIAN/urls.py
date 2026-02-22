@@ -18,6 +18,8 @@ from django.urls import path, include
 from django.views.generic import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import JsonResponse
+from django.db import connection
 from employee.auth_views import (
     login_view,
     logout_view,
@@ -28,7 +30,23 @@ from employee.auth_views import (
 )
 
 
+def health_check(request):
+    """Endpoint de vérification de santé pour le monitoring."""
+    try:
+        connection.ensure_connection()
+        db_ok = True
+    except Exception:
+        db_ok = False
+
+    status = 200 if db_ok else 503
+    return JsonResponse({
+        'status': 'ok' if db_ok else 'error',
+        'database': 'connected' if db_ok else 'unreachable',
+    }, status=status)
+
+
 urlpatterns = [
+    path('health/', health_check, name='health_check'),
     path('hronian/', admin.site.urls),
     path('entreprise/', include('entreprise.urls')),
     path('login/', login_view, name='login'),

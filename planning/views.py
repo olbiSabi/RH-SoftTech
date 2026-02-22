@@ -1,12 +1,16 @@
 """Views pour le module Planning."""
 import json
 
+from django.conf import settings
+from django.core.cache import cache
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.http import HttpResponseForbidden
 from django.db.models import Count
+
+_CACHE_TTL = getattr(settings, 'CACHE_TTL_PLANNING', 300)
 
 from .models import Planning, SiteTravail, PosteTravail, Affectation, Evenement
 from .forms import SiteTravailForm, PosteTravailForm, PlanningForm
@@ -15,7 +19,7 @@ from .permissions import get_planning_role, get_visible_employees, get_visible_p
 
 @login_required
 def planning_calendar(request):
-    """Vue calendrier principale avec FullCalendar (vue semaine)."""
+    """Vue calendrier principale avec FullCalendar (données de select mises en cache 5 min)."""
     role = get_planning_role(request.user)
     if not role:
         messages.error(request, "Vous n'avez pas acces au module Planning.")
@@ -24,29 +28,45 @@ def planning_calendar(request):
     can_edit = can_edit_planning(request.user)
     visible_employees = get_visible_employees(request.user)
 
-    # Donnees pour les selects des modals (uniquement pour les editeurs)
     postes_data = []
     employes_data = []
     plannings_data = []
     sites_data = []
 
     if can_edit:
-        postes_data = list(
-            PosteTravail.objects.filter(is_active=True)
-            .select_related('site')
-            .values('id', 'nom', 'site__id', 'site__nom', 'heure_debut', 'heure_fin', 'type_poste')
-        )
-        employes_data = list(
-            visible_employees.values('matricule', 'nom', 'prenoms')
-        )
-        plannings_data = list(
-            get_visible_plannings(request.user)
-            .filter(statut__in=['BROUILLON', 'PUBLIE'])
-            .values('id', 'titre', 'REFERENCE')
-        )
-        sites_data = list(
-            SiteTravail.objects.filter(is_active=True).values('id', 'nom')
-        )
+        # Données de référence (postes, sites) : cache global
+        ref_cache_key = 'planning_calendar_ref_data'
+        ref_data = cache.get(ref_cache_key)
+        if ref_data is None:
+            ref_data = {
+                'postes_data': list(
+                    PosteTravail.objects.filter(is_active=True)
+                    .select_related('site')
+                    .values('id', 'nom', 'site__id', 'site__nom', 'heure_debut', 'heure_fin', 'type_poste')
+                ),
+                'sites_data': list(
+                    SiteTravail.objects.filter(is_active=True).values('id', 'nom')
+                ),
+            }
+            cache.set(ref_cache_key, ref_data, _CACHE_TTL)
+        postes_data = ref_data['postes_data']
+        sites_data = ref_data['sites_data']
+
+        # Employés visibles et plannings : cache par utilisateur (périmètre variable)
+        user_cache_key = f'planning_calendar_user_{request.user.pk}'
+        user_data = cache.get(user_cache_key)
+        if user_data is None:
+            user_data = {
+                'employes_data': list(visible_employees.values('matricule', 'nom', 'prenoms')),
+                'plannings_data': list(
+                    get_visible_plannings(request.user)
+                    .filter(statut__in=['BROUILLON', 'PUBLIE'])
+                    .values('id', 'titre', 'REFERENCE')
+                ),
+            }
+            cache.set(user_cache_key, user_data, _CACHE_TTL)
+        employes_data = user_data['employes_data']
+        plannings_data = user_data['plannings_data']
 
     context = {
         'role': role,

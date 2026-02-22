@@ -34,9 +34,12 @@ class HistoriqueService:
             GACHistorique: L'entrée d'historique créée
         """
         try:
+            # Utiliser objet.uuid si disponible (modèles GAC avec uuid non-PK),
+            # sinon objet.pk (modèles dont le PK est déjà un UUID).
+            object_id = getattr(objet, 'uuid', objet.pk)
             historique = GACHistorique.objects.create(
                 content_type=ContentType.objects.get_for_model(objet),
-                object_id=objet.pk,
+                object_id=object_id,
                 utilisateur=utilisateur,
                 action=action,
                 details=details,

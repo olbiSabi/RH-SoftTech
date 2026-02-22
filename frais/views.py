@@ -2,6 +2,8 @@
 """
 Vues pour le module Notes de Frais.
 """
+from django.conf import settings
+from django.core.cache import cache
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -11,6 +13,8 @@ from django.core.paginator import Paginator
 from django.db.models import Q, Sum
 from django.utils import timezone
 from datetime import datetime
+
+_CACHE_TTL = getattr(settings, 'CACHE_TTL_STATS', 3600)
 import openpyxl
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
@@ -587,28 +591,44 @@ def notes_a_rembourser(request):
 
 @login_required
 def statistiques_frais(request):
-    """Page des statistiques."""
+    """Page des statistiques (résultats mis en cache 1 h par employé/année)."""
     employe = request.user.employe
     annee_courante = timezone.now().year
     annee = int(request.GET.get('annee', annee_courante))
 
-    # Liste des années disponibles (de 2020 à année courante)
     annees_disponibles = list(range(2020, annee_courante + 1))
+
+    # Statistiques personnelles — cache par (employé, année)
+    user_cache_key = f'frais_stats_user_{employe.matricule}_{annee}'
+    user_stats = cache.get(user_cache_key)
+    if user_stats is None:
+        user_stats = {
+            'mes_stats': StatistiquesFraisService.get_stats_employe(employe, annee),
+            'stats_par_categorie': StatistiquesFraisService.get_stats_par_categorie(
+                annee, employe
+            ),
+        }
+        cache.set(user_cache_key, user_stats, _CACHE_TTL)
 
     context = {
         'annee': annee,
         'annees_disponibles': annees_disponibles,
-        'mes_stats': StatistiquesFraisService.get_stats_employe(employe, annee),
-        'stats_par_categorie': StatistiquesFraisService.get_stats_par_categorie(
-            annee, employe
-        ),
+        **user_stats,
     }
 
     if _peut_valider(employe):
-        context['stats_globales'] = StatistiquesFraisService.get_stats_globales(annee)
-        context['evolution'] = StatistiquesFraisService.get_evolution_mensuelle(annee)
-        context['top_employes'] = StatistiquesFraisService.get_top_employes(annee)
-        context['delais'] = StatistiquesFraisService.get_delai_moyen_traitement(annee)
+        # Statistiques globales — cache partagé par année (tous les valideurs voient la même chose)
+        global_cache_key = f'frais_stats_global_{annee}'
+        global_stats = cache.get(global_cache_key)
+        if global_stats is None:
+            global_stats = {
+                'stats_globales': StatistiquesFraisService.get_stats_globales(annee),
+                'evolution': StatistiquesFraisService.get_evolution_mensuelle(annee),
+                'top_employes': StatistiquesFraisService.get_top_employes(annee),
+                'delais': StatistiquesFraisService.get_delai_moyen_traitement(annee),
+            }
+            cache.set(global_cache_key, global_stats, _CACHE_TTL)
+        context.update(global_stats)
 
     return render(request, 'frais/statistiques.html', context)
 

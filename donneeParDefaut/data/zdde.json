@@ -1,0 +1,51 @@
+[
+  {
+    "CODE": "DRH",
+    "LIBELLE": "Département des Ressources Humaines (RH)",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "FIN",
+    "LIBELLE": "Département des finances.",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "ITD",
+    "LIBELLE": "Département des technologies de l'information (TI)",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "MKG",
+    "LIBELLE": "Département Marketing.",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "OPS",
+    "LIBELLE": "Département des opérations.",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "SCL",
+    "LIBELLE": "Service à la clientèle.",
+    "STATUT": true,
+    "DATEDEB": "2025-02-01",
+    "DATEFIN": null
+  },
+  {
+    "CODE": "VTS",
+    "LIBELLE": "Département des ventes.",
+    "STATUT": true,
+    "DATEDEB": "2025-01-01",
+    "DATEFIN": null
+  }
+]

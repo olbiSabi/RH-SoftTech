@@ -8,6 +8,7 @@ En developpement : copier .env.dev en .env.local
 En production    : copier .env.production en .env.local et adapter les valeurs
 """
 import os
+import sentry_sdk
 from pathlib import Path
 from django.urls import reverse_lazy
 from dotenv import load_dotenv
@@ -64,10 +65,12 @@ INSTALLED_APPS = [
     'project_management',
     'gestion_achats',
     'planning',
+    'donneeParDefaut',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -100,6 +103,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'absence.context_processors.notifications_absences',
                 'core.context_processors.notifications_unifiees',
+                'core.context_processors.entreprise_context',
             ],
         },
     },
@@ -157,6 +161,15 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -199,6 +212,59 @@ ACCOUNT_LOCKOUT_DURATION = 24  # heures
 
 
 # ============================================
+# REDIS — Cache & Sessions
+# ============================================
+# En développement : Redis optionnel (fallback sur cache mémoire locale)
+# En production   : Redis obligatoire (REDIS_URL dans .env.local)
+#
+# Installation rapide :
+#   apt install redis-server && systemctl start redis   (Linux)
+#   brew install redis && brew services start redis      (macOS)
+#   Docker : service redis dans docker-compose.yml
+
+REDIS_URL = os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/0')
+_REDIS_AVAILABLE = bool(os.environ.get('REDIS_URL'))
+
+if _REDIS_AVAILABLE or not DEBUG:
+    # Cache Redis (production ou dev avec Redis explicitement configuré)
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': REDIS_URL,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                'SOCKET_CONNECT_TIMEOUT': 5,
+                'SOCKET_TIMEOUT': 5,
+                'CONNECTION_POOL_KWARGS': {'max_connections': 50},
+                # Si Redis est indisponible : ne pas crasher, recalculer à la volée
+                'IGNORE_EXCEPTIONS': True,
+            },
+            'KEY_PREFIX': 'hr_onian',
+            'TIMEOUT': 300,  # TTL par défaut : 5 minutes
+        }
+    }
+    # Sessions stockées dans Redis (plus rapide que la base de données)
+    SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+    SESSION_CACHE_ALIAS = 'default'
+else:
+    # Développement sans Redis : cache local en mémoire (par processus)
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'hr-onian-dev',
+        }
+    }
+    # Sessions en base de données (comportement Django par défaut)
+    SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+# TTL par type de donnée (en secondes) — utilisé dans les vues
+CACHE_TTL_DASHBOARD = 300       # 5 min  — dashboards (données fraîches)
+CACHE_TTL_STATS = 3600          # 1 h    — statistiques annuelles
+CACHE_TTL_PLANNING = 300        # 5 min  — calendrier planning
+CACHE_TTL_DETAIL = 1800         # 30 min — pages de détail (matériel, employé)
+
+
+# ============================================
 # EMAIL
 # ============================================
 
@@ -235,6 +301,7 @@ if not DEBUG:
     # Cookies securises
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    CSRF_COOKIE_HTTPONLY = True
     SESSION_COOKIE_HTTPONLY = True
 
     # Protection XSS et content type
@@ -248,6 +315,38 @@ if not DEBUG:
 
 LOG_DIR = BASE_DIR / 'logs'
 LOG_DIR.mkdir(exist_ok=True)
+
+# ============================================
+# SENTRY — Monitoring des erreurs en production
+# ============================================
+# Créer un projet sur https://sentry.io et copier le DSN dans .env.local
+# SENTRY_DSN=https://e9c41085399bc117f6717f7533d059d4@o4510926313160704.ingest.de.sentry.io/4510926448951376
+#
+# Sentry ne s'active QUE si SENTRY_DSN est défini — sans impact en dev.
+
+_SENTRY_DSN = os.environ.get('https://e9c41085399bc117f6717f7533d059d4@o4510926313160704.ingest.de.sentry.io/4510926448951376', '').strip()
+
+if _SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=_SENTRY_DSN,
+        # Intégration Django automatique (requêtes, SQL, signaux…)
+        integrations=[],
+        # Performance : échantillonnage 10 % des transactions
+        traces_sample_rate=float(os.environ.get('SENTRY_TRACES_SAMPLE_RATE', '0.1')),
+        # Profiling : 10 % des transactions tracées
+        profiles_sample_rate=float(os.environ.get('SENTRY_PROFILES_SAMPLE_RATE', '0.1')),
+        # Ne pas envoyer les données personnelles (IP, cookies…)
+        send_default_pii=False,
+        # Environnement pour filtrer dans le tableau de bord Sentry
+        environment='production' if not DEBUG else 'development',
+        # Aide à identifier quelle version est déployée
+        release=os.environ.get('APP_VERSION', 'hr-onian@1.0.0'),
+        # Ignorer les erreurs non-critiques redondantes
+        ignore_errors=[
+            KeyboardInterrupt,
+        ],
+    )
+
 
 LOGGING = {
     'version': 1,

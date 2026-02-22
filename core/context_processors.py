@@ -2,6 +2,28 @@
 from absence.models import NotificationAbsence
 
 
+def entreprise_context(request):
+    """
+    Rend l'entreprise et son logo disponibles dans tous les templates.
+    """
+    context = {
+        'entreprise_logo_url': None,
+        'entreprise_nom': '',
+    }
+
+    try:
+        from entreprise.models import Entreprise
+        entreprise = Entreprise.objects.first()
+        if entreprise:
+            context['entreprise_nom'] = entreprise.nom
+            if entreprise.logo:
+                context['entreprise_logo_url'] = entreprise.logo.url
+    except Exception:
+        pass
+
+    return context
+
+
 def notifications_unifiees(request):
     """
     Context processor unifié pour toutes les notifications.

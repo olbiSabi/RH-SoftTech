@@ -27,6 +27,7 @@ class LoginRequiredMiddleware:
         r'^/media/',
         r'^/admin/',
         r'^/hronian/',
+        r'^/health/',
         r'^/login/',
         r'^/logout/',
         r'^/employe/login/',

@@ -1,0 +1,59 @@
+# ============================================
+# HR_ONIAN - Docker Build Exclusions
+# ============================================
+
+# Git
+.git
+.github
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Environnement virtuel
+venv/
+.venv/
+.env/
+env/
+
+# Fichiers d'environnement (secrets)
+.env
+.env.local
+.env.dev
+.env.production
+
+# Fichiers generes (recrees au demarrage)
+logs/
+media/
+backups/
+staticfiles/
+*.sqlite3
+db.sqlite3
+
+# IDE / Editeurs
+.vscode/
+.idea/
+*.sublime-*
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker (eviter la recursion)
+Dockerfile
+docker-compose*.yml
+
+# Documentation (pas necessaire dans l'image)
+docs/
+*.md
+
+# Tests coverage
+.coverage
+htmlcov/
+.pytest_cache/

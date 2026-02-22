@@ -1,0 +1,72 @@
+[
+  {
+    "CODE": "TRANSPORT",
+    "LIBELLE": "Transport",
+    "DESCRIPTION": "Frais de transport (taxi, carburant, péage, etc.)",
+    "JUSTIFICATIF_OBLIGATOIRE": true,
+    "PLAFOND_DEFAUT": null,
+    "ICONE": "fa-car",
+    "STATUT": true,
+    "ORDRE": 1
+  },
+  {
+    "CODE": "REPAS",
+    "LIBELLE": "Repas",
+    "DESCRIPTION": "Frais de restauration",
+    "JUSTIFICATIF_OBLIGATOIRE": true,
+    "PLAFOND_DEFAUT": null,
+    "ICONE": "fa-utensils",
+    "STATUT": true,
+    "ORDRE": 2
+  },
+  {
+    "CODE": "HEBERGEMENT",
+    "LIBELLE": "Hébergement",
+    "DESCRIPTION": "Frais d'hôtel et hébergement",
+    "JUSTIFICATIF_OBLIGATOIRE": true,
+    "PLAFOND_DEFAUT": null,
+    "ICONE": "fa-bed",
+    "STATUT": true,
+    "ORDRE": 3
+  },
+  {
+    "CODE": "TELEPHONE",
+    "LIBELLE": "Téléphone",
+    "DESCRIPTION": "Frais de communication téléphonique",
+    "JUSTIFICATIF_OBLIGATOIRE": false,
+    "PLAFOND_DEFAUT": null,
+    "ICONE": "fa-phone",
+    "STATUT": true,
+    "ORDRE": 4
+  },
+  {
+    "CODE": "FOURNITURES",
+    "LIBELLE": "Fournitures",
+    "DESCRIPTION": "Fournitures de bureau et matériel",
+    "JUSTIFICATIF_OBLIGATOIRE": true,
+    "PLAFOND_DEFAUT": null,
+    "ICONE": "fa-pencil-alt",
+    "STATUT": true,
+    "ORDRE": 5
+  },
+  {
+    "CODE": "MISSION",
+    "LIBELLE": "Frais de mission",
+    "DESCRIPTION": "Autres frais liés aux déplacements professionnels",
+    "JUSTIFICATIF_OBLIGATOIRE": true,
+    "PLAFOND_DEFAUT": null,
+    "ICONE": "fa-plane",
+    "STATUT": true,
+    "ORDRE": 6
+  },
+  {
+    "CODE": "DIVERS",
+    "LIBELLE": "Divers",
+    "DESCRIPTION": "Autres frais professionnels",
+    "JUSTIFICATIF_OBLIGATOIRE": true,
+    "PLAFOND_DEFAUT": null,
+    "ICONE": "fa-ellipsis-h",
+    "STATUT": true,
+    "ORDRE": 99
+  }
+]

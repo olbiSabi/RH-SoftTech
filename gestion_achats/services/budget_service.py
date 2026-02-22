@@ -385,28 +385,42 @@ class BudgetService:
     def get_budgets_en_alerte():
         """
         Récupère les budgets ayant atteint un seuil d'alerte.
+        Optimisé : filtrage et tri en SQL plutôt qu'en Python.
 
         Returns:
             list: Liste des budgets en alerte avec leurs taux
         """
+        from django.db.models import F, ExpressionWrapper, DecimalField, Value
         from django.utils import timezone
         today = timezone.now().date()
-        budgets = GACBudget.objects.filter(date_fin__gte=today)
+
+        # Annotation du taux en SQL pour filtrer et trier directement en base
+        budgets = GACBudget.objects.filter(
+            date_fin__gte=today,
+            montant_initial__gt=0
+        ).annotate(
+            taux_calc=ExpressionWrapper(
+                (F('montant_engage') + F('montant_commande') + F('montant_consomme'))
+                * Value(100) / F('montant_initial'),
+                output_field=DecimalField(max_digits=10, decimal_places=2)
+            )
+        ).filter(
+            taux_calc__gte=F('seuil_alerte_1')
+        ).order_by('-taux_calc')
+
         budgets_en_alerte = []
-
         for budget in budgets:
-            taux = budget.taux_consommation()
-            if taux >= budget.seuil_alerte_1:
-                niveau = 'CRITIQUE' if taux >= budget.seuil_alerte_2 else 'AVERTISSEMENT'
-                budgets_en_alerte.append({
-                    'budget': budget,
-                    'code': budget.code,
-                    'libelle': budget.libelle,
-                    'taux': round(taux, 2),
-                    'niveau': niveau,
-                })
+            taux = float(budget.taux_calc)
+            niveau = 'CRITIQUE' if taux >= budget.seuil_alerte_2 else 'AVERTISSEMENT'
+            budgets_en_alerte.append({
+                'budget': budget,
+                'code': budget.code,
+                'libelle': budget.libelle,
+                'taux': round(taux, 2),
+                'niveau': niveau,
+            })
 
-        return sorted(budgets_en_alerte, key=lambda x: x['taux'], reverse=True)
+        return budgets_en_alerte
 
     @staticmethod
     def get_synthese_budgets(exercice=None):

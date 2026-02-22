@@ -1,0 +1,57 @@
+[
+  {
+    "code": "CPN",
+    "libelle": "Congés payés",
+    "categorie": "CONGES_PAYES",
+    "paye": true,
+    "decompte_solde": true,
+    "justificatif_obligatoire": false,
+    "couleur": "#dbd533",
+    "ordre": 0,
+    "actif": true
+  },
+  {
+    "code": "MAL",
+    "libelle": "Maladie",
+    "categorie": "MALADIE",
+    "paye": true,
+    "decompte_solde": false,
+    "justificatif_obligatoire": true,
+    "couleur": "#d833db",
+    "ordre": 0,
+    "actif": true
+  },
+  {
+    "code": "PER",
+    "libelle": "Permission",
+    "categorie": "CONGES_PAYES",
+    "paye": true,
+    "decompte_solde": false,
+    "justificatif_obligatoire": false,
+    "couleur": "#6033db",
+    "ordre": 0,
+    "actif": true
+  },
+  {
+    "code": "RTT",
+    "libelle": "Repos sur temps de travaille",
+    "categorie": "AUTORISATION",
+    "paye": true,
+    "decompte_solde": true,
+    "justificatif_obligatoire": false,
+    "couleur": "#318802",
+    "ordre": 0,
+    "actif": true
+  },
+  {
+    "code": "TES",
+    "libelle": "Test cabsence",
+    "categorie": "CONGES_PAYES",
+    "paye": true,
+    "decompte_solde": false,
+    "justificatif_obligatoire": false,
+    "couleur": "#3498db",
+    "ordre": 0,
+    "actif": true
+  }
+]
